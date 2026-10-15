@@ -1,61 +1,36 @@
 import type { TodoDetail } from './types';
 
-/** Panel payloads by to-do id. To-dos without an entry open the panel's placeholder until their design lands. */
+/**
+ * Panel inputs by to-do id. Only raw data lives here; `lib/checkin.ts` computes every number shown on the row,
+ * the status line, the AI assessment and the data area from it. To-dos without an entry open a placeholder panel.
+ */
 export const todoDetails: Record<string, TodoDetail> = {
   // "Check in with Clint Jacobi", main_signal = nutrition (Figma node 5633:140550)
   t3: {
     kind: 'checkin',
     focus: 'nutrition',
-    statusLine: '1 of 7 days with a logged meal this week. Average 63 kcal logged against a 1675 kcal target',
-    assessment: {
-      headline: {
-        before: 'Current',
-        signal: 'nutrition',
-        after: 'signals are very poor, with only 1 logged day and a large calorie shortfall, and she is overdue for both her check-in.',
-      },
-      bullets: [
-        'Only 1/7 days logged, macro deviation of 74% and average calories 1166 kcal below target',
-        'The weekly check-in and InBody are overdue.',
-        'She is overloaded from preparing to sell the house and move to AB.',
-      ],
-    },
     nutrition: {
-      calories: { value: 1530, target: 2000 },
-      macros: [
-        { key: 'carb', label: 'Carb', value: 224, target: 290 },
-        { key: 'fat', label: 'Fat', value: 71, target: 100 },
-        { key: 'protein', label: 'Protein', value: 71, target: 100 },
-      ],
-      weeks: [
-        {
-          start: '2026-08-24',
-          meals: {
-            breakfast: [1, 1, 1, 0, 1, 0, 0],
-            lunch: [1, 0, 1, 0, 1, 0, 0],
-            dinner: [1, 0, 2, 0, 0, 0, 0],
-            snack: [0, 2, 2, 0, 5, 0, 0],
-          },
+      // 240 g carb + 60 g fat + 125 g protein = 2,000 kcal
+      targets: { carb: 240, fat: 60, protein: 125 },
+      days: {
+        '2026-08-24': {
+          breakfast: [{ name: 'Oatmeal with banana', carb: 58, fat: 6, protein: 10 }],
+          lunch: [{ name: 'Chicken breast with rice', carb: 52, fat: 10, protein: 44 }],
+          dinner: [{ name: 'Salmon with potatoes', carb: 38, fat: 22, protein: 36 }],
+          snack: [
+            { name: 'Greek yogurt', carb: 8, fat: 4, protein: 12 },
+            { name: 'Mixed berries', carb: 16, fat: 0, protein: 1 },
+          ],
         },
-        {
-          start: '2026-08-31',
-          isCurrent: true,
-          meals: {
-            breakfast: [1, 0, 0, 0, null, null, null],
-            lunch: [1, 1, 1, 0, null, null, null],
-            dinner: [1, 1, 0, 0, null, null, null],
-            snack: [3, 0, 0, 0, null, null, null],
-          },
+        '2026-08-26': {
+          breakfast: [{ name: 'Scrambled eggs on toast', carb: 28, fat: 16, protein: 20 }],
+          lunch: [{ name: 'Turkey wrap', carb: 42, fat: 12, protein: 28 }],
         },
-      ],
-      foods: {
-        '2026-08-24:lunch:4': [{ name: 'Grilled chicken breast', calories: 320 }],
-        '2026-08-24:snack:2': [
-          { name: 'Greek yogurt', calories: 40 },
-          { name: 'Mixed berries', calories: 70 },
-        ],
       },
-      mealsThisWeek: 9,
-      avgCalories: 1400,
+    },
+    context: {
+      checkinFormDueOn: '2026-08-30',
+      note: { on: '2026-08-20', summary: 'preparing to sell the house and move to AB' },
     },
   },
 };

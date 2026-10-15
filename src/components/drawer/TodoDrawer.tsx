@@ -5,6 +5,8 @@ import dot from '../../assets/figma/dot-drawer.svg';
 import iconMessage from '../../assets/figma/icon-message-dots.svg';
 import iconPencilAi from '../../assets/figma/icon-pencil-ai.svg';
 import { todoDetails } from '../../data/details';
+import { DEMO_TODAY } from '../../data/mock';
+import { buildCheckinView } from '../../lib/checkin';
 import type { Client, CheckinDetail, Todo } from '../../data/types';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
@@ -57,14 +59,15 @@ function TitleBlock({ todo, client, statusLine }: { todo: Todo; client: Client; 
 function CheckinBody({ todo, client, detail }: { todo: Todo; client: Client; detail: CheckinDetail }) {
   const { showToast } = useStore();
   const [tab, setTab] = useState<TabKey>(detail.focus);
+  const view = buildCheckinView(detail, DEMO_TODAY);
 
   return (
     <>
-      <TitleBlock todo={todo} client={client} statusLine={detail.statusLine} />
+      <TitleBlock todo={todo} client={client} statusLine={view.statusLine} />
       <div className="flex flex-col gap-2 px-[30px] pb-[30px] pt-2.5">
         <AiAssessment
           status={client.status}
-          assessment={detail.assessment}
+          assessment={view.assessment}
           onTellMeMore={() => showToast('Tell me more (Olly BI) opens as a column beside this panel')}
         />
         <StatusFeedback client={client} />
@@ -93,7 +96,7 @@ function CheckinBody({ todo, client, detail }: { todo: Todo; client: Client; det
             })}
           </div>
           {tab === 'nutrition' ? (
-            <NutritionTab nutrition={detail.nutrition} />
+            <NutritionTab log={detail.nutrition} summary={view.summary} />
           ) : (
             <p className="w-full rounded-lg border border-dashed border-line-light bg-elevated px-4 py-10 text-center text-[13px] text-ink-secondary">
               The {TABS.find((t) => t.key === tab)?.label} tab keeps CID v1’s data area. It will be wired in once its frame is shared.

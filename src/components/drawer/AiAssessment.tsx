@@ -1,7 +1,8 @@
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import quoteLine from '../../assets/figma/ai-quote-line.svg';
 import iconTellMeMore from '../../assets/figma/icon-tell-me-more.svg';
-import type { CheckinDetail, ClientStatus } from '../../data/types';
+import type { ClientStatus } from '../../data/types';
+import type { CheckinView } from '../../lib/checkin';
 
 const BORDER: Record<ClientStatus, string> = {
   at_risk: 'border-status-risk-line',
@@ -16,7 +17,7 @@ const AI_GRADIENT =
 
 interface Props {
   status: ClientStatus;
-  assessment: CheckinDetail['assessment'];
+  assessment: CheckinView['assessment'];
   onTellMeMore: () => void;
 }
 

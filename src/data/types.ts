@@ -57,43 +57,37 @@ export interface Highlight {
 export type GroupKey = 'at_risk' | 'needs_attention' | 'program_ending' | 'upcoming_bookings';
 
 export type MealKey = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+export type MacroKey = 'carb' | 'fat' | 'protein';
 
-export interface LoggedFood {
+/** One logged food. Calories are derived from the macros (4/9/4 kcal per gram) so the two never disagree. */
+export interface FoodEntry {
   name: string;
-  calories: number;
+  carb: number;
+  fat: number;
+  protein: number;
 }
 
-export interface MealWeek {
-  /** Monday of the week, YYYY-MM-DD. */
-  start: string;
-  isCurrent?: boolean;
-  /** Meals logged per day, Monday first; null marks a day that has not happened yet. */
-  meals: Record<MealKey, (number | null)[]>;
+/** Raw nutrition data for a client. Every figure the panel shows is computed from this. */
+export interface NutritionLog {
+  /** Daily macro targets in grams; the calorie target is derived from them. */
+  targets: Record<MacroKey, number>;
+  /** Foods logged per day (YYYY-MM-DD) and meal. A missing day logged nothing. */
+  days: Record<string, Partial<Record<MealKey, FoodEntry[]>>>;
 }
 
-export interface NutritionDetail {
-  calories: { value: number; target: number };
-  macros: { key: 'carb' | 'fat' | 'protein'; label: string; value: number; target: number }[];
-  weeks: MealWeek[];
-  /** Foods shown in a cell's tooltip, keyed by `${weekStart}:${meal}:${dayIndex}`. */
-  foods: Record<string, LoggedFood[]>;
-  mealsThisWeek: number;
-  avgCalories: number;
-}
-
-/** One computed payload per client-day (AC4): the row's reason, the assessment and the data area all read from it. */
+/** Raw inputs for a Check-in to-do. Status line, assessment and row reason are built from it (AC4). */
 export interface CheckinDetail {
   kind: 'checkin';
   /** The main_signal variant that set this to-do. */
   focus: 'nutrition' | 'training';
-  /** One-line status explanation beside the status label. */
-  statusLine: string;
-  assessment: {
-    /** Headline split around the highlighted signal word. */
-    headline: { before: string; signal: string; after: string };
-    bullets: string[];
+  nutrition: NutritionLog;
+  /** Facts from outside the data area that the assessment cites. */
+  context: {
+    /** Due date of the weekly check-in form when it is overdue. */
+    checkinFormDueOn?: string;
+    /** A coach note, summarised (never quoted). */
+    note?: { on: string; summary: string };
   };
-  nutrition: NutritionDetail;
 }
 
 export type TodoDetail = CheckinDetail;

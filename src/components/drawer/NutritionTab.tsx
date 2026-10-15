@@ -1,24 +1,32 @@
-import calorieChart from '../../assets/figma/chart-calories.svg';
+import calorieChartSvg from '../../assets/figma/chart-calories.svg?raw';
 import iconExpandArrow from '../../assets/figma/icon-expand-arrow.svg';
 import legendNotLogged from '../../assets/figma/legend-not-logged.svg';
 import tooltipArrow from '../../assets/figma/tooltip-arrow.svg';
-import type { MealKey, MealWeek, NutritionDetail } from '../../data/types';
+import type { MealKey, NutritionLog } from '../../data/types';
+import { MEALS, foodCalories, weekdayLabel, type NutritionSummary, type WeekGridData } from '../../lib/checkin';
 import { formatMonthDay, parseDay } from '../../lib/dates';
 import { useStore } from '../../state/store';
 
-const MEALS: { key: MealKey; label: string }[] = [
-  { key: 'breakfast', label: 'Breakfast' },
-  { key: 'lunch', label: 'Lunch' },
-  { key: 'dinner', label: 'Dinner' },
-  { key: 'snack', label: 'Snack' },
-];
-
 const MACRO_FILL = { carb: 'bg-macro-carb', fat: 'bg-macro-fat', protein: 'bg-macro-protein' } as const;
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const DAY_MS = 86_400_000;
-const dayOf = (start: string, index: number) => new Date(parseDay(start).getTime() + index * DAY_MS);
 const fmt = (n: number) => n.toLocaleString('en-US');
+
+/**
+ * The Figma ring is drawn for one value. Keep its track, glow and gradient, and redraw the `value` arc so it shows
+ * the real share of the calorie target, clockwise from 12 o'clock.
+ */
+function calorieChartSrc(share: number) {
+  const cx = 86.0607;
+  const cy = 86.0606;
+  const r = 52.1214;
+  const f = Math.min(Math.max(share, 0.001), 0.9999);
+  const angle = f * 2 * Math.PI;
+  const x = cx + r * Math.sin(angle);
+  const y = cy - r * Math.cos(angle);
+  const arc = `M${cx} ${cy - r}A${r} ${r} 0 ${f > 0.5 ? 1 : 0} 1 ${x.toFixed(4)} ${y.toFixed(4)}`;
+  const svg = calorieChartSvg.replace(/(<path id="value" d=")[^"]*/, `$1${arc}`);
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
 
 function CardHeader({ title, link }: { title: string; link: string }) {
   const { showToast } = useStore();
@@ -39,8 +47,8 @@ function CardHeader({ title, link }: { title: string; link: string }) {
   );
 }
 
-function MacroCard({ nutrition }: { nutrition: NutritionDetail }) {
-  const { calories, macros } = nutrition;
+function MacroCard({ summary }: { summary: NutritionSummary }) {
+  const { avgCalories, targetCalories, macros } = summary;
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border border-ink/10 bg-elevated p-px shadow-card">
       <CardHeader title="Macro AVG" link="View nutrition" />
@@ -49,12 +57,12 @@ function MacroCard({ nutrition }: { nutrition: NutritionDetail }) {
           <div className="absolute left-[calc(50%-0.44px)] top-[6.18px] size-[123.636px] -translate-x-1/2">
             <div className="absolute left-0 top-0 size-[123.636px]">
               <div className="absolute inset-[-19.61%_-57.84%_-57.84%_-19.61%]">
-                <img src={calorieChart} alt="" className="block size-full max-w-none" />
+                <img src={calorieChartSrc(avgCalories / targetCalories)} alt="" className="block size-full max-w-none" />
               </div>
             </div>
             <div className="absolute left-[19.39px] top-[38.79px] flex w-[84.848px] flex-col items-center gap-1 whitespace-nowrap text-center leading-none">
-              <p className="text-[29.076px] font-bold tracking-[-0.58px] text-black tabular-nums">{fmt(calories.value)}</p>
-              <p className="text-[13px] font-semibold tracking-[-0.26px] text-black/40">/ {calories.target} kCal</p>
+              <p className="text-[29.076px] font-bold tracking-[-0.58px] text-black tabular-nums">{fmt(avgCalories)}</p>
+              <p className="text-[13px] font-semibold tracking-[-0.26px] text-black/40">/ {targetCalories} kCal</p>
             </div>
           </div>
         </div>
@@ -86,16 +94,14 @@ function cellClass(count: number | null) {
   return 'border-meal-4 bg-meal-4 font-semibold text-white';
 }
 
-function MealCell({ week, meal, mealLabel, index, count, foods }: {
-  week: MealWeek;
+function MealCell({ log, date, meal, mealLabel, count }: {
+  log: NutritionLog;
+  date: string;
   meal: MealKey;
   mealLabel: string;
-  index: number;
   count: number | null;
-  foods: NutritionDetail['foods'];
 }) {
-  const date = dayOf(week.start, index);
-  const items = foods[`${week.start}:${meal}:${index}`];
+  const items = log.days[date]?.[meal] ?? [];
   return (
     <div
       tabIndex={count === null ? undefined : 0}
@@ -105,29 +111,21 @@ function MealCell({ week, meal, mealLabel, index, count, foods }: {
       {count !== null && (
         <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1 hidden -translate-x-1/2 flex-col items-center drop-shadow-[0_4px_24px_rgba(0,0,0,0.2)] group-hover/cell:flex group-focus/cell:flex">
           <div className="flex flex-col gap-1 rounded-lg bg-white px-2 pb-2.5 pt-2 text-left">
-            <div className="flex w-[160px] items-center gap-0.5 whitespace-nowrap">
+            <div className="flex min-w-[160px] items-center gap-0.5 whitespace-nowrap">
               <span className="text-[13px] font-semibold leading-[1.5] tracking-[-0.26px] text-ink">
                 {mealLabel}
                 {count > 0 && ` (${count})`}
               </span>
-              <span className="text-[12px] font-normal leading-[1.5] text-ink-tertiary">
-                · {WEEKDAYS[date.getUTCDay()]}, {formatMonthDay(date)}
-              </span>
+              <span className="text-[12px] font-normal leading-[1.5] text-ink-tertiary">· {weekdayLabel(date)}</span>
             </div>
             <div className="flex flex-col gap-0.5">
               {count === 0 && <p className="text-[13px] font-normal leading-[1.4] text-ink-tertiary">Not logged</p>}
-              {count > 0 &&
-                (items ?? []).map((f) => (
-                  <p key={f.name} className="flex justify-between gap-3 whitespace-nowrap text-[13px] leading-[1.4] text-ink">
-                    <span className="font-semibold">{f.name}</span>
-                    <span className="font-normal text-ink-tertiary">{f.calories} Cal</span>
-                  </p>
-                ))}
-              {count > 0 && !items && (
-                <p className="text-[13px] font-normal leading-[1.4] text-ink-tertiary">
-                  {count} meal{count === 1 ? '' : 's'} logged
+              {items.map((f) => (
+                <p key={f.name} className="flex justify-between gap-3 whitespace-nowrap text-[13px] leading-[1.4] text-ink">
+                  <span className="font-semibold">{f.name}</span>
+                  <span className="font-normal text-ink-tertiary">{foodCalories(f)} Cal</span>
                 </p>
-              )}
+              ))}
             </div>
           </div>
           <img src={tooltipArrow} alt="" width={10} height={5} />
@@ -137,11 +135,11 @@ function MealCell({ week, meal, mealLabel, index, count, foods }: {
   );
 }
 
-function WeekGrid({ week, foods, divider }: { week: MealWeek; foods: NutritionDetail['foods']; divider: boolean }) {
-  const end = dayOf(week.start, 6);
-  const startLabel = formatMonthDay(parseDay(week.start));
+function WeekGrid({ week, log, divider }: { week: WeekGridData; log: NutritionLog; divider: boolean }) {
+  const start = parseDay(week.dates[0]);
+  const end = parseDay(week.dates[6]);
   const range =
-    end.getUTCMonth() === parseDay(week.start).getUTCMonth() ? `${startLabel} - ${end.getUTCDate()}` : `${startLabel} - ${formatMonthDay(end)}`;
+    end.getUTCMonth() === start.getUTCMonth() ? `${formatMonthDay(start)} - ${end.getUTCDate()}` : `${formatMonthDay(start)} - ${formatMonthDay(end)}`;
   return (
     <div className={`flex min-w-0 flex-1 flex-col px-5 ${divider ? 'border-r border-line' : ''}`}>
       <div className="flex items-center py-2 text-[13px] leading-[18px]">
@@ -162,16 +160,16 @@ function WeekGrid({ week, foods, divider }: { week: MealWeek; foods: NutritionDe
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex gap-1 text-center text-[12px] leading-[18px] text-ink-secondary">
-            {Array.from({ length: 7 }, (_, i) => (
-              <span key={i} className="min-w-0 flex-1 tabular-nums">
-                {dayOf(week.start, i).getUTCDate()}
+            {week.dates.map((d) => (
+              <span key={d} className="min-w-0 flex-1 tabular-nums">
+                {parseDay(d).getUTCDate()}
               </span>
             ))}
           </div>
           {MEALS.map((m) => (
             <div key={m.key} className="flex gap-1">
-              {week.meals[m.key].map((count, i) => (
-                <MealCell key={i} week={week} meal={m.key} mealLabel={m.label} index={i} count={count} foods={foods} />
+              {week.counts[m.key].map((count, i) => (
+                <MealCell key={week.dates[i]} log={log} date={week.dates[i]} meal={m.key} mealLabel={m.label} count={count} />
               ))}
             </div>
           ))}
@@ -181,13 +179,13 @@ function WeekGrid({ week, foods, divider }: { week: MealWeek; foods: NutritionDe
   );
 }
 
-function MealLogCard({ nutrition }: { nutrition: NutritionDetail }) {
+function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSummary }) {
   return (
     <div className="flex flex-col rounded-lg border border-ink/10 bg-elevated p-px shadow-card">
       <CardHeader title="Meal Log" link="View food log" />
       <div className="flex items-start py-4">
-        {nutrition.weeks.map((week, i) => (
-          <WeekGrid key={week.start} week={week} foods={nutrition.foods} divider={i < nutrition.weeks.length - 1} />
+        {summary.weeks.map((week, i) => (
+          <WeekGrid key={week.start} week={week} log={log} divider={i < summary.weeks.length - 1} />
         ))}
       </div>
       <div className="flex items-center justify-center gap-4 px-4 py-3 text-[12px] leading-[18px] text-ink">
@@ -211,11 +209,11 @@ function MealLogCard({ nutrition }: { nutrition: NutritionDetail }) {
       </div>
       <div className="flex flex-col px-4 pb-4 pt-2 text-[13px] leading-[18px] text-ink">
         {[
-          ['Meal logged (this week)', `${nutrition.mealsThisWeek} meals`],
-          ['Avg Calories', `${fmt(nutrition.avgCalories)} Cal`],
+          [`Meals logged (${summary.window.label})`, `${summary.mealsLogged} meals`],
+          ['Avg calories (logged days)', `${fmt(summary.avgCalories)} Cal`],
         ].map(([label, value]) => (
           <div key={label} className="flex items-baseline border-t border-ink/10 px-1 pb-2.5 pt-[11px]">
-            <span className="w-[180px] shrink-0">{label}</span>
+            <span className="w-[200px] shrink-0">{label}</span>
             <span className="font-semibold tabular-nums">{value}</span>
           </div>
         ))}
@@ -224,11 +222,11 @@ function MealLogCard({ nutrition }: { nutrition: NutritionDetail }) {
   );
 }
 
-export function NutritionTab({ nutrition }: { nutrition: NutritionDetail }) {
+export function NutritionTab({ log, summary }: { log: NutritionLog; summary: NutritionSummary }) {
   return (
     <div className="flex w-full flex-col gap-[15px]">
-      <MacroCard nutrition={nutrition} />
-      <MealLogCard nutrition={nutrition} />
+      <MacroCard summary={summary} />
+      <MealLogCard log={log} summary={summary} />
     </div>
   );
 }

@@ -17,8 +17,12 @@ follow the design for visuals and **raise the conflict with the user** instead o
 ### Structure
 
 - `src/data/types.ts`: domain types (`ClientStatus`, `TodoType`, `Todo`, `Highlight`, `GroupKey`).
-- `src/data/details.ts`: to-do panel payloads by to-do id (one payload per client-day, AC4). Only `t3`
+- `src/data/details.ts`: raw panel inputs by to-do id (logged foods with macros, targets, context facts). Only `t3`
   (Check in with Clint Jacobi, nutrition focus) has one so far; other to-dos open a placeholder panel.
+- `src/lib/checkin.ts`: computes every figure and sentence from those inputs (row reason, status line, assessment,
+  Macro AVG, Meal Log, summary rows), so they cannot disagree (AC4). **Never hard-code a derived number in copy**;
+  add raw data and derive it. Calories come from macros (4/9/4 kcal/g); averages are over logged days in the 7 days
+  before today; days from today on are "Upcoming".
 - `src/data/mock.ts`: clients, to-dos, highlights. Avatars load from `src/assets/figma/av-<slug>.png` (highlights: `hl-<id>.png`)
   via `import.meta.glob`; `SHARED_PHOTOS` maps clients that reuse another client's photo in the design.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
@@ -48,10 +52,11 @@ follow the design for visuals and **raise the conflict with the user** instead o
 ### Known gaps between the demo and the brief (open with the user)
 
 - The design's to-do rows include Phase 2 titles (Adjust, Congratulate, Kudos). The brief says only the six Phase 1 types render.
-- In the design, Wilma Flintstone appears in both Suggested and Previous. The brief says a client is never in both sections.
-- Check-in drawer mock data disagrees with itself (AC4): the status line says 1 of 7 days and 63 kcal, the Macro card
-  says 1,530 kcal, Meal Log counts 9 meals in 4 logged days on a Monday, and the assessment calls Clint "she".
-  Rendered as designed; the demo fixes only the second week's day numbers (design repeats 24–30) and draws macro bars to scale.
+- In the design, Wilma Flintstone appears in both Suggested and Previous, which the brief forbids. The demo moves the
+  carried-over Check-in to Aima Ansari.
+- The design's Check-in numbers were placeholders that disagreed with each other; the demo replaces them with one
+  consistent data set (2 of 7 days logged, 7 meals, 1,101 of 2,000 kcal on logged days) and avoids client pronouns
+  in generated copy. On Monday morning "This week" in Meal Log is all Upcoming.
 - The brief puts ✓ (complete) and Dismiss on the panel's title row; the drawer design only has Close.
 - Dashboard view, the other to-do panels, Tell me more (Olly column), the Change status modal, settings, tour and
   What's New are not built yet.

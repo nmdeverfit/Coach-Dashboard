@@ -1,3 +1,5 @@
+import { buildCheckinView } from '../lib/checkin';
+import { todoDetails } from './details';
 import type { Client, Highlight, Todo } from './types';
 
 /** Demo "today": the design's brief is dated Monday Aug 31. */
@@ -83,13 +85,14 @@ export const todos: Todo[] = [
   // Suggested (raised by today's generation), in ranked order
   { id: 't1', clientId: 'wilma-flintstone', type: 'adjust', action: 'Adjust the plan for', reason: 'Wilma is back from pause today — she paused for health or injury.', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't2', clientId: 'sidney-goyette-kihn', type: 'respond', action: 'Reply to', reason: 'Her check-in form has been waiting 3 days.', raisedOn: DEMO_TODAY, state: 'open' },
-  { id: 't3', clientId: 'clint-jacobi', type: 'checkin', action: 'Check in with', reason: 'Only 1 of 7 days logged, and no completed workout since 11 Aug.', raisedOn: DEMO_TODAY, state: 'open' },
+  { id: 't3', clientId: 'clint-jacobi', type: 'checkin', action: 'Check in with', reason: buildCheckinView(todoDetails.t3, DEMO_TODAY).rowReason, raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't4', clientId: 'glen-johnson', type: 'build', action: 'Assign a new program to', reason: 'Glen has had nothing assigned for 3 days.', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't5', clientId: 'wendy-kurtz', type: 'unblock', action: 'Issue credit for', reason: '4 Pilates credits expiring in 3 days.', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't6', clientId: 'malcom-reed', type: 'prepare', action: 'Prepare for the session with', reason: 'PT session tomorrow at 2:00pm, in person.', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't7', clientId: 'darrell-steward', type: 'congratulate', action: 'Congratulate', reason: 'Hit the +300 kcal surplus 6 days running after three weeks short', raisedOn: DEMO_TODAY, state: 'open' },
   // Previous (carried forward, newest first)
-  { id: 'p1', clientId: 'wilma-flintstone', type: 'checkin', action: 'Check in with', reason: 'No app activity, no workouts and no reply in 15 days', raisedOn: '2026-08-30', state: 'open' },
+  // Aima rather than the design's Wilma: Wilma already has today's to-do, and a client is never in both sections.
+  { id: 'p1', clientId: 'aima-ansari', type: 'checkin', action: 'Check in with', reason: 'No app activity, no workouts and no reply in 15 days.', raisedOn: '2026-08-30', state: 'open' },
   { id: 'p2', clientId: 'cody-fisher', type: 'kudos', action: 'Kudos to', reason: 'Cody was at risk for two weeks and is back on track.', raisedOn: '2026-08-27', state: 'open' },
   { id: 'p3', clientId: 'jenny-wilson', type: 'respond', action: 'Reply to', reason: 'Her check-in form has been waiting 3 days.', raisedOn: '2026-08-26', state: 'open' },
 ];
