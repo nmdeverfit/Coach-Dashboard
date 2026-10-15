@@ -1,4 +1,5 @@
 import { buildCheckinView } from '../lib/checkin';
+import { summarizeTraining } from '../lib/training';
 import { todoDetails } from './details';
 import type { Client, Highlight, Todo } from './types';
 
@@ -56,7 +57,8 @@ const seeds: Seed[] = [
   { slug: 'ali-chapman', name: 'Ali Chapman', status: 'at_risk' },
   { slug: 'anabella-potts', name: 'Anabella Potts', status: 'at_risk' },
   { slug: 'aisha-doyle', name: 'Aisha Doyle', status: 'at_risk' },
-  { slug: 'clint-jacobi', name: 'Clint Jacobi', status: 'at_risk' },
+  // Clint's program end comes from his training data, so the Program ending card and his panel agree (AC3, AC4).
+  { slug: 'clint-jacobi', name: 'Clint Jacobi', status: 'at_risk', programEndsInDays: summarizeTraining(todoDetails.t3.training, DEMO_TODAY).program.endsInDays },
   { slug: 'wilma-flintstone', name: 'Wilma Flintstone', status: 'at_risk' },
   { slug: 'marcus-hale', name: 'Marcus Hale', status: 'at_risk' },
   { slug: 'priya-nair', name: 'Priya Nair', status: 'at_risk' },
@@ -83,7 +85,7 @@ const seeds: Seed[] = [
   { slug: 'isla-brown', name: 'Isla Brown', status: 'on_track', programEndsInDays: 6 },
   { slug: 'leo-park', name: 'Leo Park', status: 'on_track', programEndsInDays: 6 },
   { slug: 'mila-cruz', name: 'Mila Cruz', status: 'on_track', programEndsInDays: 7 },
-  { slug: 'ryan-ford', name: 'Ryan Ford', status: 'on_track', programEndsInDays: 7 },
+  { slug: 'ryan-ford', name: 'Ryan Ford', status: 'on_track' },
   // Upcoming bookings (lifecycle: carries a session time)
   { slug: 'ethan-smith', name: 'Ethan Smith', status: 'on_track', nextSession: 'Today 6:30 PM' },
   { slug: 'alexander-thompson', name: 'Alexander Thompson', status: 'on_track', nextSession: 'Today 6:45 PM' },

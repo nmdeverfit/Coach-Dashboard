@@ -75,12 +75,25 @@ export interface NutritionLog {
   days: Record<string, Partial<Record<MealKey, FoodEntry[]>>>;
 }
 
+/** One day of a client's training calendar. A date with no entry had nothing scheduled and reads as a rest day. */
+export type TrainingDay =
+  | { kind: 'rest' }
+  | { kind: 'paused' }
+  | { kind: 'workout'; name: string; sections: number; completed: number };
+
+/** Raw training data for a client. Adherence, last workout and the program card are all computed from it. */
+export interface TrainingLog {
+  days: Record<string, TrainingDay>;
+  program: { name: string; startsOn: string; weeks: number; nextProgram?: string };
+}
+
 /** Raw inputs for a Check-in to-do. Status line, assessment and row reason are built from it (AC4). */
 export interface CheckinDetail {
   kind: 'checkin';
   /** The main_signal variant that set this to-do. */
   focus: 'nutrition' | 'training';
   nutrition: NutritionLog;
+  training: TrainingLog;
   /** Facts from outside the data area that the assessment cites. */
   context: {
     /** Due date of the weekly check-in form when it is overdue (a reason riding along, BL3). */

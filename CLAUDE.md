@@ -32,7 +32,12 @@ follow the design for visuals and **raise the conflict with the user** instead o
   `groups.ts` (group card metadata), `ClientHighlights`, `DashboardView` (placeholder), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
   `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons).
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
-  `NutritionTab` (Macro AVG + Meal Log with cell tooltips; one shared meal-label column on the left for both weeks).
+  `NutritionTab` (inline-SVG calorie ring + macros, Meal Log with cell tooltips; one shared meal-label column for both
+  weeks), `TrainingTab` (Session log: last week + this week in 7 states, Last workout, 2-week adherence, 4-week trend
+  columns; Program card).
+- `src/lib/training.ts`: computes every Training figure from `TrainingLog` (days with sections done / scheduled, and
+  the program's start and length). Adherence = completed ÷ scheduled sections on finished days. The program end also
+  feeds Clint's `programEndsInDays`, so the Program ending card and the panel agree.
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
   reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
   close on ×, Esc or click outside.
@@ -45,6 +50,7 @@ follow the design for visuals and **raise the conflict with the user** instead o
   the saved file rather than reading it). Drawer title row with ✓ / Dismiss: node `4982:524901`. Per-type drawer
   flows live under `CID New Concept - Phase 1` (`4341:442468`): To-do #1 Check-in Nutrition `4341:459200`,
   #2 Check-in Training `4341:462995`, #3 Review Client's Form `4341:468029`, #4 Issue Credit `4341:471360`.
+- Calorie ring: node `5645:520167`. Training tab: node `5645:520935`.
 - To-do item component (variants State × Time): node `3925:6908`. Check-in drawer, nutrition focus: node `5633:140550`.
   The drawer node is a large instance: `get_design_context` on it is truncated at 100KB and its children return empty
   shells, so read the saved output file in parts.
@@ -69,6 +75,7 @@ follow the design for visuals and **raise the conflict with the user** instead o
   in generated copy. On Monday morning "This week" in Meal Log is all Upcoming.
 - Spec 4 BL9 says Phase 1's Nutrition tab is CID v1 unchanged (macro card, 7 day-ticks, Avg Calories), but the design
   draws the new two-week Meal Log grid. The demo follows the design; ask before switching.
+- Spec 4 BL9 lists "total load" in v1's Training tab; the Training design omits it, so the demo does too.
 - Brief and Spec 4 date format is "{D MMM}" ("27 Aug"); the design's row ages read "Aug 27". Model-written copy uses
   D MMM, the rows keep the design.
 - Draft with AI, Send message and Tell me more should open as a middle column between the list and the panel

@@ -1,4 +1,3 @@
-import calorieChartSvg from '../../assets/figma/chart-calories.svg?raw';
 import iconExpandArrow from '../../assets/figma/icon-expand-arrow.svg';
 import legendNotLogged from '../../assets/figma/legend-not-logged.svg';
 import tooltipArrow from '../../assets/figma/tooltip-arrow.svg';
@@ -12,23 +11,61 @@ const MACRO_FILL = { carb: 'bg-macro-carb', fat: 'bg-macro-fat', protein: 'bg-ma
 const fmt = (n: number) => n.toLocaleString('en-US');
 
 /**
- * The Figma ring is drawn for one value. Keep its track, glow and gradient, and redraw the `value` arc so it shows
- * the real share of the calorie target, clockwise from 12 o'clock.
+ * Calorie ring (Figma node 5645:520167), drawn inline so the arc shows the real share of the target. It keeps the
+ * export's geometry, gradient and shadows; the export's frosted-glass layer uses `foreignObject`, which browsers do
+ * not paint inside an <img>, so the track it implies is drawn as a plain ring instead.
  */
-function calorieChartSrc(share: number) {
-  const cx = 86.0607;
-  const cy = 86.0606;
+function CalorieRing({ share }: { share: number }) {
+  const c = 86.0607;
   const r = 52.1214;
-  const f = Math.min(Math.max(share, 0.001), 0.9999);
-  const angle = f * 2 * Math.PI;
-  const x = cx + r * Math.sin(angle);
-  const y = cy - r * Math.cos(angle);
-  const arc = `M${cx} ${cy - r}A${r} ${r} 0 ${f > 0.5 ? 1 : 0} 1 ${x.toFixed(4)} ${y.toFixed(4)}`;
-  const svg = calorieChartSvg.replace(/(<path id="value" d=")[^"]*/, `$1${arc}`);
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  const f = Math.min(Math.max(share, 0), 1);
+  const angle = Math.min(f, 0.9999) * 2 * Math.PI;
+  const arc = `M${c} ${c - r}A${r} ${r} 0 ${f > 0.5 ? 1 : 0} 1 ${(c + r * Math.sin(angle)).toFixed(3)} ${(c - r * Math.cos(angle)).toFixed(3)}`;
+  return (
+    <svg viewBox="0 0 172.121 172.121" className="block size-full overflow-visible" aria-hidden>
+      <defs>
+        <filter id="ring-shadow" x="0" y="0" width="172.121" height="172.121" filterUnits="userSpaceOnUse">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="12.1212" />
+          <feColorMatrix values="0 0 0 0 0.087 0 0 0 0 0.108 0 0 0 0 0.34 0 0 0 0.1 0" />
+          <feMerge>
+            <feMergeNode />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="ring-inner" x="37.5759" y="37.5756" width="96.9697" height="96.9697" filterUnits="userSpaceOnUse">
+          <feFlood floodColor="white" result="base" />
+          <feComposite in="base" in2="SourceAlpha" operator="in" result="fill" />
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2.42424" result="blur" />
+          <feComposite in="SourceAlpha" in2="blur" operator="arithmetic" k2="1" k3="-1" result="edge" />
+          <feColorMatrix in="edge" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" result="shade" />
+          <feMerge>
+            <feMergeNode in="fill" />
+            <feMergeNode in="shade" />
+          </feMerge>
+        </filter>
+        <linearGradient id="ring-value" x1="82.5131" y1="37.5756" x2="134.546" y2="79.5564" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FFBB44" />
+          <stop offset="1" stopColor="#FF6C18" />
+        </linearGradient>
+        <linearGradient id="ring-rim" x1="40.1617" y1="38.7101" x2="61.348" y2="147.469" gradientUnits="userSpaceOnUse">
+          <stop stopColor="white" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="ring-track" x1="40" y1="30" x2="132" y2="142" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F3F4F7" />
+          <stop offset="1" stopColor="#E4E6EC" />
+        </linearGradient>
+      </defs>
+      <circle cx={c} cy={c} r="61.8182" fill="white" filter="url(#ring-shadow)" />
+      <circle cx={c} cy={c} r={r} fill="none" stroke="url(#ring-track)" strokeWidth="7.27273" />
+      {f > 0 && <path d={arc} fill="none" stroke="url(#ring-value)" strokeWidth="7.27273" strokeLinecap="round" />}
+      <circle cx={c} cy={c} r="48.4848" fill="white" filter="url(#ring-inner)" />
+      <circle cx={c} cy={c} r="47.8788" fill="none" stroke="url(#ring-rim)" strokeWidth="1.21212" />
+    </svg>
+  );
 }
 
-function CardHeader({ title, link }: { title: string; link: string }) {
+export function CardHeader({ title, link }: { title: string; link: string }) {
   const { showToast } = useStore();
   return (
     <div className="flex items-center justify-between rounded-t-lg border-b border-ink/10 bg-white px-3 py-[14px]">
@@ -56,8 +93,8 @@ function MacroCard({ summary }: { summary: NutritionSummary }) {
         <div className="relative h-[136px] w-[167.792px] shrink-0">
           <div className="absolute left-[calc(50%-0.44px)] top-[6.18px] size-[123.636px] -translate-x-1/2">
             <div className="absolute left-0 top-0 size-[123.636px]">
-              <div className="absolute inset-[-19.61%_-57.84%_-57.84%_-19.61%]">
-                <img src={calorieChartSrc(avgCalories / targetCalories)} alt="" className="block size-full max-w-none" />
+              <div className="absolute inset-[-19.61%]">
+                <CalorieRing share={avgCalories / targetCalories} />
               </div>
             </div>
             <div className="absolute left-[19.39px] top-[38.79px] flex w-[84.848px] flex-col items-center gap-1 whitespace-nowrap text-center leading-none">

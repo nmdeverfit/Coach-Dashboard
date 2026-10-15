@@ -21,6 +21,7 @@ import { Tooltip } from '../Tooltip';
 import { AiAssessment } from './AiAssessment';
 import { NutritionTab } from './NutritionTab';
 import { StatusFeedback } from './StatusFeedback';
+import { TrainingTab } from './TrainingTab';
 
 /** Check-in carries all six v1 data tabs (Spec 4 BL1); Training reads as available, the rest are muted in the design. */
 const TABS = [
@@ -155,6 +156,8 @@ function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail
           </div>
           {tab === 'nutrition' ? (
             <NutritionTab log={detail.nutrition} summary={view.summary} />
+          ) : tab === 'training' ? (
+            <TrainingTab log={detail.training} today={DEMO_TODAY} />
           ) : (
             <p className="w-full rounded-lg border border-dashed border-line-light bg-elevated px-4 py-10 text-center text-[13px] text-ink-secondary">
               The {TABS.find((t) => t.key === tab)?.label} tab keeps CID v1’s data area. It will be wired in once its frame is shared.
