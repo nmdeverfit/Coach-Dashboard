@@ -15,7 +15,7 @@ const MACROS: { key: MacroKey; label: string; kcalPerGram: number }[] = [
 ];
 
 const DAY_MS = 86_400_000;
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const addDays = (iso: string, n: number) => new Date(parseDay(iso).getTime() + n * DAY_MS).toISOString().slice(0, 10);
 const mondayOf = (iso: string) => addDays(iso, -((parseDay(iso).getUTCDay() + 6) % 7));
@@ -90,12 +90,21 @@ export function summarizeNutrition(log: NutritionLog, today: string): NutritionS
   };
 }
 
+/**
+ * An AI assessment: one summary line, at most 3 one-line facts (Spec 4 BL4). Status-derived types tag their
+ * main_signal inside the summary; Build and Remind have no tagged term, so `signal` is left out.
+ */
+export interface Assessment {
+  headline: { before: string; signal?: string; after?: string };
+  bullets: string[];
+}
+
 export interface CheckinView {
   summary: NutritionSummary;
   /** The greyed "why" on the to-do row; the panel repeats it verbatim (Spec 4 BL4). */
   rowReason: string;
   /** One summary line with main_signal tagged inside it, then at most 3 one-line facts (Spec 4 BL4, AC2.1). */
-  assessment: { headline: { before: string; signal: string; after: string }; bullets: string[] };
+  assessment: Assessment;
 }
 
 /** "24–30 Aug": a date range in the coach-facing format (Spec 4 BL4). */

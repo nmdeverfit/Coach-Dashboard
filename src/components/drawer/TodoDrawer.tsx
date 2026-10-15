@@ -1,38 +1,47 @@
 import { useEffect, useState } from 'react';
 import iconCheckTitle from '../../assets/figma/icon-check-title.svg';
 import iconCheckWhite from '../../assets/figma/icon-check-white.svg';
+import iconAddWhite from '../../assets/figma/icon-add-white.svg';
+import iconAlarmWhite from '../../assets/figma/icon-alarm-white.svg';
 import iconCircleCheck from '../../assets/figma/icon-circle-check-fill.svg';
 import iconClose from '../../assets/figma/icon-close.svg';
 import dot from '../../assets/figma/dot-drawer.svg';
-import iconMessage from '../../assets/figma/icon-message-dots.svg';
-import iconPencilAi from '../../assets/figma/icon-pencil-ai.svg';
+import iconDuplicateWhite from '../../assets/figma/icon-duplicate-white.svg';
 import iconTrashHover from '../../assets/figma/icon-trash-hover.svg';
 import iconTrash from '../../assets/figma/icon-trash.svg';
 import { todoDetails } from '../../data/details';
 import { DEMO_TODAY } from '../../data/mock';
-import type { CheckinDetail, Client, Todo } from '../../data/types';
+import type { CheckinDetail, Client, Todo, TodoDetail } from '../../data/types';
 import { buildCheckinView } from '../../lib/checkin';
+import { buildBuildView, buildPrepareView, buildRemindView, buildRespondView, buildUnblockView } from '../../lib/todos';
 import { formatDayMonth, parseDay } from '../../lib/dates';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { StatusChip } from '../StatusChip';
 import { Tooltip } from '../Tooltip';
-import { AiAssessment } from './AiAssessment';
+import { AiAssessment, STATUS_BORDER } from './AiAssessment';
+import { BuildBody, RemindBody } from './AssessedBodies';
 import { NutritionTab } from './NutritionTab';
+import { DataArea, DraftWithAiButton, FooterButton, PanelFooter, SendMessageButton, TabBar, TabPlaceholder } from './PanelParts';
+import { RespondBody } from './RespondBody';
+import { PrepareBody, UnblockBody } from './SessionsBodies';
 import { StatusFeedback } from './StatusFeedback';
 import { TrainingTab } from './TrainingTab';
 
 /** Check-in carries all six v1 data tabs (Spec 4 BL1); Training reads as available, the rest are muted in the design. */
 const TABS = [
-  { key: 'training', label: 'Training', muted: false },
-  { key: 'nutrition', label: 'Nutrition', muted: false },
+  { key: 'training', label: 'Training' },
+  { key: 'nutrition', label: 'Nutrition' },
   { key: 'tasks', label: 'Task & Habit', muted: true },
   { key: 'program', label: 'Program Ending', muted: true },
   { key: 'form', label: 'Form', muted: true },
   { key: 'notes', label: 'Notes', muted: true },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
+
+/** The ✓ on the title row is each type's completion (Spec 4 BL1 G). */
+const COMPLETE_LABEL: Partial<Record<Todo['type'], string>> = { checkin: 'Mark as reviewed', respond: 'Mark form as reviewed' };
 
 const CLOSE_MS = 220;
 
@@ -51,6 +60,7 @@ interface TitleProps {
 function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: TitleProps) {
   const isCheckin = todo.type === 'checkin';
   const done = todo.state === 'completed';
+  const completeLabel = COMPLETE_LABEL[todo.type] ?? 'Mark as done';
   return (
     <div className="flex items-center gap-4 px-[30px] py-5">
       <Avatar name={client.name} src={client.avatar} size={44} />
@@ -65,6 +75,7 @@ function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: Title
                 {client.name}
               </button>
             )}
+            {todo.actionAfter && ` ${todo.actionAfter}`}
           </h2>
           {done && (
             <span className="shrink-0 rounded-full bg-status-track-bg px-2 py-0.5 text-[12px] font-semibold leading-[15px] text-status-track-fg">
@@ -88,7 +99,7 @@ function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: Title
       <div className="flex shrink-0 items-center gap-3 px-0.5 py-1.5">
         <button
           type="button"
-          aria-label={isCheckin ? 'Mark as reviewed' : 'Mark as done'}
+          aria-label={completeLabel}
           disabled={done}
           onClick={onComplete}
           className={`group/tip relative flex size-6 items-center justify-center rounded-full border-[1.125px] border-black/15 ${
@@ -100,7 +111,7 @@ function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: Title
               <img src={done ? iconCheckWhite : iconCheckTitle} alt="" className="block size-full max-w-none" />
             </span>
           </span>
-          {!done && <Tooltip label={isCheckin ? 'Mark as reviewed' : 'Mark as done'} />}
+          {!done && <Tooltip label={completeLabel} />}
         </button>
         <button type="button" aria-label="Dismiss" onClick={onDismiss} className="group/tip relative flex size-7 items-center justify-center rounded-[10px]">
           <span className="flex items-center justify-center rounded-lg p-[5px] group-hover/tip:bg-[#fef2f2]">
@@ -123,7 +134,7 @@ function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail
     <>
       <div className="flex flex-col gap-2 px-[30px] pb-[30px] pt-2.5">
         <AiAssessment
-          status={client.status}
+          border={STATUS_BORDER[client.status]}
           assessment={view.assessment}
           onTellMeMore={() =>
             showToast(`Olly BI opens beside this panel: “Tell me more about ${client.firstName}’s status on ${formatDayMonth(parseDay(DEMO_TODAY))}”`)
@@ -131,78 +142,103 @@ function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail
         />
         <StatusFeedback client={client} />
       </div>
-      <div className="flex flex-col border-t border-line px-[30px] pb-2 pt-2.5">
-        <div className="flex flex-col items-end gap-[15px] py-3">
-          <div role="tablist" aria-label="Client data" className="flex w-full items-center border-b border-line">
-            {TABS.map((t) => {
-              const active = t.key === tab;
-              return (
-                <button
-                  key={t.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => setTab(t.key)}
-                  className={
-                    active
-                      ? '-mb-px border-b-2 border-brand px-5 pb-2.5 pt-2 text-[13px] font-semibold leading-normal text-brand'
-                      : `px-5 py-1.5 text-[13px] font-semibold leading-normal tracking-[-0.26px] hover:text-ink ${t.muted ? 'text-ink/40' : 'text-ink-secondary'}`
-                  }
-                >
-                  {t.label}
-                </button>
-              );
-            })}
-          </div>
-          {tab === 'nutrition' ? (
-            <NutritionTab log={detail.nutrition} summary={view.summary} />
-          ) : tab === 'training' ? (
-            <TrainingTab log={detail.training} today={DEMO_TODAY} />
-          ) : (
-            <p className="w-full rounded-lg border border-dashed border-line-light bg-elevated px-4 py-10 text-center text-[13px] text-ink-secondary">
-              The {TABS.find((t) => t.key === tab)?.label} tab keeps CID v1’s data area. It will be wired in once its frame is shared.
-            </p>
-          )}
-        </div>
-      </div>
+      <DataArea>
+        <TabBar tabs={TABS} active={tab} onChange={setTab} />
+        {tab === 'nutrition' ? (
+          <NutritionTab log={detail.nutrition} summary={view.summary} />
+        ) : tab === 'training' ? (
+          <TrainingTab log={detail.training} today={DEMO_TODAY} />
+        ) : (
+          <TabPlaceholder label={TABS.find((t) => t.key === tab)!.label} />
+        )}
+      </DataArea>
     </>
   );
 }
 
-function CheckinFooter({ todo, client, onReviewed }: { todo: Todo; client: Client; onReviewed: () => void }) {
+/** One footer per type: primary action plus at most two secondary controls (Spec 4 BL1 G). */
+function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Client; detail: TodoDetail; onComplete: () => void }) {
   const { showToast } = useStore();
-  const reviewed = todo.state === 'completed';
-  return (
-    <footer className="flex shrink-0 items-center justify-end gap-2 border-t border-line bg-white px-[30px] pb-5 pt-4 shadow-footer">
-      <button
-        type="button"
-        disabled={reviewed}
-        onClick={onReviewed}
-        className="flex h-10 items-center gap-2 rounded-lg border border-black/10 bg-brand px-6 text-[14px] font-semibold leading-5 tracking-[-0.28px] text-white hover:bg-brand/90 disabled:cursor-default disabled:opacity-60"
-      >
-        <img src={iconCircleCheck} alt="" width={16} height={16} />
-        {reviewed ? 'Reviewed' : 'Mark as reviewed'}
-      </button>
-      <button
-        type="button"
-        onClick={() => showToast(`Draft with AI opens beside this panel with a message for ${client.firstName}`)}
-        className="flex h-10 items-center gap-2 rounded-lg border border-line-light bg-white px-6 text-[14px] font-semibold leading-5 tracking-[-0.28px] text-ink shadow-ai-draft hover:bg-surface-secondary"
-      >
-        <img src={iconPencilAi} alt="" width={20} height={20} />
-        Draft with AI
-      </button>
-      <button
-        type="button"
-        onClick={() => showToast('The message composer opens beside this panel, empty')}
-        className="flex h-10 items-center gap-2 rounded-lg border border-line-light bg-white px-6 text-[14px] font-semibold leading-5 tracking-[-0.28px] text-ink hover:bg-surface-secondary"
-      >
-        <span className="flex size-5 items-center justify-center">
-          <img src={iconMessage} alt="" width={16.2} height={16.2} />
-        </span>
-        Send message
-      </button>
-    </footer>
-  );
+  const done = todo.state === 'completed';
+  const white = (src: string, size = 20) => <img src={src} alt="" width={size} height={size} />;
+  switch (detail.kind) {
+    case 'checkin':
+      return (
+        <PanelFooter>
+          <FooterButton variant="primary" icon={white(iconCircleCheck, 16)} label={done ? 'Reviewed' : 'Mark as reviewed'} disabled={done} onClick={onComplete} />
+          <DraftWithAiButton firstName={client.firstName} />
+          <SendMessageButton />
+        </PanelFooter>
+      );
+    case 'respond':
+      // Reviewing clears only this client's Respond to-do and never counts as a check-in review (AC3.5).
+      return (
+        <PanelFooter>
+          <FooterButton variant="primary" icon={white(iconCircleCheck, 16)} label={done ? 'Form reviewed' : 'Mark form as reviewed'} disabled={done} onClick={onComplete} />
+          <DraftWithAiButton firstName={client.firstName} about={`about the ${detail.form}`} />
+          <SendMessageButton />
+        </PanelFooter>
+      );
+    case 'build':
+      // Assigning does not complete the to-do (AC4.6); there is no Program Copilot hand-off (AC4.5).
+      return (
+        <PanelFooter>
+          <FooterButton variant="primary" icon={white(iconDuplicateWhite)} label="Assign new program" onClick={() => showToast(`The program library opens to assign ${client.firstName} a new program`)} />
+          <DraftWithAiButton firstName={client.firstName} />
+          <SendMessageButton />
+        </PanelFooter>
+      );
+    case 'remind':
+      // Sending does not complete; a submission first auto-resolves the to-do (AC12.5).
+      return (
+        <PanelFooter>
+          <DraftWithAiButton firstName={client.firstName} about="that names the overdue form and how long it has waited" />
+          <SendMessageButton />
+        </PanelFooter>
+      );
+    case 'unblock':
+      // The dashboard never issues credits; issuing does not complete (AC8.4, AC8.5).
+      return (
+        <PanelFooter>
+          <FooterButton
+            variant="primary"
+            icon={<span className="relative size-5"><span className="absolute inset-[16.67%]"><img src={iconAddWhite} alt="" className="block size-full max-w-none" /></span></span>}
+            label="Issue credits"
+            onClick={() => showToast('Client Sessions › Credits opens in a new tab with the Issue credits popup pre-filled')}
+          />
+          <DraftWithAiButton firstName={client.firstName} />
+          <SendMessageButton />
+        </PanelFooter>
+      );
+    case 'prepare': {
+      const next = buildPrepareView(detail, DEMO_TODAY).upcoming[0];
+      const where = { in_person: 'in-person', phone: 'phone', video: 'video' }[next.type.location];
+      return (
+        <PanelFooter>
+          <FooterButton variant="primary" icon={white(iconAlarmWhite, 16)} label="Draft a reminder" onClick={() => showToast(`The ${where} session reminder template (v1.11) opens beside this panel`)} />
+          <DraftWithAiButton firstName={client.firstName} />
+        </PanelFooter>
+      );
+    }
+  }
+}
+
+function Body({ todo, client, detail }: { todo: Todo; client: Client; detail: TodoDetail }) {
+  const first = client.firstName;
+  switch (detail.kind) {
+    case 'checkin':
+      return <CheckinBody client={client} detail={detail} />;
+    case 'respond':
+      return <RespondBody detail={detail} view={buildRespondView(detail, first, DEMO_TODAY)} reviewed={todo.state === 'completed'} />;
+    case 'build':
+      return <BuildBody client={client} detail={detail} view={buildBuildView(detail, first, DEMO_TODAY)} />;
+    case 'remind':
+      return <RemindBody client={client} detail={detail} view={buildRemindView(detail, first, DEMO_TODAY)} />;
+    case 'unblock':
+      return <UnblockBody view={buildUnblockView(detail, first, DEMO_TODAY)} />;
+    case 'prepare':
+      return <PrepareBody view={buildPrepareView(detail, DEMO_TODAY)} />;
+  }
 }
 
 function PlaceholderBody() {
@@ -311,9 +347,9 @@ export function TodoDrawer() {
         </header>
         <div key={todo.id} className="flex-1 overflow-y-auto">
           <TitleBlock todo={todo} client={client} onComplete={complete} onDismiss={() => setConfirmDismiss(true)} onOpenClient={() => setClientOpen(true)} />
-          {detail?.kind === 'checkin' ? <CheckinBody client={client} detail={detail} /> : <PlaceholderBody />}
+          {detail ? <Body todo={todo} client={client} detail={detail} /> : <PlaceholderBody />}
         </div>
-        {detail?.kind === 'checkin' && <CheckinFooter todo={todo} client={client} onReviewed={complete} />}
+        {detail && <Footer todo={todo} client={client} detail={detail} onComplete={complete} />}
       </div>
 
       {confirmDismiss && (

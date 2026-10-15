@@ -11,6 +11,8 @@ export type SessionState = 'completed' | 'partial' | 'missed' | 'rest' | 'today'
 export interface SessionCell {
   date: string;
   state: SessionState;
+  /** False when the date has no entry at all: nothing was assigned that day. */
+  assigned: boolean;
   day?: Extract<TrainingDay, { kind: 'workout' }>;
 }
 
@@ -20,6 +22,7 @@ export interface TrainingSummary {
   rangeLabel: string;
   /** Days since the most recent workout with any section done, or null when there is none. */
   lastWorkoutDaysAgo: number | null;
+  lastWorkout: (Extract<TrainingDay, { kind: 'workout' }> & { date: string }) | null;
   /** Share of scheduled sections completed in the 14 days before today. */
   adherence2w: number | null;
   /** The four finished weeks before this one, oldest first. */
@@ -57,7 +60,7 @@ export function summarizeTraining(log: TrainingLog, today: string): TrainingSumm
     Array.from({ length: 7 }, (_, i) => {
       const date = addDays(monday, i);
       const day = log.days[date];
-      return { date, state: cellState(day, date, today), day: day?.kind === 'workout' ? day : undefined };
+      return { date, state: cellState(day, date, today), assigned: Boolean(day), day: day?.kind === 'workout' ? day : undefined };
     }),
   );
 
@@ -72,6 +75,7 @@ export function summarizeTraining(log: TrainingLog, today: string): TrainingSumm
 
   const trendStarts = [4, 3, 2, 1].map((n) => addDays(thisMonday, -7 * n));
   const { program } = log;
+  const lastDate = last ? log.days[last] : undefined;
   const endsOn = addDays(program.startsOn, program.weeks * 7 - 1);
   const first = parseDay(weeks[0][0].date);
   const lastDay = parseDay(weeks[1][6].date);
@@ -80,6 +84,7 @@ export function summarizeTraining(log: TrainingLog, today: string): TrainingSumm
     weeks,
     rangeLabel: `${formatMonthDay(first)} - ${formatMonthDay(lastDay).replace(/ (\d)$/, ' 0$1')}`,
     lastWorkoutDaysAgo: last ? daysBetween(last, today) : null,
+    lastWorkout: last && lastDate?.kind === 'workout' ? { date: last, ...lastDate } : null,
     adherence2w: adherence(log, addDays(today, -14), addDays(today, -1)),
     trend: trendStarts.map((start, i) => ({ label: `W${i + 1}`, pct: adherence(log, start, addDays(start, 6)) })),
     adherence4w: adherence(log, trendStarts[0], addDays(thisMonday, -1)),

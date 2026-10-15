@@ -36,6 +36,8 @@ export interface Todo {
   type: TodoType;
   /** The verb phrase before the client chip, e.g. "Check in with". */
   action: string;
+  /** Words after the client chip, e.g. "to submit a check-in form" in "Remind {client} to submit a check-in form". */
+  actionAfter?: string;
   /** One greyed sentence of why. */
   reason: string;
   /** ISO date (YYYY-MM-DD) of the daily generation that raised it. */
@@ -75,7 +77,10 @@ export interface NutritionLog {
   days: Record<string, Partial<Record<MealKey, FoodEntry[]>>>;
 }
 
-/** One day of a client's training calendar. A date with no entry had nothing scheduled and reads as a rest day. */
+/**
+ * One day of a client's training calendar. A date with no entry had nothing assigned: the Check-in session log
+ * draws it as a rest day, the Build session log as "Not assigned".
+ */
 export type TrainingDay =
   | { kind: 'rest' }
   | { kind: 'paused' }
@@ -101,6 +106,86 @@ export interface CheckinDetail {
   };
 }
 
-export type TodoDetail = CheckinDetail;
+/** One answer on a submitted form. */
+export type FormAnswer =
+  | { kind: 'scale'; question: string; min: number; max: number; value: number }
+  | { kind: 'text'; question: string; answer: string }
+  | { kind: 'choice'; question: string; selected: string[] };
+
+/** Raw inputs for a Respond (form review) to-do: the response waiting for the coach. */
+export interface RespondDetail {
+  kind: 'respond';
+  form: string;
+  submittedOn: string;
+  /** Responses this client has sent to the form so far; Compare response needs 2 or more (Spec 4 AC3.3). */
+  responseCount: number;
+  answers: FormAnswer[];
+}
+
+export type SessionLocation = 'in_person' | 'phone' | 'video';
+
+export interface SessionType {
+  name: string;
+  /** The session type's colour swatch, set by the coach in Client Sessions. */
+  color: string;
+  minutes: number;
+  location: SessionLocation;
+}
+
+/** Credits of one session type, in batches that share an expiry date. A batch without `expiresOn` never expires. */
+export interface CreditPool {
+  type: SessionType;
+  batches: { count: number; expiresOn?: string }[];
+}
+
+/** Raw inputs for an Unblock (issue credit) to-do. Balances, the expiring batch and the badge are computed from it. */
+export interface UnblockDetail {
+  kind: 'unblock';
+  credits: CreditPool[];
+}
+
+/** One 1:1 booking. `start` is the local start time, 24-hour "HH:MM". */
+export interface Booking {
+  type: SessionType;
+  date: string;
+  start: string;
+  status: 'booked' | 'completed' | 'late_cancel' | 'early_cancel';
+}
+
+/** Raw inputs for a Prepare (booking) to-do: the client's 1:1 bookings, past and upcoming. */
+export interface PrepareDetail {
+  kind: 'prepare';
+  sessions: Booking[];
+}
+
+/** Raw inputs for a Build (assign program) to-do. */
+export interface BuildDetail {
+  kind: 'build';
+  training: TrainingLog;
+  context: {
+    /** Date of the message in which the client asked for a new program (summarised, never quoted: BL4). */
+    programRequestedOn?: string;
+  };
+}
+
+/** One assigned form on the client's Form Status table. */
+export interface AssignedForm {
+  name: string;
+  lastSubmittedOn?: string;
+  /** Whether the coach has reviewed the last submission. */
+  reviewed: boolean;
+  /** Due date of the current period when it has passed without a submission. */
+  overdueSince?: string;
+}
+
+/** Raw inputs for a Remind (overdue check-in form) to-do. Its Training and Nutrition tabs ride along. */
+export interface RemindDetail {
+  kind: 'remind';
+  forms: AssignedForm[];
+  training: TrainingLog;
+  nutrition: NutritionLog;
+}
+
+export type TodoDetail = CheckinDetail | RespondDetail | UnblockDetail | PrepareDetail | BuildDetail | RemindDetail;
 
 export type FeedbackState = 'yes' | 'not_quite' | 'hidden';

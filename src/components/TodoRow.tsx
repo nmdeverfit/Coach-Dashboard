@@ -77,6 +77,9 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss }: To
               <Avatar name={client.name} src={client.avatar} />
               <span className={`truncate text-[13px] font-semibold text-ink ${strike}`}>{client.name}</span>
             </span>
+            {todo.actionAfter && (
+              <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{todo.actionAfter}</span>
+            )}
           </div>
           <p className={`text-[12px] leading-normal text-ink-tertiary ${strike}`}>{todo.reason}</p>
         </div>

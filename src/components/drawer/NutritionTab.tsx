@@ -65,14 +65,14 @@ function CalorieRing({ share }: { share: number }) {
   );
 }
 
-export function CardHeader({ title, link }: { title: string; link: string }) {
+export function CardHeader({ title, link, onClick }: { title: string; link: string; onClick?: () => void }) {
   const { showToast } = useStore();
   return (
     <div className="flex items-center justify-between rounded-t-lg border-b border-ink/10 bg-white px-3 py-[14px]">
       <h4 className="text-[15px] font-semibold leading-[18px] text-ink">{title}</h4>
       <button
         type="button"
-        onClick={() => showToast(`${link} opens the client's full data`)}
+        onClick={onClick ?? (() => showToast(`${link} opens the client's full data`))}
         className="flex items-center gap-1.5 text-[13px] font-semibold leading-[18px] text-ink-secondary hover:text-ink"
       >
         {link}

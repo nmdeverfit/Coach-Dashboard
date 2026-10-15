@@ -17,8 +17,12 @@ follow the design for visuals and **raise the conflict with the user** instead o
 ### Structure
 
 - `src/data/types.ts`: domain types (`ClientStatus`, `TodoType`, `Todo`, `Highlight`, `GroupKey`).
-- `src/data/details.ts`: raw panel inputs by to-do id (logged foods with macros, targets, context facts). Only `t3`
-  (Check in with Clint Jacobi, nutrition focus) has one so far; other to-dos open a placeholder panel.
+- `src/data/details.ts`: raw panel inputs by to-do id, one `TodoDetail` per Phase 1 type: `t3` Check-in (Clint,
+  nutrition focus), `t2` / `p3` Respond (form answers), `t4` Build (Glen's training log; program ended Thu 27 Aug),
+  `t8` Remind (Leo's assigned forms + training + nutrition), `t5` Unblock (credit batches), `t6` Prepare (bookings).
+  Phase 2 rows (adjust, congratulate, kudos) and Aima's carried Check-in have none and open a placeholder panel.
+- `src/lib/todos.ts`: the same for the five other types (`build*View`, `rowReasonFor`). Every row reason in `mock.ts`
+  that has panel data comes from these builders. `LOW_CREDIT_THRESHOLD = 2`; expiry window 7 days.
 - `src/lib/checkin.ts`: computes every figure and sentence from those inputs (row reason, status line, assessment,
   Macro AVG, Meal Log, summary rows), so they cannot disagree (AC4). **Never hard-code a derived number in copy**;
   add raw data and derive it. Calories come from macros (4/9/4 kcal/g); averages are over logged days in the 7 days
@@ -34,7 +38,9 @@ follow the design for visuals and **raise the conflict with the user** instead o
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
   `NutritionTab` (inline-SVG calorie ring + macros, Meal Log with cell tooltips; one shared meal-label column for both
   weeks), `TrainingTab` (Session log: last week + this week in 7 states, Last workout, 2-week adherence, 4-week trend
-  columns; Program card).
+  columns; `ProgramCard`), `PanelParts` (`TabBar`, `DataArea`, footer buttons), `RespondBody` (form Q&A),
+  `SessionsBodies` (`UnblockBody` credits card, `PrepareBody` Sessions card), `AssessedBodies` (`BuildBody` with the
+  one-week day-status strip + mini trend + Program card; `RemindBody` with the Form Status table).
 - `src/lib/training.ts`: computes every Training figure from `TrainingLog` (days with sections done / scheduled, and
   the program's start and length). Adherence = completed ÷ scheduled sections on finished days. The program end also
   feeds Clint's `programEndsInDays`, so the Program ending card and the panel agree.
@@ -50,6 +56,8 @@ follow the design for visuals and **raise the conflict with the user** instead o
   the saved file rather than reading it). Drawer title row with ✓ / Dismiss: node `4982:524901`. Per-type drawer
   flows live under `CID New Concept - Phase 1` (`4341:442468`): To-do #1 Check-in Nutrition `4341:459200`,
   #2 Check-in Training `4341:462995`, #3 Review Client's Form `4341:468029`, #4 Issue Credit `4341:471360`.
+- Current per-type drawers: Review form `5647:132342`, Issue credit `5647:132546`, Booking `5647:132813`,
+  Assign program `5647:133017`, Remind to submit form `5647:133214`.
 - Calorie ring: node `5645:520167`. Training tab: node `5645:520935`.
 - To-do item component (variants State × Time): node `3925:6908`. Check-in drawer, nutrition focus: node `5633:140550`.
   The drawer node is a large instance: `get_design_context` on it is truncated at 100KB and its children return empty
@@ -80,7 +88,21 @@ follow the design for visuals and **raise the conflict with the user** instead o
   D MMM, the rows keep the design.
 - Draft with AI, Send message and Tell me more should open as a middle column between the list and the panel
   (AC2.2, AC2.3); the demo shows a toast until that frame is built.
-- Dashboard view, the other to-do panels, Tell me more (Olly column), the Change status modal, settings, tour and
+- Respond: the design's footer is Mark form as reviewed · Draft with AI · Send message; Spec 4 AC3.3 / AC3.7 ask for
+  Comments (onto the form's comment thread) instead of Draft with AI. The demo follows the design.
+- Prepare: the design's footer is Draft a reminder · Draft with AI (no Send message). BL1 retires per-purpose draft
+  buttons and AC7.3 has Draft with AI fill the reminder template. The demo follows the design.
+- Unblock: AC8.3 also asks for "how fast" (this week's completed sessions); the design has no such line.
+- Build and Remind: the design's assessment copy quoted a client message and showed ISO dates and status codes
+  (BL4 forbids all three); the demo writes it from the data. Their cards keep the design's red border although
+  neither type carries a verdict; ask.
+- Remind: the design uses Glen, who already has today's Build to-do (one per client per day), so the demo's Remind
+  is Leo Midgett (`t8`). The design's overdue form had been submitted 3 days earlier and one form was submitted but
+  unreviewed (that raises Respond, which outranks Remind); the demo's data avoids both.
+- Design data fixed for consistency: credits "in 5 days" now expire Sep 5 (not Aug 31); booking tiles' weekdays
+  match their dates; Glen's last workout is the program's last day; Respond's reason names the client and form
+  instead of "Her". Build's one-week session log shows last week with a date label (the design has no label).
+- Dashboard view, Tell me more (Olly column), the Change status modal, settings, tour and
   What's New are not built yet.
 
 ---

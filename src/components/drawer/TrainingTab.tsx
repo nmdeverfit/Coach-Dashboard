@@ -127,10 +127,10 @@ function TrendChart({ trend }: { trend: TrainingSummary['trend'] }) {
   );
 }
 
-const pct = (n: number | null) => (n === null ? '—' : `${n}%`);
-const ago = (n: number | null) => (n === null ? 'No workout yet' : n === 0 ? 'Today' : n === 1 ? 'Yesterday' : `${n} days ago`);
+export const pct = (n: number | null) => (n === null ? '—' : `${n}%`);
+export const ago = (n: number | null) => (n === null ? 'No workout yet' : n === 0 ? 'Today' : n === 1 ? 'Yesterday' : `${n} days ago`);
 
-function Row({ label, value, muted, last }: { label: React.ReactNode; value: React.ReactNode; muted?: boolean; last?: boolean }) {
+export function Row({ label, value, muted, last }: { label: React.ReactNode; value: React.ReactNode; muted?: boolean; last?: boolean }) {
   return (
     <div className={`flex items-baseline px-1 pb-[11px] pt-2.5 text-[13px] leading-[18px] text-ink ${last ? '' : 'border-b border-ink/10'}`}>
       <span className="w-[210px] shrink-0">{label}</span>
@@ -177,14 +177,21 @@ export function TrainingTab({ log, today }: { log: TrainingLog; today: string })
         </div>
       </div>
 
-      <div className="flex flex-col overflow-hidden rounded-lg border border-ink/15 bg-elevated p-px">
-        <CardHeader title="Program" link="View program" />
-        <div className="flex flex-col p-3">
-          <Row label="Name" value={s.program.name} />
-          <Row label="Progress" value={`Week ${s.program.week} of ${s.program.weeks}`} />
-          <Row label="End Date" value={formatMonthDay(parseDay(s.program.endsOn))} />
-          <Row label="Next Program" value={s.program.nextProgram ?? 'Not assigned'} muted={!s.program.nextProgram} last />
-        </div>
+      <ProgramCard program={s.program} />
+    </div>
+  );
+}
+
+/** Current program: name · progress · end date · next program (Spec 4 AC4.4). */
+export function ProgramCard({ program }: { program: TrainingSummary['program'] }) {
+  return (
+    <div className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/15 bg-elevated p-px">
+      <CardHeader title="Program" link="View program" />
+      <div className="flex flex-col p-3">
+        <Row label="Name" value={program.name} />
+        <Row label="Progress" value={`Week ${program.week} of ${program.weeks}`} />
+        <Row label="End Date" value={formatMonthDay(parseDay(program.endsOn))} />
+        <Row label="Next Program" value={program.nextProgram ?? 'Not assigned'} muted={!program.nextProgram} last />
       </div>
     </div>
   );

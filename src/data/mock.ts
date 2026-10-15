@@ -1,7 +1,7 @@
-import { buildCheckinView } from '../lib/checkin';
+import { buildPrepareView, rowReasonFor } from '../lib/todos';
 import { summarizeTraining } from '../lib/training';
 import { todoDetails } from './details';
-import type { Client, Highlight, Todo } from './types';
+import type { CheckinDetail, Client, Highlight, PrepareDetail, Todo } from './types';
 
 /** Demo "today": the design's brief is dated Monday Aug 31. */
 export const DEMO_TODAY = '2026-08-31';
@@ -58,7 +58,12 @@ const seeds: Seed[] = [
   { slug: 'anabella-potts', name: 'Anabella Potts', status: 'at_risk' },
   { slug: 'aisha-doyle', name: 'Aisha Doyle', status: 'at_risk' },
   // Clint's program end comes from his training data, so the Program ending card and his panel agree (AC3, AC4).
-  { slug: 'clint-jacobi', name: 'Clint Jacobi', status: 'at_risk', programEndsInDays: summarizeTraining(todoDetails.t3.training, DEMO_TODAY).program.endsInDays },
+  {
+    slug: 'clint-jacobi',
+    name: 'Clint Jacobi',
+    status: 'at_risk',
+    programEndsInDays: summarizeTraining((todoDetails.t3 as CheckinDetail).training, DEMO_TODAY).program.endsInDays,
+  },
   { slug: 'wilma-flintstone', name: 'Wilma Flintstone', status: 'at_risk' },
   { slug: 'marcus-hale', name: 'Marcus Hale', status: 'at_risk' },
   { slug: 'priya-nair', name: 'Priya Nair', status: 'at_risk' },
@@ -91,7 +96,8 @@ const seeds: Seed[] = [
   { slug: 'alexander-thompson', name: 'Alexander Thompson', status: 'on_track', nextSession: 'Today 6:45 PM' },
   { slug: 'penelope-brooks', name: 'Penelope Brooks', status: 'on_track', nextSession: 'Sep 1 • 8:00 AM' },
   { slug: 'gabriella-clark', name: 'Gabriella Clark', status: 'on_track', nextSession: 'Sep 1 • 11:00 AM' },
-  { slug: 'malcom-reed', name: 'Malcom Reed', status: 'on_track', nextSession: 'Sep 1 • 2:00 PM' },
+  // Malcom's next session comes from his bookings, so the card and his Prepare panel agree.
+  { slug: 'malcom-reed', name: 'Malcom Reed', status: 'on_track', nextSession: buildPrepareView(todoDetails.t6 as PrepareDetail, DEMO_TODAY).railLabel },
   { slug: 'sam-rivera', name: 'Sam Rivera', status: 'on_track', nextSession: 'Sep 3 • 9:00 AM' },
   // Other clients referenced by to-dos
   { slug: 'sidney-goyette-kihn', name: 'Sidney Goyette-Kihn', status: 'on_track' },
@@ -100,6 +106,7 @@ const seeds: Seed[] = [
   { slug: 'darrell-steward', name: 'Darrell Steward', status: 'on_track' },
   { slug: 'cody-fisher', name: 'Cody Fisher', status: 'on_track' },
   { slug: 'jenny-wilson', name: 'Jenny Wilson', status: 'on_track' },
+  { slug: 'leo-midgett', name: 'Leo Midgett', status: 'on_track' },
 ];
 
 export const clients: Client[] = seeds.map(({ slug, ...rest }) => ({
@@ -109,21 +116,33 @@ export const clients: Client[] = seeds.map(({ slug, ...rest }) => ({
   avatar: avatar(slug),
 }));
 
-export const todos: Todo[] = [
+type TodoSeed = Omit<Todo, 'reason'> & { reason?: string };
+
+const todoSeeds: TodoSeed[] = [
   // Suggested (raised by today's generation), in ranked order
   { id: 't1', clientId: 'wilma-flintstone', type: 'adjust', action: 'Adjust the plan for', reason: 'Wilma is back from pause today — she paused for health or injury.', raisedOn: DEMO_TODAY, state: 'open' },
-  { id: 't2', clientId: 'sidney-goyette-kihn', type: 'respond', action: 'Reply to', reason: 'Her check-in form has been waiting 3 days.', raisedOn: DEMO_TODAY, state: 'open' },
-  { id: 't3', clientId: 'clint-jacobi', type: 'checkin', action: 'Check in with', reason: buildCheckinView(todoDetails.t3, DEMO_TODAY).rowReason, raisedOn: DEMO_TODAY, state: 'open' },
-  { id: 't4', clientId: 'glen-johnson', type: 'build', action: 'Assign a new program to', reason: 'Glen has had nothing assigned for 3 days.', raisedOn: DEMO_TODAY, state: 'open' },
-  { id: 't5', clientId: 'wendy-kurtz', type: 'unblock', action: 'Issue credit for', reason: '4 Pilates credits expiring in 3 days.', raisedOn: DEMO_TODAY, state: 'open' },
-  { id: 't6', clientId: 'malcom-reed', type: 'prepare', action: 'Prepare for the session with', reason: 'PT session tomorrow at 2:00pm, in person.', raisedOn: DEMO_TODAY, state: 'open' },
+  { id: 't2', clientId: 'sidney-goyette-kihn', type: 'respond', action: 'Reply to', raisedOn: DEMO_TODAY, state: 'open' },
+  { id: 't3', clientId: 'clint-jacobi', type: 'checkin', action: 'Check in with', raisedOn: DEMO_TODAY, state: 'open' },
+  { id: 't4', clientId: 'glen-johnson', type: 'build', action: 'Assign a new program to', raisedOn: DEMO_TODAY, state: 'open' },
+  // Remind ranks below Build and above Unblock (Spec 4 BL3).
+  { id: 't8', clientId: 'leo-midgett', type: 'remind', action: 'Remind', actionAfter: 'to submit a check-in form', raisedOn: DEMO_TODAY, state: 'open' },
+  { id: 't5', clientId: 'wendy-kurtz', type: 'unblock', action: 'Issue credit for', raisedOn: DEMO_TODAY, state: 'open' },
+  { id: 't6', clientId: 'malcom-reed', type: 'prepare', action: 'Prepare for the session with', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't7', clientId: 'darrell-steward', type: 'congratulate', action: 'Congratulate', reason: 'Hit the +300 kcal surplus 6 days running after three weeks short', raisedOn: DEMO_TODAY, state: 'open' },
   // Previous (carried forward, newest first)
   // Aima rather than the design's Wilma: Wilma already has today's to-do, and a client is never in both sections.
   { id: 'p1', clientId: 'aima-ansari', type: 'checkin', action: 'Check in with', reason: 'No app activity, no workouts and no reply in 15 days.', raisedOn: '2026-08-30', state: 'open' },
   { id: 'p2', clientId: 'cody-fisher', type: 'kudos', action: 'Kudos to', reason: 'Cody was at risk for two weeks and is back on track.', raisedOn: '2026-08-27', state: 'open' },
-  { id: 'p3', clientId: 'jenny-wilson', type: 'respond', action: 'Reply to', reason: 'Her check-in form has been waiting 3 days.', raisedOn: '2026-08-26', state: 'open' },
+  { id: 'p3', clientId: 'jenny-wilson', type: 'respond', action: 'Reply to', raisedOn: '2026-08-26', state: 'open' },
 ];
+
+const firstNameOf = (id: string) => clients.find((c) => c.id === id)!.firstName;
+
+/** Rows with panel data take their reason from the same builder as the panel (AC4); the rest are design copy. */
+export const todos: Todo[] = todoSeeds.map((t) => {
+  const detail = todoDetails[t.id];
+  return { ...t, reason: detail ? rowReasonFor(detail, firstNameOf(t.clientId), DEMO_TODAY) : t.reason! };
+});
 
 const hl = (id: string, category: Highlight['category'], clientName: string, text: string): Highlight => ({
   id,
