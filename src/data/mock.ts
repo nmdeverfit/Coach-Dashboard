@@ -10,15 +10,41 @@ export const GENERATED_AT = '06:00 AM';
 const figmaFiles = import.meta.glob<string>('../assets/figma/*.png', { eager: true, import: 'default' });
 const figmaImage = (name: string): string | undefined => figmaFiles[`../assets/figma/${name}.png`];
 
-/** The design reuses some photos across clients; these point at the shared export. */
-const SHARED_PHOTOS: Record<string, string> = {
-  'anabella-potts': 'wilma-flintstone',
-  'wendy-kurtz': 'wilma-flintstone',
-  'penelope-brooks': 'wilma-flintstone',
-  'emma-williams': 'aisha-doyle',
-  'alexander-thompson': 'aima-ansari',
+const photoFiles = import.meta.glob<string>('../assets/avatars/*.jpg', { eager: true, import: 'default' });
+const photo = (file: string) => photoFiles[`../assets/avatars/${file}.jpg`];
+
+/**
+ * Client photos (20 female `f01`–`f20`, 20 male `m01`–`m20`). Listed most visible first: rows in Today's Brief,
+ * the first four of each group card, then Client highlights. There are more people than photos, so the last few,
+ * who only show when a card is scrolled, reuse a photo from Client highlights.
+ */
+const FEMALE = [
+  'wilma-flintstone', 'sidney-goyette-kihn', 'wendy-kurtz', 'jenny-wilson', 'aima-ansari', 'anabella-potts', 'aisha-doyle',
+  'zoey-wright', 'grace-adams', 'emma-williams', 'layla-mitchell', 'evelyn-moore', 'penelope-brooks', 'gabriella-clark',
+  'rachel-kim', 'anna-taylor', 'erika-harris', 'mia-young', 'priya-nair', 'sofia-rossi',
+];
+const FEMALE_REUSE: Record<string, string> = {
+  'nora-fields': 'rachel-kim', 'hana-sato': 'anna-taylor', 'chloe-martin': 'erika-harris',
+  'ava-turner': 'mia-young', 'isla-brown': 'priya-nair', 'mila-cruz': 'sofia-rossi',
 };
-const avatar = (slug: string) => figmaImage(`av-${SHARED_PHOTOS[slug] ?? slug}`);
+const MALE = [
+  'clint-jacobi', 'glen-johnson', 'malcom-reed', 'darrell-steward', 'cody-fisher', 'ali-chapman', 'james-lee',
+  'andrew-scott', 'elijah-wright', 'ethan-smith', 'alexander-thompson', 'leo-midgett', 'daniel-lee', 'kevin-williams',
+  'ryan-miller', 'michael-brown', 'marcus-hale', 'tom-becker', 'wade-warren', 'owen-price',
+];
+const MALE_REUSE: Record<string, string> = {
+  'ben-carter': 'leo-midgett', 'noah-kim': 'daniel-lee', 'leo-park': 'ryan-miller', 'ryan-ford': 'michael-brown', 'sam-rivera': 'marcus-hale',
+};
+
+const num2 = (i: number) => String(i + 1).padStart(2, '0');
+const PHOTO_BY_SLUG: Record<string, string> = Object.fromEntries([
+  ...FEMALE.map((slug, i) => [slug, `f${num2(i)}`]),
+  ...MALE.map((slug, i) => [slug, `m${num2(i)}`]),
+]);
+for (const [slug, twin] of Object.entries({ ...FEMALE_REUSE, ...MALE_REUSE })) PHOTO_BY_SLUG[slug] = PHOTO_BY_SLUG[twin];
+
+const avatar = (slug: string) => (PHOTO_BY_SLUG[slug] ? photo(PHOTO_BY_SLUG[slug]) : undefined);
+const slugOf = (name: string) => name.toLowerCase().replace(/\s+/g, '-');
 
 export const coachAvatar = figmaImage('avatar-coach');
 
@@ -102,7 +128,7 @@ const hl = (id: string, category: Highlight['category'], clientName: string, tex
   category,
   clientName,
   text,
-  image: figmaImage(`hl-${id}`),
+  image: avatar(slugOf(clientName)),
 });
 
 export const highlights: Highlight[] = [

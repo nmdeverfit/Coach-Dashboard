@@ -23,11 +23,14 @@ follow the design for visuals and **raise the conflict with the user** instead o
   Macro AVG, Meal Log, summary rows), so they cannot disagree (AC4). **Never hard-code a derived number in copy**;
   add raw data and derive it. Calories come from macros (4/9/4 kcal/g); averages are over logged days in the 7 days
   before today; days from today on are "Upcoming".
-- `src/data/mock.ts`: clients, to-dos, highlights. Avatars load from `src/assets/figma/av-<slug>.png` (highlights: `hl-<id>.png`)
-  via `import.meta.glob`; `SHARED_PHOTOS` maps clients that reuse another client's photo in the design.
+- `src/data/mock.ts`: clients, to-dos, highlights. Client photos are the user's set in `src/assets/avatars/`
+  (`f01`–`f20` female, `m01`–`m20` male, 96 px JPEG). `FEMALE` / `MALE` list people most visible first and take
+  photos in order; `*_REUSE` gives the few people beyond 20, who only show when a card is scrolled, a highlight
+  person's photo. The coach avatar stays the Figma export.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
-  `groups.ts` (group card metadata), `ClientHighlights`, `DashboardView` (placeholder), `StatusChip`, `Toast`, `Avatar`, `CountChip`.
+  `groups.ts` (group card metadata), `ClientHighlights`, `DashboardView` (placeholder), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
+  `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons).
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
   `NutritionTab` (Macro AVG + Meal Log with cell tooltips; one shared meal-label column on the left for both weeks).
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,

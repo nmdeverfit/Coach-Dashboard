@@ -5,6 +5,7 @@ import iconTrash from '../assets/figma/icon-trash.svg';
 import type { Todo } from '../data/types';
 import { getClient } from '../state/store';
 import { Avatar } from './Avatar';
+import { Tooltip } from './Tooltip';
 
 interface TodoRowProps {
   todo: Todo;
@@ -92,12 +93,12 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss }: To
       {!selected && (
         <button
           type="button"
-          title="Dismiss"
           aria-label={`Dismiss "${todo.action} ${client.name}"`}
           onClick={stop(onDismiss)}
-          className="hidden shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-white p-1 hover:bg-surface-secondary focus-visible:flex group-hover:flex group-focus-within:flex"
+          className="group/tip relative hidden shrink-0 items-center justify-center rounded-[10px] bg-white p-1 hover:bg-surface-secondary focus-visible:flex group-hover:flex group-focus-within:flex"
         >
           <img src={iconTrash} alt="" width={18} height={18} />
+          <Tooltip label="Dismiss" />
         </button>
       )}
     </li>

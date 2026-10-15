@@ -17,6 +17,7 @@ import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { StatusChip } from '../StatusChip';
+import { Tooltip } from '../Tooltip';
 import { AiAssessment } from './AiAssessment';
 import { NutritionTab } from './NutritionTab';
 import { StatusFeedback } from './StatusFeedback';
@@ -33,15 +34,6 @@ const TABS = [
 type TabKey = (typeof TABS)[number]['key'];
 
 const CLOSE_MS = 220;
-
-function Tooltip({ label }: { label: string }) {
-  return (
-    <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden -translate-x-1/2 flex-col items-center group-hover/tip:flex group-focus-visible/tip:flex">
-      <span className="whitespace-nowrap rounded-md bg-[#343434] px-2 py-[3.2px] text-[12px] leading-[1.4] text-white">{label}</span>
-      <span className="-mt-1 size-[6.87px] rotate-45 rounded-[0.8px] bg-[#343434]" />
-    </span>
-  );
-}
 
 interface TitleProps {
   todo: Todo;

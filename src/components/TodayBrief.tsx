@@ -112,7 +112,7 @@ export function TodayBrief() {
         <div className="flex flex-col gap-3 px-[60px] pb-5">
           <SectionTitle title="Suggested to-dos" count={suggested.length} />
           {suggested.length > 0 ? (
-            <div className="overflow-hidden rounded-lg bg-surface-secondary px-2 pt-1">
+            <div className="rounded-lg bg-surface-secondary px-2 pt-1">
               <ul>
                 {visibleSuggested.map((todo) => (
                   <TodoRow
@@ -154,7 +154,7 @@ export function TodayBrief() {
                 Dismiss all
               </button>
             </div>
-            <ul className="overflow-hidden rounded-lg bg-surface-secondary px-2 pt-1">
+            <ul className="rounded-lg bg-surface-secondary px-2 pt-1">
               {previous.map((todo) => (
                 <TodoRow
                   key={todo.id}
