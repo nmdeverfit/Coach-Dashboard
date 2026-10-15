@@ -59,7 +59,7 @@ type Variant = 'primary' | 'ai' | 'plain';
 
 const VARIANT: Record<Variant, string> = {
   primary: 'border-black/10 bg-brand text-white hover:bg-brand/90',
-  ai: 'border-line-light bg-white text-ink shadow-ai-draft hover:bg-surface-secondary',
+  ai: 'ai-btn border-line-light bg-white text-ink shadow-ai-draft',
   plain: 'border-line-light bg-white text-ink hover:bg-surface-secondary',
 };
 

@@ -35,6 +35,55 @@ body {
   .scroll-thin:hover::-webkit-scrollbar-thumb {
     background: #d9d9d9;
   }
+
+  /*
+   * AI buttons (Draft with AI, Tell me more), hover state from Figma node 5654:528490: the Olly gradient fills the
+   * button, text and icon turn white, and a blurred white band sweeps across once from left to right.
+   */
+  .ai-btn {
+    position: relative;
+    overflow: hidden;
+    transition:
+      color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .ai-btn:hover {
+    color: #ffffff;
+    border-color: transparent;
+    background-origin: border-box;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 159 40' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%' width='100%' fill='url(%23grad)'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(19.981 13.62 22.862 104.04 -28.888 -81.698)'><stop stop-color='rgba(242,97,125,1)' offset='0'/><stop stop-color='rgba(193,89,170,1)' offset='0.22152'/><stop stop-color='rgba(143,81,214,1)' offset='0.44304'/><stop stop-color='rgba(108,89,224,1)' offset='0.58228'/><stop stop-color='rgba(72,97,233,1)' offset='0.72152'/><stop stop-color='rgba(36,105,243,1)' offset='0.86076'/><stop stop-color='rgba(18,109,248,1)' offset='0.93038'/><stop stop-color='rgba(0,113,253,1)' offset='1'/></radialGradient></defs></svg>");
+    background-size: 100% 100%;
+    box-shadow:
+      0 4px 10px 0 rgba(181, 45, 223, 0.2),
+      inset 0 0 8px 0 #deace7;
+  }
+  .ai-btn:hover img {
+    filter: brightness(0) invert(1);
+  }
+  .ai-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    bottom: -50%;
+    left: 0;
+    width: 40%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 100%);
+    filter: blur(6px);
+    transform: translateX(-150%) skewX(-20deg);
+    pointer-events: none;
+  }
+  .ai-btn:hover::after {
+    animation: ai-shine 0.9s ease-out;
+  }
+}
+
+@keyframes ai-shine {
+  from {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  to {
+    transform: translateX(350%) skewX(-20deg);
+  }
 }
 
 

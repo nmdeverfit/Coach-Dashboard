@@ -61,6 +61,9 @@ follow the design for visuals and **raise the conflict with the user** instead o
 - Current per-type drawers: Review form `5647:132342`, Issue credit `5647:132546`, Booking `5647:132813`,
   Assign program `5647:133017`, Remind to submit form `5647:133214`.
 - Calorie ring: node `5645:520167`. Training tab: node `5645:520935`.
+- AI button hover (Draft with AI, Tell me more): node `5654:528490`. Shared `.ai-btn` class in `src/index.css`: the
+  Olly gradient fills the button, text and icon turn white, and a blurred white band sweeps across once. Put it on
+  every new AI button.
 - To-do item component (variants State × Time): node `3925:6908`. Check-in drawer, nutrition focus: node `5633:140550`.
   The drawer node is a large instance: `get_design_context` on it is truncated at 100KB and its children return empty
   shells, so read the saved output file in parts.

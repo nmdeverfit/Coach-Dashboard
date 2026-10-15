@@ -69,7 +69,7 @@ export function AiAssessment({ border, assessment, onTellMeMore }: Props) {
         <button
           type="button"
           onClick={onTellMeMore}
-          className="relative flex h-9 items-center gap-2 rounded-[4px] border border-black/15 bg-white px-[11px] text-[13px] font-semibold text-ink shadow-ai-button hover:bg-surface-secondary"
+          className="ai-btn flex h-9 items-center gap-2 rounded-[4px] border border-black/15 bg-white px-[11px] text-[13px] font-semibold text-ink shadow-ai-button"
         >
           <img src={iconTellMeMore} alt="" width={20} height={20} />
           Tell me more
