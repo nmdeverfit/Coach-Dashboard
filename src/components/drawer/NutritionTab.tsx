@@ -135,46 +135,64 @@ function MealCell({ log, date, meal, mealLabel, count }: {
   );
 }
 
-function WeekGrid({ week, log, divider }: { week: WeekGridData; log: NutritionLog; divider: boolean }) {
+const weekRange = (week: WeekGridData) => {
   const start = parseDay(week.dates[0]);
   const end = parseDay(week.dates[6]);
-  const range =
-    end.getUTCMonth() === start.getUTCMonth() ? `${formatMonthDay(start)} - ${end.getUTCDate()}` : `${formatMonthDay(start)} - ${formatMonthDay(end)}`;
+  return end.getUTCMonth() === start.getUTCMonth() ? `${formatMonthDay(start)} - ${end.getUTCDate()}` : `${formatMonthDay(start)} - ${formatMonthDay(end)}`;
+};
+
+/**
+ * Both weeks in one grid: a single meal-label column on the left, then 7 day columns per week with a divider between,
+ * so the labels line up with the cells whatever their size.
+ */
+function MealGrid({ weeks, log }: { weeks: WeekGridData[]; log: NutritionLog }) {
+  const columns = weeks.map(() => 'repeat(7, minmax(0, 1fr))').join(' 17px ');
+  // Column of each week's first day: labels take column 1, each divider takes one column.
+  const firstCol = (w: number) => 2 + w * 8;
   return (
-    <div className={`flex min-w-0 flex-1 flex-col px-5 ${divider ? 'border-r border-line' : ''}`}>
-      <div className="flex items-center py-2 text-[13px] leading-[18px]">
-        <span className="w-[68px] shrink-0" aria-hidden />
-        <p className="flex-1 text-center font-semibold text-ink">
-          {range}
+    <div className="grid gap-x-1 gap-y-1 px-5 py-4" style={{ gridTemplateColumns: `68px ${columns}` }}>
+      {weeks.map((week, w) => (
+        <p
+          key={`title-${week.start}`}
+          className="pb-2 text-center text-[13px] font-semibold leading-[18px] text-ink"
+          style={{ gridColumn: `${firstCol(w)} / span 7`, gridRow: 1 }}
+        >
+          {weekRange(week)}
           {week.isCurrent && <span className="font-normal"> (This week)</span>}
         </p>
-      </div>
-      <div className="flex items-start gap-3 pb-3">
-        <div className="grid w-[68px] shrink-0 gap-y-1 text-[11px] font-semibold uppercase leading-[18px] text-ink-tertiary">
-          <span className="h-[18px]" aria-hidden />
-          {MEALS.map((m) => (
-            <span key={m.key} className="flex h-[28px] items-center">
-              {m.label}
-            </span>
-          ))}
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <div className="flex gap-1 text-center text-[12px] leading-[18px] text-ink-secondary">
-            {week.dates.map((d) => (
-              <span key={d} className="min-w-0 flex-1 tabular-nums">
-                {parseDay(d).getUTCDate()}
-              </span>
-            ))}
-          </div>
-          {MEALS.map((m) => (
-            <div key={m.key} className="flex gap-1">
-              {week.counts[m.key].map((count, i) => (
-                <MealCell key={week.dates[i]} log={log} date={week.dates[i]} meal={m.key} mealLabel={m.label} count={count} />
-              ))}
+      ))}
+      {weeks.slice(1).map((week, w) => (
+        <span key={`divider-${week.start}`} aria-hidden className="mx-auto w-px bg-line" style={{ gridColumn: firstCol(w + 1) - 1, gridRow: '1 / span 6' }} />
+      ))}
+      {weeks.map((week, w) =>
+        week.dates.map((d, i) => (
+          <span
+            key={`day-${d}`}
+            className="text-center text-[12px] leading-[18px] text-ink-secondary tabular-nums"
+            style={{ gridColumn: firstCol(w) + i, gridRow: 2 }}
+          >
+            {parseDay(d).getUTCDate()}
+          </span>
+        )),
+      )}
+      {MEALS.map((m, r) => (
+        <span
+          key={`label-${m.key}`}
+          className="flex items-center text-[11px] font-semibold uppercase leading-[18px] text-ink-tertiary"
+          style={{ gridColumn: 1, gridRow: 3 + r }}
+        >
+          {m.label}
+        </span>
+      ))}
+      {MEALS.map((m, r) =>
+        weeks.map((week, w) =>
+          week.counts[m.key].map((count, i) => (
+            <div key={`${m.key}-${week.dates[i]}`} className="flex" style={{ gridColumn: firstCol(w) + i, gridRow: 3 + r }}>
+              <MealCell log={log} date={week.dates[i]} meal={m.key} mealLabel={m.label} count={count} />
             </div>
-          ))}
-        </div>
-      </div>
+          )),
+        ),
+      )}
     </div>
   );
 }
@@ -183,11 +201,7 @@ function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSu
   return (
     <div className="flex flex-col rounded-lg border border-ink/10 bg-elevated p-px shadow-card">
       <CardHeader title="Meal Log" link="View food log" />
-      <div className="flex items-start py-4">
-        {summary.weeks.map((week, i) => (
-          <WeekGrid key={week.start} week={week} log={log} divider={i < summary.weeks.length - 1} />
-        ))}
-      </div>
+      <MealGrid weeks={summary.weeks} log={log} />
       <div className="flex items-center justify-center gap-4 px-4 py-3 text-[12px] leading-[18px] text-ink">
         <span className="flex items-center gap-2">
           1 meal

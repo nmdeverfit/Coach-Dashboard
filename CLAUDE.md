@@ -29,7 +29,7 @@ follow the design for visuals and **raise the conflict with the user** instead o
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights`, `DashboardView` (placeholder), `StatusChip`, `Toast`, `Avatar`, `CountChip`.
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
-  `NutritionTab` (Macro AVG + Meal Log with cell tooltips).
+  `NutritionTab` (Macro AVG + Meal Log with cell tooltips; one shared meal-label column on the left for both weeks).
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
   reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
   close on ×, Esc or click outside.
