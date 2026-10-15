@@ -50,7 +50,7 @@ function SectionTitle({ title, count }: { title: string; count: number }) {
 type PendingDismiss = { kind: 'one'; todo: Todo } | { kind: 'all'; count: number };
 
 export function TodayBrief() {
-  const { state, suggested, previous, openSuggestedCount, toggleComplete, dismiss, dismissAllPrevious, resetWeek } = useStore();
+  const { state, suggested, previous, openSuggestedCount, toggleComplete, dismiss, dismissAllPrevious, resetWeek, selectTodo } = useStore();
   const [expanded, setExpanded] = useState(false);
   const [pending, setPending] = useState<PendingDismiss | null>(null);
 
@@ -118,6 +118,8 @@ export function TodayBrief() {
                   <TodoRow
                     key={todo.id}
                     todo={todo}
+                    selected={state.selectedTodoId === todo.id}
+                    onOpen={() => selectTodo(todo.id)}
                     onToggle={() => toggleComplete(todo.id)}
                     onDismiss={() => setPending({ kind: 'one', todo })}
                   />
@@ -158,6 +160,8 @@ export function TodayBrief() {
                   key={todo.id}
                   todo={todo}
                   age={ageLabel(todo.raisedOn, DEMO_TODAY)}
+                  selected={state.selectedTodoId === todo.id}
+                  onOpen={() => selectTodo(todo.id)}
                   onToggle={() => toggleComplete(todo.id)}
                   onDismiss={() => setPending({ kind: 'one', todo })}
                 />

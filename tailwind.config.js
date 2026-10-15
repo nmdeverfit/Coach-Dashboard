@@ -26,11 +26,47 @@ export default {
         orange: '#ff6b16', // Icon/Orange
         warning: '#f59e0b', // Icon/Warning
         danger: '#f04438',
+        checked: '#0071fd', // completed to-do check
+        dark: '#7b7e91', // "Dark" style
+        elevated: '#fcfcfc', // Background/Elevated
+        status: {
+          'risk-bg': '#fbdfdf',
+          'risk-fg': '#7b2339',
+          'risk-line': '#fc6969',
+          'attention-bg': '#ffe9d9',
+          'attention-fg': '#8a3b0b',
+          'attention-line': '#ffa36b',
+          'track-bg': '#dcf5e7',
+          'track-fg': '#1d6b40',
+          'track-line': '#6fd39a',
+          'none-bg': '#eceef2',
+          'none-fg': '#6b7280',
+        },
+        meal: {
+          1: '#4671ff',
+          2: '#184eff',
+          3: '#133ecc',
+          4: '#0e2f99',
+          empty: '#dfe0e5',
+        },
+        macro: {
+          carb: '#44c473',
+          fat: '#ffcc49',
+          protein: '#4886fd',
+        },
         sidebar: {
           1: '#d9e9ff',
           2: '#ffe6d9',
           3: '#ffd9d9',
         },
+      },
+      keyframes: {
+        'drawer-in': { from: { transform: 'translateX(100%)' }, to: { transform: 'translateX(0)' } },
+        'drawer-out': { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(100%)' } },
+      },
+      animation: {
+        'drawer-in': 'drawer-in 280ms cubic-bezier(0.22, 1, 0.36, 1)',
+        'drawer-out': 'drawer-out 220ms ease-in forwards',
       },
       fontFamily: {
         sans: ['"Open Sans"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
@@ -42,6 +78,14 @@ export default {
         column: '8px 0 30px 0 rgba(0,0,0,0.05)',
         'see-all': '0 -2px 15px rgba(0,0,0,0.08)',
         dialog: '0 12px 40px rgba(32,35,83,0.18)',
+        row: '0 20px 14px 0 rgba(0,0,0,0), 0 10px 13px 0 rgba(0,0,0,0.04)',
+        drawer: '0 0 40px rgba(0,0,0,0.1), -6px 0 5px rgba(0,0,0,0.05)',
+        footer: '0 42px 125px rgba(0,0,0,0.05), 0 5.259px 18.156px rgba(0,0,0,0.09)',
+        card: '0 1px 3px 0 rgba(24,78,255,0.07)',
+        'ai-card': 'inset 0 0 20px 0 rgba(222,172,231,0.3)',
+        'ai-button': 'inset 0 0 8px 0 rgba(222,172,231,0.3)',
+        'ai-draft': 'inset 0 0 10px 0 rgba(222,172,231,0.5)',
+        tooltip: '0 4px 24px rgba(0,0,0,0.2)',
       },
     },
   },

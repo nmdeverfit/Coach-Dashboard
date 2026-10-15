@@ -1,4 +1,5 @@
 import { DashboardView } from './components/DashboardView';
+import { TodoDrawer } from './components/drawer/TodoDrawer';
 import { Header } from './components/Header';
 import { RightRail } from './components/RightRail';
 import { Sidebar } from './components/Sidebar';
@@ -29,6 +30,7 @@ export default function App() {
           </div>
         </main>
       </div>
+      <TodoDrawer />
       <Toast />
     </div>
   );

@@ -17,16 +17,23 @@ follow the design for visuals and **raise the conflict with the user** instead o
 ### Structure
 
 - `src/data/types.ts`: domain types (`ClientStatus`, `TodoType`, `Todo`, `Highlight`, `GroupKey`).
+- `src/data/details.ts`: to-do panel payloads by to-do id (one payload per client-day, AC4). Only `t3`
+  (Check in with Clint Jacobi, nutrition focus) has one so far; other to-dos open a placeholder panel.
 - `src/data/mock.ts`: clients, to-dos, highlights. Avatars load from `src/assets/figma/av-<slug>.png` (highlights: `hl-<id>.png`)
   via `import.meta.glob`; `SHARED_PHOTOS` maps clients that reuse another client's photo in the design.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights`, `DashboardView` (placeholder), `StatusChip`, `Toast`, `Avatar`, `CountChip`.
+- `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
+  `NutritionTab` (Macro AVG + Meal Log with cell tooltips).
 - `tailwind.config.js`: tokens mirror the Figma variables (see below). Use the tokens instead of raw hex values.
 
 ### Design source (Figma)
 
 - File: `https://www.figma.com/design/idT7h4wCHAIWQ9XQ5VrCvE/AI-Coach-Dashboard` (fileKey `idT7h4wCHAIWQ9XQ5VrCvE`).
+- To-do item component (variants State × Time): node `3925:6908`. Check-in drawer, nutrition focus: node `5633:140550`.
+  The drawer node is a large instance: `get_design_context` on it is truncated at 100KB and its children return empty
+  shells, so read the saved output file in parts.
 - Today's Brief frame: node `5625:135627`. Header `5625:135652`, Main sidebar `5625:135628`, left column `5625:135654`,
   group cards `5625:135846`, client highlights `5625:135851`.
 - Figma variables: Text/Primary `#202353`, Text/Secondary `#838d9f`, Text/Tertiary `#6b7280`, Text/Muted `#9ca3af`,
@@ -42,7 +49,12 @@ follow the design for visuals and **raise the conflict with the user** instead o
 
 - The design's to-do rows include Phase 2 titles (Adjust, Congratulate, Kudos). The brief says only the six Phase 1 types render.
 - In the design, Wilma Flintstone appears in both Suggested and Previous. The brief says a client is never in both sections.
-- Dashboard view, to-do detail panel, Tell me more, feedback control, settings, tour and What's New are not built yet.
+- Check-in drawer mock data disagrees with itself (AC4): the status line says 1 of 7 days and 63 kcal, the Macro card
+  says 1,530 kcal, Meal Log counts 9 meals in 4 logged days on a Monday, and the assessment calls Clint "she".
+  Rendered as designed; the demo fixes only the second week's day numbers (design repeats 24–30) and draws macro bars to scale.
+- The brief puts ✓ (complete) and Dismiss on the panel's title row; the drawer design only has Close.
+- Dashboard view, the other to-do panels, Tell me more (Olly column), the Change status modal, settings, tour and
+  What's New are not built yet.
 
 ---
 

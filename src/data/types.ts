@@ -55,3 +55,47 @@ export interface Highlight {
 }
 
 export type GroupKey = 'at_risk' | 'needs_attention' | 'program_ending' | 'upcoming_bookings';
+
+export type MealKey = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+
+export interface LoggedFood {
+  name: string;
+  calories: number;
+}
+
+export interface MealWeek {
+  /** Monday of the week, YYYY-MM-DD. */
+  start: string;
+  isCurrent?: boolean;
+  /** Meals logged per day, Monday first; null marks a day that has not happened yet. */
+  meals: Record<MealKey, (number | null)[]>;
+}
+
+export interface NutritionDetail {
+  calories: { value: number; target: number };
+  macros: { key: 'carb' | 'fat' | 'protein'; label: string; value: number; target: number }[];
+  weeks: MealWeek[];
+  /** Foods shown in a cell's tooltip, keyed by `${weekStart}:${meal}:${dayIndex}`. */
+  foods: Record<string, LoggedFood[]>;
+  mealsThisWeek: number;
+  avgCalories: number;
+}
+
+/** One computed payload per client-day (AC4): the row's reason, the assessment and the data area all read from it. */
+export interface CheckinDetail {
+  kind: 'checkin';
+  /** The main_signal variant that set this to-do. */
+  focus: 'nutrition' | 'training';
+  /** One-line status explanation beside the status label. */
+  statusLine: string;
+  assessment: {
+    /** Headline split around the highlighted signal word. */
+    headline: { before: string; signal: string; after: string };
+    bullets: string[];
+  };
+  nutrition: NutritionDetail;
+}
+
+export type TodoDetail = CheckinDetail;
+
+export type FeedbackState = 'yes' | 'not_quite' | 'hidden';

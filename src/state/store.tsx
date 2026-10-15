@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { DEMO_TODAY, clients, todos as seedTodos } from '../data/mock';
-import type { Client, GroupKey, Todo } from '../data/types';
+import type { Client, FeedbackState, GroupKey, Todo } from '../data/types';
 
 export type View = 'brief' | 'dashboard';
 
@@ -12,6 +12,10 @@ interface State {
   /** Which group card sent the coach to the client list, if any. */
   dashboardFilter: GroupKey | null;
   toast: string | null;
+  /** The to-do whose panel is open. */
+  selectedTodoId: string | null;
+  /** Answer to "Does '{status}' look right for {first_name}?" per client. */
+  feedback: Record<string, FeedbackState>;
 }
 
 type Action =
@@ -22,7 +26,10 @@ type Action =
   | { type: 'shiftWeek'; by: number }
   | { type: 'resetWeek' }
   | { type: 'openGroup'; group: GroupKey | null }
-  | { type: 'toast'; message: string | null };
+  | { type: 'toast'; message: string | null }
+  | { type: 'select'; id: string | null }
+  | { type: 'markReviewed'; clientId: string }
+  | { type: 'feedback'; clientId: string; value: FeedbackState };
 
 const initialState: State = {
   todos: seedTodos,
@@ -30,6 +37,8 @@ const initialState: State = {
   weekOffset: 0,
   dashboardFilter: null,
   toast: null,
+  selectedTodoId: null,
+  feedback: {},
 };
 
 const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
@@ -44,11 +53,26 @@ function reducer(state: State, action: Action): State {
         ),
       };
     case 'dismiss':
-      return { ...state, todos: state.todos.map((t) => (t.id === action.id ? { ...t, state: 'dismissed' } : t)) };
-    case 'dismissAllPrevious':
-      return { ...state, todos: state.todos.map((t) => (isPrevious(t) ? { ...t, state: 'dismissed' } : t)) };
+      return {
+        ...state,
+        todos: state.todos.map((t) => (t.id === action.id ? { ...t, state: 'dismissed' } : t)),
+        selectedTodoId: state.selectedTodoId === action.id ? null : state.selectedTodoId,
+      };
+    case 'dismissAllPrevious': {
+      const selected = state.todos.find((t) => t.id === state.selectedTodoId);
+      return {
+        ...state,
+        todos: state.todos.map((t) => (isPrevious(t) ? { ...t, state: 'dismissed' } : t)),
+        selectedTodoId: selected && isPrevious(selected) ? null : state.selectedTodoId,
+      };
+    }
     case 'setView':
-      return { ...state, view: action.view, dashboardFilter: action.view === 'brief' ? null : state.dashboardFilter };
+      return {
+        ...state,
+        view: action.view,
+        dashboardFilter: action.view === 'brief' ? null : state.dashboardFilter,
+        selectedTodoId: action.view === 'brief' ? state.selectedTodoId : null,
+      };
     case 'shiftWeek':
       return { ...state, weekOffset: Math.min(0, state.weekOffset + action.by) };
     case 'resetWeek':
@@ -57,6 +81,18 @@ function reducer(state: State, action: Action): State {
       return { ...state, view: 'dashboard', dashboardFilter: action.group };
     case 'toast':
       return { ...state, toast: action.message };
+    case 'select':
+      return { ...state, selectedTodoId: action.id };
+    case 'markReviewed':
+      // Review is per client: it completes every Check-in to-do raised for that client (S3 BL5).
+      return {
+        ...state,
+        todos: state.todos.map((t) =>
+          t.clientId === action.clientId && t.type === 'checkin' && t.state === 'open' ? { ...t, state: 'completed' } : t,
+        ),
+      };
+    case 'feedback':
+      return { ...state, feedback: { ...state.feedback, [action.clientId]: action.value } };
   }
 }
 
@@ -91,6 +127,9 @@ interface Store {
   /** Opens the client list filtered to a group; null clears the filter. */
   openGroup: (group: GroupKey | null) => void;
   showToast: (message: string) => void;
+  selectTodo: (id: string | null) => void;
+  markReviewed: (clientId: string) => void;
+  setFeedback: (clientId: string, value: FeedbackState) => void;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -128,6 +167,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       resetWeek: () => dispatch({ type: 'resetWeek' }),
       openGroup: (group) => dispatch({ type: 'openGroup', group }),
       showToast,
+      selectTodo: (id) => dispatch({ type: 'select', id }),
+      markReviewed: (clientId) => {
+        dispatch({ type: 'markReviewed', clientId });
+        showToast(`${getClient(clientId).firstName} marked as reviewed`);
+      },
+      setFeedback: (clientId, value) => dispatch({ type: 'feedback', clientId, value }),
     };
   }, [state, showToast]);
 

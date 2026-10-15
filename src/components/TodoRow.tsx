@@ -1,23 +1,54 @@
-import { X } from 'lucide-react';
+import type { KeyboardEvent, MouseEvent } from 'react';
 import iconCheck from '../assets/figma/icon-check.svg';
+import iconCheckWhite from '../assets/figma/icon-check-white.svg';
+import iconTrash from '../assets/figma/icon-trash.svg';
 import type { Todo } from '../data/types';
 import { getClient } from '../state/store';
 import { Avatar } from './Avatar';
 
 interface TodoRowProps {
   todo: Todo;
-  /** Right-aligned age on carried-over rows ("Yesterday", "Aug 27"). */
+  /** Right-aligned age on carried-over rows ("Yesterday", "Aug 27"); marks the Past variant. */
   age?: string;
+  selected: boolean;
+  onOpen: () => void;
   onToggle: () => void;
   onDismiss: () => void;
 }
 
-export function TodoRow({ todo, age, onToggle, onDismiss }: TodoRowProps) {
+/**
+ * To-do item (Figma component 3925:6908): Default, Hover, Selected and Completed states, each in a
+ * Current and a Past (Previous to-dos) variant.
+ */
+export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss }: TodoRowProps) {
   const client = getClient(todo.clientId);
   const done = todo.state === 'completed';
+  const strike = done ? 'line-through' : '';
+
+  const stop = (handler: () => void) => (e: MouseEvent) => {
+    e.stopPropagation();
+    handler();
+  };
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onOpen();
+    }
+  };
+
+  const surface = selected
+    ? 'rounded-r-lg border-l-4 border-l-brand bg-white shadow-row'
+    : 'border-b border-line hover:rounded-lg hover:border-transparent hover:bg-white hover:shadow-row';
 
   return (
-    <li className="group flex items-center gap-2 border-b border-line px-2 pb-[14px] pt-[10px]">
+    <li
+      tabIndex={0}
+      aria-current={selected ? 'true' : undefined}
+      aria-label={`${todo.action} ${client.name}`}
+      onClick={onOpen}
+      onKeyDown={onKeyDown}
+      className={`group flex cursor-pointer gap-2 px-2 pb-[14px] pt-[10px] outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${age ? 'items-center' : 'items-start'} ${surface}`}
+    >
       <div className="flex min-w-0 flex-1 items-start gap-2">
         <div className="relative h-8 w-6 shrink-0">
           <button
@@ -25,46 +56,49 @@ export function TodoRow({ todo, age, onToggle, onDismiss }: TodoRowProps) {
             role="checkbox"
             aria-checked={done}
             aria-label={`Mark "${todo.action} ${client.name}" as done`}
-            onClick={onToggle}
-            className={
-              done
-                ? 'absolute left-1/2 top-[5.75px] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border border-brand bg-brand text-white'
-                : 'absolute left-1/2 top-[5.75px] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border-[0.938px] border-black/15 bg-white hover:border-brand'
-            }
+            onClick={stop(onToggle)}
+            className={`absolute left-1/2 top-[5.75px] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border-[0.938px] border-black/15 ${
+              done ? 'bg-checked' : 'bg-white hover:border-brand'
+            }`}
           >
-            {/* The design's check mark; turned white on the filled (done) state. */}
             <span className="relative size-[10px]">
               <span className="absolute bottom-[25.73%] left-[16.64%] right-[16.67%] top-1/4">
-                <img src={iconCheck} alt="" className={`block size-full max-w-none ${done ? 'brightness-0 invert' : ''}`} />
+                <img src={done ? iconCheckWhite : iconCheck} alt="" className="block size-full max-w-none" />
               </span>
             </span>
           </button>
         </div>
-        <div className={`flex min-w-0 flex-1 flex-col gap-1 transition-opacity ${done ? 'opacity-50' : ''}`}>
+        <div className={`flex min-w-0 flex-1 flex-col gap-1 ${done ? 'opacity-60' : ''}`}>
           <div className="flex min-w-0 items-center gap-1.5">
-            <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${done ? 'line-through decoration-ink/40' : ''}`}>
-              {todo.action}
-            </span>
+            <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{todo.action}</span>
             <span className={`flex min-w-0 items-center gap-1.5 rounded-full py-0.5 pl-0.5 ${age ? 'pr-2' : ''}`}>
               <Avatar name={client.name} src={client.avatar} />
-              <span className="truncate text-[13px] font-semibold text-ink">{client.name}</span>
+              <span className={`truncate text-[13px] font-semibold text-ink ${strike}`}>{client.name}</span>
             </span>
           </div>
-          <p className="text-[12px] leading-normal text-ink-tertiary">{todo.reason}</p>
+          <p className={`text-[12px] leading-normal text-ink-tertiary ${strike}`}>{todo.reason}</p>
         </div>
       </div>
-      <div className="relative flex h-6 shrink-0 items-center justify-end">
-        {age && <span className="whitespace-nowrap text-[12px] text-ink-tertiary group-hover:invisible group-focus-within:invisible">{age}</span>}
+
+      {/* Past rows show their age; hover swaps it for the dismiss button. Selected keeps the age. */}
+      {age && (
+        <span
+          className={`whitespace-nowrap text-[12px] ${selected ? 'leading-[1.5] text-ink-secondary' : 'text-ink-tertiary group-hover:hidden group-focus-within:hidden'}`}
+        >
+          {age}
+        </span>
+      )}
+      {!selected && (
         <button
           type="button"
           title="Dismiss"
           aria-label={`Dismiss "${todo.action} ${client.name}"`}
-          onClick={onDismiss}
-          className={`${age ? 'absolute right-0' : ''} flex size-6 items-center justify-center rounded-md text-ink-secondary opacity-0 transition-opacity hover:bg-white hover:text-ink focus-visible:opacity-100 group-hover:opacity-100`}
+          onClick={stop(onDismiss)}
+          className="hidden shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-white p-1 hover:bg-surface-secondary focus-visible:flex group-hover:flex group-focus-within:flex"
         >
-          <X size={16} />
+          <img src={iconTrash} alt="" width={18} height={18} />
         </button>
-      </div>
+      )}
     </li>
   );
 }
