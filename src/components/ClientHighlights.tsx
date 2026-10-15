@@ -16,6 +16,12 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'anniversary', label: 'Anniversaries' },
 ];
 
+/**
+ * The list is as tall as 10 one-line highlights (10 × 55 px rows + 10 px top padding). More scroll inside it;
+ * fewer leave white space below, so switching tabs never moves the layout.
+ */
+const LIST_HEIGHT = 10 * 55 + 10;
+
 const countFor = (tab: Tab) => (tab === 'all' ? highlights.length : highlights.filter((h) => h.category === tab).length);
 
 /** Milestones get the blue badge; birthdays and anniversaries share the orange one, as drawn. */
@@ -68,11 +74,11 @@ export function ClientHighlights() {
             );
           })}
         </div>
-        <ul className="flex min-w-0 flex-1 flex-col pt-2.5">
+        <ul className="scroll-thin flex min-w-0 flex-1 flex-col overflow-y-auto pt-2.5" style={{ height: LIST_HEIGHT }}>
           {items.map((h, i) => (
             <li
               key={h.id}
-              className={`flex min-h-[55px] items-center gap-4 px-3 pb-3 pt-2.5 ${i < items.length - 1 ? 'border-b border-line' : ''}`}
+              className={`flex min-h-[55px] shrink-0 items-center gap-4 px-3 pb-3 pt-2.5 ${i < items.length - 1 ? 'border-b border-line' : ''}`}
             >
               <span className="flex shrink-0 items-end">
                 <span className="-mr-4">
