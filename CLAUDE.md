@@ -39,8 +39,9 @@ follow the design for visuals and **raise the conflict with the user** instead o
   `NutritionTab` (inline-SVG calorie ring + macros, Meal Log with cell tooltips; one shared meal-label column for both
   weeks), `TrainingTab` (Session log: last week + this week in 7 states, Last workout, 2-week adherence, 4-week trend
   columns; `ProgramCard`), `PanelParts` (`TabBar`, `DataArea`, footer buttons), `RespondBody` (form Q&A),
-  `SessionsBodies` (`UnblockBody` credits card, `PrepareBody` Sessions card), `AssessedBodies` (`BuildBody` with the
-  one-week day-status strip + mini trend + Program card; `RemindBody` with the Form Status table).
+  `SessionsBodies` (`UnblockBody` credits card, `PrepareBody` Sessions card), `AssessedBodies` (`BuildBody`, whose
+  Training tab is Check-in's `TrainingTab`, per the user; `RemindBody` with the Form Status table). In the session
+  log a date with no calendar entry reads "Not assigned" (grey `#eaeef1`, from the Build frame) and adds a legend item.
 - `src/lib/training.ts`: computes every Training figure from `TrainingLog` (days with sections done / scheduled, and
   the program's start and length). Adherence = completed ÷ scheduled sections on finished days. The program end also
   feeds Clint's `programEndsInDays`, so the Program ending card and the panel agree.
@@ -101,7 +102,8 @@ follow the design for visuals and **raise the conflict with the user** instead o
   unreviewed (that raises Respond, which outranks Remind); the demo's data avoids both.
 - Design data fixed for consistency: credits "in 5 days" now expire Sep 5 (not Aug 31); booking tiles' weekdays
   match their dates; Glen's last workout is the program's last day; Respond's reason names the client and form
-  instead of "Her". Build's one-week session log shows last week with a date label (the design has no label).
+  instead of "Her". Build's Training tab uses Check-in's two-week session log instead of the frame's one-week
+  strip of day circles (the user's call).
 - Dashboard view, Tell me more (Olly column), the Change status modal, settings, tour and
   What's New are not built yet.
 

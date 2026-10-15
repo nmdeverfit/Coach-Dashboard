@@ -21,9 +21,12 @@ const CELL: Record<SessionState, { box: string; label: string; text: string; ton
 
 const pad = (d: string) => String(parseDay(d).getUTCDate()).padStart(2, '0');
 
-function Cell({ cell }: { cell: SessionCell }) {
-  const s = CELL[cell.state];
-  const isToday = cell.state === 'today';
+/** A date with no calendar entry: nothing was assigned (Build's "Not assigned" grey, Figma 5647:133017). */
+const UNASSIGNED = { box: 'border-line bg-[#eaeef1]', label: 'Not assigned', text: 'text-ink-secondary', tone: '' };
+
+function Cell({ cell, today }: { cell: SessionCell; today: string }) {
+  const s = cell.assigned ? CELL[cell.state] : UNASSIGNED;
+  const isToday = cell.date === today;
   const showCount = (cell.state === 'completed' || cell.state === 'partial') && cell.day;
   const date = parseDay(cell.date);
   return (
@@ -72,7 +75,7 @@ function Cell({ cell }: { cell: SessionCell }) {
   );
 }
 
-function Legend() {
+function Legend({ unassigned }: { unassigned: boolean }) {
   const items: [string, React.ReactNode][] = [
     ['Rest day', <span className="size-4 rounded-[2.837px] border-[1.064px] border-line-light bg-[#efefef]" />],
     ['Partial', <span className="size-4 rounded-[3.368px] border-[1.263px] border-[#e1e7fc] bg-[#e5ebfc]" />],
@@ -81,8 +84,9 @@ function Legend() {
     ['Upcoming', <span className="size-4 rounded-[2.837px] border-[1.064px] border-dashed border-ink-muted" />],
     ['Pause', <img src={legendPaused} alt="" width={16} height={16} className="rounded-[2.837px]" />],
   ];
+  if (unassigned) items.push(['Not assigned', <span className="size-4 rounded-[2.837px] border-[1.064px] border-line bg-[#eaeef1]" />]);
   return (
-    <div className="flex items-center justify-center gap-6 px-4 py-3.5 text-[12px] leading-[18px] text-ink">
+    <div className={`flex items-center justify-center whitespace-nowrap px-4 py-3.5 text-[12px] leading-[18px] text-ink ${unassigned ? 'gap-4' : 'gap-6'}`}>
       {items.map(([label, swatch]) => (
         <span key={label} className="flex items-center gap-2">
           {swatch}
@@ -156,12 +160,12 @@ export function TrainingTab({ log, today }: { log: TrainingLog; today: string })
             {s.weeks.map((week) => (
               <div key={week[0].date} className="grid grid-cols-7 gap-1">
                 {week.map((cell) => (
-                  <Cell key={cell.date} cell={cell} />
+                  <Cell key={cell.date} cell={cell} today={today} />
                 ))}
               </div>
             ))}
           </div>
-          <Legend />
+          <Legend unassigned={s.weeks.some((w) => w.some((c) => !c.assigned))} />
         </div>
         <div className="flex flex-col p-3">
           <Row label="Last workout" value={ago(s.lastWorkoutDaysAgo)} />
