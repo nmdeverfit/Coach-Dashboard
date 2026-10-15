@@ -28,9 +28,6 @@ export const todoDetails: Record<string, TodoDetail> = {
         },
       },
     },
-    context: {
-      checkinFormDueOn: '2026-08-30',
-      note: { on: '2026-08-20', summary: 'preparing to sell the house and move to AB' },
-    },
+    context: { checkinFormDueOn: '2026-08-30' },
   },
 };

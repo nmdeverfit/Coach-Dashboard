@@ -1,5 +1,5 @@
 import type { CheckinDetail, FoodEntry, MacroKey, MealKey, NutritionLog } from '../data/types';
-import { formatMonthDay, parseDay } from './dates';
+import { formatDayMonth, formatMonthDay, parseDay } from './dates';
 
 export const MEALS: { key: MealKey; label: string }[] = [
   { key: 'breakfast', label: 'Breakfast' },
@@ -92,41 +92,45 @@ export function summarizeNutrition(log: NutritionLog, today: string): NutritionS
 
 export interface CheckinView {
   summary: NutritionSummary;
-  /** The greyed "why" on the to-do row. */
+  /** The greyed "why" on the to-do row; the panel repeats it verbatim (Spec 4 BL4). */
   rowReason: string;
-  /** One-line status explanation beside the status label. */
-  statusLine: string;
+  /** One summary line with main_signal tagged inside it, then at most 3 one-line facts (Spec 4 BL4, AC2.1). */
   assessment: { headline: { before: string; signal: string; after: string }; bullets: string[] };
 }
 
-/** Builds every sentence the Check-in to-do shows from one computed summary, so none can contradict another. */
+/** "24–30 Aug": a date range in the coach-facing format (Spec 4 BL4). */
+function dayMonthRange(start: string, end: string) {
+  const a = parseDay(start);
+  const b = parseDay(end);
+  return a.getUTCMonth() === b.getUTCMonth() ? `${a.getUTCDate()}–${formatDayMonth(b)}` : `${formatDayMonth(a)} – ${formatDayMonth(b)}`;
+}
+
+/** Builds every sentence the Check-in to-do shows from one computed summary, so none can contradict another (AC4). */
 export function buildCheckinView(detail: CheckinDetail, today: string): CheckinView {
   const s = summarizeNutrition(detail.nutrition, today);
   const protein = s.macros.find((m) => m.key === 'protein')!;
-  const dayWord = (n: number) => `${n} day${n === 1 ? '' : 's'}`;
+  const days = (n: number) => `${n} day${n === 1 ? '' : 's'}`;
 
   const bullets = [
-    `${s.daysLogged}/7 days logged (${s.mealsLogged} meals) from ${s.window.label}; logged days averaged ${num(s.avgCalories)} kcal against a ${num(s.targetCalories)} kcal target.`,
-    `Protein averaged ${protein.value}g of ${protein.target}g (${Math.round((protein.value / protein.target) * 100)}%) on logged days.`,
+    `Meals logged on ${days(s.daysLogged)} of 7 (${dayMonthRange(s.window.start, s.window.end)}), ${s.mealsLogged} meals in total.`,
+    `Logged days averaged ${num(s.avgCalories)} of ${num(s.targetCalories)} kcal, and ${protein.value} of ${protein.target}g protein.`,
   ];
-  if (detail.context.checkinFormDueOn) {
-    bullets.push(`The weekly check-in form was due ${weekdayLabel(detail.context.checkinFormDueOn)} and has not been submitted.`);
-  }
-  if (detail.context.note) {
-    bullets.push(`Coach notes from ${formatMonthDay(parseDay(detail.context.note.on))}: ${detail.context.note.summary}.`);
+  const due = detail.context.checkinFormDueOn;
+  if (due) {
+    const d = parseDay(due);
+    bullets.push(`The weekly check-in form due ${WEEKDAYS[d.getUTCDay()]} ${formatDayMonth(d)} has not been submitted.`);
   }
 
   return {
     summary: s,
     rowReason: `Only ${s.daysLogged} of 7 days logged last week, and logged days averaged ${num(s.calorieGap)} kcal under target.`,
-    statusLine: `${s.daysLogged} of 7 days with a logged meal last week. Logged days averaged ${num(s.avgCalories)} kcal against a ${num(s.targetCalories)} kcal target`,
     assessment: {
       headline: {
         before: 'Current',
         signal: 'nutrition',
-        after: `signals are poor: meals were logged on only ${dayWord(s.daysLogged)} of the last 7, and logged days came in ${num(s.calorieGap)} kcal under target.`,
+        after: `signals are poor: meals logged on only ${days(s.daysLogged)} of the last 7, ${num(s.calorieGap)} kcal under target.`,
       },
-      bullets,
+      bullets: bullets.slice(0, 3),
     },
   };
 }

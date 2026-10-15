@@ -30,11 +30,18 @@ follow the design for visuals and **raise the conflict with the user** instead o
   `groups.ts` (group card metadata), `ClientHighlights`, `DashboardView` (placeholder), `StatusChip`, `Toast`, `Avatar`, `CountChip`.
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
   `NutritionTab` (Macro AVG + Meal Log with cell tooltips).
+- `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
+  reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
+  close on ×, Esc or click outside.
 - `tailwind.config.js`: tokens mirror the Figma variables (see below). Use the tokens instead of raw hex values.
 
 ### Design source (Figma)
 
 - File: `https://www.figma.com/design/idT7h4wCHAIWQ9XQ5VrCvE/AI-Coach-Dashboard` (fileKey `idT7h4wCHAIWQ9XQ5VrCvE`).
+- Spec 4's reference page is node `3489:376721` ("↪ CID New Concept", the whole canvas: 13.8 MB of metadata, so search
+  the saved file rather than reading it). Drawer title row with ✓ / Dismiss: node `4982:524901`. Per-type drawer
+  flows live under `CID New Concept - Phase 1` (`4341:442468`): To-do #1 Check-in Nutrition `4341:459200`,
+  #2 Check-in Training `4341:462995`, #3 Review Client's Form `4341:468029`, #4 Issue Credit `4341:471360`.
 - To-do item component (variants State × Time): node `3925:6908`. Check-in drawer, nutrition focus: node `5633:140550`.
   The drawer node is a large instance: `get_design_context` on it is truncated at 100KB and its children return empty
   shells, so read the saved output file in parts.
@@ -57,7 +64,12 @@ follow the design for visuals and **raise the conflict with the user** instead o
 - The design's Check-in numbers were placeholders that disagreed with each other; the demo replaces them with one
   consistent data set (2 of 7 days logged, 7 meals, 1,101 of 2,000 kcal on logged days) and avoids client pronouns
   in generated copy. On Monday morning "This week" in Meal Log is all Upcoming.
-- The brief puts ✓ (complete) and Dismiss on the panel's title row; the drawer design only has Close.
+- Spec 4 BL9 says Phase 1's Nutrition tab is CID v1 unchanged (macro card, 7 day-ticks, Avg Calories), but the design
+  draws the new two-week Meal Log grid. The demo follows the design; ask before switching.
+- Brief and Spec 4 date format is "{D MMM}" ("27 Aug"); the design's row ages read "Aug 27". Model-written copy uses
+  D MMM, the rows keep the design.
+- Draft with AI, Send message and Tell me more should open as a middle column between the list and the panel
+  (AC2.2, AC2.3); the demo shows a toast until that frame is built.
 - Dashboard view, the other to-do panels, Tell me more (Olly column), the Change status modal, settings, tour and
   What's New are not built yet.
 
@@ -347,3 +359,114 @@ A numeric gate between each.
 the client detail page for every classified client; Phase 1 reads only the stored status; program and form tooling is Phase 2
 (S4 OQ5 closed 29 Sep). (4) The cap is 20; the distribution benchmark validates it.
 **Closed:** can one client appear in both Suggested and Previous? No, never both.
+
+---
+
+# Spec 4: To-do Detail Panel (V3.4, 28 Sep 2026)
+
+Source: Confluence "Check-in Dashboard v2_Spec 4. To-do Detail Panel" (EV 3854434874), exported 15 Oct 2026.
+APM Linh Pham · Designer Duc Nguyen · Eng Viet Mai, Kiet Hoang · BA/QA Mui Dao, Lam Nguyen. Status: In review.
+Event names are owned by S7; status logic by S1; generation and ranking by S2; lifecycle by S3; layout by S5.
+
+## BL1: one panel component, six configurations (by `todo_type`)
+
+Parts: **A** title bar (TO-DO DETAILS + ×; avatar + title; name is a blue link on every type except Check-in;
+✓ and Dismiss icons at the right) · **B** the row's reason line, verbatim · **C** assessment card (one summary line
+with `main_signal` tagged inside, ≤3 one-line facts; Tell me more sits inside the card) · **D** data tabs · **E** data
+area · **G** completion. No separate action bar: one footer pinned to the bottom with a primary action plus ≤2
+secondary controls. A and B paint immediately and never wait on inference.
+
+| | Check-in | Respond (Form) | Remind | Build | Prepare | Unblock |
+|---|---|---|---|---|---|---|
+| C. Assessment | yes | no | yes | full, no risk verdict | no | no |
+| Tell me more | yes | no | yes | yes | no | no |
+| D. Tabs | Training · Nutrition · Task & Habit · Program Ending · Form · Notes | Form only | Training · Nutrition · Form · Notes (Form active) | Training + Notes (Program card inside Training) | none: one Sessions card | none |
+| E. Data area | yes | form Q&A | Form Status table | yes | Sessions card | credits |
+| Status chip + feedback | yes | — | **no** | — | — | — |
+| Completion | row ✓ or panel ✓ = Mark as reviewed | ✓ = Mark form as reviewed | ✓ | ✓ (assigning does not complete) | ✓ | ✓ |
+
+- Name link (AC1.11): hover underlines, tooltip "Open client details"; click swaps the panel for "‹ CLIENT DETAILS ×";
+  ‹ returns with the same tab and scroll. Rows never link the name; a click anywhere on the row opens the panel.
+- Drafting controls: only "Draft with AI" (Olly Voice, with a draft) and "Send message" (empty composer).
+  Per-signal variants ("Draft Nutrition message") are retired. Both open as a middle column; the panel stays open.
+
+## BL2–BL3: type contract and one row per client per day
+
+- `todo_type` picks the configuration; `main_signal` picks the first tab (status-derived types only) and the tagged term.
+  Tabs: training · nutrition · checkin_form (Form) · tasks_habits · program_ending · booking. Any other signal opens
+  Training. Fixed defaults: Build → Training, Prepare → Sessions card, Remind → Form.
+- **Type priority: respond → check_in → build → remind → unblock → prepare.** Remind must rank below Check-in.
+  The highest reason takes the row; the others ride along inside the panel (their tabs present). No "+K more".
+
+## BL4: what the assessment may say
+
+One signal tagged · one computed payload per client-day (reason, assessment, data area, client-list line, Olly answer;
+a numeric disagreement is a P0 bug, and it must cover the v1 tabs) · reason line verbatim · no hedging (below
+CONF_THRESHOLD serve plain facts) · no diagnosis ("reports knee pain", never "has tendinitis") · never quote a client
+message (summarise and cite the date) · safety first: pain/injury/illness/medical notes render before any progression,
+on every type · no field names, codes or ISO timestamps; dates read "27 Aug" · labelled "AI Assessment" · length:
+1 summary line, ≤3 facts, one line each.
+
+## BL5–BL9
+
+- BL5: a partial week (resumed from pause, started mid-week) is never a signal: say so and give the date, no percentage.
+- BL6: training, nutrition, habits, forms and program follow the week selector; bookings and credits are point-in-time.
+- BL7 triggers: Check-in = effective_status At risk / Needs attention · Respond = submitted check-in form not reviewed
+  (messages raise none) · Build = program ends within 7 calendar days or ended ≤14 days ago, suppressed when a next
+  program exists or any workout is dated after the end; never for "no program ever" · Remind = check-in form overdue
+  and unsubmitted, raised at the first morning generation after the due date (that form only) · Prepare = 1:1 session
+  today or tomorrow · Unblock = credits expiring within 7 days, or a balance ≤ LOW_CREDIT_THRESHOLD (2, in review).
+  No to-do for `no_activities` or paused clients.
+- BL8: reopening a ticked to-do shows a **Completed** tag; nothing is undone. A second reason still true tomorrow
+  becomes tomorrow's to-do.
+- BL9: Phase 1 data tabs are CID v1 unchanged. Nutrition = macro card · 7 day-ticks for the selected week · Avg
+  Calories row. Training = session log · 2-week adherence · 4-week trend · total load. Do not ship "new mock minus chart".
+
+## Acceptance criteria by user story
+
+- **US1 open/close/complete:** AC1.1 open on row click · AC1.2 default tab per BL2 · AC1.3 switch tab · AC1.4 ×, Esc or
+  click outside closes, nothing changes · AC1.5 reopen completed → same content + Completed tag, no events · AC1.6 /
+  AC10.1 inference failed or low confidence → card absent, no error copy, no spinner · AC1.9 panel ✓ = row checkbox,
+  panel closes, row greys in place · AC1.10 Dismiss (icon beside ✓, tooltip "Dismiss") → dialog → dismissed, panel
+  closes, row leaves, headline count drops, toast **"To-do has been dismissed"** · AC1.11 name link (above).
+- **US2 assessment types (Check-in, Build, Remind):** AC2.1 summary + ≤3 facts from effective_status · AC2.2 Draft with
+  AI / Send message as a middle column; sending never completes · AC2.3 Tell me more = Olly BI with the fixed prompt
+  **"Tell me more about {first_name}'s status on {date}"** plus context (todo_type, main_signal, reason; Build adds
+  program name + end date; Remind adds form name + due date); explains, never prescribes · AC2.4 Nutrition = v1;
+  nothing logged reads "nothing logged" · AC2.5 Mark as reviewed (button, panel ✓ or row checkbox on Check-in) →
+  client reviewed for that week, to-do completed, panel closes; syncs Need review → Review completed; completes every
+  coach's Check-in to-do for the client, and Dashboard review completes it too · AC2.6 other reasons ride along.
+- **Build:** AC4.1 "{first_name}'s program ends in {X} days" (calendar days) · AC4.2 "{first_name} has had nothing
+  assigned for {X} days" · AC4.3 no to-do when a next program exists · AC4.4 Training active with the Current Program
+  card (name · duration in weeks with start/end · Week X of Y · end date with badge · Next program or Not assigned),
+  Notes alongside; assessment full, 3 facts, no verdict · AC4.5 primary "Assign new program" · "Draft with AI" ·
+  "Send message"; "View program" link in the card; no Program Copilot hand-off · AC4.6 assigning does not complete.
+- **Remind:** AC12.1 reason "{first_name} has a check-in form overdue." · AC12.2 one row; the Form Status table lists each
+  period · AC12.3 no status chip, no feedback; Form Status table: form name · response status · last submitted · coach
+  action · action · AC12.4 "Draft with AI" (names the form and how long, does not scold) · "Send message" · AC12.5
+  sending does not complete; client submitting first → auto_resolved, no completion event · AC12.6 suppression
+  `(todo_type, client_id)` for 7 days.
+- **US3 routing types:** Respond: AC3.3 questions and answers render directly, Form is the only tab, buttons "Comments"
+  · "Send message" · "Compare response" (only with 2+ responses, new tab) · primary "Mark form as reviewed" · AC3.5
+  reviewing clears only that client's Respond to-do and never counts as a check-in review · AC3.7 Comments opens the
+  form-response thread (client sees it in the mobile app); commenting does not complete. Prepare: AC7.2 Sessions card
+  (upcoming soonest-first: date, time, type, location, duration · "Last session: {MMM D}" or a dash · "{X} completed ·
+  {Y} late cancel · {Z} early cancel" this week) · AC7.3 "Draft with AI" fills v1.11's reminder template per location
+  (in person / phone / video) · AC7.4 "View all sessions" → Client Sessions › Upcoming in a new tab · AC7.5 sending does
+  not complete. Unblock: AC8.1 "{first_name} has {X} {session_type} credits expiring in {Y} days." · AC8.3 what is
+  running out (type, balance) · when (expiry, count expiring soonest) · how fast (this week's completed sessions);
+  no assessment, no tabs · AC8.4 "Issue credits" → Client Sessions › Credits in a new tab with the popup pre-filled;
+  the dashboard never issues credits · AC8.5 issuing does not complete · AC8.6 no Unblock when Session Credits is off.
+- **US4 feedback (Check-in only):** AC9.1 at the bottom of the assessment card: "Does '{status}' look right for
+  {first_name}?" (the design's "looks" is a copy defect) · AC9.2 Yes logs agreement in one tap · AC9.3 Not quite opens
+  v1.13's Change client status modal unchanged · AC9.4 record shown · yes · not_quite · dismissed · AC9.5 no free text.
+- **US5 abnormal states:** AC10.2 assessment fills in within LATENCY_P95_FULL · AC10.3 changed since generation → a short
+  "updated" line · AC10.4 paused or removed → explain and offer to open the client · AC10.5 empty tab names what is
+  missing · AC10.6 past weeks have no to-do list · AC10.7 Tell me more refused → plain-facts state · AC11.1 Trainers see
+  only their clients · AC11.3 no AI flag → no card, no Olly buttons.
+
+## Thresholds
+
+LATENCY_P95_FIRST 1,200 ms · LATENCY_P95_FULL 3,000 ms · CONF_THRESHOLD TBC (OQ7) · FALLBACK_MAX 8% of panel opens ·
+REFUSAL_MAX 2% of Tell me more calls · KILL_THUMBS_DOWN 15% Not quite over 7 days · LOW_CREDIT_THRESHOLD 2 (in review,
+OQ15) · TODO_CAP = 20 lives in S1+S2. Open: OQ2 model and version, OQ7 CONF_THRESHOLD, OQ15 credit threshold.

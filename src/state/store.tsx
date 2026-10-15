@@ -29,6 +29,7 @@ type Action =
   | { type: 'toast'; message: string | null }
   | { type: 'select'; id: string | null }
   | { type: 'markReviewed'; clientId: string }
+  | { type: 'completeFromPanel'; id: string }
   | { type: 'feedback'; clientId: string; value: FeedbackState };
 
 const initialState: State = {
@@ -85,11 +86,20 @@ function reducer(state: State, action: Action): State {
       return { ...state, selectedTodoId: action.id };
     case 'markReviewed':
       // Review is per client: it completes every Check-in to-do raised for that client (S3 BL5).
+      // The panel closes and the coach lands back on the list (Spec 4 AC2.5).
       return {
         ...state,
         todos: state.todos.map((t) =>
           t.clientId === action.clientId && t.type === 'checkin' && t.state === 'open' ? { ...t, state: 'completed' } : t,
         ),
+        selectedTodoId: null,
+      };
+    case 'completeFromPanel':
+      // The panel's ✓ is the same write as the row checkbox, and closes the panel on every type (Spec 4 AC1.9).
+      return {
+        ...state,
+        todos: state.todos.map((t) => (t.id === action.id ? { ...t, state: 'completed' } : t)),
+        selectedTodoId: null,
       };
     case 'feedback':
       return { ...state, feedback: { ...state.feedback, [action.clientId]: action.value } };
@@ -129,6 +139,7 @@ interface Store {
   showToast: (message: string) => void;
   selectTodo: (id: string | null) => void;
   markReviewed: (clientId: string) => void;
+  completeFromPanel: (id: string) => void;
   setFeedback: (clientId: string, value: FeedbackState) => void;
 }
 
@@ -156,7 +167,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       toggleComplete: (id) => dispatch({ type: 'toggleComplete', id }),
       dismiss: (id) => {
         dispatch({ type: 'dismiss', id });
-        showToast('To-do dismissed');
+        showToast('To-do has been dismissed');
       },
       dismissAllPrevious: () => {
         dispatch({ type: 'dismissAllPrevious' });
@@ -173,6 +184,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         showToast(`${getClient(clientId).firstName} marked as reviewed`);
       },
       setFeedback: (clientId, value) => dispatch({ type: 'feedback', clientId, value }),
+      completeFromPanel: (id) => {
+        dispatch({ type: 'completeFromPanel', id });
+        showToast('To-do completed');
+      },
     };
   }, [state, showToast]);
 

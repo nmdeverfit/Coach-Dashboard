@@ -6,6 +6,9 @@ export const parseDay = (iso: string) => new Date(`${iso}T00:00:00Z`);
 
 export const formatMonthDay = (d: Date) => `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
 
+/** "30 Aug": the date format for model-written, coach-facing copy (Spec 4 BL4). */
+export const formatDayMonth = (d: Date) => `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+
 export const daysBetween = (from: string, to: string) =>
   Math.round((parseDay(to).getTime() - parseDay(from).getTime()) / DAY_MS);
 

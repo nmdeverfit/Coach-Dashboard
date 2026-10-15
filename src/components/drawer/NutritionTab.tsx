@@ -223,6 +223,14 @@ function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSu
 }
 
 export function NutritionTab({ log, summary }: { log: NutritionLog; summary: NutritionSummary }) {
+  // A tab with no data names what is missing instead of drawing an empty chart (Spec 4 AC2.4, AC10.5).
+  if (summary.daysLogged === 0) {
+    return (
+      <p className="w-full rounded-lg border border-dashed border-line-light bg-elevated px-4 py-10 text-center text-[13px] text-ink-secondary">
+        Nothing logged from {summary.window.label}. No meals, so no calories or macros to show.
+      </p>
+    );
+  }
   return (
     <div className="flex w-full flex-col gap-[15px]">
       <MacroCard summary={summary} />

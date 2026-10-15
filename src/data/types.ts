@@ -83,10 +83,8 @@ export interface CheckinDetail {
   nutrition: NutritionLog;
   /** Facts from outside the data area that the assessment cites. */
   context: {
-    /** Due date of the weekly check-in form when it is overdue. */
+    /** Due date of the weekly check-in form when it is overdue (a reason riding along, BL3). */
     checkinFormDueOn?: string;
-    /** A coach note, summarised (never quoted). */
-    note?: { on: string; summary: string };
   };
 }
 

@@ -3,7 +3,10 @@ import type { Client } from '../../data/types';
 import { useStore } from '../../state/store';
 import { STATUS_LABEL } from '../StatusChip';
 
-/** "Does '{status}' look right for {first_name}?" Yes in one tap; Not quite opens the Change client status modal. */
+/**
+ * "Does '{status}' look right for {first_name}?" (Spec 4 AC9.1; the design's "looks" is a copy defect).
+ * Yes in one tap; Not quite opens the Change client status modal. No free-text box (AC9.5).
+ */
 export function StatusFeedback({ client }: { client: Client }) {
   const { state, setFeedback, showToast } = useStore();
   const answer = state.feedback[client.id];
@@ -19,7 +22,7 @@ export function StatusFeedback({ client }: { client: Client }) {
         ) : (
           <>
             <p className="text-[13px] font-semibold leading-[1.5] text-ink-secondary">
-              Does <span className="text-[#484848]">{STATUS_LABEL[client.status]}</span> looks right for {client.firstName}?
+              Does <span className="text-[#484848]">‘{STATUS_LABEL[client.status]}’</span> look right for {client.firstName}?
             </p>
             <div className="flex items-center gap-2">
               <button
