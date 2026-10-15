@@ -1,5 +1,7 @@
-import { PartyPopper } from 'lucide-react';
 import { useState } from 'react';
+import anniversaryBadge from '../assets/figma/badge-anniversary.png';
+import milestoneBadge from '../assets/figma/badge-milestone.svg';
+import confetti from '../assets/figma/icon-confetti.svg';
 import { highlights } from '../data/mock';
 import type { HighlightCategory } from '../data/types';
 import { Avatar } from './Avatar';
@@ -16,6 +18,24 @@ const TABS: { key: Tab; label: string }[] = [
 
 const countFor = (tab: Tab) => (tab === 'all' ? highlights.length : highlights.filter((h) => h.category === tab).length);
 
+/** Milestones get the blue badge; birthdays and anniversaries share the orange one, as drawn. */
+function CatchUpBadge({ category }: { category: HighlightCategory }) {
+  if (category === 'milestone') {
+    return (
+      <span className="relative size-4 rounded-full">
+        <span className="absolute inset-[-1.42%_-1.43%_-1.42%_-1.41%]">
+          <img src={milestoneBadge} alt="" className="block size-full max-w-none" />
+        </span>
+      </span>
+    );
+  }
+  return (
+    <span className="relative size-4 overflow-hidden rounded-full">
+      <img src={anniversaryBadge} alt="" className="absolute left-0 top-[-1.13px] block h-[17.985px] w-[16.003px] max-w-none" />
+    </span>
+  );
+}
+
 /** The v1 Catch-up tab, moved into the right rail. */
 export function ClientHighlights() {
   const [tab, setTab] = useState<Tab>('all');
@@ -24,7 +44,7 @@ export function ClientHighlights() {
   return (
     <section className="flex flex-col gap-3 p-5">
       <div className="flex items-center gap-2 pt-3">
-        <PartyPopper size={20} className="text-ink-tertiary" />
+        <img src={confetti} alt="" width={20} height={20} />
         <h3 className="text-[14px] font-bold leading-[1.5] text-ink">Client highlights</h3>
         <CountChip value={highlights.length} />
       </div>
@@ -54,11 +74,12 @@ export function ClientHighlights() {
               key={h.id}
               className={`flex min-h-[55px] items-center gap-4 px-3 pb-3 pt-2.5 ${i < items.length - 1 ? 'border-b border-line' : ''}`}
             >
-              {h.image ? (
-                <img src={h.image} alt="" width={32} height={32} className="shrink-0" />
-              ) : (
-                <Avatar name={h.clientName} size={32} />
-              )}
+              <span className="flex shrink-0 items-end">
+                <span className="-mr-4">
+                  <Avatar name={h.clientName} src={h.image} size={32} />
+                </span>
+                <CatchUpBadge category={h.category} />
+              </span>
               <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-ink">
                 <span className="font-semibold">{h.clientName}</span> {h.text}
               </p>

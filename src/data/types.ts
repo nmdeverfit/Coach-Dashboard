@@ -51,7 +51,6 @@ export interface Highlight {
   clientName: string;
   /** The rest of the sentence after the client's name. */
   text: string;
-  /** Avatar with its catch-up badge, as drawn in the design. */
   image?: string;
 }
 

@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import heroDivider from '../assets/figma/hero-divider.svg';
+import heroPhoto from '../assets/figma/hero-2.png';
+import dot from '../assets/figma/dot.svg';
 import { COACH_FIRST_NAME, DEMO_TODAY, GENERATED_AT } from '../data/mock';
 import type { Todo } from '../data/types';
 import { ageLabel, formatMonthDay, parseDay } from '../lib/dates';
@@ -15,12 +18,15 @@ const todayLabel = formatMonthDay(parseDay(DEMO_TODAY));
 function Hero() {
   return (
     <div className="p-3">
-      <div className="brief-hero relative flex h-40 flex-col items-center justify-center overflow-hidden rounded-lg px-10">
+      <div className="relative flex h-40 flex-col items-center justify-center overflow-hidden rounded-lg px-10">
+        <img src={heroPhoto} alt="" className="absolute inset-0 size-full rounded-lg object-cover" />
         <div className="absolute inset-0 bg-black/30" aria-hidden />
         <div className="relative flex flex-col items-center">
           <div className="flex items-center gap-3 font-serif text-[20px] italic text-white">
             <span>Today’s Brief</span>
-            <span className="h-4 w-px bg-white/70" aria-hidden />
+            <span className="flex h-4 w-0 items-center justify-center" aria-hidden>
+              <img src={heroDivider} alt="" className="block h-px w-4 max-w-none rotate-90" />
+            </span>
             <span>{todayLabel}</span>
           </div>
           <p className="font-display text-[32px] font-bold leading-[1.5] tracking-[-0.64px] text-white">
@@ -98,7 +104,7 @@ export function TodayBrief() {
                 {GENERATED_AT} - {todayLabel}
               </span>
             </span>
-            <span className="size-1 rounded-full bg-line-chip" aria-hidden />
+            <img src={dot} alt="" width={4} height={4} />
             <span>Refreshes daily</span>
           </div>
         </div>

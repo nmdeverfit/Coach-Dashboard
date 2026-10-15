@@ -4,7 +4,8 @@ Interactive demo of Everfit's AI Check-in Dashboard v2 (Today's Brief), built fr
 [AI Coach Dashboard Figma file](https://www.figma.com/design/idT7h4wCHAIWQ9XQ5VrCvE/AI-Coach-Dashboard?node-id=5625-135627)
 and the *AI Check-in Dashboard v2 | Product Brief*.
 
-Stack: React 18, TypeScript, Vite, Tailwind CSS (tokens in `tailwind.config.js` mirror the Figma variables), lucide-react icons.
+Stack: React 18, TypeScript, Vite, Tailwind CSS (tokens in `tailwind.config.js` mirror the Figma variables).
+Icons, photos and the banner are exported from Figma into `src/assets/figma/`.
 All data is mock data in `src/data/mock.ts`; the demo "today" is Mon Aug 31, 2026.
 
 ```bash
@@ -25,6 +26,4 @@ npm run build:artifact # single-file page in dist-single/ for sharing
 
 ## Notes
 
-- Figma asset downloads were blocked in the build environment, so icons are lucide-react stand-ins,
-  avatars are cropped from a Figma render of the frame, and the banner photo is a painted CSS gradient.
 - The to-do rows follow the design's mock content, which includes Phase 2 titles (Adjust, Congratulate, Kudos).

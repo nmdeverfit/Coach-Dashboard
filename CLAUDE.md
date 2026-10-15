@@ -7,7 +7,8 @@ follow the design for visuals and **raise the conflict with the user** instead o
 
 ## Project
 
-- Stack: React 18 + TypeScript + Vite + Tailwind CSS 3, icons from `lucide-react`. Mock data only, no backend.
+- Stack: React 18 + TypeScript + Vite + Tailwind CSS 3. Icons and images are Figma exports in `src/assets/figma/`
+  (`lucide-react` only for the few icons the design does not draw, e.g. the row dismiss ✕). Mock data only, no backend.
 - Commands: `npm run dev`, `npm run typecheck`, `npm run build`,
   `npm run build:artifact` (single-file page in `dist-single/coach-dashboard.html`, published as a claude.ai Artifact).
 - Layout: web-only, designed at **1440 × 900**. Below 1280px the shell scrolls sideways. No mobile layout (out of scope per brief).
@@ -16,7 +17,8 @@ follow the design for visuals and **raise the conflict with the user** instead o
 ### Structure
 
 - `src/data/types.ts`: domain types (`ClientStatus`, `TodoType`, `Todo`, `Highlight`, `GroupKey`).
-- `src/data/mock.ts`: clients, to-dos, highlights. Avatars load from `src/assets/avatars/<slug>.png` via `import.meta.glob`.
+- `src/data/mock.ts`: clients, to-dos, highlights. Avatars load from `src/assets/figma/av-<slug>.png` (highlights: `hl-<id>.png`)
+  via `import.meta.glob`; `SHARED_PHOTOS` maps clients that reuse another client's photo in the design.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights`, `DashboardView` (placeholder), `StatusChip`, `Toast`, `Avatar`, `CountChip`.
@@ -31,10 +33,10 @@ follow the design for visuals and **raise the conflict with the user** instead o
   Background/Secondary `#f4f6fb`, Border/Default `#e9e9ee`, Border/Light `#dfe0e5`, Icon/Brand `#184eff`,
   Icon/Orange `#ff6b16`, Icon/Warning `#f59e0b`, Icon/Muted `#d9d9d9`, Sidebar gradient `#d9e9ff → #ffe6d9 → #ffd9d9`.
 - Fonts: Open Sans (UI), Inter Bold (greeting), Victor Serif Medium Italic (banner; Newsreader italic is the Google Fonts stand-in).
-- **Asset limitation:** the cloud environment's network policy blocks `www.figma.com`, so Figma MCP asset URLs cannot be
-  downloaded. Icons are lucide stand-ins, avatars were cropped from a 1x Figma render, and the banner photo is a CSS gradient
-  (`.brief-hero`). Replace them with real exports once `www.figma.com` is allowed or the SVG/PNG files are provided
-  (put icons in `src/assets/icons/`).
+- **Assets:** download with `curl -L` from the asset URLs that `get_design_context` returns (they expire after 7 days) into
+  `src/assets/figma/`, named by role (`nav-*.svg`, `icon-*.svg`, `group-*.svg`, `badge-*`, `av-*.png`, `hl-*.png`).
+  Keep Figma's inset/bleed wrappers when placing exported vectors (see `groups.ts`, `TodoRow.tsx`, `ClientHighlights.tsx`).
+  `www.figma.com` must be in the environment's allowed domains for downloads to work.
 
 ### Known gaps between the demo and the brief (open with the user)
 

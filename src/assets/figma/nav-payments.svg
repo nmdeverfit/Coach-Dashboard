@@ -1,0 +1,8 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Main Sidebar Icon">
+<g id="Vector">
+<path d="M2 2C0.971131 2 0 2.7572 0 3.85185V5.33333H16V3.85185C16 2.7572 15.0289 2 14 2H2Z" fill="black" fill-opacity="0.7"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M16 6.66667H0V12.1481C0 13.2428 0.971131 14 2 14H14C15.0289 14 16 13.2428 16 12.1481V6.66667ZM2.66667 10H8.66667V11.3333H2.66667V10ZM13.3333 11.3333H11.3333V10H13.3333V11.3333Z" fill="black" fill-opacity="0.7"/>
+</g>
+</g>
+</svg>

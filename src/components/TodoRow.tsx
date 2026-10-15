@@ -1,4 +1,5 @@
-import { Check, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import iconCheck from '../assets/figma/icon-check.svg';
 import type { Todo } from '../data/types';
 import { getClient } from '../state/store';
 import { Avatar } from './Avatar';
@@ -28,10 +29,15 @@ export function TodoRow({ todo, age, onToggle, onDismiss }: TodoRowProps) {
             className={
               done
                 ? 'absolute left-1/2 top-[5.75px] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border border-brand bg-brand text-white'
-                : 'peer absolute left-1/2 top-[5.75px] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border border-black/15 bg-white text-transparent hover:border-brand hover:text-brand'
+                : 'absolute left-1/2 top-[5.75px] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border-[0.938px] border-black/15 bg-white hover:border-brand'
             }
           >
-            <Check size={11} strokeWidth={3} />
+            {/* The design's check mark; turned white on the filled (done) state. */}
+            <span className="relative size-[10px]">
+              <span className="absolute bottom-[25.73%] left-[16.64%] right-[16.67%] top-1/4">
+                <img src={iconCheck} alt="" className={`block size-full max-w-none ${done ? 'brightness-0 invert' : ''}`} />
+              </span>
+            </span>
           </button>
         </div>
         <div className={`flex min-w-0 flex-1 flex-col gap-1 transition-opacity ${done ? 'opacity-50' : ''}`}>

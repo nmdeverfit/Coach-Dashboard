@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react';
+import chevronSmall from '../assets/figma/icon-chevron-right-small.svg';
 import { groupClients, useStore } from '../state/store';
 import { Avatar } from './Avatar';
 import { CountChip } from './CountChip';
@@ -7,13 +7,18 @@ import type { GroupMeta } from './groups';
 export function CategoryGroup({ group }: { group: GroupMeta }) {
   const { openGroup } = useStore();
   const members = groupClients[group.key];
-  const Icon = group.icon;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl bg-white">
       <header className="flex flex-col gap-1.5 px-4 pb-1 pt-4">
         <div className="flex items-center gap-2">
-          <Icon size={20} className={group.iconClass} strokeWidth={2} />
+          <span className="relative size-5 shrink-0 overflow-hidden" aria-hidden>
+            <span className={`absolute ${group.iconInset}`}>
+              <span className={`absolute ${group.iconBleed}`}>
+                <img src={group.icon} alt="" className="block size-full max-w-none" />
+              </span>
+            </span>
+          </span>
           <h3 className="text-[14px] font-bold leading-[1.5] text-ink">{group.title}</h3>
           <CountChip value={members.length} />
         </div>
@@ -43,7 +48,7 @@ export function CategoryGroup({ group }: { group: GroupMeta }) {
         className="relative flex items-center gap-1 bg-white px-4 py-3 text-[12px] font-semibold leading-normal text-ink-secondary shadow-see-all hover:text-ink"
       >
         View all
-        <ChevronRight size={14} />
+        <img src={chevronSmall} alt="" width={14} height={14} />
       </button>
     </article>
   );

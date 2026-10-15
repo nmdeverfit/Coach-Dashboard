@@ -37,15 +37,6 @@ body {
   }
 }
 
-/* Painted stand-in for the brief banner photo (the Figma image could not be exported). */
-.brief-hero {
-  background:
-    radial-gradient(60% 90% at 18% 45%, rgba(196, 38, 28, 0.85), transparent 60%),
-    radial-gradient(45% 80% at 72% 70%, rgba(140, 16, 18, 0.9), transparent 65%),
-    radial-gradient(30% 50% at 88% 18%, rgba(255, 124, 64, 0.55), transparent 70%),
-    radial-gradient(35% 60% at 40% 10%, rgba(255, 196, 160, 0.35), transparent 70%),
-    linear-gradient(115deg, #160a0d 0%, #3b0b0e 45%, #1a0809 100%);
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,

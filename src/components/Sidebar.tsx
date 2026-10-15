@@ -1,46 +1,42 @@
-import {
-  BookOpen,
-  ChartColumnBig,
-  CircleDollarSign,
-  ClipboardList,
-  CreditCard,
-  FolderOpen,
-  Handshake,
-  MessageCircle,
-  Repeat2,
-  Users,
-  UsersRound,
-  type LucideIcon,
-} from 'lucide-react';
-import logo from '../assets/everfit-logo.png';
+import logo from '../assets/figma/logo.svg';
+import navAnalytics from '../assets/figma/nav-analytics.svg';
+import navAutoflow from '../assets/figma/nav-autoflow.svg';
+import navBilling from '../assets/figma/nav-billing.svg';
+import navClients from '../assets/figma/nav-clients.svg';
+import navCommunity from '../assets/figma/nav-community.svg';
+import navDashboard from '../assets/figma/nav-dashboard.svg';
+import navInbox from '../assets/figma/nav-inbox.svg';
+import navLibrary from '../assets/figma/nav-library.svg';
+import navPayments from '../assets/figma/nav-payments.svg';
+import navResources from '../assets/figma/nav-resources.svg';
+import navTeams from '../assets/figma/nav-teams.svg';
 import { coachAvatar } from '../data/mock';
 import { Avatar } from './Avatar';
 
 interface NavItem {
   label: string;
-  icon: LucideIcon;
+  icon: string;
   active?: boolean;
 }
 
 const mainNav: NavItem[] = [
-  { label: 'Clients', icon: Users },
-  { label: 'Library', icon: BookOpen },
-  { label: 'Inbox', icon: MessageCircle },
-  { label: 'Autoflow', icon: Repeat2 },
-  { label: 'Resources', icon: FolderOpen },
-  { label: 'Teams', icon: UsersRound },
-  { label: 'Payments', icon: CreditCard },
-  { label: 'Analytics', icon: ChartColumnBig },
-  { label: 'Check-in Dashboard', icon: ClipboardList, active: true },
+  { label: 'Clients', icon: navClients },
+  { label: 'Library', icon: navLibrary },
+  { label: 'Inbox', icon: navInbox },
+  { label: 'Autoflow', icon: navAutoflow },
+  { label: 'Resources', icon: navResources },
+  { label: 'Teams', icon: navTeams },
+  { label: 'Payments', icon: navPayments },
+  { label: 'Analytics', icon: navAnalytics },
+  { label: 'Check-in Dashboard', icon: navDashboard, active: true },
 ];
 
 const bottomNav: NavItem[] = [
-  { label: 'Billing', icon: CircleDollarSign },
-  { label: 'Community', icon: Handshake },
+  { label: 'Billing', icon: navBilling },
+  { label: 'Community', icon: navCommunity },
 ];
 
 function NavButton({ item }: { item: NavItem }) {
-  const Icon = item.icon;
   return (
     <button
       type="button"
@@ -49,11 +45,11 @@ function NavButton({ item }: { item: NavItem }) {
       aria-current={item.active ? 'page' : undefined}
       className={
         item.active
-          ? 'flex h-11 w-12 items-center justify-center rounded-xl bg-gradient-to-t from-white/70 to-white text-brand shadow-shadow-1'
-          : 'flex h-11 w-11 items-center justify-center rounded-xl text-ink/80 transition-colors hover:bg-white/50'
+          ? 'flex h-11 w-12 items-center justify-center rounded-xl bg-gradient-to-t from-white/70 to-white shadow-shadow-1'
+          : 'flex h-11 w-11 items-center justify-center rounded-xl transition-colors hover:bg-white/50'
       }
     >
-      <Icon size={16} strokeWidth={2.4} />
+      <img src={item.icon} alt="" width={16} height={16} />
     </button>
   );
 }

@@ -5,10 +5,20 @@ export const DEMO_TODAY = '2026-08-31';
 export const COACH_FIRST_NAME = 'Long';
 export const GENERATED_AT = '06:00 AM';
 
-const avatarFiles = import.meta.glob<string>('../assets/avatars/*.png', { eager: true, import: 'default' });
-const avatar = (slug: string): string | undefined => avatarFiles[`../assets/avatars/${slug}.png`];
+const figmaFiles = import.meta.glob<string>('../assets/figma/*.png', { eager: true, import: 'default' });
+const figmaImage = (name: string): string | undefined => figmaFiles[`../assets/figma/${name}.png`];
 
-export const coachAvatar = avatar('coach-long');
+/** The design reuses some photos across clients; these point at the shared export. */
+const SHARED_PHOTOS: Record<string, string> = {
+  'anabella-potts': 'wilma-flintstone',
+  'wendy-kurtz': 'wilma-flintstone',
+  'penelope-brooks': 'wilma-flintstone',
+  'emma-williams': 'aisha-doyle',
+  'alexander-thompson': 'aima-ansari',
+};
+const avatar = (slug: string) => figmaImage(`av-${SHARED_PHOTOS[slug] ?? slug}`);
+
+export const coachAvatar = figmaImage('avatar-coach');
 
 type Seed = Omit<Client, 'id' | 'firstName' | 'avatar'> & { slug: string };
 
@@ -89,7 +99,7 @@ const hl = (id: string, category: Highlight['category'], clientName: string, tex
   category,
   clientName,
   text,
-  image: avatar(`hl-${id}`),
+  image: figmaImage(`hl-${id}`),
 });
 
 export const highlights: Highlight[] = [
