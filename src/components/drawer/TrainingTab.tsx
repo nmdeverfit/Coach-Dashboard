@@ -32,19 +32,20 @@ function Cell({ cell, today }: { cell: SessionCell; today: string }) {
   return (
     <div
       tabIndex={cell.day ? 0 : undefined}
-      className={`group/cell relative flex h-[68px] min-w-0 flex-col gap-3.5 rounded-lg border p-1.5 outline-none ${s.box}`}
+      className={`group/cell relative flex h-[76px] min-w-0 flex-col gap-3 rounded-lg border px-1.5 pb-2.5 pt-1.5 outline-none ${s.box}`}
     >
       {cell.state === 'paused' && (
         <img src={pausedPattern} alt="" className="pointer-events-none absolute inset-0 size-full rounded-lg object-cover opacity-40" />
       )}
       {isToday ? (
-        <span className="flex size-5 items-center justify-center rounded-full bg-[#e3ecff] text-[11px] font-semibold leading-[18px] text-brand">
+        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#e3ecff] text-[11px] font-semibold leading-[18px] text-brand">
           {pad(cell.date)}
         </span>
       ) : (
-        <span className={`relative h-5 text-[11px] leading-[18px] ${cell.state === 'completed' ? 'text-white' : 'text-ink'}`}>{pad(cell.date)}</span>
+        <span className={`relative h-5 shrink-0 text-[11px] leading-[18px] ${cell.state === 'completed' ? 'text-white' : 'text-ink'}`}>{pad(cell.date)}</span>
       )}
-      <div className="relative flex flex-col gap-1.5">
+      {/* Fixed rows (date, then label) so every state's label sits at the same height; the count hangs below it. */}
+      <div className="relative flex shrink-0 flex-col gap-1.5">
         <span className={`text-[11px] font-semibold leading-none tracking-[-0.22px] ${s.text}`}>{s.label}</span>
         {showCount && (
           <span className={`text-[10px] leading-none tracking-[-0.2px] ${s.tone}`}>

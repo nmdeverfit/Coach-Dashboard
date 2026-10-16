@@ -114,6 +114,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   ✓ / Dismiss and no footer. Title block: name 18 px bold, "Status:" + chip, then four 32 px icon buttons (Draft
   with AI uses `ai-btn`; its tooltip hangs off a wrapper because `ai-btn` clips). Opened from a group-card row or
   the drawer's name link (‹ back).
+- **Session log cells** (Training tab): 76 px tall, `pt-1.5 pb-2.5`. Date row (20 px) then the state label, which
+  sits 39 px from the top on every state; the "3/3" count hangs below the label.
 - **Habit day circles** (28 px): done = green tint + check, missed (daily habits) = `#fef2f2` + red ×, not ticked on
   a weekly habit = white with "–". Labels 9 px uppercase in the matching colour.
 - **No data:** charts never hide. With nothing logged, Nutrition keeps the ring (empty track, "–" in the centre),
