@@ -69,7 +69,9 @@ the same change.
   the panel's ✓, "Complete this task", while the to-do is open).
 - `src/components/side/`: the middle column, 360 px, fixed left of the 720 px panel (Figma Olly `5699:137932`,
   Draft `5124:499989`, Inbox `5699:137775`, both tabbed `5699:138912`). `SidePanel` (header or tabs),
-  `OllyConversation` (Tell me more answer, Draft card → Send → "Message sent" + Open Inbox, composer),
+  `OllyConversation` (turns of prompt → `OllyTask` working state → result: Tell me more answer, Draft card →
+  Send → "Message sent" + Open Inbox; composer with Stop while busy; steps come from `tellTask` / `draftTask` /
+  `sendTask` in `lib/olly.ts`),
   `InboxConversation` (thread by day + composer). State is `side` / `sent` in the store: `openOlly`,
   `openInbox`, `closeSideTab`, `sendMessage`. The column belongs to one client's panel: it closes with the panel
   or when another client opens; from a list row it opens the client detail page with it. Sending never completes

@@ -69,13 +69,21 @@ export default {
       keyframes: {
         'drawer-in': { from: { transform: 'translateX(100%)' }, to: { transform: 'translateX(0)' } },
         'drawer-out': { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(100%)' } },
-        'side-in': { from: { transform: 'translateX(32px)', opacity: '0' }, to: { transform: 'translateX(0)', opacity: '1' } },
+        // The middle column slides out from behind the panel and back under it.
+        'side-in': { from: { transform: 'translateX(100%)' }, to: { transform: 'translateX(0)' } },
+        'side-out': { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(100%)' } },
+        // Olly's working state (screen recording): a light band sweeps across the status text, three dots pulse in turn.
+        shimmer: { from: { backgroundPosition: '100% 0' }, to: { backgroundPosition: '-100% 0' } },
+        'dot-wave': { '0%, 80%, 100%': { opacity: '0.35', transform: 'scale(0.8)' }, '40%': { opacity: '1', transform: 'scale(1)' } },
         'bubble-in': { from: { transform: 'translateY(6px)', opacity: '0' }, to: { transform: 'translateY(0)', opacity: '1' } },
       },
       animation: {
         'drawer-in': 'drawer-in 280ms cubic-bezier(0.22, 1, 0.36, 1)',
         'drawer-out': 'drawer-out 220ms ease-in forwards',
-        'side-in': 'side-in 240ms cubic-bezier(0.22, 1, 0.36, 1)',
+        'side-in': 'side-in 320ms cubic-bezier(0.22, 1, 0.36, 1)',
+        'side-out': 'side-out 220ms ease-in forwards',
+        shimmer: 'shimmer 1.6s linear infinite',
+        'dot-wave': 'dot-wave 1.2s ease-in-out infinite',
         'bubble-in': 'bubble-in 220ms ease-out both',
       },
       fontFamily: {

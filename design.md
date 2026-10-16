@@ -166,8 +166,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   semibold ink, underlined. Brief: no hero or to-dos; the 2 × 2 group cards and Client highlights span the width
   (descriptions drop their two-line min height). Upcoming bookings labels always give the date on a past week.
 - **Middle column** (Olly / Inbox, Figma `5699:137932`, `5124:499989`, `5699:137775`, `5699:138912`): 360 px,
-  fixed left of the 720 px panel, full height, `shadow-[-4px_0_60px_rgba(0,0,0,0.2)]`, slides in 32 px
-  (`animate-side-in`). One at a time it has a 56 px header (Olly 16 px bold `black/70` + BETA tag; Inbox the
+  fixed left of the 720 px panel, full height, `shadow-[-4px_0_60px_rgba(0,0,0,0.2)]`. It slides out from behind
+  the panel, right to left (`animate-side-in`, 320 ms), and back under it on close (`animate-side-out`, 220 ms). One at a time it has a 56 px header (Olly 16 px bold `black/70` + BETA tag; Inbox the
   client's name 16 px bold), pop-out and ×. Both open: one 44 px tab bar, the inbox tab (name 14 px bold + ×) then
   Olly (14 px semibold + AI pill, pop-out, ×); active tab `#fefefe`, inactive `#f0f0f2`. Olly's background is the
   frame's white → `#f6f8fa` → `#fff9fe` gradient. Coach bubbles (Olly prompts, inbox) are brand; client bubbles
@@ -175,6 +175,12 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   card with a 180 px donut (`#0e9cff` / `#ff7657`). Draft card: 2 px pink → blue gradient stroke, "Message to"
   + client tag, editable draft (13 px semibold), 30 px brand Send. Composer: 140 px white card, Ctrl key hint, mic,
   32 px send (grey until there is text).
+- **Olly working states** (the user's screen recording; `OllyTask`): after each prompt, "Sending this to the right
+  place…" (three pulsing dots in Olly gradient colours + a shimmer sweeping the 13 px semibold text, 0.9 s), then
+  the task title over its steps, each a blue spinner that turns into a ✓ (0.75 s each), then one line with a filled
+  blue check ("Checked 3 sources", "Drafted 1 message", "Message delivered") and a chevron that unfolds the steps;
+  the result fades in under it. While Olly works the composer's send turns into Stop (blue gradient disc, white
+  square); stopping leaves "Stopped. Ask again whenever you're ready." Reduced motion skips straight to the result.
 - **View switch** (Today's Brief ⇄ Dashboard, `ViewLayer` in `App.tsx`): everything below the header slides as one
   track, 420 ms `cubic-bezier(0.65, 0, 0.35, 1)`. To the Dashboard the brief leaves left and the list comes in from
   the right; back to the brief the reverse. Both views stay mounted, so each keeps its scroll, tab and search.

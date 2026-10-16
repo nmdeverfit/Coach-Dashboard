@@ -1,7 +1,8 @@
+import { useEffect, useState } from 'react';
 import iconExternal from '../../assets/figma/icon-external.svg';
 import iconClose from '../../assets/figma/icon-olly-close.svg';
 import iconTabClose from '../../assets/figma/icon-panel-close-tab.svg';
-import { getClient, useStore, type SideTab } from '../../state/store';
+import { getClient, useStore, type SidePanelState, type SideTab } from '../../state/store';
 import { AiPill } from '../AiPill';
 import { InboxConversation } from './InboxConversation';
 import { OllyConversation } from './OllyConversation';
@@ -33,9 +34,31 @@ function IconButton({ src, label, size, onClick }: { src: string; label: string;
 
 const OLLY_BG = 'linear-gradient(180deg, #ffffff 0.9%, #f6f8fa 31.3%, #fff9fe 88.4%)';
 
+const CLOSE_MS = 220;
+
+/** Keeps the column on screen while it slides back under the panel, so closing animates instead of vanishing. */
+function useSidePresence(current: SidePanelState | null) {
+  const [shown, setShown] = useState(current);
+  const [closing, setClosing] = useState(false);
+  useEffect(() => {
+    if (current) {
+      setShown(current);
+      setClosing(false);
+      return;
+    }
+    setClosing(true);
+    const t = window.setTimeout(() => {
+      setShown(null);
+      setClosing(false);
+    }, CLOSE_MS);
+    return () => window.clearTimeout(t);
+  }, [current]);
+  return { side: current ?? shown, closing: !current && closing };
+}
+
 export function SidePanel() {
   const { state, setSideTab, closeSideTab, showToast } = useStore();
-  const side = state.side;
+  const { side, closing } = useSidePresence(state.side);
   if (!side) return null;
   const client = getClient(side.clientId);
   const both = side.inbox && side.olly;
@@ -46,7 +69,9 @@ export function SidePanel() {
     <aside
       data-side-panel
       aria-label={active === 'olly' ? 'Olly' : `Messages with ${client.name}`}
-      className="fixed inset-y-0 right-[720px] z-[39] flex w-[360px] animate-side-in flex-col border-r border-[#f2f2f2] shadow-[-4px_0_60px_rgba(0,0,0,0.2)]"
+      className={`fixed inset-y-0 right-[720px] z-[39] flex w-[360px] flex-col border-r border-[#f2f2f2] shadow-[-4px_0_60px_rgba(0,0,0,0.2)] ${
+        closing ? 'pointer-events-none animate-side-out' : 'animate-side-in'
+      }`}
       style={{ background: active === 'olly' ? OLLY_BG : '#ffffff' }}
     >
       {both ? (

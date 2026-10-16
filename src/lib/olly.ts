@@ -86,6 +86,43 @@ export function tellAnswer(client: Client, assessment: Assessment, today: string
   };
 }
 
+// ---------------------------------------------------------------- Working steps
+
+/** What Olly shows while it works (the user's screen recording): a title, its steps and the one-line summary. */
+export interface OllyTaskSpec {
+  title: string;
+  steps: string[];
+  doneLabel: string;
+}
+
+/** Tell me more reads the stored status, then the logs behind the leading signal, then charts them. */
+export function tellTask(client: Client, today: string): OllyTaskSpec {
+  const profile = getProfile(client.id);
+  const nutrition = profile.focus === 'nutrition';
+  const window = summarizeNutrition(profile.nutrition, today).window.label;
+  return {
+    title: `Reading ${client.firstName}’s status…`,
+    steps: [
+      `Read the stored status for ${dayMonth(today)}`,
+      nutrition ? `Check meals logged, ${window}` : 'Check sections done, last 2 weeks',
+      nutrition ? 'Chart the days logged' : 'Chart session completion',
+    ],
+    doneLabel: 'Checked 3 sources',
+  };
+}
+
+export const draftTask = (client: Client): OllyTaskSpec => ({
+  title: 'Drafting your message…',
+  steps: [`Read ${client.firstName}’s to-do and status`, 'Write the draft'],
+  doneLabel: 'Drafted 1 message',
+});
+
+export const sendTask = (client: Client): OllyTaskSpec => ({
+  title: 'Sending your message…',
+  steps: [`Deliver to ${client.name}’s inbox`],
+  doneLabel: 'Message delivered',
+});
+
 // ---------------------------------------------------------------- Draft with AI
 
 export interface OllyDraft {

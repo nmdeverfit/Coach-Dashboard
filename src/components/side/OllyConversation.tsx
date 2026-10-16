@@ -7,8 +7,9 @@ import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { Client } from '../../data/types';
 import { buildClientAssessment } from '../../lib/client';
-import { draftFor, tellAnswer, tellPrompt, type OllyAnswer, type OllyChart } from '../../lib/olly';
+import { draftFor, draftTask, sendTask, tellAnswer, tellPrompt, tellTask, type OllyAnswer, type OllyChart, type OllyTaskSpec } from '../../lib/olly';
 import { getClient, useStore, type OllyRequest } from '../../state/store';
+import { OllyTask } from './OllyTask';
 
 /**
  * Olly's conversation in the middle column (Figma 5699:137932 Tell me more, 5124:499989 Draft with AI). Tell me more
@@ -99,7 +100,7 @@ function ChartCard({ chart }: { chart: OllyChart }) {
 /** Quick Summary: the assessment's facts, then where they come from, then the chart. Explains, never prescribes. */
 function Answer({ answer }: { answer: OllyAnswer }) {
   return (
-    <div className="flex w-full animate-bubble-in flex-col gap-4">
+    <div className="flex w-full flex-col gap-4">
       <div className="flex flex-col gap-4 border-b border-[#e6e6e6] pb-6">
         <p className="text-[18px] font-bold leading-[1.5] text-ink">Quick Summary</p>
         <ul className="list-disc text-[14px] leading-[1.5] text-ink">
@@ -122,10 +123,16 @@ function Answer({ answer }: { answer: OllyAnswer }) {
   );
 }
 
-type Turn = { kind: 'user'; text: string } | { kind: 'answer'; answer: OllyAnswer } | { kind: 'sent' };
 
 /** The draft card: "Message to {client}", an editable draft and Send (gradient stroke as drawn). */
-function DraftCard({ client, text, onChange, onSend, sent }: { client: Client; text: string; onChange: (t: string) => void; onSend: () => void; sent: boolean }) {
+function DraftCard({ client, text, onChange, onSend, sent, busy }: {
+  client: Client;
+  text: string;
+  onChange: (t: string) => void;
+  onSend: () => void;
+  sent: boolean;
+  busy: boolean;
+}) {
   return (
     <div
       className="flex w-full flex-col gap-3 rounded-xl border-2 border-transparent p-3"
@@ -145,7 +152,7 @@ function DraftCard({ client, text, onChange, onSend, sent }: { client: Client; t
       />
       <button
         type="button"
-        disabled={sent || !text.trim()}
+        disabled={sent || busy || !text.trim()}
         onClick={onSend}
         className="h-[30px] rounded-[5px] bg-brand text-[12px] font-semibold leading-[1.5] text-white hover:bg-brand/90 disabled:opacity-50"
       >
@@ -155,10 +162,11 @@ function DraftCard({ client, text, onChange, onSend, sent }: { client: Client; t
   );
 }
 
-function Composer({ onAsk }: { onAsk: (text: string) => void }) {
+/** Composer; while Olly works its send button turns into Stop (blue disc, white square), as recorded. */
+function Composer({ busy, onAsk, onStop }: { busy: boolean; onAsk: (text: string) => void; onStop: () => void }) {
   const [text, setText] = useState('');
   const submit = () => {
-    if (!text.trim()) return;
+    if (busy || !text.trim()) return;
     onAsk(text.trim());
     setText('');
   };
@@ -190,18 +198,39 @@ function Composer({ onAsk }: { onAsk: (text: string) => void }) {
           <span className="p-[6.4px]" aria-hidden>
             <img src={iconMic} alt="" width={19.2} height={19.2} />
           </span>
-          <button
-            type="button"
-            aria-label="Send to Olly"
-            onClick={submit}
-            className={`flex size-8 items-center justify-center rounded-full ${text.trim() ? 'bg-brand' : 'bg-[#dadfea]'}`}
-          >
-            <img src={iconArrowUp} alt="" width={19.2} height={19.2} className={text.trim() ? 'brightness-0 invert' : ''} />
-          </button>
+          {busy ? (
+            <button
+              type="button"
+              aria-label="Stop"
+              onClick={onStop}
+              className="flex size-8 items-center justify-center rounded-full"
+              style={{ backgroundImage: 'linear-gradient(160deg, #5b8cff 0%, #184eff 100%)' }}
+            >
+              <span className="size-3 rounded-[3px] bg-white" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              aria-label="Send to Olly"
+              onClick={submit}
+              className={`flex size-8 items-center justify-center rounded-full ${text.trim() ? 'bg-brand' : 'bg-[#dadfea]'}`}
+            >
+              <img src={iconArrowUp} alt="" width={19.2} height={19.2} className={text.trim() ? 'brightness-0 invert' : ''} />
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
+}
+
+interface Turn {
+  id: number;
+  /** The coach's message. */
+  user: string;
+  task: OllyTaskSpec;
+  result: 'answer' | 'draft' | 'sent';
+  stopped?: boolean;
 }
 
 export function OllyConversation({ clientId, request }: { clientId: string; request: OllyRequest }) {
@@ -210,69 +239,85 @@ export function OllyConversation({ clientId, request }: { clientId: string; requ
   const todo = state.todos.find((t) => t.id === request.todoId);
   const assessment = request.assessment ?? buildClientAssessment(client, getProfile(client.id), DEMO_TODAY);
   const draft = draftFor(client, todo, DEMO_TODAY);
+  const answer = tellAnswer(client, assessment, DEMO_TODAY);
   const [text, setText] = useState(draft.text);
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const sent = turns.some((t) => t.kind === 'sent');
+  const [turns, setTurns] = useState<Turn[]>(() => [
+    request.mode === 'tell'
+      ? { id: 0, user: tellPrompt(client, DEMO_TODAY), task: tellTask(client, DEMO_TODAY), result: 'answer' }
+      : { id: 0, user: draft.request, task: draftTask(client), result: 'draft' },
+  ]);
+  const [busy, setBusy] = useState(true);
+  const sent = turns.some((t) => t.result === 'sent' && !t.stopped);
   const scroller = useRef<HTMLDivElement>(null);
 
   // The first answer reads from the top; later turns scroll into view.
   useEffect(() => {
-    if (turns.length) scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' });
+    if (turns.length > 1) scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' });
   }, [turns.length]);
 
+  const push = (turn: Omit<Turn, 'id'>) => {
+    setBusy(true);
+    setTurns((t) => [...t, { ...turn, id: t.length }]);
+  };
   const send = () => {
     sendMessage(client.id, text.trim());
-    setTurns((t) => [...t, { kind: 'user', text: 'Send' }, { kind: 'sent' }]);
+    push({ user: 'Send', task: sendTask(client), result: 'sent' });
   };
   // Phase 1 answers only from the stored status, so a follow-up gets the same record (AC2.3, OQ5).
-  const ask = (q: string) =>
-    setTurns((t) => [...t, { kind: 'user', text: q }, { kind: 'answer', answer: tellAnswer(client, assessment, DEMO_TODAY) }]);
+  const ask = (q: string) => push({ user: q, task: tellTask(client, DEMO_TODAY), result: 'answer' });
+  const stop = () => {
+    setTurns((t) => t.map((turn, i) => (i === t.length - 1 ? { ...turn, stopped: true } : turn)));
+    setBusy(false);
+  };
+
+  const resultOf = (turn: Turn) => {
+    switch (turn.result) {
+      case 'answer':
+        return <Answer answer={answer} />;
+      case 'draft':
+        return (
+          <div className="flex w-full flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <DraftCard client={client} text={text} onChange={setText} onSend={send} sent={sent} busy={busy} />
+              <p className="text-[14px] leading-[1.5] text-ink">
+                Anything you’d like to change? Otherwise, click <b>Send</b> when you’re ready.
+              </p>
+            </div>
+            <Feedback />
+          </div>
+        );
+      case 'sent':
+        return (
+          <div className="flex flex-col gap-2">
+            <p className="text-[14px] leading-[1.5] text-ink">✅ Message sent successfully! Anything else I can help with?</p>
+            <div className="flex flex-col items-start gap-1">
+              <Feedback />
+              <button
+                type="button"
+                onClick={() => openInbox(client.id)}
+                className="flex h-8 items-center rounded border border-[#ccd2de] bg-white p-2 text-[13px] font-semibold leading-[1.4] text-ink hover:bg-surface-secondary"
+              >
+                Open Inbox
+              </button>
+            </div>
+          </div>
+        );
+    }
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div ref={scroller} className="scroll-thin flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pb-6 pt-4">
-        {request.mode === 'tell' ? (
-          <>
-            <UserBubble>{tellPrompt(client, DEMO_TODAY)}</UserBubble>
-            <Answer answer={tellAnswer(client, assessment, DEMO_TODAY)} />
-          </>
-        ) : (
-          <>
-            <UserBubble>{draft.request}</UserBubble>
-            <div className="flex w-full animate-bubble-in flex-col gap-3">
-              <div className="flex flex-col gap-2">
-                <DraftCard client={client} text={text} onChange={setText} onSend={send} sent={sent} />
-                <p className="text-[14px] leading-[1.5] text-ink">
-                  Anything you’d like to change? Otherwise, click <b>Send</b> when you’re ready.
-                </p>
-              </div>
-              <Feedback />
-            </div>
-          </>
-        )}
-        {turns.map((t, i) =>
-          t.kind === 'user' ? (
-            <UserBubble key={i}>{t.text}</UserBubble>
-          ) : t.kind === 'answer' ? (
-            <Answer key={i} answer={t.answer} />
-          ) : (
-            <div key={i} className="flex animate-bubble-in flex-col gap-2">
-              <p className="text-[14px] leading-[1.5] text-ink">✅ Message sent successfully! Anything else I can help with?</p>
-              <div className="flex flex-col items-start gap-1">
-                <Feedback />
-                <button
-                  type="button"
-                  onClick={() => openInbox(client.id)}
-                  className="flex h-8 items-center rounded border border-[#ccd2de] bg-white p-2 text-[13px] font-semibold leading-[1.4] text-ink hover:bg-surface-secondary"
-                >
-                  Open Inbox
-                </button>
-              </div>
-            </div>
-          ),
-        )}
+        {turns.map((turn) => (
+          <div key={turn.id} className="flex flex-col gap-5">
+            <UserBubble>{turn.user}</UserBubble>
+            <OllyTask spec={turn.task} stopped={Boolean(turn.stopped)} onSettled={() => setBusy(false)}>
+              {resultOf(turn)}
+            </OllyTask>
+          </div>
+        ))}
       </div>
-      <Composer onAsk={ask} />
+      <Composer busy={busy} onAsk={ask} onStop={stop} />
     </div>
   );
 }
