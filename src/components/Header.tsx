@@ -9,7 +9,9 @@ import iconTasks from '../assets/figma/icon-tasks.svg';
 import iconTour from '../assets/figma/icon-tour.svg';
 import iconWhatsNew from '../assets/figma/icon-whats-new.svg';
 import { DEMO_TODAY } from '../data/mock';
+import iconHistory from '../assets/figma/icon-history.svg';
 import { weekLabel } from '../lib/dates';
+import { MIN_WEEK_OFFSET, weekRange } from '../lib/week';
 import { useStore, type View } from '../state/store';
 
 const VIEWS: { key: View; label: string }[] = [
@@ -20,15 +22,18 @@ const VIEWS: { key: View; label: string }[] = [
 function WeekSelector() {
   const { state, shiftWeek, resetWeek } = useStore();
   const isCurrentWeek = state.weekOffset === 0;
+  const isFirstWeek = state.weekOffset <= MIN_WEEK_OFFSET;
   return (
     <div className="flex items-center gap-2">
       <button
         type="button"
         aria-label="Previous week"
+        disabled={isFirstWeek}
         onClick={() => shiftWeek(-1)}
-        className="flex size-7 items-center justify-center rounded-md border border-line-nav bg-white text-ink hover:bg-surface-secondary"
+        className="flex size-7 items-center justify-center rounded-md border border-line-nav bg-white text-ink hover:bg-surface-secondary disabled:border-transparent disabled:bg-surface-secondary"
       >
-        <img src={iconChevronLeft} alt="" width={20} height={20} />
+        {/* The back-filled weeks start on 10 Aug (MIN_WEEK_OFFSET); before that Back is disabled like Next. */}
+        <img src={isFirstWeek ? iconChevronDisabled : iconChevronLeft} alt="" width={20} height={20} className={isFirstWeek ? '-scale-x-100' : ''} />
       </button>
       <div className="flex h-7 items-center gap-2 px-[7px]">
         <img src={iconCalendar} alt="" width={16} height={16} />
@@ -50,7 +55,7 @@ function WeekSelector() {
         type="button"
         disabled={isCurrentWeek}
         onClick={resetWeek}
-        className="flex h-7 items-center rounded-md bg-surface-secondary p-2 text-[12px] font-semibold leading-[1.4] text-ink opacity-80 hover:bg-line-light disabled:text-ink-muted disabled:hover:bg-surface-secondary"
+        className="flex h-7 items-center rounded-[5px] border border-line-nav bg-white px-2 text-[12px] font-semibold leading-[1.4] text-ink/80 hover:bg-surface-secondary disabled:border-transparent disabled:bg-surface-secondary disabled:text-ink-muted"
       >
         Today
       </button>
@@ -106,9 +111,34 @@ const topActions = [
   { label: 'Notifications', icon: iconBell, width: 16, height: 20 },
 ];
 
+/**
+ * Past-week banner (Figma 4780:125157 / 4798:172414): under the header on any week but this one. The brief's version
+ * says why the to-dos are gone; the client list's says the statuses are that week's.
+ */
+function PastWeekBanner() {
+  const { state, resetWeek } = useStore();
+  if (state.weekOffset === 0) return null;
+  const note = state.view === 'brief' ? 'To-dos are only shown for today.' : 'Current client status may differ.';
+  return (
+    // #f3f6ff and #484848 are the frame's banner fill and Text/Dark.
+    <div className="flex shrink-0 items-center gap-1.5 border-y border-line bg-[#f3f6ff] px-5 py-2 text-[13px] leading-[1.5]">
+      <img src={iconHistory} alt="" width={16} height={16} />
+      <p className="flex items-center gap-2 whitespace-nowrap">
+        <span className="text-[#484848]">
+          Looking back at {weekRange(state.weekOffset)}. {note}
+        </span>
+        <button type="button" onClick={resetWeek} className="font-semibold text-ink underline hover:opacity-80">
+          Back to this week
+        </button>
+      </p>
+    </div>
+  );
+}
+
 export function Header() {
   const { showToast } = useStore();
   return (
+    <div className="flex shrink-0 flex-col">
     <header className="flex shrink-0 flex-col gap-5 bg-white px-5 pb-3 pt-5">
       <div className="flex h-[26px] items-center justify-between">
         <h1 className="text-[20px] font-bold leading-none tracking-[-0.4px] text-ink">Check-in Dashboard</h1>
@@ -131,5 +161,7 @@ export function Header() {
         </div>
       </div>
     </header>
+    <PastWeekBanner />
+    </div>
   );
 }

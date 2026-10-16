@@ -1,12 +1,14 @@
 import chevronSmall from '../assets/figma/icon-chevron-right-small.svg';
-import { groupClients, useStore } from '../state/store';
+import { groupsInWeek } from '../lib/week';
+import { useStore } from '../state/store';
 import { Avatar } from './Avatar';
 import { CountChip } from './CountChip';
 import type { GroupMeta } from './groups';
 
-export function CategoryGroup({ group }: { group: GroupMeta }) {
+export function CategoryGroup({ group, wide = false }: { group: GroupMeta; wide?: boolean }) {
   const { state, openGroup, selectClient } = useStore();
-  const members = groupClients[group.key];
+  // Cards follow the week selector: a past week shows that Monday's groups.
+  const members = groupsInWeek(state.weekOffset)[group.key];
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl bg-white">
@@ -22,7 +24,8 @@ export function CategoryGroup({ group }: { group: GroupMeta }) {
           <h3 className="text-[14px] font-bold leading-[1.5] text-ink">{group.title}</h3>
           <CountChip value={members.length} />
         </div>
-        <p className="min-h-[36px] text-[12px] leading-[1.5] text-ink-secondary">{group.description}</p>
+        {/* Half width, two-line descriptions keep the paired cards aligned; at full width each fits one line. */}
+        <p className={`${wide ? '' : 'min-h-[36px]'} text-[12px] leading-[1.5] text-ink-secondary`}>{group.description}</p>
       </header>
       <ul className="scroll-thin h-[210px] overflow-y-auto px-3">
         {members.map((client) => (

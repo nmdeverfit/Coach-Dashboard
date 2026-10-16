@@ -3,6 +3,7 @@ import { DEMO_TODAY, clients, todos as seedTodos } from '../data/mock';
 import type { Client, FeedbackState, GroupKey, Todo } from '../data/types';
 import type { ClientTabKey } from '../components/drawer/ClientTabs';
 import type { DashboardTab } from '../lib/dashboard';
+import { MIN_WEEK_OFFSET, seededReview } from '../lib/week';
 
 export type View = 'brief' | 'dashboard';
 
@@ -22,6 +23,8 @@ interface State {
   selectedClientTab: ClientTabKey | null;
   /** Clients reviewed this week. A Check-in review is one action on both views (brief, S3 BL5). */
   reviewed: Record<string, boolean>;
+  /** Reviews the coach changed on past weeks, by week offset (the rest come from `seededReview`). */
+  pastReviewed: Record<number, Record<string, boolean>>;
   /** Answer to "Does '{status}' look right for {first_name}?" per client. */
   feedback: Record<string, FeedbackState>;
 }
@@ -38,7 +41,7 @@ type Action =
   | { type: 'select'; id: string | null }
   | { type: 'selectClient'; id: string | null; tab?: ClientTabKey }
   | { type: 'reviewClient'; clientId: string }
-  | { type: 'toggleReview'; clientId: string }
+  | { type: 'toggleReview'; clientId: string; offset: number }
   | { type: 'setDashboardTab'; tab: DashboardTab }
   | { type: 'markReviewed'; clientId: string }
   | { type: 'completeFromPanel'; id: string }
@@ -54,10 +57,17 @@ const initialState: State = {
   selectedClientId: null,
   selectedClientTab: null,
   reviewed: {},
+  pastReviewed: {},
   feedback: {},
 };
 
 const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
+
+/** Reviewed in the week `offset` weeks from this one (0 = this week, the only one tied to to-dos). */
+export function isReviewed(state: Pick<State, 'reviewed' | 'pastReviewed'>, clientId: string, offset: number): boolean {
+  if (offset === 0) return Boolean(state.reviewed[clientId]);
+  return state.pastReviewed[offset]?.[clientId] ?? seededReview(clientId, offset);
+}
 
 const GROUP_TAB: Record<GroupKey, DashboardTab> = {
   at_risk: 'at_risk',
@@ -102,8 +112,11 @@ function reducer(state: State, action: Action): State {
         selectedTodoId: action.view === 'brief' ? state.selectedTodoId : null,
         selectedClientId: action.view === 'brief' ? state.selectedClientId : null,
       };
-    case 'shiftWeek':
-      return { ...state, weekOffset: Math.min(0, state.weekOffset + action.by) };
+    case 'shiftWeek': {
+      const weekOffset = Math.max(MIN_WEEK_OFFSET, Math.min(0, state.weekOffset + action.by));
+      // To-dos exist on the current week only, so their panel closes when the coach looks back.
+      return { ...state, weekOffset, selectedTodoId: weekOffset === 0 ? state.selectedTodoId : null };
+    }
     case 'resetWeek':
       return { ...state, weekOffset: 0 };
     case 'openGroup':
@@ -126,6 +139,14 @@ function reducer(state: State, action: Action): State {
         ),
       };
     case 'toggleReview': {
+      // A past week's review is that week's record only; to-dos exist on the current week alone.
+      if (action.offset !== 0) {
+        const week = state.pastReviewed[action.offset] ?? {};
+        return {
+          ...state,
+          pastReviewed: { ...state.pastReviewed, [action.offset]: { ...week, [action.clientId]: !isReviewed(state, action.clientId, action.offset) } },
+        };
+      }
       // The client list's ✓ toggles the week's review; undoing it reopens the Check-in to-dos it completed.
       const reviewing = !state.reviewed[action.clientId];
       return {
@@ -199,6 +220,8 @@ interface Store {
   reviewClient: (clientId: string) => void;
   /** The client list's ✓: marks the client reviewed, or takes the review back. */
   toggleReview: (clientId: string) => void;
+  /** Whether the client was reviewed in the selected week. */
+  reviewedNow: (clientId: string) => boolean;
   setDashboardTab: (tab: DashboardTab) => void;
   markReviewed: (clientId: string) => void;
   completeFromPanel: (id: string) => void;
@@ -248,9 +271,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       toggleReview: (clientId) => {
         const name = getClient(clientId).firstName;
-        showToast(state.reviewed[clientId] ? `Review undone for ${name}` : `${name} marked as reviewed`);
-        dispatch({ type: 'toggleReview', clientId });
+        showToast(isReviewed(state, clientId, state.weekOffset) ? `Review undone for ${name}` : `${name} marked as reviewed`);
+        dispatch({ type: 'toggleReview', clientId, offset: state.weekOffset });
       },
+      reviewedNow: (clientId) => isReviewed(state, clientId, state.weekOffset),
       setDashboardTab: (tab) => dispatch({ type: 'setDashboardTab', tab }),
       markReviewed: (clientId) => {
         dispatch({ type: 'markReviewed', clientId });

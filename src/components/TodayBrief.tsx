@@ -50,27 +50,9 @@ function SectionTitle({ title, count }: { title: string; count: number }) {
 type PendingDismiss = { kind: 'one'; todo: Todo } | { kind: 'all'; count: number };
 
 export function TodayBrief() {
-  const { state, suggested, previous, openSuggestedCount, toggleComplete, dismiss, dismissAllPrevious, resetWeek, selectTodo } = useStore();
+  const { state, suggested, previous, openSuggestedCount, toggleComplete, dismiss, dismissAllPrevious, selectTodo } = useStore();
   const [expanded, setExpanded] = useState(false);
   const [pending, setPending] = useState<PendingDismiss | null>(null);
-
-  if (state.weekOffset !== 0) {
-    return (
-      <section className="flex flex-col bg-white">
-        <Hero />
-        <div className="flex flex-col items-start gap-3 px-[60px] py-10">
-          <h2 className="text-[20px] font-bold leading-[1.5] tracking-[-0.4px] text-ink">Today’s Brief covers the current week only</h2>
-          <p className="max-w-[460px] text-[13px] leading-[1.5] text-ink-secondary">
-            Suggested to-dos are generated each morning for this week. The group cards on the right still show this past week’s
-            client status.
-          </p>
-          <button type="button" onClick={resetWeek} className="h-8 rounded-[4px] bg-ink px-4 text-[13px] font-semibold text-white hover:bg-ink/90">
-            Back to this week
-          </button>
-        </div>
-      </section>
-    );
-  }
 
   const visibleSuggested = expanded ? suggested : suggested.slice(0, INITIAL_ROWS);
   const hiddenCount = suggested.length - visibleSuggested.length;

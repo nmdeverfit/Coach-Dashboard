@@ -13,10 +13,11 @@ import statNoActivities from '../assets/figma/stat-no-activities.svg';
 import statOnTrack from '../assets/figma/stat-on-track.svg';
 import statProgramEnding from '../assets/figma/stat-program-ending.svg';
 import statReviewCompleted from '../assets/figma/stat-review-completed.svg';
-import { DEMO_TODAY, clients } from '../data/mock';
+import { clients } from '../data/mock';
 import { getProfile } from '../data/profiles';
 import type { Client } from '../data/types';
 import { activityLine, byUrgency, hasFormToReview, inTab, lastActive, statusLine, type ActivityLine, type DashboardTab } from '../lib/dashboard';
+import { clientsInWeek, weekAsOf } from '../lib/week';
 import { useStore } from '../state/store';
 import { BookingTable } from './BookingTable';
 import { ClientActions } from './ClientActions';
@@ -66,18 +67,29 @@ interface Row {
   lastActive: string;
 }
 
-const ROWS: Row[] = clients.map((client) => {
-  const profile = getProfile(client.id);
-  return {
-    client,
-    status: statusLine(client, profile, DEMO_TODAY),
-    activity: activityLine(client, profile, DEMO_TODAY),
-    lastActive: lastActive(profile, DEMO_TODAY),
-  };
-});
+const rowCache = new Map<number, Row[]>();
+
+/** The rows as of a week's Monday morning; the current week is the live data. */
+function rowsInWeek(offset: number): Row[] {
+  let rows = rowCache.get(offset);
+  if (!rows) {
+    const asOf = weekAsOf(offset);
+    rows = clientsInWeek(offset).map((client) => {
+      const profile = getProfile(client.id);
+      return {
+        client,
+        status: statusLine(client, profile, asOf),
+        activity: activityLine(client, profile, asOf),
+        lastActive: lastActive(profile, asOf),
+      };
+    });
+    rowCache.set(offset, rows);
+  }
+  return rows;
+}
 
 export function DashboardView() {
-  const { state, setDashboardTab } = useStore();
+  const { state, setDashboardTab, reviewedNow } = useStore();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState({ need: true, done: true });
   // The client whose row just changed section, so its new row animates in once.
@@ -88,21 +100,24 @@ export function DashboardView() {
     return () => window.clearTimeout(t);
   }, [arrived]);
 
+  const offset = state.weekOffset;
+  // Forms waiting on review are today's queue; a past week's were reviewed long since.
   const formToReview = useMemo(
-    () => new Set(clients.filter((c) => hasFormToReview(c, getProfile(c.id), state.todos)).map((c) => c.id)),
-    [state.todos],
+    () => new Set(offset === 0 ? clients.filter((c) => hasFormToReview(c, getProfile(c.id), state.todos)).map((c) => c.id) : []),
+    [state.todos, offset],
   );
-  const count = (tab: DashboardTab) =>
-    clients.filter((c) => inTab(tab, c, { formToReview: formToReview.has(c.id), reviewed: Boolean(state.reviewed[c.id]) })).length;
+  const weekClients = clientsInWeek(offset);
+  const ctx = (c: Client) => ({ formToReview: formToReview.has(c.id), reviewed: reviewedNow(c.id) });
+  const count = (tab: DashboardTab) => weekClients.filter((c) => inTab(tab, c, ctx(c))).length;
 
   const q = query.trim().toLowerCase();
-  const rows = ROWS.filter(
+  const rows = rowsInWeek(offset).filter(
     ({ client: c }) =>
-      inTab(state.dashboardTab, c, { formToReview: formToReview.has(c.id), reviewed: Boolean(state.reviewed[c.id]) }) &&
+      inTab(state.dashboardTab, c, ctx(c)) &&
       (!q || c.name.toLowerCase().includes(q)),
   ).sort((a, b) => byUrgency(a.client, b.client));
-  const need = rows.filter((r) => !state.reviewed[r.client.id]);
-  const done = rows.filter((r) => state.reviewed[r.client.id]);
+  const need = rows.filter((r) => !reviewedNow(r.client.id));
+  const done = rows.filter((r) => reviewedNow(r.client.id));
 
   return (
     <div className="flex min-h-full flex-col bg-surface-secondary">

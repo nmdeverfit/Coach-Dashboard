@@ -87,7 +87,9 @@ export function activityLine(client: Client, profile: ClientProfile, today: stri
     };
   }
 
-  const thread = [...profile.messages].sort((a, b) => a.at.localeCompare(b.at));
+  // Only what had happened by the brief's generation that morning (past weeks read an earlier Monday).
+  const cutoff = `${today}T${String(GENERATED_AT_HOUR).padStart(2, '0')}:00`;
+  const thread = profile.messages.filter((m) => m.at < cutoff).sort((a, b) => a.at.localeCompare(b.at));
   const latest = thread[thread.length - 1];
   if (!latest) return null;
 

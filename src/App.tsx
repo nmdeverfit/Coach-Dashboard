@@ -42,12 +42,19 @@ export default function App() {
               brief from the left. The header stays put. Each view keeps its own scroll and state. */}
           <div className="relative flex-1 overflow-hidden">
             <ViewLayer active={state.view === 'brief'} offset="-100%">
-              <div className="grid min-h-full grid-cols-2">
-                <div className="relative z-[1] bg-white shadow-column">
-                  <TodayBrief />
+              {state.weekOffset === 0 ? (
+                <div className="grid min-h-full grid-cols-2">
+                  <div className="relative z-[1] bg-white shadow-column">
+                    <TodayBrief />
+                  </div>
+                  <RightRail />
                 </div>
-                <RightRail />
-              </div>
+              ) : (
+                // A past week has no to-do list (BL AC10.6): the group cards and highlights take the full width.
+                <div className="min-h-full">
+                  <RightRail wide />
+                </div>
+              )}
             </ViewLayer>
             <ViewLayer active={state.view === 'dashboard'} offset="100%">
               <DashboardView />

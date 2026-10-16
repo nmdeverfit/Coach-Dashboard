@@ -157,6 +157,11 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `#e0e0e0`, rounded 8, alarm 13 px). Credits: "Balance: N", then swatch + type · "N credits expiring in N days"
   (`#ca410a`) or the "Low credits" badge (`LowCreditsBadge`, `#ffebb0` / `#71381d`), and a white 28 px "Issue
   Credits" button with a 12 px +. Action: Send message only. Sections: Upcoming sessions · No sessions booked.
+- **Past week** (Figma `4780:125157`, `4798:172414`): Back, Next and Today all enabled (Today white with a
+  `line-nav` border; disabled it is `surface-secondary` with muted text). A banner sits under the header: `#f3f6ff`,
+  border top and bottom, `px-5 py-2`, history icon 16 px, 13 px `#484848` text, then "Back to this week" 13 px
+  semibold ink, underlined. Brief: no hero or to-dos; the 2 × 2 group cards and Client highlights span the width
+  (descriptions drop their two-line min height). Upcoming bookings labels always give the date on a past week.
 - **View switch** (Today's Brief ⇄ Dashboard, `ViewLayer` in `App.tsx`): everything below the header slides as one
   track, 420 ms `cubic-bezier(0.65, 0, 0.35, 1)`. To the Dashboard the brief leaves left and the list comes in from
   the right; back to the brief the reverse. Both views stay mounted, so each keeps its scroll, tab and search.

@@ -17,8 +17,9 @@ const ICON_BUTTON = `${ICON_BASE} bg-white hover:bg-surface-secondary`;
  * before the review lands.
  */
 export function ClientActions({ client, where, onToggleReview }: { client: Client; where: 'panel' | 'list'; onToggleReview?: () => void }) {
-  const { state, showToast, reviewClient, toggleReview } = useStore();
-  const reviewed = Boolean(state.reviewed[client.id]);
+  const { state, showToast, reviewClient, toggleReview, reviewedNow } = useStore();
+  // The list follows the week selector; the detail page is always this week's.
+  const reviewed = where === 'list' ? reviewedNow(client.id) : Boolean(state.reviewed[client.id]);
   const beside = where === 'panel' ? 'beside this panel' : 'beside the list';
   const canToggle = where === 'list';
 

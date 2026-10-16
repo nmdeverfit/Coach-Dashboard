@@ -42,6 +42,11 @@ the same change.
 - `src/data/sessions.ts`: 1:1 bookings and session credits by client (Malcom's are his Prepare panel's, Wendy's
   credits her Unblock panel's). The Upcoming bookings card's labels (`Client.nextSession`) and the Booking tab
   (`bookingRow` in `lib/dashboard.ts`, credit figures from `buildUnblockView`) are computed from it.
+- `src/lib/week.ts`: the week selector. A week's figures are read as of its Monday 06:00 (`weekAsOf`), so a past week
+  reuses every builder with an earlier "today". `clientsInWeek` gives that week's status (last week =
+  `lastWeekStatus`, older weeks back-filled with the current status), program countdown and next session;
+  `groupsInWeek` feeds the group cards. `MIN_WEEK_OFFSET = -3` (logs start 3 Aug). Past reviews come from
+  `seededReview` (about 75 % reviewed) plus the coach's changes (`pastReviewed` in the store).
 - `src/lib/checkin.ts`: computes every figure and sentence from those inputs (row reason, status line, assessment,
   Macro AVG, Meal Log, summary rows), so they cannot disagree (AC4). **Never hard-code a derived number in copy**;
   add raw data and derive it. Calories come from macros (4/9/4 kcal/g); averages are over logged days in the 7 days
@@ -169,6 +174,12 @@ the same change.
   in review, OQ15; AC8.3 warns the badge hard-codes a threshold still in review). The frame puts Naomi's Low
   credits tag in the Activity column with no balance and shows Winona's balance of 2 without it; the demo puts the
   badge in the credits column whenever a pool is low. Booking clients now drive the Upcoming bookings card too.
+- Past weeks (Figma `4780:125157` brief, `4798:172414` list): a banner under the header ("Looking back at Aug 24 –
+  30." + "To-dos are only shown for today." or "Current client status may differ." + Back to this week); the brief
+  drops its left column and the group cards and highlights take the full width; the list shows that week's
+  statuses, summaries, activity and reviews. Highlights carry no dates, so a past week shows the same 20. Form to
+  review is today's queue (0 on past weeks); the Booking tab and the client detail page stay point-in-time (BL6).
+  The design's past-week numbers (Today 6:30 PM on a past week, 25 clients) are placeholders.
 - Tell me more (Olly column), the Change status modal, the vertical row expand (rows open the client detail
   drawer instead), settings, tour and What's New are not built yet.
 

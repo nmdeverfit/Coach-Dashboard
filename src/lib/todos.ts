@@ -138,6 +138,12 @@ export const reminderToast = (client: { firstName: string }, b: Booking) =>
   `The ${LOCATION_LABEL[b.type.location].toLowerCase()} session reminder template (v1.11) opens for ${client.firstName}`;
 export const ISSUE_CREDITS_TOAST = 'Client Sessions › Credits opens in a new tab with the Issue credits popup pre-filled';
 
+/** "Today 6:30 PM" or "Sep 1 • 2:00 PM": a session on the Upcoming bookings card. Past weeks always give the date. */
+export function sessionRailLabel(b: Booking, today: string, relative = true) {
+  const day = relative && b.date === today ? 'Today' : `${formatMonthDay(parseDay(b.date))} •`;
+  return `${day} ${time12(b.start).toUpperCase().replace(/(AM|PM)$/, ' $1')}`;
+}
+
 export interface PrepareView {
   rowReason: string;
   /** Booked sessions from today on, soonest first. */
@@ -170,14 +176,13 @@ export function buildPrepareView(d: PrepareDetail, today: string): PrepareView {
 
   const when = daysBetween(today, next.date);
   const day = when === 0 ? 'today' : when === 1 ? 'tomorrow' : `on ${weekdayDate(next.date)}`;
-  const railDay = when === 0 ? 'Today' : `${formatMonthDay(parseDay(next.date))} •`;
 
   return {
     rowReason: `${next.type.name} ${day} at ${time12(next.start)}, ${LOCATION_PHRASE[next.type.location]}.`,
     upcoming,
     lastSession,
     thisWeek,
-    railLabel: `${railDay} ${time12(next.start).toUpperCase().replace(/(AM|PM)$/, ' $1')}`,
+    railLabel: sessionRailLabel(next, today),
   };
 }
 

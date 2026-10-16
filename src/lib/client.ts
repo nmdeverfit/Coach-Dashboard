@@ -1,5 +1,6 @@
 import type { CheckinDetail, Client, ClientNote, ClientProfile, ClientTask, Habit } from '../data/types';
 import { todoDetails } from '../data/details';
+import { DEMO_TODAY } from '../data/mock';
 import { WEEKDAYS, addDays, buildCheckinView, summarizeNutrition, type Assessment } from './checkin';
 import { formatDayMonth, formatMonthDay, parseDay } from './dates';
 import type { FormStatusRow } from './todos';
@@ -28,7 +29,8 @@ export function formRows(profile: ClientProfile, today: string): FormStatusRow[]
  * panel's, word for word, so the two surfaces never differ.
  */
 export function buildClientAssessment(client: Client, profile: ClientProfile, today: string): Assessment {
-  if (client.id === 'clint-jacobi') return buildCheckinView(todoDetails.t3 as CheckinDetail, today).assessment;
+  // Clint's current week is his Check-in panel's, word for word; past weeks are computed like everyone's.
+  if (client.id === 'clint-jacobi' && today === DEMO_TODAY) return buildCheckinView(todoDetails.t3 as CheckinDetail, today).assessment;
 
   const n = summarizeNutrition(profile.nutrition, today);
   const t = summarizeTraining(profile.training, today);
