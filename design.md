@@ -146,8 +146,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 - Actions without a built destination show a toast that says where they would go ("… opens in a new tab").
 - **Booking tab** (Figma `5689:514998`): same shell as the list (metric row, tabs, search; no Status dropdown).
   Columns Client 280 · Activity 460 (shrinks to 360 first) · Session credits (fills, at least 420) · Action 100.
-  No text breaks mid-phrase (`whitespace-nowrap` on every label, badge and button); on a narrow window a button
-  drops to its own line as a whole unit instead. Activity: "Next session:" 13 px
+  No text breaks mid-phrase (`whitespace-nowrap` on every label, badge and button). When any row's line no longer
+  fits its column, that whole column stacks (button under the text) in every row, so buttons stay aligned
+  (`useStackedColumns` in `BookingTable.tsx`, measured on resize). At 1280 the Activity column stacks; at 1440
+  nothing does. Activity: "Next session:" 13 px
   semibold `#4d4d4d` + 14 px swatch + type 14 px semibold `#1a1a1a`; then clock 14 px, date "Tue, Sep 1" 13 px
   semibold black · time "2:00 - 3:00pm" `#4d4d4d`, and a 28 px "Draft a reminder" button (`#f9f9f9`, border
   `#e0e0e0`, rounded 8, alarm 13 px). Credits: "Balance: N", then swatch + type · "N credits expiring in N days"
