@@ -17,10 +17,9 @@ const ICON_BUTTON = `${ICON_BASE} bg-white hover:bg-surface-secondary`;
  * before the review lands.
  */
 export function ClientActions({ client, where, onToggleReview }: { client: Client; where: 'panel' | 'list'; onToggleReview?: () => void }) {
-  const { state, showToast, reviewClient, toggleReview, reviewedNow } = useStore();
+  const { state, showToast, reviewClient, toggleReview, reviewedNow, openOlly, openInbox } = useStore();
   // The list follows the week selector; the detail page is always this week's.
   const reviewed = where === 'list' ? reviewedNow(client.id) : Boolean(state.reviewed[client.id]);
-  const beside = where === 'panel' ? 'beside this panel' : 'beside the list';
   const canToggle = where === 'list';
 
   return (
@@ -30,14 +29,14 @@ export function ClientActions({ client, where, onToggleReview }: { client: Clien
         <button
           type="button"
           aria-label="Draft with AI"
-          onClick={() => showToast(`Draft with AI opens ${beside} with a message for ${client.firstName}`)}
+          onClick={() => openOlly(client.id, { mode: 'draft' })}
           className="ai-btn flex size-8 items-center justify-center rounded-[4px] border border-black/15 bg-white shadow-[inset_0_0_8px_rgba(222,172,231,0.6)]"
         >
           <img src={iconPencilAi} alt="" width={20} height={20} />
         </button>
         <Tooltip label="Draft with AI" />
       </span>
-      <button type="button" aria-label="Send message" onClick={() => showToast(`The message composer opens ${beside}, empty`)} className={ICON_BUTTON}>
+      <button type="button" aria-label="Send message" onClick={() => openInbox(client.id)} className={ICON_BUTTON}>
         <img src={iconMessage} alt="" width={16.2} height={16.2} />
         <Tooltip label="Send message" />
       </button>

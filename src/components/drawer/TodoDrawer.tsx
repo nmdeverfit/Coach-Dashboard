@@ -15,7 +15,6 @@ import { getProfile } from '../../data/profiles';
 import type { CheckinDetail, Client, Todo, TodoDetail } from '../../data/types';
 import { buildCheckinView } from '../../lib/checkin';
 import { buildAcknowledgeView, buildBuildView, buildPrepareView, buildRemindView, buildRespondView, buildUnblockView } from '../../lib/todos';
-import { formatDayMonth, parseDay } from '../../lib/dates';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
 import { ConfirmDialog } from '../ConfirmDialog';
@@ -119,7 +118,7 @@ function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: Title
 }
 
 function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail }) {
-  const { showToast } = useStore();
+  const { openOlly } = useStore();
   const view = buildCheckinView(detail, DEMO_TODAY);
 
   return (
@@ -127,9 +126,7 @@ function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail
       <div className="flex flex-col gap-2 px-[30px] pb-[30px] pt-2.5">
         <AiAssessment
           assessment={view.assessment}
-          onTellMeMore={() =>
-            showToast(`Olly BI opens beside this panel: “Tell me more about ${client.firstName}’s status on ${formatDayMonth(parseDay(DEMO_TODAY))}”`)
-          }
+          onTellMeMore={() => openOlly(client.id, { mode: 'tell', assessment: view.assessment })}
         />
         <StatusFeedback client={client} />
       </div>
@@ -149,8 +146,8 @@ function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Clie
       return (
         <PanelFooter>
           <FooterButton variant="primary" icon={white(iconCircleCheck, 16)} label={done ? 'Reviewed' : 'Mark as reviewed'} disabled={done} onClick={onComplete} />
-          <DraftWithAiButton firstName={client.firstName} />
-          <SendMessageButton />
+          <DraftWithAiButton clientId={client.id} todoId={todo.id} />
+          <SendMessageButton clientId={client.id} />
         </PanelFooter>
       );
     case 'respond':
@@ -158,8 +155,8 @@ function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Clie
       return (
         <PanelFooter>
           <FooterButton variant="primary" icon={white(iconCircleCheck, 16)} label={done ? 'Form reviewed' : 'Mark form as reviewed'} disabled={done} onClick={onComplete} />
-          <DraftWithAiButton firstName={client.firstName} about={`about the ${detail.form}`} />
-          <SendMessageButton />
+          <DraftWithAiButton clientId={client.id} todoId={todo.id} />
+          <SendMessageButton clientId={client.id} />
         </PanelFooter>
       );
     case 'build':
@@ -167,24 +164,24 @@ function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Clie
       return (
         <PanelFooter>
           <FooterButton variant="primary" icon={white(iconDuplicateWhite)} label="Assign new program" onClick={() => showToast(`The program library opens to assign ${client.firstName} a new program`)} />
-          <DraftWithAiButton firstName={client.firstName} />
-          <SendMessageButton />
+          <DraftWithAiButton clientId={client.id} todoId={todo.id} />
+          <SendMessageButton clientId={client.id} />
         </PanelFooter>
       );
     case 'remind':
       // Sending does not complete; a submission first auto-resolves the to-do (AC12.5).
       return (
         <PanelFooter>
-          <DraftWithAiButton firstName={client.firstName} about="that names the overdue form and how long it has waited" />
-          <SendMessageButton />
+          <DraftWithAiButton clientId={client.id} todoId={todo.id} />
+          <SendMessageButton clientId={client.id} />
         </PanelFooter>
       );
     case 'acknowledge':
       // Like Remind: the work is a message, so there is no primary action; ✓ completes.
       return (
         <PanelFooter>
-          <DraftWithAiButton firstName={client.firstName} about="that celebrates the streak" />
-          <SendMessageButton />
+          <DraftWithAiButton clientId={client.id} todoId={todo.id} />
+          <SendMessageButton clientId={client.id} />
         </PanelFooter>
       );
     case 'unblock':
@@ -197,8 +194,8 @@ function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Clie
             label="Issue credits"
             onClick={() => showToast('Client Sessions › Credits opens in a new tab with the Issue credits popup pre-filled')}
           />
-          <DraftWithAiButton firstName={client.firstName} />
-          <SendMessageButton />
+          <DraftWithAiButton clientId={client.id} todoId={todo.id} />
+          <SendMessageButton clientId={client.id} />
         </PanelFooter>
       );
     case 'prepare': {
@@ -207,7 +204,7 @@ function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Clie
       return (
         <PanelFooter>
           <FooterButton variant="primary" icon={white(iconAlarmWhite, 16)} label="Draft a reminder" onClick={() => showToast(`The ${where} session reminder template (v1.11) opens beside this panel`)} />
-          <DraftWithAiButton firstName={client.firstName} />
+          <DraftWithAiButton clientId={client.id} todoId={todo.id} />
         </PanelFooter>
       );
     }

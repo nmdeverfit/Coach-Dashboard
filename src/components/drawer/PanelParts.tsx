@@ -97,27 +97,27 @@ export function PanelFooter({ children }: { children: ReactNode }) {
 }
 
 /** "Draft with AI": Olly Voice with a draft, in a middle column beside the panel (Spec 4 BL1, AC2.2). */
-export function DraftWithAiButton({ firstName, about }: { firstName: string; about?: string }) {
-  const { showToast } = useStore();
+export function DraftWithAiButton({ clientId, todoId }: { clientId: string; todoId?: string }) {
+  const { openOlly } = useStore();
   return (
     <FooterButton
       variant="ai"
       icon={<img src={iconPencilAi} alt="" width={20} height={20} />}
       label="Draft with AI"
-      onClick={() => showToast(`Draft with AI opens beside this panel with a message for ${firstName}${about ? ` ${about}` : ''}`)}
+      onClick={() => openOlly(clientId, { mode: 'draft', todoId })}
     />
   );
 }
 
 /** "Send message": an empty composer in the same middle column. Sending never completes the to-do. */
-export function SendMessageButton() {
-  const { showToast } = useStore();
+export function SendMessageButton({ clientId }: { clientId: string }) {
+  const { openInbox } = useStore();
   return (
     <FooterButton
       variant="plain"
       icon={<img src={iconMessage} alt="" width={16.2} height={16.2} />}
       label="Send message"
-      onClick={() => showToast('The message composer opens beside this panel, empty')}
+      onClick={() => openInbox(clientId)}
     />
   );
 }

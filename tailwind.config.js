@@ -69,10 +69,14 @@ export default {
       keyframes: {
         'drawer-in': { from: { transform: 'translateX(100%)' }, to: { transform: 'translateX(0)' } },
         'drawer-out': { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(100%)' } },
+        'side-in': { from: { transform: 'translateX(32px)', opacity: '0' }, to: { transform: 'translateX(0)', opacity: '1' } },
+        'bubble-in': { from: { transform: 'translateY(6px)', opacity: '0' }, to: { transform: 'translateY(0)', opacity: '1' } },
       },
       animation: {
         'drawer-in': 'drawer-in 280ms cubic-bezier(0.22, 1, 0.36, 1)',
         'drawer-out': 'drawer-out 220ms ease-in forwards',
+        'side-in': 'side-in 240ms cubic-bezier(0.22, 1, 0.36, 1)',
+        'bubble-in': 'bubble-in 220ms ease-out both',
       },
       fontFamily: {
         sans: ['"Open Sans"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],

@@ -6,7 +6,6 @@ import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { AcknowledgeDetail, BuildDetail, Client, RemindDetail } from '../../data/types';
 import { summarizeNutrition } from '../../lib/checkin';
-import { formatDayMonth, parseDay } from '../../lib/dates';
 import { daysAgo, type AcknowledgeView, type BuildView, type FormStatusRow, type RemindView } from '../../lib/todos';
 import { useStore } from '../../state/store';
 import { AiAssessment } from './AiAssessment';
@@ -16,14 +15,12 @@ import { DataArea, TabBar } from './PanelParts';
 import { TrainingTab } from './TrainingTab';
 
 function Assessment({ client, assessment }: { client: Client; assessment: BuildView['assessment'] }) {
-  const { showToast } = useStore();
+  const { openOlly } = useStore();
   return (
     <div className="px-[30px] pb-[30px] pt-2.5">
       <AiAssessment
         assessment={assessment}
-        onTellMeMore={() =>
-          showToast(`Olly BI opens beside this panel: “Tell me more about ${client.firstName}’s status on ${formatDayMonth(parseDay(DEMO_TODAY))}”`)
-        }
+        onTellMeMore={() => openOlly(client.id, { mode: 'tell', assessment })}
       />
     </div>
   );

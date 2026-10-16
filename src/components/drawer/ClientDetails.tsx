@@ -4,7 +4,6 @@ import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { Client } from '../../data/types';
 import { buildClientAssessment } from '../../lib/client';
-import { formatDayMonth, parseDay } from '../../lib/dates';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
 import { ClientActions } from '../ClientActions';
@@ -45,7 +44,7 @@ export function ClientDetailsPanel({
   onBack?: () => void;
   initialTab?: ClientTabKey | null;
 }) {
-  const { showToast } = useStore();
+  const { openOlly } = useStore();
   const profile = getProfile(client.id);
   const assessment = buildClientAssessment(client, profile, DEMO_TODAY);
 
@@ -71,9 +70,7 @@ export function ClientDetailsPanel({
         <div className="flex flex-col gap-2 px-[30px] pb-[30px]">
           <AiAssessment
             assessment={assessment}
-            onTellMeMore={() =>
-              showToast(`Olly BI opens beside this panel: “Tell me more about ${client.firstName}’s status on ${formatDayMonth(parseDay(DEMO_TODAY))}”`)
-            }
+            onTellMeMore={() => openOlly(client.id, { mode: 'tell', assessment })}
           />
           <StatusFeedback client={client} />
         </div>

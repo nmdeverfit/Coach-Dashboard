@@ -111,7 +111,7 @@ export function BookingTable({ query }: { query: string }) {
 }
 
 function BookingClientRow({ client, row, stacked }: { client: Client; row: BookingRow; stacked: Stacked }) {
-  const { state, selectClient, showToast } = useStore();
+  const { state, selectClient, showToast, openInbox } = useStore();
   const stop = (fn: () => void) => (e: React.MouseEvent) => {
     e.stopPropagation();
     fn();
@@ -176,7 +176,7 @@ function BookingClientRow({ client, row, stacked }: { client: Client; row: Booki
         <button
           type="button"
           aria-label="Send message"
-          onClick={stop(() => showToast('The message composer opens beside the list, empty'))}
+          onClick={stop(() => openInbox(client.id))}
           className="group/tip relative flex size-8 items-center justify-center rounded-md border border-black/15 bg-white hover:bg-surface-secondary"
         >
           <img src={iconMessage} alt="" width={16.2} height={16.2} />

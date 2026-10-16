@@ -5,6 +5,7 @@ import { TodoDrawer } from './components/drawer/TodoDrawer';
 import { Header } from './components/Header';
 import { RightRail } from './components/RightRail';
 import { Sidebar } from './components/Sidebar';
+import { SidePanel } from './components/side/SidePanel';
 import { TodayBrief } from './components/TodayBrief';
 import { Toast } from './components/Toast';
 import { useStore } from './state/store';
@@ -64,6 +65,7 @@ export default function App() {
       </div>
       <TodoDrawer />
       <ClientDrawer />
+      <SidePanel />
       <Toast />
     </div>
   );

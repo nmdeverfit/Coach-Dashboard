@@ -2,8 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 
 const CLOSE_MS = 220;
 
-/** Clicks on these never close a panel: the panels themselves and the rows that open them. */
-const KEEP_OPEN = '[data-todo-drawer], [data-todo-row], [data-client-row]';
+/** Clicks on these never close a panel: the panels themselves, the middle column beside them and the rows that open them. */
+const KEEP_OPEN = '[data-todo-drawer], [data-todo-row], [data-client-row], [data-side-panel]';
 
 /**
  * Keeps the last selected id on screen while the panel slides out, so closing animates instead of vanishing.

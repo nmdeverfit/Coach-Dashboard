@@ -47,6 +47,10 @@ the same change.
   `lastWeekStatus`, older weeks back-filled with the current status), program countdown and next session;
   `groupsInWeek` feeds the group cards. `MIN_WEEK_OFFSET = -3` (logs start 3 Aug). Past reviews come from
   `seededReview` (about 75 % reviewed) plus the coach's changes (`pastReviewed` in the store).
+- `src/lib/olly.ts`: the middle column's content. `tellPrompt` (Spec 4's one fixed prompt), `tellAnswer` (the
+  assessment's own facts + where they come from + a donut in the assessment's units: days logged for nutrition,
+  sections done for training), `draftFor` (a draft per to-do type from the panel's data; client page and list rows
+  get a check-in), `threadFor` (stand-in wording for the profile's message thread; Olly never reads it).
 - `src/lib/checkin.ts`: computes every figure and sentence from those inputs (row reason, status line, assessment,
   Macro AVG, Meal Log, summary rows), so they cannot disagree (AC4). **Never hard-code a derived number in copy**;
   add raw data and derive it. Calories come from macros (4/9/4 kcal/g); averages are over logged days in the 7 days
@@ -63,6 +67,13 @@ the same change.
   four 32 px quick actions, shared by the detail page and list rows), `Glyph` (Figma vector with inset/bleed), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
   `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons and on the row checkbox and
   the panel's ✓, "Complete this task", while the to-do is open).
+- `src/components/side/`: the middle column, 360 px, fixed left of the 720 px panel (Figma Olly `5699:137932`,
+  Draft `5124:499989`, Inbox `5699:137775`, both tabbed `5699:138912`). `SidePanel` (header or tabs),
+  `OllyConversation` (Tell me more answer, Draft card → Send → "Message sent" + Open Inbox, composer),
+  `InboxConversation` (thread by day + composer). State is `side` / `sent` in the store: `openOlly`,
+  `openInbox`, `closeSideTab`, `sendMessage`. The column belongs to one client's panel: it closes with the panel
+  or when another client opens; from a list row it opens the client detail page with it. Sending never completes
+  a to-do (AC2.2).
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
   `NutritionTab` (inline-SVG calorie ring + macros, Meal Log with cell tooltips; one shared meal-label column for both
   weeks; with nothing logged it shows the same cards in their empty state, per the user), `TrainingTab` (Session log: last week + this week in 7 states, Last workout, 2-week adherence, 4-week trend
@@ -132,8 +143,14 @@ the same change.
 - Spec 4 BL9 lists "total load" in v1's Training tab; the Training design omits it, so the demo does too.
 - Brief and Spec 4 date format is "{D MMM}" ("27 Aug"); the design's row ages read "Aug 27". Model-written copy uses
   D MMM, the rows keep the design.
-- Draft with AI, Send message and Tell me more should open as a middle column between the list and the panel
-  (AC2.2, AC2.3); the demo shows a toast until that frame is built.
+- Middle column (Tell me more, Draft with AI, Send message): the Olly frame asks "Show me the training progression
+  of Clint Jacobi over the last 8 weeks" and answers about nutrition with a prescriptive quote ("Clint should
+  continue…"); Spec 4 AC2.3 fixes the prompt ("Tell me more about {first_name}'s status on {date}") and says Olly
+  explains, never prescribes. The demo sends the fixed prompt, answers with the assessment's facts, a quote saying
+  which stored status it reads, and a chart in the assessment's units. Follow-up questions get the same record
+  (Phase 1 reads only the stored status). The frame's placeholder thread (Apr dates, Malcolm's reminder in Glen's
+  inbox) is replaced by each client's own thread. The draft card's stroke is drawn as a pink-to-blue gradient.
+  The pop-out icon only toasts.
 - Respond: the design's footer is Mark form as reviewed · Draft with AI · Send message; Spec 4 AC3.3 / AC3.7 ask for
   Comments (onto the form's comment thread) instead of Draft with AI. The demo follows the design.
 - Prepare: the design's footer is Draft a reminder · Draft with AI (no Send message). BL1 retires per-purpose draft
@@ -180,7 +197,7 @@ the same change.
   statuses, summaries, activity and reviews. Highlights carry no dates, so a past week shows the same 20. Form to
   review is today's queue (0 on past weeks); the Booking tab and the client detail page stay point-in-time (BL6).
   The design's past-week numbers (Today 6:30 PM on a past week, 25 clients) are placeholders.
-- Tell me more (Olly column), the Change status modal, the vertical row expand (rows open the client detail
+- The Change status modal, the vertical row expand (rows open the client detail
   drawer instead), settings, tour and What's New are not built yet.
 
 ---

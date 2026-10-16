@@ -40,8 +40,8 @@ function cellState(day: TrainingDay | undefined, date: string, today: string): S
   return day.completed === 0 ? 'missed' : 'partial';
 }
 
-/** Completed sections over scheduled sections for finished days in [start, end]. */
-function adherence(log: TrainingLog, start: string, end: string) {
+/** Sections completed and scheduled on workout days in [start, end]. */
+export function sectionCounts(log: TrainingLog, start: string, end: string) {
   let done = 0;
   let planned = 0;
   for (let d = start; d <= end; d = addDays(d, 1)) {
@@ -51,6 +51,12 @@ function adherence(log: TrainingLog, start: string, end: string) {
       planned += day.sections;
     }
   }
+  return { done, planned };
+}
+
+/** Completed sections over scheduled sections for finished days in [start, end]. */
+function adherence(log: TrainingLog, start: string, end: string) {
+  const { done, planned } = sectionCounts(log, start, end);
   return planned ? Math.round((done / planned) * 100) : null;
 }
 

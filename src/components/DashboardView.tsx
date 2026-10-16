@@ -19,6 +19,7 @@ import type { Client } from '../data/types';
 import { activityLine, byUrgency, hasFormToReview, inTab, lastActive, statusLine, type ActivityLine, type DashboardTab } from '../lib/dashboard';
 import { clientsInWeek, weekAsOf } from '../lib/week';
 import { useStore } from '../state/store';
+import { AiPill } from './AiPill';
 import { BookingTable } from './BookingTable';
 import { ClientActions } from './ClientActions';
 import { ClientCell, HEAD, reducedMotion, rowProps, SectionHeader } from './ClientListParts';
@@ -279,12 +280,7 @@ function TableHeader() {
         <span className="bg-clip-text text-[13px] font-semibold leading-[1.5] text-transparent" style={{ backgroundImage: AI_GRADIENT }}>
           Status
         </span>
-        <span
-          className="rounded-full border border-black/40 px-[7px] py-0.5 font-display text-[10px] font-bold leading-normal text-white [text-shadow:0_2px_4px_rgba(0,0,0,0.25)]"
-          style={{ backgroundImage: 'radial-gradient(100% 160% at 50% 100%, #d64fff 25%, #a052f4 44%, #6b55ea 62%, #3559df 81%, #005cd4 100%)' }}
-        >
-          AI
-        </span>
+        <AiPill />
       </div>
       <div className={`${COL.activity} px-4 py-2.5 ${HEAD}`}>Activity</div>
       <div className={`${COL.last} px-4 py-2.5 ${HEAD}`}>Last active</div>
@@ -387,7 +383,7 @@ function ClientRow({ row, arriving, onMoved }: { row: Row; arriving: boolean; on
 }
 
 function Activity({ client, line }: { client: Client; line: ActivityLine }) {
-  const { showToast } = useStore();
+  const { openInbox, openOlly } = useStore();
   const text = line.parts.map((p, i) =>
     p.strong ? (
       <span key={i} className="font-semibold">
@@ -406,7 +402,7 @@ function Activity({ client, line }: { client: Client; line: ActivityLine }) {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              showToast(`The message composer opens beside the list for ${client.firstName}`);
+              openInbox(client.id);
             }}
             className="ml-2 font-bold text-brand underline hover:opacity-80"
           >
@@ -425,7 +421,7 @@ function Activity({ client, line }: { client: Client; line: ActivityLine }) {
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            showToast(`Draft with AI opens beside the list with a reach-out to ${client.firstName}`);
+            openOlly(client.id, { mode: 'draft' });
           }}
           className="ai-btn flex h-7 items-center gap-1 rounded-[4px] border border-[#e0e0e0] bg-white px-2 text-[12px] font-semibold leading-[1.5] tracking-[-0.24px] text-ink shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
         >
