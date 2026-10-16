@@ -111,7 +111,8 @@ function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: Title
               <img src={done ? iconCheckWhite : iconCheckTitle} alt="" className="block size-full max-w-none" />
             </span>
           </span>
-          {!done && <Tooltip label={completeLabel} />}
+          {/* Same tooltip as the row checkbox; the accessible name keeps each type's completion (BL1 G). */}
+          {!done && <Tooltip label="Complete this task" />}
         </button>
         <button type="button" aria-label="Dismiss" onClick={onDismiss} className="group/tip relative flex size-7 items-center justify-center rounded-[10px]">
           <span className="flex items-center justify-center rounded-lg p-[5px] group-hover/tip:bg-[#fef2f2]">
