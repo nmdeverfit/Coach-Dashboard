@@ -20,7 +20,8 @@ import { CardHeader } from './NutritionTab';
 import { Glyph } from '../Glyph';
 
 /** Exported vectors keep Figma's inset/bleed wrappers so they sit exactly as drawn. */
-function Swatch({ color }: { color: string }) {
+/** The session type's colour swatch, as Client Sessions draws it. */
+export function Swatch({ color }: { color: string }) {
   return <span className="size-[14px] shrink-0 rounded-[4px] border border-black/10" style={{ backgroundColor: color }} />;
 }
 
@@ -62,6 +63,11 @@ function SessionMeta({ type, time, small }: { type: SessionType; time?: string; 
 
 // ---------------------------------------------------------------- Unblock
 
+/** A session type's balance is at or below LOW_CREDIT_THRESHOLD (Spec 4 AC8.2; the threshold is in review, OQ15). */
+export function LowCreditsBadge() {
+  return <span className="flex h-[21px] items-center rounded-full bg-[#ffebb0] px-2 text-[12px] font-semibold leading-[15px] text-[#71381d]">Low credits</span>;
+}
+
 function CreditRow({ view, open, onToggle, last }: { view: CreditPoolView; open: boolean; onToggle: () => void; last: boolean }) {
   const { pool, balance, batches, expiringSoon, low } = view;
   return (
@@ -77,7 +83,7 @@ function CreditRow({ view, open, onToggle, last }: { view: CreditPoolView; open:
           <span className="text-[13px] font-semibold leading-5 tracking-[-0.15px] text-[#ca410a]">{expiringSoon.label}</span>
         ) : (
           low && (
-            <span className="flex h-[21px] items-center rounded-full bg-[#ffebb0] px-2 text-[12px] font-semibold leading-[15px] text-[#71381d]">Low credits</span>
+            <LowCreditsBadge />
           )
         )}
         <span className="text-[18px] font-semibold leading-5 text-[#1a1a1a]">{balance}</span>

@@ -20,7 +20,7 @@ import { summarizeTraining, type TrainingSummary } from './training';
  * inputs in `data/details.ts` so the row, the panel and its cards cannot disagree (AC4).
  */
 
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+export const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 /** "Thu 27 Aug": coach-facing dates in model-written copy (Spec 4 BL4). */
 const weekdayDate = (iso: string) => `${WEEKDAYS[parseDay(iso).getUTCDay()]} ${formatDayMonth(parseDay(iso))}`;
 const mondayOf = (iso: string) => addDays(iso, -((parseDay(iso).getUTCDay() + 6) % 7));
@@ -32,7 +32,7 @@ export const daysAgo = (iso: string, today: string) => {
 };
 
 /** "in 5 days", "tomorrow", "today". */
-const inDays = (n: number) => (n === 0 ? 'today' : n === 1 ? 'tomorrow' : `in ${plural(n, 'day')}`);
+export const inDays = (n: number) => (n === 0 ? 'today' : n === 1 ? 'tomorrow' : `in ${plural(n, 'day')}`);
 
 // ---------------------------------------------------------------- Respond (form review)
 
@@ -122,13 +122,16 @@ export const time12 = (hhmm: string) => {
   return `${c.text}${c.meridiem}`;
 };
 
-/** "2:00 - 3:00pm (60 min)", or "11:30am - 12:30pm (60 min)" across noon. */
-export function timeRange(b: Booking) {
+/** "2:00 - 3:00pm", or "11:30am - 12:30pm" across noon. */
+export function timeSpan(b: Booking) {
   const start = clock(minutesOf(b.start));
   const end = clock(minutesOf(b.start) + b.type.minutes);
   const from = start.meridiem === end.meridiem ? start.text : `${start.text}${start.meridiem}`;
-  return `${from} - ${end.text}${end.meridiem} (${b.type.minutes} min)`;
+  return `${from} - ${end.text}${end.meridiem}`;
 }
+
+/** "2:00 - 3:00pm (60 min)" */
+export const timeRange = (b: Booking) => `${timeSpan(b)} (${b.type.minutes} min)`;
 
 export interface PrepareView {
   rowReason: string;

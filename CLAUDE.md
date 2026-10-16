@@ -39,6 +39,9 @@ the same change.
 - `src/lib/dashboard.ts`: the client list (`DashboardTab`, `inTab`, `statusLine` = the detail page's assessment
   headline minus "Current", `activityLine` from `Client.lastWeekStatus` and the message thread's timing, never its
   text, `lastActive` from every log, `hasFormToReview`).
+- `src/data/sessions.ts`: 1:1 bookings and session credits by client (Malcom's are his Prepare panel's, Wendy's
+  credits her Unblock panel's). The Upcoming bookings card's labels (`Client.nextSession`) and the Booking tab
+  (`bookingRow` in `lib/dashboard.ts`, credit figures from `buildUnblockView`) are computed from it.
 - `src/lib/checkin.ts`: computes every figure and sentence from those inputs (row reason, status line, assessment,
   Macro AVG, Meal Log, summary rows), so they cannot disagree (AC4). **Never hard-code a derived number in copy**;
   add raw data and derive it. Calories come from macros (4/9/4 kcal/g); averages are over logged days in the 7 days
@@ -50,7 +53,8 @@ the same change.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights; the list is fixed at the height of 10
-  one-line rows and scrolls past that), `DashboardView` (client list, Figma `5676:145292`), `ClientActions` (the
+  one-line rows and scrolls past that), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`),
+  `ClientListParts` (row shell, client cell, section header shared by both tables), `ClientActions` (the
   four 32 px quick actions, shared by the detail page and list rows), `Glyph` (Figma vector with inset/bleed), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
   `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons and on the row checkbox and
   the panel's ✓, "Complete this task", while the to-do is open).
@@ -153,6 +157,13 @@ the same change.
   toggles (the detail page's is one-way, as drawn) and animates the row out and into the other section; switching
   views slides the body (both trialled at the user's request, no Figma motion spec). Search filters by name; the coach, group, status and column
   dropdowns, + and All Views only toast. Booking shows no count, as drawn.
+- Booking tab (`5689:514998`): sections Upcoming sessions (soonest first) and No sessions booked; columns Client ·
+  Activity (next session + Draft a reminder) · Session credits (Balance, then the pool that needs the coach:
+  credits expiring within 7 days first, else a balance ≤ `LOW_CREDIT_THRESHOLD` with the "Low credits" badge, plus
+  Issue Credits) · Action (Send message). "Low credits" stays: Spec 4 AC8.2 is the low-balance case (threshold 2,
+  in review, OQ15; AC8.3 warns the badge hard-codes a threshold still in review). The frame puts Naomi's Low
+  credits tag in the Activity column with no balance and shows Winona's balance of 2 without it; the demo puts the
+  badge in the credits column whenever a pool is low. Booking clients now drive the Upcoming bookings card too.
 - Tell me more (Olly column), the Change status modal, the vertical row expand (rows open the client detail
   drawer instead), settings, tour and What's New are not built yet.
 

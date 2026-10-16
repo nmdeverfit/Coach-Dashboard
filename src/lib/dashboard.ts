@@ -1,7 +1,9 @@
-import type { Client, ClientMessage, ClientProfile, ClientStatus, Todo } from '../data/types';
-import { addDays } from './checkin';
+import { getSessions } from '../data/sessions';
+import type { Booking, Client, ClientMessage, ClientProfile, ClientStatus, SessionType, Todo } from '../data/types';
+import { addDays, weekdayLabel } from './checkin';
 import { buildClientAssessment } from './client';
 import { daysBetween, formatMonthDay, parseDay } from './dates';
+import { buildUnblockView, inDays, plural, timeSpan } from './todos';
 
 /**
  * The client-list view (Figma 5676:145292): which tab a client sits in, the one-line status summary, the Activity
@@ -149,7 +151,7 @@ export function inTab(tab: DashboardTab, client: Client, ctx: { formToReview: bo
     case 'all':
       return true;
     case 'booking':
-      return client.nextSession !== undefined;
+      return getSessions(client.id) !== undefined;
     case 'program_ending':
       return client.programEndsInDays !== undefined;
     case 'form_review':
@@ -161,4 +163,40 @@ export function inTab(tab: DashboardTab, client: Client, ctx: { formToReview: bo
     default:
       return client.status === tab;
   }
+}
+
+// ---------------------------------------------------------------- Booking tab
+
+export interface BookingRow {
+  /** The soonest booked session from today on. */
+  next?: { booking: Booking; date: string; time: string };
+  /** Absent when the client holds no credits on any session type. */
+  credits?: {
+    balance: number;
+    /** The pool that needs the coach: credits expiring within 7 days first, else a balance at the low threshold. */
+    alert?: { type: SessionType; kind: 'expiring'; label: string } | { type: SessionType; kind: 'low' };
+  };
+}
+
+/**
+ * The Booking tab's two columns, from the client's bookings and credits. The credit figures come from the Unblock
+ * builder, so Wendy's row and her Unblock panel say the same thing.
+ */
+export function bookingRow(client: Client, today: string): BookingRow {
+  const s = getSessions(client.id);
+  if (!s) return {};
+  const booking = s.sessions
+    .filter((b) => b.status === 'booked' && b.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start))[0];
+  const next = booking && { booking, date: weekdayLabel(booking.date), time: timeSpan(booking) };
+
+  if (!s.credits.length) return { next };
+  const view = buildUnblockView({ kind: 'unblock', credits: s.credits }, client.firstName, today);
+  const { focus } = view;
+  const alert = focus.expiringSoon
+    ? { type: focus.pool.type, kind: 'expiring' as const, label: `${plural(focus.expiringSoon.count, 'credit')} expiring ${inDays(focus.expiringSoon.inDays)}` }
+    : focus.low
+      ? { type: focus.pool.type, kind: 'low' as const }
+      : undefined;
+  return { next, credits: { balance: view.total, alert } };
 }

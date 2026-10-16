@@ -91,7 +91,9 @@ Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the bann
 | Status | `StatusChip` (21 px pill) | `StatusChip.tsx` |
 | Avatar | `Avatar` (photo or initials) | `Avatar.tsx` |
 | Quick actions (AI draft · message · ✓ · more) | `ClientActions` (`where="panel"` one-way ✓, `"list"` toggles) | `ClientActions.tsx` |
-| Exported vector with inset/bleed | `Glyph` | `Glyph.tsx` |
+| Exported vector with inset/bleed | `Glyph` (inline-block, so it sizes inside text too) | `Glyph.tsx` |
+| Client list rows / sections | `rowProps`, `ClientCell`, `SectionHeader` | `ClientListParts.tsx` |
+| Session swatch, Low credits badge | `Swatch`, `LowCreditsBadge` | `drawer/SessionsBodies.tsx` |
 
 Card anatomy: `rounded-lg border border-ink/15 bg-elevated p-px`, `CardHeader` on top, body `p-3`. Credits and
 Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
@@ -142,6 +144,13 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   chip (13 px, 21 px line height).
 - The client name is a blue link only on the drawer title, never on Check-in, never on rows.
 - Actions without a built destination show a toast that says where they would go ("… opens in a new tab").
+- **Booking tab** (Figma `5689:514998`): same shell as the list (metric row, tabs, search; no Status dropdown).
+  Columns Client 320 · Activity 460 · Session credits (fills) · Action 100. Activity: "Next session:" 13 px
+  semibold `#4d4d4d` + 14 px swatch + type 14 px semibold `#1a1a1a`; then clock 14 px, date "Tue, Sep 1" 13 px
+  semibold black · time "2:00 - 3:00pm" `#4d4d4d`, and a 28 px "Draft a reminder" button (`#f9f9f9`, border
+  `#e0e0e0`, rounded 8, alarm 13 px). Credits: "Balance: N", then swatch + type · "N credits expiring in N days"
+  (`#ca410a`) or the "Low credits" badge (`LowCreditsBadge`, `#ffebb0` / `#71381d`), and a white 28 px "Issue
+  Credits" button with a 12 px +. Action: Send message only. Sections: Upcoming sessions · No sessions booked.
 - **View switch** (Today's Brief ⇄ Dashboard, `ViewLayer` in `App.tsx`): everything below the header slides as one
   track, 420 ms `cubic-bezier(0.65, 0, 0.35, 1)`. To the Dashboard the brief leaves left and the list comes in from
   the right; back to the brief the reverse. Both views stay mounted, so each keeps its scroll, tab and search.

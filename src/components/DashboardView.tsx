@@ -5,7 +5,6 @@ import iconDownViews from '../assets/figma/icon-down-views.svg';
 import iconDropdown from '../assets/figma/icon-dropdown.svg';
 import iconPencilAiSm from '../assets/figma/icon-pencil-ai-sm.svg';
 import iconPlusView from '../assets/figma/icon-plus-view.svg';
-import iconExpand from '../assets/figma/icon-row-expanded.svg';
 import iconSearch from '../assets/figma/icon-search-note.svg';
 import statAtRisk from '../assets/figma/stat-at-risk.svg';
 import statFormReview from '../assets/figma/stat-form-review.svg';
@@ -16,11 +15,12 @@ import statProgramEnding from '../assets/figma/stat-program-ending.svg';
 import statReviewCompleted from '../assets/figma/stat-review-completed.svg';
 import { DEMO_TODAY, clients } from '../data/mock';
 import { getProfile } from '../data/profiles';
-import type { Client, ClientStatus } from '../data/types';
+import type { Client } from '../data/types';
 import { activityLine, byUrgency, hasFormToReview, inTab, lastActive, statusLine, type ActivityLine, type DashboardTab } from '../lib/dashboard';
 import { useStore } from '../state/store';
-import { Avatar } from './Avatar';
+import { BookingTable } from './BookingTable';
 import { ClientActions } from './ClientActions';
+import { ClientCell, HEAD, reducedMotion, rowProps, SectionHeader } from './ClientListParts';
 import { AI_GRADIENT } from './drawer/AiAssessment';
 import { Glyph } from './Glyph';
 import { StatusChip } from './StatusChip';
@@ -57,12 +57,6 @@ const TABS: { tab: DashboardTab; label: string; noCount?: boolean }[] = [
   { tab: 'paused', label: 'Paused' },
 ];
 
-const DOT: Record<ClientStatus, string> = {
-  at_risk: 'bg-status-risk-dot',
-  needs_attention: 'bg-status-attention-dot',
-  on_track: 'bg-status-track-dot',
-  no_activities: 'bg-ink-muted',
-};
 
 /** Everything a row shows, computed once per client from its profile. */
 interface Row {
@@ -133,7 +127,10 @@ export function DashboardView() {
 
       <div className="flex flex-col gap-4 bg-white px-4 pb-4 pt-4">
         <Tabs current={state.dashboardTab} count={count} onSelect={setDashboardTab} />
-        <SearchAndFilters query={query} onQuery={setQuery} />
+        <SearchAndFilters query={query} onQuery={setQuery} booking={state.dashboardTab === 'booking'} />
+        {state.dashboardTab === 'booking' ? (
+          <BookingTable query={q} />
+        ) : (
         <div className="flex flex-col gap-2">
           <TableHeader />
           <Section
@@ -155,6 +152,7 @@ export function DashboardView() {
             onMoved={setArrived}
           />
         </div>
+        )}
       </div>
     </div>
   );
@@ -212,7 +210,8 @@ function Tabs({ current, count, onSelect }: { current: DashboardTab; count: (tab
 
 const FIELD = 'flex h-[38px] shrink-0 items-center overflow-hidden rounded-[5px] border border-line-input bg-white';
 
-function SearchAndFilters({ query, onQuery }: { query: string; onQuery: (q: string) => void }) {
+/** The Booking tab draws no Status dropdown. */
+function SearchAndFilters({ query, onQuery, booking }: { query: string; onQuery: (q: string) => void; booking: boolean }) {
   const { showToast } = useStore();
   const notBuilt = () => showToast('Filters work as in v1; not part of this demo');
   return (
@@ -239,10 +238,12 @@ function SearchAndFilters({ query, onQuery }: { query: string; onQuery: (q: stri
           </span>
           <img src={iconDropdown} alt="" width={20} height={20} />
         </button>
-        <button type="button" onClick={notBuilt} className={`${FIELD} w-40 gap-0.5 px-5 text-[13px] leading-[1.5] text-ink-tertiary`}>
-          <span className="flex-1 text-left">Status</span>
-          <img src={iconDropdown} alt="" width={20} height={20} />
-        </button>
+        {!booking && (
+          <button type="button" onClick={notBuilt} className={`${FIELD} w-40 gap-0.5 px-5 text-[13px] leading-[1.5] text-ink-tertiary`}>
+            <span className="flex-1 text-left">Status</span>
+            <img src={iconDropdown} alt="" width={20} height={20} />
+          </button>
+        )}
       </div>
       <button type="button" aria-label="Columns" onClick={notBuilt} className={`${FIELD} gap-2 px-3`}>
         <img src={iconColumns} alt="" width={20} height={20} />
@@ -254,7 +255,6 @@ function SearchAndFilters({ query, onQuery }: { query: string; onQuery: (q: stri
 
 /** Column widths from the frame: Client 280 · Status (fills) · Activity 440 · Last active 111 · Action 164. */
 const COL = { client: 'w-[280px] shrink-0', status: 'min-w-0 flex-1', activity: 'w-[440px] shrink-0', last: 'w-[111px] shrink-0', action: 'w-[164px] shrink-0' };
-const HEAD = 'text-[13px] font-semibold leading-[1.5] text-ink/50';
 
 function TableHeader() {
   return (
@@ -289,28 +289,9 @@ interface SectionProps {
 }
 
 function Section({ title, rows, open, onToggle, empty, arrived, onMoved }: SectionProps) {
-  // The count bumps when a row joins or leaves, so the move reads even when the section is off screen.
-  const chip = useRef<HTMLSpanElement>(null);
-  const first = useRef(true);
-  useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    if (!reducedMotion()) chip.current?.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 320, easing: 'ease-out' });
-  }, [rows.length]);
   return (
     <section>
-      <button type="button" aria-expanded={open} onClick={onToggle} className="flex h-12 w-full items-center gap-2 rounded-lg bg-surface-secondary p-3 text-left">
-        <img src={iconExpand} alt="" width={16} height={16} className={`transition-transform ${open ? 'rotate-90' : ''}`} />
-        <span className="text-[16px] font-semibold leading-[1.5] text-ink">{title}</span>
-        <span
-          ref={chip}
-          className="min-w-[19px] rounded-[4px] border border-line-chip bg-white px-[3px] py-0.5 text-center text-[11px] font-semibold leading-normal text-ink/80 tabular-nums"
-        >
-          {rows.length}
-        </span>
-      </button>
+      <SectionHeader title={title} count={rows.length} open={open} onToggle={onToggle} />
       {open && (
         <div className="mt-2">
           {rows.length ? rows.map((row) => <ClientRow key={row.client.id} row={row} arriving={arrived === row.client.id} onMoved={onMoved} />) : <p className="px-4 py-4 text-[13px] leading-[1.5] text-ink-muted">{empty}</p>}
@@ -320,7 +301,6 @@ function Section({ title, rows, open, onToggle, empty, arrived, onMoved }: Secti
   );
 }
 
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const ROW_OUT_MS = 520;
 const ROW_IN_MS = 420;
 const EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
@@ -329,7 +309,6 @@ function ClientRow({ row, arriving, onMoved }: { row: Row; arriving: boolean; on
   const { state, selectClient, toggleReview } = useStore();
   const { client } = row;
   const selected = state.selectedClientId === client.id;
-  const ends = client.programEndsInDays;
   const ref = useRef<HTMLDivElement>(null);
   const leaving = useRef(false);
 
@@ -377,33 +356,8 @@ function ClientRow({ row, arriving, onMoved }: { row: Row; arriving: boolean; on
   }, []);
 
   return (
-    <div
-      ref={ref}
-      role="button"
-      tabIndex={0}
-      data-client-row
-      aria-current={selected ? 'true' : undefined}
-      onClick={() => selectClient(client.id)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          selectClient(client.id);
-        }
-      }}
-      className={`flex cursor-pointer items-center border-b border-line outline-none focus-visible:bg-surface-secondary ${
-        selected ? 'bg-surface-secondary' : 'hover:bg-elevated'
-      }`}
-    >
-      <div className={`${COL.client} flex items-center gap-3 p-3`}>
-        <span className={`size-2 shrink-0 rounded-full ${DOT[client.status]}`} />
-        <Avatar name={client.name} src={client.avatar} size={40} />
-        <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate text-[14px] font-bold leading-[1.5] text-ink">{client.name}</span>
-          {ends !== undefined && ends >= 0 && (
-            <span className="text-[12px] font-semibold leading-[1.5] text-ink-secondary">{ends === 0 ? 'Program ends today' : `Program ends ${ends}d`}</span>
-          )}
-        </span>
-      </div>
+    <div ref={ref} {...rowProps(client, selected, selectClient)}>
+      <ClientCell client={client} className={COL.client} />
       <div className={`${COL.status} flex flex-col items-start gap-1 px-4 py-3`}>
         <StatusChip status={client.status} />
         <p className="text-[13px] leading-[1.5] text-ink">{row.status}</p>

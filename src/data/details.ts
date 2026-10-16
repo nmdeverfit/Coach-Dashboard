@@ -27,10 +27,10 @@ const foods = (meals: Partial<Record<MealKey, [string, number, number, number][]
   );
 
 // Session types as the coach set them up in Client Sessions (shared by Wendy's credits and Malcom's bookings).
-const PT: SessionType = { name: 'PT session', color: '#3975ff', minutes: 60, location: 'in_person' };
-const PILATES: SessionType = { name: 'Pilates', color: '#fcc54e', minutes: 60, location: 'in_person' };
-const ASSESSMENT: SessionType = { name: 'Assessment', color: '#fcc54e', minutes: 60, location: 'in_person' };
-const CONSULT: SessionType = { name: 'Consultant', color: '#ff6d4d', minutes: 60, location: 'in_person' };
+export const PT: SessionType = { name: 'PT session', color: '#3975ff', minutes: 60, location: 'in_person' };
+export const PILATES: SessionType = { name: 'Pilates', color: '#fcc54e', minutes: 60, location: 'in_person' };
+export const ASSESSMENT: SessionType = { name: 'Assessment', color: '#fcc54e', minutes: 60, location: 'in_person' };
+export const CONSULT: SessionType = { name: 'Consultant', color: '#ff6d4d', minutes: 60, location: 'in_person' };
 
 const LEO_NUTRITION: NutritionLog = {
   // 260 g carb + 70 g fat + 150 g protein = 2,270 kcal

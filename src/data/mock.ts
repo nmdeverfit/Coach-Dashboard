@@ -1,7 +1,8 @@
 import { buildPrepareView, rowReasonFor } from '../lib/todos';
+import { getSessions } from './sessions';
 import { summarizeTraining } from '../lib/training';
 import { todoDetails } from './details';
-import type { CheckinDetail, Client, Highlight, PrepareDetail, Todo } from './types';
+import type { CheckinDetail, Client, Highlight, Todo } from './types';
 
 /** Demo "today": the design's brief is dated Monday Aug 31. */
 export const DEMO_TODAY = '2026-08-31';
@@ -92,13 +93,12 @@ const seeds: Seed[] = [
   { slug: 'mila-cruz', name: 'Mila Cruz', status: 'on_track', programEndsInDays: 7 },
   { slug: 'ryan-ford', name: 'Ryan Ford', status: 'on_track' },
   // Upcoming bookings (lifecycle: carries a session time)
-  { slug: 'ethan-smith', name: 'Ethan Smith', status: 'on_track', nextSession: 'Today 6:30 PM' },
-  { slug: 'alexander-thompson', name: 'Alexander Thompson', status: 'on_track', nextSession: 'Today 6:45 PM' },
-  { slug: 'penelope-brooks', name: 'Penelope Brooks', status: 'on_track', nextSession: 'Sep 1 • 8:00 AM' },
-  { slug: 'gabriella-clark', name: 'Gabriella Clark', status: 'on_track', nextSession: 'Sep 1 • 11:00 AM' },
-  // Malcom's next session comes from his bookings, so the card and his Prepare panel agree.
-  { slug: 'malcom-reed', name: 'Malcom Reed', status: 'on_track', nextSession: buildPrepareView(todoDetails.t6 as PrepareDetail, DEMO_TODAY).railLabel },
-  { slug: 'sam-rivera', name: 'Sam Rivera', status: 'on_track', nextSession: 'Sep 3 • 9:00 AM' },
+  { slug: 'ethan-smith', name: 'Ethan Smith', status: 'on_track' },
+  { slug: 'alexander-thompson', name: 'Alexander Thompson', status: 'on_track' },
+  { slug: 'penelope-brooks', name: 'Penelope Brooks', status: 'on_track' },
+  { slug: 'gabriella-clark', name: 'Gabriella Clark', status: 'on_track' },
+  { slug: 'malcom-reed', name: 'Malcom Reed', status: 'on_track' },
+  { slug: 'sam-rivera', name: 'Sam Rivera', status: 'on_track' },
   // Other clients referenced by to-dos
   { slug: 'sidney-goyette-kihn', name: 'Sidney Goyette-Kihn', status: 'on_track' },
   { slug: 'glen-johnson', name: 'Glen Johnson', status: 'on_track' },
@@ -110,8 +110,19 @@ const seeds: Seed[] = [
   { slug: 'leo-midgett', name: 'Leo Midgett', status: 'on_track' },
 ];
 
+/**
+ * The Upcoming bookings card's session label comes from the client's bookings (`sessions.ts`), so the card, the
+ * Booking tab and Malcom's Prepare panel agree.
+ */
+function nextSession(slug: string): string | undefined {
+  const s = getSessions(slug);
+  if (!s?.sessions.some((b) => b.status === 'booked' && b.date >= DEMO_TODAY)) return undefined;
+  return buildPrepareView({ kind: 'prepare', sessions: s.sessions }, DEMO_TODAY).railLabel;
+}
+
 export const clients: Client[] = seeds.map(({ slug, ...rest }) => ({
   ...rest,
+  nextSession: nextSession(slug),
   id: slug,
   firstName: rest.name.split(' ')[0],
   avatar: avatar(slug),
