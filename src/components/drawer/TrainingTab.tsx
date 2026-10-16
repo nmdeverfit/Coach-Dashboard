@@ -38,7 +38,7 @@ function Cell({ cell, today }: { cell: SessionCell; today: string }) {
         <img src={pausedPattern} alt="" className="pointer-events-none absolute inset-0 size-full rounded-lg object-cover opacity-40" />
       )}
       {isToday ? (
-        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#e3ecff] text-[11px] font-semibold leading-[18px] text-brand">
+        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-subtle text-[11px] font-semibold leading-[18px] text-brand">
           {pad(cell.date)}
         </span>
       ) : (

@@ -24,6 +24,7 @@ export default {
           input: '#dbdce3', // search bar and dropdowns on the client list
         },
         brand: '#184eff', // Icon/Brand
+        'brand-subtle': '#e3ecff', // today's date chip (Training session log, Meal Log)
         orange: '#ff6b16', // Icon/Orange
         warning: '#f59e0b', // Icon/Warning
         danger: '#f04438',
