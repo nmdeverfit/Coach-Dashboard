@@ -1,32 +1,21 @@
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import quoteLine from '../../assets/figma/ai-quote-line.svg';
 import iconTellMeMore from '../../assets/figma/icon-tell-me-more.svg';
-import type { ClientStatus } from '../../data/types';
 import type { Assessment } from '../../lib/checkin';
-
-/** Check-in tints the card by the client's status. */
-export const STATUS_BORDER: Record<ClientStatus, string> = {
-  at_risk: 'border-status-risk-line',
-  needs_attention: 'border-status-attention-line',
-  on_track: 'border-status-track-line',
-  no_activities: 'border-line-light',
-};
 
 /** Gradient used on the "AI Assessment" label in Figma. */
 const AI_GRADIENT =
   'radial-gradient(120% 260% at 0% 0%, #f2617d 0%, #c159aa 22%, #8f51d6 44%, #6c59e0 58%, #4861e9 72%, #2469f3 86%, #0071fd 100%)';
 
 interface Props {
-  /** Border colour class. Build and Remind carry no verdict; their frames draw the red border regardless. */
-  border: string;
   assessment: Assessment;
   onTellMeMore: () => void;
 }
 
-export function AiAssessment({ border, assessment, onTellMeMore }: Props) {
+export function AiAssessment({ assessment, onTellMeMore }: Props) {
   const { headline, bullets } = assessment;
   return (
-    <section className={`relative flex flex-col gap-3 rounded-lg border bg-white p-4 shadow-ai-card ${border}`}>
+    <section className="relative flex flex-col gap-3 rounded-lg border border-ai-line bg-white p-4 shadow-ai-card">
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <img src={iconSparkle} alt="" width={16} height={16} />

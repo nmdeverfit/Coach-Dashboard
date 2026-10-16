@@ -29,6 +29,7 @@ export default {
         checked: '#0071fd', // completed to-do check
         dark: '#7b7e91', // "Dark" style
         elevated: '#fcfcfc', // Background/Elevated
+        'ai-line': '#fc6969', // AI Assessment card stroke, the same on every to-do type
         status: {
           'risk-bg': '#fbdfdf',
           'risk-fg': '#7b2339',

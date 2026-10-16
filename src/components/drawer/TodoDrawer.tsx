@@ -20,7 +20,7 @@ import { Avatar } from '../Avatar';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { StatusChip } from '../StatusChip';
 import { Tooltip } from '../Tooltip';
-import { AiAssessment, STATUS_BORDER } from './AiAssessment';
+import { AiAssessment } from './AiAssessment';
 import { AcknowledgeBody, BuildBody, RemindBody } from './AssessedBodies';
 import { NutritionTab } from './NutritionTab';
 import { DataArea, DraftWithAiButton, FooterButton, PanelFooter, SendMessageButton, TabBar, TabPlaceholder } from './PanelParts';
@@ -135,7 +135,6 @@ function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail
     <>
       <div className="flex flex-col gap-2 px-[30px] pb-[30px] pt-2.5">
         <AiAssessment
-          border={STATUS_BORDER[client.status]}
           assessment={view.assessment}
           onTellMeMore={() =>
             showToast(`Olly BI opens beside this panel: “Tell me more about ${client.firstName}’s status on ${formatDayMonth(parseDay(DEMO_TODAY))}”`)

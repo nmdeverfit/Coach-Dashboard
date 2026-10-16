@@ -13,15 +13,11 @@ import { CardHeader, NutritionTab } from './NutritionTab';
 import { DataArea, TabBar, TabPlaceholder } from './PanelParts';
 import { TrainingTab } from './TrainingTab';
 
-/** Build and Remind draw the assessment card with the red border in their frames (5647:133017, 5647:133214). */
-const ASSESSMENT_BORDER = 'border-status-risk-line';
-
-function Assessment({ client, assessment, border = ASSESSMENT_BORDER }: { client: Client; assessment: BuildView['assessment']; border?: string }) {
+function Assessment({ client, assessment }: { client: Client; assessment: BuildView['assessment'] }) {
   const { showToast } = useStore();
   return (
     <div className="px-[30px] pb-[30px] pt-2.5">
       <AiAssessment
-        border={border}
         assessment={assessment}
         onTellMeMore={() =>
           showToast(`Olly BI opens beside this panel: “Tell me more about ${client.firstName}’s status on ${formatDayMonth(parseDay(DEMO_TODAY))}”`)
@@ -165,14 +161,14 @@ const ACKNOWLEDGE_TABS = [
 ] as const;
 
 /**
- * Acknowledge: no Figma frame, so it borrows the assessed-type layout. A positive card (green border), Tell me more,
+ * Acknowledge: no Figma frame, so it borrows the assessed-type layout: the assessment card with Tell me more,
  * no status chip and no feedback; the tab of the win opens first.
  */
 export function AcknowledgeBody({ client, detail, view }: { client: Client; detail: AcknowledgeDetail; view: AcknowledgeView }) {
   const [tab, setTab] = useState<(typeof ACKNOWLEDGE_TABS)[number]['key']>('nutrition');
   return (
     <>
-      <Assessment client={client} assessment={view.assessment} border="border-status-track-line" />
+      <Assessment client={client} assessment={view.assessment} />
       <DataArea>
         <TabBar tabs={ACKNOWLEDGE_TABS} active={tab} onChange={setTab} />
         {tab === 'nutrition' ? (

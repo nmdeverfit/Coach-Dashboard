@@ -5,6 +5,10 @@ Figma design, to which the product owner adds features and use cases step by ste
 The product brief below is the source of truth for behaviour. When the design and the brief disagree,
 follow the design for visuals and **raise the conflict with the user** instead of resolving it silently.
 
+**Always read [`design.md`](design.md) before designing or changing any UI** (layout, tokens, typography, components to
+reuse, AI elements, states, copy rules). Keep it up to date: when a design decision is settled, record it there in
+the same change.
+
 ## Project
 
 - Stack: React 18 + TypeScript + Vite + Tailwind CSS 3. Icons and images are Figma exports in `src/assets/figma/`
@@ -102,8 +106,8 @@ follow the design for visuals and **raise the conflict with the user** instead o
   buttons and AC7.3 has Draft with AI fill the reminder template. The demo follows the design.
 - Unblock: AC8.3 also asks for "how fast" (this week's completed sessions); the design has no such line.
 - Build and Remind: the design's assessment copy quoted a client message and showed ISO dates and status codes
-  (BL4 forbids all three); the demo writes it from the data. Their cards keep the design's red border although
-  neither type carries a verdict; ask.
+  (BL4 forbids all three); the demo writes it from the data. The card stroke is `ai-line` (#fc6969) on every type,
+  as drawn (settled with the user), so it does not signal a verdict.
 - Remind: the design uses Glen, who already has today's Build to-do (one per client per day), so the demo's Remind
   is Leo Midgett (`t8`). The design's overdue form had been submitted 3 days earlier and one form was submitted but
   unreviewed (that raises Respond, which outranks Remind); the demo's data avoids both.
@@ -113,7 +117,7 @@ follow the design for visuals and **raise the conflict with the user** instead o
   strip of day circles (the user's call).
 - Acknowledge (trial, no Figma frame, not in Spec 4): the brief makes it Phase 2 with "one trigger". The demo's
   trigger is a turnaround (back on the calorie goal N days running after weeks under it), kept apart from Catch-up
-  milestones, which OQ21 keeps in Client highlights. Panel = assessed layout: green-bordered assessment with the
+  milestones, which OQ21 keeps in Client highlights. Panel = assessed layout: assessment card with the
   nutrition tag + Tell me more, tabs Nutrition (first) · Training · Notes, footer Draft with AI · Send message, ✓
   completes. Row title stays the design's "Congratulate". Revert this if the user drops it.
 - Dashboard view, Tell me more (Olly column), the Change status modal, settings, tour and
