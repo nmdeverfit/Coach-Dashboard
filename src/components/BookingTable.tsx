@@ -22,10 +22,11 @@ import { Tooltip } from './Tooltip';
  * credits (balance, then the pool that needs the coach) · Action. Late cancels raise no to-do; they live here (Spec 4).
  */
 
-const COL = { client: 'w-[320px] shrink-0', activity: 'w-[460px] shrink-0', credits: 'min-w-0 flex-1', action: 'w-[100px] shrink-0' };
+/** Activity gives up width before Session credits does; nothing inside a cell breaks mid-phrase (narrow windows wrap the button to its own line). */
+const COL = { client: 'w-[280px] shrink-0', activity: 'min-w-[360px] flex-[0_1_460px]', credits: 'min-w-[420px] flex-1', action: 'w-[100px] shrink-0' };
 /** Client Sessions' greys, as drawn in the frame. */
 const LABEL = 'text-[13px] font-semibold leading-[18px] tracking-[0.13px] text-[#4d4d4d]';
-const SMALL_BUTTON = 'flex h-7 shrink-0 items-center gap-[5px] rounded-lg border border-[#e0e0e0] text-[12px] font-semibold leading-[18px] text-[#4d4d4d] hover:bg-[#f2f2f2]';
+const SMALL_BUTTON = 'flex h-7 shrink-0 whitespace-nowrap items-center gap-[5px] rounded-lg border border-[#e0e0e0] text-[12px] font-semibold leading-[18px] text-[#4d4d4d] hover:bg-[#f2f2f2]';
 
 const ROWS = clients
   .filter((c) => getSessions(c.id))
@@ -89,15 +90,15 @@ function BookingClientRow({ client, row }: { client: Client; row: BookingRow }) 
       <div className={`${COL.activity} flex min-h-[76px] flex-col justify-center gap-1 p-3`}>
         {next && (
           <>
-            <p className="flex items-center gap-2">
+            <p className="flex items-center gap-2 whitespace-nowrap">
               <span className={LABEL}>Next session:</span>
               <span className="flex items-center gap-1.5 text-[14px] font-semibold leading-5 text-[#1a1a1a]">
                 <Swatch color={next.booking.type.color} />
                 {next.booking.type.name}
               </span>
             </p>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 text-[13px] leading-[18px] tracking-[0.13px]">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="flex items-center gap-1.5 whitespace-nowrap text-[13px] leading-[18px] tracking-[0.13px]">
                 <Glyph src={iconClock} size={14} inset="8.33%" bleed="-6% -5.99% -6% -6.01%" />
                 <span className="font-semibold text-black">{next.date}</span>
                 <img src={dotTiny} alt="" width={2} height={2} />
@@ -119,13 +120,13 @@ function BookingClientRow({ client, row }: { client: Client; row: BookingRow }) 
       <div className={`${COL.credits} flex flex-col justify-center gap-1 p-3`}>
         {credits && (
           <>
-            <p className="flex items-baseline gap-2 font-semibold">
+            <p className="flex items-baseline gap-2 whitespace-nowrap font-semibold">
               <span className={LABEL}>Balance:</span>
               <span className="text-[14px] leading-[1.5] text-[#1a1a1a] tabular-nums">{credits.balance}</span>
             </p>
             {credits.alert && (
-              <div className="flex items-center gap-3">
-                <span className="flex h-6 items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span className="flex h-6 items-center gap-1.5 whitespace-nowrap">
                   <Swatch color={credits.alert.type.color} />
                   <span className="text-[14px] font-semibold leading-5 text-[#1a1a1a]">{credits.alert.type.name}</span>
                   {credits.alert.kind === 'expiring' ? (

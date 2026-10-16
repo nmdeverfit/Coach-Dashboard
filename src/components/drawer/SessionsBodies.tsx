@@ -65,7 +65,7 @@ function SessionMeta({ type, time, small }: { type: SessionType; time?: string; 
 
 /** A session type's balance is at or below LOW_CREDIT_THRESHOLD (Spec 4 AC8.2; the threshold is in review, OQ15). */
 export function LowCreditsBadge() {
-  return <span className="flex h-[21px] items-center rounded-full bg-[#ffebb0] px-2 text-[12px] font-semibold leading-[15px] text-[#71381d]">Low credits</span>;
+  return <span className="flex h-[21px] shrink-0 items-center whitespace-nowrap rounded-full bg-[#ffebb0] px-2 text-[12px] font-semibold leading-[15px] text-[#71381d]">Low credits</span>;
 }
 
 function CreditRow({ view, open, onToggle, last }: { view: CreditPoolView; open: boolean; onToggle: () => void; last: boolean }) {
