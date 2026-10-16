@@ -132,8 +132,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   semibold facts, a "Follow Up" link (bold brand, underlined) or a "Draft a reach out" AI button (28 px); Last
   active 13 px `ink/60`. Hover `bg-elevated`, selected `bg-surface-secondary`; click opens the client detail drawer.
 - **Today's date** (Meal Log and Training session log, the same style): the number in brand blue, semibold, on a
-  20 px `brand-subtle` (#e3ecff) circle. Nothing else in the column changes. The Meal Log legend adds "Today" with
-  a `brand-subtle` dot. Today is the day after the summary window.
+  20 px `brand-subtle` (#e3ecff) circle. Nothing else in the column changes, and the legend has no Today item (the
+  user's call). Today is the day after the summary window.
 - **Session log cells** (Training tab): 76 px tall, `pt-1.5 pb-2.5`. Date row (20 px) then the state label, which
   sits 39 px from the top on every state; the "3/3" count hangs below the label.
 - **Habit day circles** (28 px): done = green tint + check, missed (daily habits) = `#fef2f2` + red ×, not ticked on

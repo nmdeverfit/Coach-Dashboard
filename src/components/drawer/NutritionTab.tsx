@@ -284,10 +284,6 @@ function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSu
           <span className="size-4 rounded-[2.837px] border-[1.064px] border-dashed border-ink-muted" />
           Upcoming
         </span>
-        <span className="flex items-center gap-2">
-          <span className="size-4 rounded-full bg-brand-subtle" />
-          Today
-        </span>
       </div>
       <div className="flex flex-col px-4 pb-4 pt-2 text-[13px] leading-[18px] text-ink">
         {[
