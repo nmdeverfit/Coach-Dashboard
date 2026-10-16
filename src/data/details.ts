@@ -80,7 +80,7 @@ const MEAL_SPLIT: [MealKey, number, string[]][] = [
   ['dinner', 0.35, ['Steak, potatoes and greens', 'Chicken pasta', 'Turkey chili with rice']],
   ['snack', 0.1, ['Greek yogurt and granola', 'Protein shake', 'Trail mix']],
 ];
-function dayAt(kcal: number, protein: number, seed: number): Partial<Record<MealKey, FoodEntry[]>> {
+export function dayAt(kcal: number, protein: number, seed: number): Partial<Record<MealKey, FoodEntry[]>> {
   return Object.fromEntries(
     MEAL_SPLIT.map(([meal, share, names]) => {
       const p = Math.round(protein * share);

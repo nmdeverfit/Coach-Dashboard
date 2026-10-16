@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import iconCheckTitle from '../../assets/figma/icon-check-title.svg';
 import iconCheckWhite from '../../assets/figma/icon-check-white.svg';
 import iconAddWhite from '../../assets/figma/icon-add-white.svg';
@@ -11,6 +11,7 @@ import iconTrashHover from '../../assets/figma/icon-trash-hover.svg';
 import iconTrash from '../../assets/figma/icon-trash.svg';
 import { todoDetails } from '../../data/details';
 import { DEMO_TODAY } from '../../data/mock';
+import { getProfile } from '../../data/profiles';
 import type { CheckinDetail, Client, Todo, TodoDetail } from '../../data/types';
 import { buildCheckinView } from '../../lib/checkin';
 import { buildAcknowledgeView, buildBuildView, buildPrepareView, buildRemindView, buildRespondView, buildUnblockView } from '../../lib/todos';
@@ -22,28 +23,16 @@ import { StatusChip } from '../StatusChip';
 import { Tooltip } from '../Tooltip';
 import { AiAssessment } from './AiAssessment';
 import { AcknowledgeBody, BuildBody, RemindBody } from './AssessedBodies';
-import { NutritionTab } from './NutritionTab';
-import { DataArea, DraftWithAiButton, FooterButton, PanelFooter, SendMessageButton, TabBar, TabPlaceholder } from './PanelParts';
+import { DraftWithAiButton, FooterButton, PanelFooter, SendMessageButton } from './PanelParts';
 import { RespondBody } from './RespondBody';
 import { PrepareBody, UnblockBody } from './SessionsBodies';
 import { StatusFeedback } from './StatusFeedback';
-import { TrainingTab } from './TrainingTab';
-
-/** Check-in carries all six v1 data tabs (Spec 4 BL1); Training reads as available, the rest are muted in the design. */
-const TABS = [
-  { key: 'training', label: 'Training' },
-  { key: 'nutrition', label: 'Nutrition' },
-  { key: 'tasks', label: 'Task & Habit', muted: true },
-  { key: 'program', label: 'Program Ending', muted: true },
-  { key: 'form', label: 'Form', muted: true },
-  { key: 'notes', label: 'Notes', muted: true },
-] as const;
-type TabKey = (typeof TABS)[number]['key'];
+import { ClientDetailsPanel } from './ClientDetails';
+import { ClientTabs } from './ClientTabs';
+import { DrawerAside, useCloseOnOutside, useDrawerPresence } from './DrawerShell';
 
 /** The ✓ on the title row is each type's completion (Spec 4 BL1 G). */
 const COMPLETE_LABEL: Partial<Record<Todo['type'], string>> = { checkin: 'Mark as reviewed', respond: 'Mark form as reviewed' };
-
-const CLOSE_MS = 220;
 
 interface TitleProps {
   todo: Todo;
@@ -128,7 +117,6 @@ function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: Title
 
 function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail }) {
   const { showToast } = useStore();
-  const [tab, setTab] = useState<TabKey>(detail.focus);
   const view = buildCheckinView(detail, DEMO_TODAY);
 
   return (
@@ -142,16 +130,8 @@ function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail
         />
         <StatusFeedback client={client} />
       </div>
-      <DataArea>
-        <TabBar tabs={TABS} active={tab} onChange={setTab} />
-        {tab === 'nutrition' ? (
-          <NutritionTab log={detail.nutrition} summary={view.summary} />
-        ) : tab === 'training' ? (
-          <TrainingTab log={detail.training} today={DEMO_TODAY} />
-        ) : (
-          <TabPlaceholder label={TABS.find((t) => t.key === tab)!.label} />
-        )}
-      </DataArea>
+      {/* Check-in carries all six data tabs (Spec 4 BL1), read from the same profile as the client detail page. */}
+      <ClientTabs client={client} profile={getProfile(client.id)} />
     </>
   );
 }
@@ -261,77 +241,19 @@ function PlaceholderBody() {
   );
 }
 
-/** Client details in the panel's slot (AC1.11); S5 owns its content. */
-function ClientDetails({ client, onBack, onClose }: { client: Client; onBack: () => void; onClose: () => void }) {
-  return (
-    <div className="flex h-full flex-col">
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-5 pb-2.5 pt-[15px]">
-        <button type="button" onClick={onBack} className="flex items-center gap-2 text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:text-ink">
-          <span aria-hidden className="text-[16px] leading-none">
-            ‹
-          </span>
-          CLIENT DETAILS
-        </button>
-        <button type="button" aria-label="Close" onClick={onClose} className="relative size-5 overflow-hidden rounded hover:opacity-70">
-          <img src={iconClose} alt="" className="absolute left-1/2 top-1/2 size-6 max-w-none -translate-x-1/2 -translate-y-1/2" />
-        </button>
-      </header>
-      <div className="flex items-center gap-4 px-[30px] py-5">
-        <Avatar name={client.name} src={client.avatar} size={44} />
-        <div className="flex flex-col items-start gap-1">
-          <h2 className="text-[18px] font-bold leading-[1.5] text-ink">{client.name}</h2>
-          <StatusChip status={client.status} />
-        </div>
-      </div>
-      <div className="px-[30px]">
-        <p className="rounded-lg border border-dashed border-line-light bg-elevated px-4 py-10 text-center text-[13px] leading-[1.5] text-ink-secondary">
-          The client details page (status, AI explanation, data area) is built once its frame is shared.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 /** To-do details drawer: slides in from the right over the right rail; the brief stays usable beside it. */
 export function TodoDrawer() {
   const { state, selectTodo, markReviewed, completeFromPanel, dismiss } = useStore();
-  const [shownId, setShownId] = useState<string | null>(state.selectedTodoId);
-  const [closing, setClosing] = useState(false);
+  const { shown: shownId, closing } = useDrawerPresence(state.selectedTodoId);
   const [confirmDismiss, setConfirmDismiss] = useState(false);
   const [clientOpen, setClientOpen] = useState(false);
+  const close = useCallback(() => selectTodo(null), [selectTodo]);
+  useCloseOnOutside(Boolean(state.selectedTodoId), close);
 
   useEffect(() => {
     setConfirmDismiss(false);
     setClientOpen(false);
-    if (state.selectedTodoId) {
-      setShownId(state.selectedTodoId);
-      setClosing(false);
-      return;
-    }
-    setClosing(true);
-    const timer = window.setTimeout(() => {
-      setShownId(null);
-      setClosing(false);
-    }, CLOSE_MS);
-    return () => window.clearTimeout(timer);
   }, [state.selectedTodoId]);
-
-  // Close, Esc or a click outside closes the panel without completing anything (AC1.4).
-  useEffect(() => {
-    if (!state.selectedTodoId) return;
-    const busy = () => document.querySelector('[role="alertdialog"]');
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && !busy() && selectTodo(null);
-    const onPointer = (e: PointerEvent) => {
-      if (busy() || (e.target as Element).closest('[data-todo-drawer], [data-todo-row]')) return;
-      selectTodo(null);
-    };
-    window.addEventListener('keydown', onKey);
-    document.addEventListener('pointerdown', onPointer);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.removeEventListener('pointerdown', onPointer);
-    };
-  }, [state.selectedTodoId, selectTodo]);
 
   const todo = state.todos.find((t) => t.id === shownId);
   if (!todo) return null;
@@ -341,12 +263,8 @@ export function TodoDrawer() {
   const complete = () => (todo.type === 'checkin' ? markReviewed(client.id) : completeFromPanel(todo.id));
 
   return (
-    <aside
-      data-todo-drawer
-      aria-label="To-do details"
-      className={`fixed inset-y-0 right-0 z-40 flex w-[720px] flex-col bg-white shadow-drawer ${closing ? 'animate-drawer-out' : 'animate-drawer-in'}`}
-    >
-      {clientOpen && <ClientDetails client={client} onBack={() => setClientOpen(false)} onClose={() => selectTodo(null)} />}
+    <DrawerAside label="To-do details" closing={closing}>
+      {clientOpen && <ClientDetailsPanel client={client} onBack={() => setClientOpen(false)} onClose={close} />}
       {/* Kept mounted behind client details so ‹ returns to the same tab and scroll (AC1.11). */}
       <div className={`flex min-h-0 flex-1 flex-col ${clientOpen ? 'hidden' : ''}`}>
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-5 pb-2.5 pt-[15px]">
@@ -374,6 +292,6 @@ export function TodoDrawer() {
           onCancel={() => setConfirmDismiss(false)}
         />
       )}
-    </aside>
+    </DrawerAside>
   );
 }

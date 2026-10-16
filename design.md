@@ -78,6 +78,13 @@ Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the bann
 | Label / value rows | `Row` (210 px label column) | `drawer/TrainingTab.tsx` |
 | Session log, program | `TrainingTab`, `ProgramCard` (shared by Check-in, Build, Remind, Acknowledge) | `drawer/TrainingTab.tsx` |
 | Nutrition | `NutritionTab` (calorie ring + macros, Meal Log) | `drawer/NutritionTab.tsx` |
+| The six data tabs | `ClientTabs` / `ClientTabContent` (Check-in panel, client detail page) | `drawer/ClientTabs.tsx` |
+| Task & Habit | `TaskHabitTab` (tasks card, habits card with 7 day circles) | `drawer/TaskHabitTab.tsx` |
+| Program Ending | `CurrentProgramCard` (180 px labels, end date with year) | `drawer/TrainingTab.tsx` |
+| Notes | `NotesTab` (search, day groups, sort, New note) | `drawer/NotesTab.tsx` |
+| Form | `FormStatus` (Form Status table) | `drawer/AssessedBodies.tsx` |
+| Client detail page | `ClientDetailsPanel`, `ClientDrawer` | `drawer/ClientDetails.tsx` |
+| Panel shell | `DrawerAside`, `useDrawerPresence`, `useCloseOnOutside` | `drawer/DrawerShell.tsx` |
 | Tooltip | `Tooltip`; the trigger needs `group/tip relative` | `Tooltip.tsx` |
 | Confirm | `ConfirmDialog` (400 px, ink primary) | `ConfirmDialog.tsx` |
 | Feedback | `Toast` via `showToast` (ink pill, bottom centre) | `Toast.tsx` |
@@ -103,6 +110,13 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 
 - **To-do row** (`TodoRow`, Figma `3925:6908`): Default · Hover (white, `shadow-row`) · Selected (4 px brand left
   border) · Completed (opacity 60%, line-through, filled check). Past rows show the age at the right.
+- **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
+  ✓ / Dismiss and no footer. Title block: name 18 px bold, "Status:" + chip, then four 32 px icon buttons (Draft
+  with AI uses `ai-btn`; its tooltip hangs off a wrapper because `ai-btn` clips). Opened from a group-card row or
+  the drawer's name link (‹ back).
+- **Habit day circles** (28 px): done = green tint + check, missed (daily habits) = `#fef2f2` + red ×, not ticked on
+  a weekly habit = white with "–". Labels 9 px uppercase in the matching colour.
+- **Task status colours:** Done `#059669` · partial / Overdue `status-risk-fg` · nothing yet `ink-muted`.
 - Hover reveals Dismiss on rows. Tooltips: Dismiss → "Dismiss"; the row checkbox and the panel ✓ →
   "Complete this task" (hidden once completed).
 - The client name is a blue link only on the drawer title, never on Check-in, never on rows.

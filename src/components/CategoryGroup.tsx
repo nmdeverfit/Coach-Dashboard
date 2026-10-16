@@ -5,7 +5,7 @@ import { CountChip } from './CountChip';
 import type { GroupMeta } from './groups';
 
 export function CategoryGroup({ group }: { group: GroupMeta }) {
-  const { openGroup } = useStore();
+  const { state, openGroup, selectClient } = useStore();
   const members = groupClients[group.key];
 
   return (
@@ -29,7 +29,12 @@ export function CategoryGroup({ group }: { group: GroupMeta }) {
           <li key={client.id}>
             <button
               type="button"
-              className="flex w-full items-center justify-between gap-2 border-b border-line/80 px-1 py-3 text-left hover:bg-surface-secondary/60"
+              data-client-row
+              aria-current={state.selectedClientId === client.id ? 'true' : undefined}
+              onClick={() => selectClient(client.id)}
+              className={`flex w-full items-center justify-between gap-2 border-b border-line/80 px-1 py-3 text-left hover:bg-surface-secondary/60 ${
+                state.selectedClientId === client.id ? 'bg-surface-secondary' : ''
+              }`}
             >
               <span className="flex min-w-0 items-center gap-2">
                 <Avatar name={client.name} src={client.avatar} />

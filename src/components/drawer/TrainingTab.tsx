@@ -200,3 +200,28 @@ export function ProgramCard({ program }: { program: TrainingSummary['program'] }
     </div>
   );
 }
+
+/** Program Ending tab (Figma 5671:141541): the current program, with the end date in full. */
+export function CurrentProgramCard({ log, today }: { log: TrainingLog; today: string }) {
+  const { program } = summarizeTraining(log, today);
+  const end = parseDay(program.endsOn);
+  const rows: [string, React.ReactNode, boolean?][] = [
+    ['Program Name', program.name],
+    ['Progress', `Week ${program.week} of ${program.weeks}`],
+    ['End date', `${formatMonthDay(end)}, ${end.getUTCFullYear()}`],
+    ['Next Program', program.nextProgram ?? 'Not assigned', !program.nextProgram],
+  ];
+  return (
+    <div className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/15 bg-elevated p-px">
+      <CardHeader title="Current Program" link="View program" />
+      <div className="flex flex-col px-3 py-1">
+        {rows.map(([label, value, muted], i) => (
+          <div key={label} className={`flex items-baseline px-1 pb-[11px] pt-2.5 text-[13px] leading-[18px] text-ink ${i < rows.length - 1 ? 'border-b border-ink/10' : ''}`}>
+            <span className="w-[180px] shrink-0">{label}</span>
+            <span className={`font-semibold ${muted ? 'text-ink-muted' : ''}`}>{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

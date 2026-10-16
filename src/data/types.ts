@@ -204,3 +204,43 @@ export interface AcknowledgeDetail {
 export type TodoDetail = CheckinDetail | RespondDetail | UnblockDetail | PrepareDetail | BuildDetail | RemindDetail | AcknowledgeDetail;
 
 export type FeedbackState = 'yes' | 'not_quite' | 'hidden';
+
+/**
+ * A task on the client's calendar. Three are derived from other data so they cannot disagree with it (AC4): logging
+ * meals (from the food log), the week's workouts (from the training log) and the weekly check-in form (from the
+ * client's forms). `custom` tasks carry their own done flag.
+ */
+export type ClientTask =
+  | { kind: 'log_meals'; dueOn: string; time?: string }
+  | { kind: 'workouts'; dueOn: string }
+  | { kind: 'checkin_form'; dueOn: string }
+  | { kind: 'custom'; name: string; dueOn: string; time?: string; done: boolean };
+
+export interface Habit {
+  name: string;
+  frequency: 'daily' | 'weekly';
+  /** Weekly habits: times a week that count as a kept week. */
+  perWeek?: number;
+  /** Dates (YYYY-MM-DD) the habit was ticked. */
+  doneOn: string[];
+}
+
+export interface ClientNote {
+  title: string;
+  /** Local date and time, "YYYY-MM-DDTHH:MM". */
+  at: string;
+}
+
+/**
+ * Everything the client detail page and the data tabs read for one client. `focus` is the main_signal that opens
+ * first and is tagged in the assessment.
+ */
+export interface ClientProfile {
+  focus: 'nutrition' | 'training';
+  nutrition: NutritionLog;
+  training: TrainingLog;
+  forms: AssignedForm[];
+  tasks: ClientTask[];
+  habits: Habit[];
+  notes: ClientNote[];
+}

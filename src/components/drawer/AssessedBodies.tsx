@@ -3,6 +3,7 @@ import iconMarkDoneChecked from '../../assets/figma/icon-markdone-checked.svg';
 import iconMarkDoneDisabled from '../../assets/figma/icon-markdone-disabled.svg';
 import iconMarkDone from '../../assets/figma/icon-markdone.svg';
 import { DEMO_TODAY } from '../../data/mock';
+import { getProfile } from '../../data/profiles';
 import type { AcknowledgeDetail, BuildDetail, Client, RemindDetail } from '../../data/types';
 import { summarizeNutrition } from '../../lib/checkin';
 import { formatDayMonth, parseDay } from '../../lib/dates';
@@ -10,7 +11,8 @@ import { daysAgo, type AcknowledgeView, type BuildView, type FormStatusRow, type
 import { useStore } from '../../state/store';
 import { AiAssessment } from './AiAssessment';
 import { CardHeader, NutritionTab } from './NutritionTab';
-import { DataArea, TabBar, TabPlaceholder } from './PanelParts';
+import { NotesTab } from './NotesTab';
+import { DataArea, TabBar } from './PanelParts';
 import { TrainingTab } from './TrainingTab';
 
 function Assessment({ client, assessment }: { client: Client; assessment: BuildView['assessment'] }) {
@@ -31,7 +33,7 @@ function Assessment({ client, assessment }: { client: Client; assessment: BuildV
 
 const BUILD_TABS = [
   { key: 'training', label: 'Training' },
-  { key: 'notes', label: 'Notes', muted: true },
+  { key: 'notes', label: 'Notes' },
 ] as const;
 
 /** Build (assign program): full assessment, no verdict; Training with the Program card inside it, and Notes (AC4.4). */
@@ -43,7 +45,7 @@ export function BuildBody({ client, detail, view }: { client: Client; detail: Bu
       <DataArea>
         <TabBar tabs={BUILD_TABS} active={tab} onChange={setTab} />
         {/* The same Session log as Check-in's Training tab, Program card included (AC4.4). */}
-        {tab === 'training' ? <TrainingTab log={detail.training} today={DEMO_TODAY} /> : <TabPlaceholder label="Notes" />}
+        {tab === 'training' ? <TrainingTab log={detail.training} today={DEMO_TODAY} /> : <NotesTab client={client} notes={getProfile(client.id).notes} />}
       </DataArea>
     </>
   );
@@ -77,7 +79,7 @@ function MarkDone({ state, onClick }: { state: 'checked' | 'open' | 'disabled'; 
 }
 
 /** Form Status table: form name · response status · last submitted · coach action · action (Spec 4 AC12.3). */
-function FormStatus({ rows }: { rows: FormStatusRow[] }) {
+export function FormStatus({ rows }: { rows: FormStatusRow[] }) {
   const { showToast } = useStore();
   const [reviewed, setReviewed] = useState<Set<string>>(() => new Set(rows.filter((r) => r.reviewed).map((r) => r.name)));
   return (
@@ -124,7 +126,7 @@ const REMIND_TABS = [
   { key: 'training', label: 'Training' },
   { key: 'nutrition', label: 'Nutrition' },
   { key: 'form', label: 'Form' },
-  { key: 'notes', label: 'Notes', muted: true },
+  { key: 'notes', label: 'Notes' },
 ] as const;
 
 /**
@@ -145,7 +147,7 @@ export function RemindBody({ client, detail, view }: { client: Client; detail: R
         ) : tab === 'nutrition' ? (
           <NutritionTab log={detail.nutrition} summary={summarizeNutrition(detail.nutrition, DEMO_TODAY)} />
         ) : (
-          <TabPlaceholder label="Notes" />
+          <NotesTab client={client} notes={getProfile(client.id).notes} />
         )}
       </DataArea>
     </>
@@ -157,7 +159,7 @@ export function RemindBody({ client, detail, view }: { client: Client; detail: R
 const ACKNOWLEDGE_TABS = [
   { key: 'nutrition', label: 'Nutrition' },
   { key: 'training', label: 'Training' },
-  { key: 'notes', label: 'Notes', muted: true },
+  { key: 'notes', label: 'Notes' },
 ] as const;
 
 /**
@@ -176,7 +178,7 @@ export function AcknowledgeBody({ client, detail, view }: { client: Client; deta
         ) : tab === 'training' ? (
           <TrainingTab log={detail.training} today={DEMO_TODAY} />
         ) : (
-          <TabPlaceholder label="Notes" />
+          <NotesTab client={client} notes={getProfile(client.id).notes} />
         )}
       </DataArea>
     </>

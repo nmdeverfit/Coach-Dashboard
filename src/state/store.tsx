@@ -14,6 +14,10 @@ interface State {
   toast: string | null;
   /** The to-do whose panel is open. */
   selectedTodoId: string | null;
+  /** The client whose detail panel is open (from a group card). Only one panel is open at a time. */
+  selectedClientId: string | null;
+  /** Clients reviewed this week. A Check-in review is one action on both views (brief, S3 BL5). */
+  reviewed: Record<string, boolean>;
   /** Answer to "Does '{status}' look right for {first_name}?" per client. */
   feedback: Record<string, FeedbackState>;
 }
@@ -28,6 +32,8 @@ type Action =
   | { type: 'openGroup'; group: GroupKey | null }
   | { type: 'toast'; message: string | null }
   | { type: 'select'; id: string | null }
+  | { type: 'selectClient'; id: string | null }
+  | { type: 'reviewClient'; clientId: string }
   | { type: 'markReviewed'; clientId: string }
   | { type: 'completeFromPanel'; id: string }
   | { type: 'feedback'; clientId: string; value: FeedbackState };
@@ -39,6 +45,8 @@ const initialState: State = {
   dashboardFilter: null,
   toast: null,
   selectedTodoId: null,
+  selectedClientId: null,
+  reviewed: {},
   feedback: {},
 };
 
@@ -46,13 +54,16 @@ const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'toggleComplete':
+    case 'toggleComplete': {
+      const todo = state.todos.find((t) => t.id === action.id);
+      const completing = todo?.state !== 'completed';
       return {
         ...state,
-        todos: state.todos.map((t) =>
-          t.id === action.id ? { ...t, state: t.state === 'completed' ? 'open' : 'completed' } : t,
-        ),
+        todos: state.todos.map((t) => (t.id === action.id ? { ...t, state: completing ? 'completed' : 'open' } : t)),
+        // Ticking a Check-in row is the review; unticking it takes the review back.
+        reviewed: todo?.type === 'checkin' ? { ...state.reviewed, [todo.clientId]: completing } : state.reviewed,
       };
+    }
     case 'dismiss':
       return {
         ...state,
@@ -73,6 +84,7 @@ function reducer(state: State, action: Action): State {
         view: action.view,
         dashboardFilter: action.view === 'brief' ? null : state.dashboardFilter,
         selectedTodoId: action.view === 'brief' ? state.selectedTodoId : null,
+        selectedClientId: action.view === 'brief' ? state.selectedClientId : null,
       };
     case 'shiftWeek':
       return { ...state, weekOffset: Math.min(0, state.weekOffset + action.by) };
@@ -83,12 +95,24 @@ function reducer(state: State, action: Action): State {
     case 'toast':
       return { ...state, toast: action.message };
     case 'select':
-      return { ...state, selectedTodoId: action.id };
+      return { ...state, selectedTodoId: action.id, selectedClientId: action.id ? null : state.selectedClientId };
+    case 'selectClient':
+      return { ...state, selectedClientId: action.id, selectedTodoId: action.id ? null : state.selectedTodoId };
+    case 'reviewClient':
+      // A review from the client detail page completes the client's Check-in to-dos too; the panel stays open.
+      return {
+        ...state,
+        reviewed: { ...state.reviewed, [action.clientId]: true },
+        todos: state.todos.map((t) =>
+          t.clientId === action.clientId && t.type === 'checkin' && t.state === 'open' ? { ...t, state: 'completed' } : t,
+        ),
+      };
     case 'markReviewed':
       // Review is per client: it completes every Check-in to-do raised for that client (S3 BL5).
       // The panel closes and the coach lands back on the list (Spec 4 AC2.5).
       return {
         ...state,
+        reviewed: { ...state.reviewed, [action.clientId]: true },
         todos: state.todos.map((t) =>
           t.clientId === action.clientId && t.type === 'checkin' && t.state === 'open' ? { ...t, state: 'completed' } : t,
         ),
@@ -138,6 +162,9 @@ interface Store {
   openGroup: (group: GroupKey | null) => void;
   showToast: (message: string) => void;
   selectTodo: (id: string | null) => void;
+  selectClient: (id: string | null) => void;
+  /** Mark as reviewed from the client detail page. */
+  reviewClient: (clientId: string) => void;
   markReviewed: (clientId: string) => void;
   completeFromPanel: (id: string) => void;
   setFeedback: (clientId: string, value: FeedbackState) => void;
@@ -179,6 +206,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       openGroup: (group) => dispatch({ type: 'openGroup', group }),
       showToast,
       selectTodo: (id) => dispatch({ type: 'select', id }),
+      selectClient: (id) => dispatch({ type: 'selectClient', id }),
+      reviewClient: (clientId) => {
+        dispatch({ type: 'reviewClient', clientId });
+        showToast(`${getClient(clientId).firstName} marked as reviewed`);
+      },
       markReviewed: (clientId) => {
         dispatch({ type: 'markReviewed', clientId });
         showToast(`${getClient(clientId).firstName} marked as reviewed`);

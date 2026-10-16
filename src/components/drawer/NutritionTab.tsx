@@ -65,11 +65,24 @@ function CalorieRing({ share }: { share: number }) {
   );
 }
 
-export function CardHeader({ title, link, onClick }: { title: string; link: string; onClick?: () => void }) {
+export function CardHeader({
+  title,
+  titleHint,
+  link,
+  onClick,
+}: {
+  title: React.ReactNode;
+  /** Shown on hover over the title, e.g. the date range a card covers. */
+  titleHint?: string;
+  link: string;
+  onClick?: () => void;
+}) {
   const { showToast } = useStore();
   return (
     <div className="flex items-center justify-between rounded-t-lg border-b border-ink/10 bg-white px-3 py-[14px]">
-      <h4 className="text-[15px] font-semibold leading-[18px] text-ink">{title}</h4>
+      <h4 title={titleHint} className="text-[15px] font-semibold leading-[18px] text-ink">
+        {title}
+      </h4>
       <button
         type="button"
         onClick={onClick ?? (() => showToast(`${link} opens the client's full data`))}

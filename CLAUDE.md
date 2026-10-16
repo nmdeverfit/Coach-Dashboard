@@ -26,6 +26,14 @@ the same change.
   `t8` Remind (Leo's assigned forms + training + nutrition), `t5` Unblock (credit batches), `t6` Prepare (bookings).
   `t7` Acknowledge (Darrell's nutrition log + training), a Phase 2 type trialled at the user's request. Kudos (Cody)
   and Aima's carried Check-in have none and open a placeholder panel.
+- `src/data/profiles.ts`: `getProfile(clientId)` gives every client a `ClientProfile` (focus, nutrition, training,
+  forms, tasks, habits, notes) for the client detail page and all six data tabs. Clients with to-do data reuse it
+  (Clint t3, Glen t4, Leo t8, Darrell t7, the Respond forms; Aima goes silent for 15 days to match her row); the rest
+  are generated from a seed of their id and shaped by status (At risk logs and trains least). Program ending clients'
+  programs end exactly on their card's countdown.
+- `src/lib/client.ts`: derives the client detail assessment (Clint's is his Check-in panel's, word for word), the
+  Task & Habit rows (log meals / workouts / check-in form tasks come from the logs and forms), habit streaks, Form
+  Status rows and grouped notes.
 - `src/lib/todos.ts`: the same for the five other types (`build*View`, `rowReasonFor`). Every row reason in `mock.ts`
   that has panel data comes from these builders. `LOW_CREDIT_THRESHOLD = 2`; expiry window 7 days.
 - `src/lib/checkin.ts`: computes every figure and sentence from those inputs (row reason, status line, assessment,
@@ -52,6 +60,14 @@ the same change.
 - `src/lib/training.ts`: computes every Training figure from `TrainingLog` (days with sections done / scheduled, and
   the program's start and length). Adherence = completed ÷ scheduled sections on finished days. The program end also
   feeds Clint's `programEndsInDays`, so the Program ending card and the panel agree.
+- `src/components/drawer/ClientDetails.tsx`: the client detail page (Figma `5671:141948`): CLIENT DETAILS title,
+  avatar + name + "Status:" chip, four quick actions (Draft with AI, Send message, Mark as reviewed, More), assessment +
+  feedback, the six tabs (`ClientTabs`), no footer. `ClientDrawer` opens it from a group-card row (`data-client-row`);
+  the to-do panel's name link shows it with ‹ back. Shell hooks in `DrawerShell.tsx`. Mark as reviewed here completes
+  the client's Check-in to-dos and keeps the panel open; ticking a Check-in row marks the client reviewed (one action).
+- Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Notes, first tab = focus) is shared
+  by the Check-in panel and the client detail page. `TaskHabitTab` (`5671:141271`), `CurrentProgramCard` in
+  `TrainingTab.tsx` (`5671:141541`), `NotesTab` (`5671:141582`, search, day groups, sort toggle), `FormStatus`.
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
   reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
   close on ×, Esc or click outside.
@@ -120,6 +136,12 @@ the same change.
   milestones, which OQ21 keeps in Client highlights. Panel = assessed layout: assessment card with the
   nutrition tag + Tell me more, tabs Nutrition (first) · Training · Notes, footer Draft with AI · Send message, ✓
   completes. Row title stays the design's "Congratulate". Revert this if the user drops it.
+- Task & Habit: the frame titles the card "Task This Week", but the demo's today is Monday 06:00 when nothing this
+  week is due, so the cards read last week ("Tasks last week", range on hover). The tasks card's link reads "View
+  tasks" (the frame's "View program" looks like a copy slip). Streaks read "5-day streak" / "0-day streak" in
+  sentence case. A workout counts toward "Complete N workouts" only when every section is done.
+- Client details: the drawer covers the right rail, as every panel does, so another client opens after closing it.
+  Generated clients' numbers are consistent but invented; only to-do clients carry hand-written data.
 - Dashboard view, Tell me more (Olly column), the Change status modal, settings, tour and
   What's New are not built yet.
 
