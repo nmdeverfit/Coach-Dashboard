@@ -159,6 +159,10 @@ export function buildPrepareView(d: PrepareDetail, today: string): PrepareView {
   const week = d.sessions.filter((s) => s.date >= monday && s.date <= sunday);
   const count = (status: Booking['status']) => week.filter((s) => s.status === status).length;
 
+  const thisWeek = { completed: count('completed'), lateCancel: count('late_cancel'), earlyCancel: count('early_cancel') };
+  // Nothing booked (the client detail page's Booking tab): no reason line and no rail label to give.
+  if (!next) return { rowReason: '', upcoming, lastSession, thisWeek, railLabel: '' };
+
   const when = daysBetween(today, next.date);
   const day = when === 0 ? 'today' : when === 1 ? 'tomorrow' : `on ${weekdayDate(next.date)}`;
   const railDay = when === 0 ? 'Today' : `${formatMonthDay(parseDay(next.date))} •`;
@@ -167,7 +171,7 @@ export function buildPrepareView(d: PrepareDetail, today: string): PrepareView {
     rowReason: `${next.type.name} ${day} at ${time12(next.start)}, ${LOCATION_PHRASE[next.type.location]}.`,
     upcoming,
     lastSession,
-    thisWeek: { completed: count('completed'), lateCancel: count('late_cancel'), earlyCancel: count('early_cancel') },
+    thisWeek,
     railLabel: `${railDay} ${time12(next.start).toUpperCase().replace(/(AM|PM)$/, ' $1')}`,
   };
 }

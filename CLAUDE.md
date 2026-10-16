@@ -73,8 +73,10 @@ the same change.
   feedback, the six tabs (`ClientTabs`), no footer. `ClientDrawer` opens it from a group-card row (`data-client-row`);
   the to-do panel's name link shows it with ‹ back. Shell hooks in `DrawerShell.tsx`. Mark as reviewed here completes
   the client's Check-in to-dos and keeps the panel open; ticking a Check-in row marks the client reviewed (one action).
-- Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Notes, first tab = focus) is shared
-  by the Check-in panel and the client detail page. `TaskHabitTab` (`5671:141271`), `CurrentProgramCard` in
+- Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Booking · Notes, first tab = focus)
+  is shared by the Check-in panel and the client detail page. Booking (Spec 4 BL2's `booking` tab) shows only for a
+  client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
+  empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). `TaskHabitTab` (`5671:141271`), `CurrentProgramCard` in
   `TrainingTab.tsx` (`5671:141541`), `NotesTab` (`5671:141582`, search, day groups, sort toggle), `FormStatus`.
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
   reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),

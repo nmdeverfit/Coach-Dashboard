@@ -13,6 +13,8 @@ export function TabBar<K extends string>({
   active: K;
   onChange: (key: K) => void;
 }) {
+  // Labels never wrap; with seven tabs (Booking added) the padding tightens so all of them fit the 660 px row.
+  const px = tabs.length > 6 ? 'px-4' : 'px-5';
   return (
     <div role="tablist" aria-label="Client data" className="flex w-full items-center border-b border-line">
       {tabs.map((t) => {
@@ -26,8 +28,8 @@ export function TabBar<K extends string>({
             onClick={() => onChange(t.key)}
             className={
               on
-                ? '-mb-px border-b-2 border-brand px-5 pb-2.5 pt-2 text-[13px] font-semibold leading-normal text-brand'
-                : `px-5 py-1.5 text-[13px] font-semibold leading-normal tracking-[-0.26px] hover:text-ink ${t.muted ? 'text-ink/40' : 'text-ink-secondary'}`
+                ? `-mb-px whitespace-nowrap border-b-2 border-brand ${px} pb-2.5 pt-2 text-[13px] font-semibold leading-normal text-brand`
+                : `whitespace-nowrap ${px} py-1.5 text-[13px] font-semibold leading-normal tracking-[-0.26px] hover:text-ink ${t.muted ? 'text-ink/40' : 'text-ink-secondary'}`
             }
           >
             {t.label}

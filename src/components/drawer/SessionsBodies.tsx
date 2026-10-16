@@ -130,8 +130,17 @@ function CreditRow({ view, open, onToggle, last }: { view: CreditPoolView; open:
  * no tabs. The row that raised the to-do opens expanded.
  */
 export function UnblockBody({ view }: { view: UnblockView }) {
+  return (
+    <div className="px-[30px] pb-5">
+      <CreditsCard view={view} />
+    </div>
+  );
+}
+
+/** The Session credits card: balance, then one row per session type (shared by Unblock and the Booking tab). */
+export function CreditsCard({ view }: { view: UnblockView | null }) {
   const { showToast } = useStore();
-  const [open, setOpen] = useState<Set<string>>(() => new Set([view.focus.pool.type.name]));
+  const [open, setOpen] = useState<Set<string>>(() => new Set(view ? [view.focus.pool.type.name] : []));
   const toggle = (name: string) =>
     setOpen((prev) => {
       const next = new Set(prev);
@@ -140,17 +149,17 @@ export function UnblockBody({ view }: { view: UnblockView }) {
     });
 
   return (
-    <div className="px-[30px] pb-5">
-      <section className="flex flex-col overflow-hidden rounded-lg border border-ink/10 bg-white p-px">
-        <CardHeader title="Session credits" link="View credits" onClick={() => showToast('Client Sessions › Credits opens in a new tab')} />
-        <div className="flex flex-col gap-3 bg-[#f9fafa] p-4">
-          <div className="flex flex-col gap-1">
-            <p className="text-[14px] font-semibold leading-[22px] text-[#1a1a1a]">Balance</p>
-            <p className="flex h-10 items-baseline gap-1">
-              <span className="text-[32px] font-semibold leading-10 tracking-[0.3px] text-[#1a1a1a]">{view.total}</span>
-              <span className="text-[12px] leading-[18px] tracking-[0.12px] text-[#4d4d4d]">credits total</span>
-            </p>
-          </div>
+    <section className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/10 bg-white p-px">
+      <CardHeader title="Session credits" link="View credits" onClick={() => showToast('Client Sessions › Credits opens in a new tab')} />
+      <div className="flex flex-col gap-3 bg-[#f9fafa] p-4">
+        <div className="flex flex-col gap-1">
+          <p className="text-[14px] font-semibold leading-[22px] text-[#1a1a1a]">Balance</p>
+          <p className="flex h-10 items-baseline gap-1">
+            <span className="text-[32px] font-semibold leading-10 tracking-[0.3px] text-[#1a1a1a]">{view?.total ?? 0}</span>
+            <span className="text-[12px] leading-[18px] tracking-[0.12px] text-[#4d4d4d]">credits total</span>
+          </p>
+        </div>
+        {view ? (
           <div className="flex flex-col rounded-lg border border-[#e0e0e0] bg-white p-px">
             {view.pools.map((p, i) => (
               <CreditRow
@@ -162,9 +171,11 @@ export function UnblockBody({ view }: { view: UnblockView }) {
               />
             ))}
           </div>
-        </div>
-      </section>
-    </div>
+        ) : (
+          <p className="rounded-lg border border-[#e0e0e0] bg-white px-4 py-3 text-[13px] leading-[18px] text-ink-muted">No credits on any session type.</p>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -194,38 +205,49 @@ function SessionCard({ booking, next, last }: { booking: Booking; next: boolean;
 
 /** Prepare (booking): one Sessions card, upcoming soonest first, then last session and this week (Spec 4 AC7.2). */
 export function PrepareBody({ view }: { view: PrepareView }) {
+  return (
+    <div className="px-[30px] pb-5">
+      <SessionsCard view={view} />
+    </div>
+  );
+}
+
+/** The Sessions card (shared by Prepare and the Booking tab). With nothing booked the list says so. */
+export function SessionsCard({ view }: { view: PrepareView }) {
   const { showToast } = useStore();
   const { completed, lateCancel, earlyCancel } = view.thisWeek;
   const dot = <img src={dotMeta} alt="" width={4} height={4} className="shrink-0" />;
   return (
-    <div className="px-[30px] pb-5">
-      <section className="flex flex-col overflow-hidden rounded-lg border border-ink/10 bg-white p-px">
-        <CardHeader title="Sessions" link="View all Sessions" onClick={() => showToast('Client Sessions › Upcoming opens in a new tab')} />
+    <section className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/10 bg-white p-px">
+      <CardHeader title="Sessions" link="View all Sessions" onClick={() => showToast('Client Sessions › Upcoming opens in a new tab')} />
+      {view.upcoming.length ? (
         <ul className="bg-[#f9fafa] px-3">
           {view.upcoming.map((b, i) => (
             <SessionCard key={`${b.date}-${b.start}`} booking={b} next={i === 0} last={i === view.upcoming.length - 1} />
           ))}
         </ul>
-        <div className="flex flex-col border-t border-line bg-[#f9fafa] px-5 py-3 text-[13px] leading-[18px] text-ink">
-          <p className="flex items-baseline py-3">
-            <span className="w-[180px] shrink-0">Last session</span>
-            <span className="font-semibold">{view.lastSession ? formatMonthDay(parseDay(view.lastSession)) : '—'}</span>
-          </p>
-          <div className="flex items-baseline border-t border-ink/10 pb-3 pt-[13px]">
-            <span className="w-[180px] shrink-0">This week</span>
-            <span className="flex items-center gap-1.5 font-semibold">
-              {completed} completed
-              {dot}
-              <span className="flex items-center gap-1 text-ink-secondary">
-                <img src={iconLateCancel} alt="" width={12} height={12} />
-                {lateCancel} late cancel
-              </span>
-              {dot}
-              {earlyCancel} early cancel
+      ) : (
+        <p className="bg-[#f9fafa] px-5 py-4 text-[13px] leading-[18px] text-ink-muted">No upcoming sessions booked.</p>
+      )}
+      <div className="flex flex-col border-t border-line bg-[#f9fafa] px-5 py-3 text-[13px] leading-[18px] text-ink">
+        <p className="flex items-baseline py-3">
+          <span className="w-[180px] shrink-0">Last session</span>
+          <span className="font-semibold">{view.lastSession ? formatMonthDay(parseDay(view.lastSession)) : '—'}</span>
+        </p>
+        <div className="flex items-baseline border-t border-ink/10 pb-3 pt-[13px]">
+          <span className="w-[180px] shrink-0">This week</span>
+          <span className="flex items-center gap-1.5 font-semibold">
+            {completed} completed
+            {dot}
+            <span className="flex items-center gap-1 text-ink-secondary">
+              <img src={iconLateCancel} alt="" width={12} height={12} />
+              {lateCancel} late cancel
             </span>
-          </div>
+            {dot}
+            {earlyCancel} early cancel
+          </span>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

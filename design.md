@@ -72,13 +72,14 @@ Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the bann
 | Need | Use | File |
 |---|---|---|
 | Card with title + "View …" link | `CardHeader` (44 px, white, bottom border) | `drawer/NutritionTab.tsx` |
-| Data tabs | `TabBar` + `DataArea`; tabs with no data area yet are `muted` | `drawer/PanelParts.tsx` |
+| Data tabs | `TabBar` + `DataArea`; labels never wrap, padding 20 px (16 px with 7 tabs); tabs with no data area yet are `muted` | `drawer/PanelParts.tsx` |
 | Footer buttons | `PanelFooter`, `FooterButton` (`primary` / `ai` / `plain`), `DraftWithAiButton`, `SendMessageButton` | `drawer/PanelParts.tsx` |
 | AI Assessment | `AiAssessment` (sparkle + gradient label, quote line, summary + ≤3 facts, Tell me more) | `drawer/AiAssessment.tsx` |
 | Label / value rows | `Row` (210 px label column) | `drawer/TrainingTab.tsx` |
 | Session log, program | `TrainingTab`, `ProgramCard` (shared by Check-in, Build, Remind, Acknowledge) | `drawer/TrainingTab.tsx` |
 | Nutrition | `NutritionTab` (calorie ring + macros, Meal Log) | `drawer/NutritionTab.tsx` |
-| The six data tabs | `ClientTabs` / `ClientTabContent` (Check-in panel, client detail page) | `drawer/ClientTabs.tsx` |
+| The data tabs | `ClientTabs` / `ClientTabContent` (Check-in panel, client detail page; Booking only for clients with sessions or credits) | `drawer/ClientTabs.tsx` |
+| Sessions / Session credits cards | `SessionsCard`, `CreditsCard` (Prepare and Unblock panels, Booking tab) | `drawer/SessionsBodies.tsx` |
 | Task & Habit | `TaskHabitTab` (tasks card, habits card with 7 day circles) | `drawer/TaskHabitTab.tsx` |
 | Program Ending | `CurrentProgramCard` (180 px labels, end date with year) | `drawer/TrainingTab.tsx` |
 | Notes | `NotesTab` (search, day groups, sort, New note) | `drawer/NotesTab.tsx` |
