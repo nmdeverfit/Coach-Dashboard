@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { DEMO_TODAY, clients, todos as seedTodos } from '../data/mock';
 import type { Client, FeedbackState, GroupKey, Todo } from '../data/types';
+import type { ClientTabKey } from '../components/drawer/ClientTabs';
 import type { DashboardTab } from '../lib/dashboard';
 
 export type View = 'brief' | 'dashboard';
@@ -17,6 +18,8 @@ interface State {
   selectedTodoId: string | null;
   /** The client whose detail panel is open (from a group card). Only one panel is open at a time. */
   selectedClientId: string | null;
+  /** The tab the client detail page opens on, when the coach came from a list that implies one (the Booking tab). */
+  selectedClientTab: ClientTabKey | null;
   /** Clients reviewed this week. A Check-in review is one action on both views (brief, S3 BL5). */
   reviewed: Record<string, boolean>;
   /** Answer to "Does '{status}' look right for {first_name}?" per client. */
@@ -33,7 +36,7 @@ type Action =
   | { type: 'openGroup'; group: GroupKey | null }
   | { type: 'toast'; message: string | null }
   | { type: 'select'; id: string | null }
-  | { type: 'selectClient'; id: string | null }
+  | { type: 'selectClient'; id: string | null; tab?: ClientTabKey }
   | { type: 'reviewClient'; clientId: string }
   | { type: 'toggleReview'; clientId: string }
   | { type: 'setDashboardTab'; tab: DashboardTab }
@@ -49,6 +52,7 @@ const initialState: State = {
   toast: null,
   selectedTodoId: null,
   selectedClientId: null,
+  selectedClientTab: null,
   reviewed: {},
   feedback: {},
 };
@@ -111,7 +115,7 @@ function reducer(state: State, action: Action): State {
     case 'select':
       return { ...state, selectedTodoId: action.id, selectedClientId: action.id ? null : state.selectedClientId };
     case 'selectClient':
-      return { ...state, selectedClientId: action.id, selectedTodoId: action.id ? null : state.selectedTodoId };
+      return { ...state, selectedClientId: action.id, selectedClientTab: action.tab ?? null, selectedTodoId: action.id ? null : state.selectedTodoId };
     case 'reviewClient':
       // A review from the client detail page completes the client's Check-in to-dos too; the panel stays open.
       return {
@@ -189,7 +193,8 @@ interface Store {
   openGroup: (group: GroupKey | null) => void;
   showToast: (message: string) => void;
   selectTodo: (id: string | null) => void;
-  selectClient: (id: string | null) => void;
+  /** Opens the client detail page, optionally on a given tab. */
+  selectClient: (id: string | null, tab?: ClientTabKey) => void;
   /** Mark as reviewed from the client detail page. */
   reviewClient: (clientId: string) => void;
   /** The client list's ✓: marks the client reviewed, or takes the review back. */
@@ -236,7 +241,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       openGroup: (group) => dispatch({ type: 'openGroup', group }),
       showToast,
       selectTodo: (id) => dispatch({ type: 'select', id }),
-      selectClient: (id) => dispatch({ type: 'selectClient', id }),
+      selectClient: (id, tab) => dispatch({ type: 'selectClient', id, tab }),
       reviewClient: (clientId) => {
         dispatch({ type: 'reviewClient', clientId });
         showToast(`${getClient(clientId).firstName} marked as reviewed`);

@@ -76,7 +76,10 @@ the same change.
 - Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Booking · Notes, first tab = focus)
   is shared by the Check-in panel and the client detail page. Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
-  empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). `TaskHabitTab` (`5671:141271`), `CurrentProgramCard` in
+  empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
+  the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
+  green, Issue Credits sits beside the balance and credit rows start collapsed (the panels keep theirs in the
+  footer). Opening a client from the list's Booking tab lands on this tab (`selectClient(id, 'booking')`). `TaskHabitTab` (`5671:141271`), `CurrentProgramCard` in
   `TrainingTab.tsx` (`5671:141541`), `NotesTab` (`5671:141582`, search, day groups, sort toggle), `FormStatus`.
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
   reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),

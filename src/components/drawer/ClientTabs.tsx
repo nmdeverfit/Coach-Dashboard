@@ -4,7 +4,8 @@ import type { Client, ClientProfile } from '../../data/types';
 import { summarizeNutrition } from '../../lib/checkin';
 import { formRows } from '../../lib/client';
 import { getSessions } from '../../data/sessions';
-import { buildPrepareView, buildUnblockView } from '../../lib/todos';
+import { ISSUE_CREDITS_TOAST, buildPrepareView, buildUnblockView, reminderToast } from '../../lib/todos';
+import { useStore } from '../../state/store';
 import { FormStatus } from './AssessedBodies';
 import { NotesTab } from './NotesTab';
 import { NutritionTab } from './NutritionTab';
@@ -27,12 +28,13 @@ export const CLIENT_TABS = [
 export type ClientTabKey = (typeof CLIENT_TABS)[number]['key'];
 
 /**
- * main_signal picks the first tab (BL2). Booking (Spec 4 BL2's `booking` tab) only shows for a client with 1:1
+ * main_signal picks the first tab (BL2), unless the coach came from a list that implies one (`initialTab`: the
+ * Booking tab of the client list opens Booking). Booking (Spec 4 BL2's `booking` tab) only shows for a client with 1:1
  * sessions or session credits.
  */
-export function ClientTabs({ client, profile }: { client: Client; profile: ClientProfile }) {
-  const [tab, setTab] = useState<ClientTabKey>(profile.focus);
+export function ClientTabs({ client, profile, initialTab }: { client: Client; profile: ClientProfile; initialTab?: ClientTabKey | null }) {
   const tabs = CLIENT_TABS.filter((t) => t.key !== 'booking' || getSessions(client.id));
+  const [tab, setTab] = useState<ClientTabKey>(() => (initialTab && tabs.some((t) => t.key === initialTab) ? initialTab : profile.focus));
   return (
     <DataArea>
       <TabBar tabs={tabs} active={tab} onChange={setTab} />
@@ -62,12 +64,16 @@ export function ClientTabContent({ tab, client, profile }: { tab: ClientTabKey; 
 
 /** Booking: the Prepare panel's Sessions card, then the Unblock panel's Session credits card, from the same data. */
 function BookingTab({ client }: { client: Client }) {
+  const { showToast } = useStore();
   const s = getSessions(client.id);
   if (!s) return null;
   return (
     <div className="flex w-full flex-col gap-[15px]">
-      <SessionsCard view={buildPrepareView({ kind: 'prepare', sessions: s.sessions }, DEMO_TODAY)} />
-      <CreditsCard view={s.credits.length ? buildUnblockView({ kind: 'unblock', credits: s.credits }, client.firstName, DEMO_TODAY) : null} />
+      <SessionsCard view={buildPrepareView({ kind: 'prepare', sessions: s.sessions }, DEMO_TODAY)} onRemind={(b) => showToast(reminderToast(client, b))} />
+      <CreditsCard
+        view={s.credits.length ? buildUnblockView({ kind: 'unblock', credits: s.credits }, client.firstName, DEMO_TODAY) : null}
+        onIssue={() => showToast(ISSUE_CREDITS_TOAST)}
+      />
     </div>
   );
 }

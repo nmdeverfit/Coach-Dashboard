@@ -79,7 +79,8 @@ Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the bann
 | Session log, program | `TrainingTab`, `ProgramCard` (shared by Check-in, Build, Remind, Acknowledge) | `drawer/TrainingTab.tsx` |
 | Nutrition | `NutritionTab` (calorie ring + macros, Meal Log) | `drawer/NutritionTab.tsx` |
 | The data tabs | `ClientTabs` / `ClientTabContent` (Check-in panel, client detail page; Booking only for clients with sessions or credits) | `drawer/ClientTabs.tsx` |
-| Sessions / Session credits cards | `SessionsCard`, `CreditsCard` (Prepare and Unblock panels, Booking tab) | `drawer/SessionsBodies.tsx` |
+| Sessions / Session credits cards | `SessionsCard` (`onRemind` adds a per-session Draft a reminder + green "N completed"), `CreditsCard` (`onIssue` adds Issue Credits beside the balance and starts collapsed) | `drawer/SessionsBodies.tsx` |
+| 28 px session buttons | `DraftReminderButton`, `IssueCreditsButton` | `drawer/SessionsBodies.tsx` |
 | Task & Habit | `TaskHabitTab` (tasks card, habits card with 7 day circles) | `drawer/TaskHabitTab.tsx` |
 | Program Ending | `CurrentProgramCard` (180 px labels, end date with year) | `drawer/TrainingTab.tsx` |
 | Notes | `NotesTab` (search, day groups, sort, New note) | `drawer/NotesTab.tsx` |

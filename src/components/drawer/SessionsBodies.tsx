@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import iconAdd from '../../assets/figma/icon-add.svg';
+import iconAlarm from '../../assets/figma/icon-alarm.svg';
 import iconClockSm from '../../assets/figma/icon-clock-sm.svg';
 import iconClock from '../../assets/figma/icon-clock.svg';
 import iconCoins from '../../assets/figma/icon-coins.svg';
@@ -58,6 +60,47 @@ function SessionMeta({ type, time, small }: { type: SessionType; time?: string; 
         1:1
       </span>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------- Small buttons (Booking tab, client list)
+
+const SMALL_BUTTON =
+  'flex h-7 shrink-0 items-center gap-[5px] whitespace-nowrap rounded-lg border border-[#e0e0e0] text-[12px] font-semibold leading-[18px] text-[#4d4d4d] hover:bg-[#f2f2f2]';
+
+/** 28 px "Draft a reminder" (Figma 5689:515124). Stops the click so a row behind it does not open. */
+export function DraftReminderButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      className={`${SMALL_BUTTON} bg-[#f9f9f9] pl-3 pr-2`}
+    >
+      <img src={iconAlarm} alt="" width={13} height={13} />
+      Draft a reminder
+    </button>
+  );
+}
+
+/** 28 px "Issue Credits" with a 12 px + (Figma 5689:515160). */
+export function IssueCreditsButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      className={`${SMALL_BUTTON} bg-white pl-2 pr-3`}
+    >
+      <span className="flex pt-px">
+        <Glyph src={iconAdd} size={12} inset="16.67%" bleed="0" />
+      </span>
+      Issue Credits
+    </button>
   );
 }
 
@@ -137,10 +180,14 @@ export function UnblockBody({ view }: { view: UnblockView }) {
   );
 }
 
-/** The Session credits card: balance, then one row per session type (shared by Unblock and the Booking tab). */
-export function CreditsCard({ view }: { view: UnblockView | null }) {
+/**
+ * The Session credits card: balance, then one row per session type (shared by Unblock and the Booking tab). Unblock
+ * opens the row that raised the to-do; the Booking tab starts collapsed and puts Issue Credits beside the balance
+ * (the Unblock panel has it in its footer).
+ */
+export function CreditsCard({ view, onIssue }: { view: UnblockView | null; onIssue?: () => void }) {
   const { showToast } = useStore();
-  const [open, setOpen] = useState<Set<string>>(() => new Set(view ? [view.focus.pool.type.name] : []));
+  const [open, setOpen] = useState<Set<string>>(() => new Set(view && !onIssue ? [view.focus.pool.type.name] : []));
   const toggle = (name: string) =>
     setOpen((prev) => {
       const next = new Set(prev);
@@ -152,12 +199,15 @@ export function CreditsCard({ view }: { view: UnblockView | null }) {
     <section className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/10 bg-white p-px">
       <CardHeader title="Session credits" link="View credits" onClick={() => showToast('Client Sessions › Credits opens in a new tab')} />
       <div className="flex flex-col gap-3 bg-[#f9fafa] p-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-[14px] font-semibold leading-[22px] text-[#1a1a1a]">Balance</p>
-          <p className="flex h-10 items-baseline gap-1">
-            <span className="text-[32px] font-semibold leading-10 tracking-[0.3px] text-[#1a1a1a]">{view?.total ?? 0}</span>
-            <span className="text-[12px] leading-[18px] tracking-[0.12px] text-[#4d4d4d]">credits total</span>
-          </p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col gap-1">
+            <p className="text-[14px] font-semibold leading-[22px] text-[#1a1a1a]">Balance</p>
+            <p className="flex h-10 items-baseline gap-1">
+              <span className="text-[32px] font-semibold leading-10 tracking-[0.3px] text-[#1a1a1a]">{view?.total ?? 0}</span>
+              <span className="text-[12px] leading-[18px] tracking-[0.12px] text-[#4d4d4d]">credits total</span>
+            </p>
+          </div>
+          {onIssue && <IssueCreditsButton onClick={onIssue} />}
         </div>
         {view ? (
           <div className="flex flex-col rounded-lg border border-[#e0e0e0] bg-white p-px">
@@ -181,7 +231,7 @@ export function CreditsCard({ view }: { view: UnblockView | null }) {
 
 // ---------------------------------------------------------------- Prepare
 
-function SessionCard({ booking, next, last }: { booking: Booking; next: boolean; last: boolean }) {
+function SessionCard({ booking, next, last, onRemind }: { booking: Booking; next: boolean; last: boolean; onRemind?: () => void }) {
   const d = parseDay(booking.date);
   return (
     <li className={`flex items-center gap-4 px-1 pb-[11px] pt-2.5 ${last ? '' : 'border-b border-ink/10'}`}>
@@ -199,6 +249,7 @@ function SessionCard({ booking, next, last }: { booking: Booking; next: boolean;
         </p>
         <SessionMeta type={booking.type} time={timeRange(booking)} small />
       </div>
+      {onRemind && <DraftReminderButton onClick={onRemind} />}
     </li>
   );
 }
@@ -212,8 +263,12 @@ export function PrepareBody({ view }: { view: PrepareView }) {
   );
 }
 
-/** The Sessions card (shared by Prepare and the Booking tab). With nothing booked the list says so. */
-export function SessionsCard({ view }: { view: PrepareView }) {
+/**
+ * The Sessions card (shared by Prepare and the Booking tab). With nothing booked the list says so. With `onRemind`
+ * (the Booking tab) each upcoming session gets its own Draft a reminder, and sessions completed this week read green;
+ * the Prepare panel keeps its single reminder in the footer.
+ */
+export function SessionsCard({ view, onRemind }: { view: PrepareView; onRemind?: (booking: Booking) => void }) {
   const { showToast } = useStore();
   const { completed, lateCancel, earlyCancel } = view.thisWeek;
   const dot = <img src={dotMeta} alt="" width={4} height={4} className="shrink-0" />;
@@ -223,7 +278,13 @@ export function SessionsCard({ view }: { view: PrepareView }) {
       {view.upcoming.length ? (
         <ul className="bg-[#f9fafa] px-3">
           {view.upcoming.map((b, i) => (
-            <SessionCard key={`${b.date}-${b.start}`} booking={b} next={i === 0} last={i === view.upcoming.length - 1} />
+            <SessionCard
+              key={`${b.date}-${b.start}`}
+              booking={b}
+              next={i === 0}
+              last={i === view.upcoming.length - 1}
+              onRemind={onRemind && (() => onRemind(b))}
+            />
           ))}
         </ul>
       ) : (
@@ -237,7 +298,7 @@ export function SessionsCard({ view }: { view: PrepareView }) {
         <div className="flex items-baseline border-t border-ink/10 pb-3 pt-[13px]">
           <span className="w-[180px] shrink-0">This week</span>
           <span className="flex items-center gap-1.5 font-semibold">
-            {completed} completed
+            <span className={onRemind && completed > 0 ? 'text-[#059669]' : ''}>{completed} completed</span>
             {dot}
             <span className="flex items-center gap-1 text-ink-secondary">
               <img src={iconLateCancel} alt="" width={12} height={12} />

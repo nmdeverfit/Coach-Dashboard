@@ -1,6 +1,4 @@
 import { useLayoutEffect, useRef, useState, type RefObject } from 'react';
-import iconAdd from '../assets/figma/icon-add.svg';
-import iconAlarm from '../assets/figma/icon-alarm.svg';
 import iconClock from '../assets/figma/icon-clock-booking.svg';
 import iconMessage from '../assets/figma/icon-message-dots.svg';
 import dotCredit from '../assets/figma/dot-credit.svg';
@@ -9,10 +7,10 @@ import { DEMO_TODAY, clients } from '../data/mock';
 import { getSessions } from '../data/sessions';
 import type { Client } from '../data/types';
 import { bookingRow, type BookingRow } from '../lib/dashboard';
-import { LOCATION_LABEL } from '../lib/todos';
+import { ISSUE_CREDITS_TOAST, reminderToast } from '../lib/todos';
 import { useStore } from '../state/store';
 import { ClientCell, HEAD, rowProps, SectionHeader } from './ClientListParts';
-import { LowCreditsBadge, Swatch } from './drawer/SessionsBodies';
+import { DraftReminderButton, IssueCreditsButton, LowCreditsBadge, Swatch } from './drawer/SessionsBodies';
 import { Glyph } from './Glyph';
 import { Tooltip } from './Tooltip';
 
@@ -26,7 +24,6 @@ import { Tooltip } from './Tooltip';
 const COL = { client: 'w-[280px] shrink-0', activity: 'min-w-[360px] flex-[0_1_460px]', credits: 'min-w-[420px] flex-1', action: 'w-[100px] shrink-0' };
 /** Client Sessions' greys, as drawn in the frame. */
 const LABEL = 'text-[13px] font-semibold leading-[18px] tracking-[0.13px] text-[#4d4d4d]';
-const SMALL_BUTTON = 'flex h-7 shrink-0 whitespace-nowrap items-center gap-[5px] rounded-lg border border-[#e0e0e0] text-[12px] font-semibold leading-[18px] text-[#4d4d4d] hover:bg-[#f2f2f2]';
 
 const ROWS = clients
   .filter((c) => getSessions(c.id))
@@ -121,7 +118,7 @@ function BookingClientRow({ client, row, stacked }: { client: Client; row: Booki
   };
   const { next, credits } = row;
   return (
-    <div {...rowProps(client, state.selectedClientId === client.id, selectClient)}>
+    <div {...rowProps(client, state.selectedClientId === client.id, (id) => selectClient(id, 'booking'))}>
       <ClientCell client={client} className={COL.client} />
 
       <div className={`${COL.activity} flex min-h-[76px] flex-col justify-center gap-1 p-3`}>
@@ -141,14 +138,7 @@ function BookingClientRow({ client, row, stacked }: { client: Client; row: Booki
                 <img src={dotTiny} alt="" width={2} height={2} />
                 <span className="text-[#4d4d4d]">{next.time}</span>
               </span>
-              <button
-                type="button"
-                onClick={stop(() => showToast(`The ${LOCATION_LABEL[next.booking.type.location].toLowerCase()} session reminder template (v1.11) opens for ${client.firstName}`))}
-                className={`${SMALL_BUTTON} bg-[#f9f9f9] pl-3 pr-2`}
-              >
-                <img src={iconAlarm} alt="" width={13} height={13} />
-                Draft a reminder
-              </button>
+              <DraftReminderButton onClick={() => showToast(reminderToast(client, next.booking))} />
             </div>
           </>
         )}
@@ -175,16 +165,7 @@ function BookingClientRow({ client, row, stacked }: { client: Client; row: Booki
                     <LowCreditsBadge />
                   )}
                 </span>
-                <button
-                  type="button"
-                  onClick={stop(() => showToast('Client Sessions › Credits opens in a new tab with the Issue credits popup pre-filled'))}
-                  className={`${SMALL_BUTTON} bg-white pl-2 pr-3`}
-                >
-                  <span className="flex pt-px">
-                    <Glyph src={iconAdd} size={12} inset="16.67%" bleed="0" />
-                  </span>
-                  Issue Credits
-                </button>
+                <IssueCreditsButton onClick={() => showToast(ISSUE_CREDITS_TOAST)} />
               </div>
             )}
           </>

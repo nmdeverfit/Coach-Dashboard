@@ -133,6 +133,11 @@ export function timeSpan(b: Booking) {
 /** "2:00 - 3:00pm (60 min)" */
 export const timeRange = (b: Booking) => `${timeSpan(b)} (${b.type.minutes} min)`;
 
+/** What the demo's reminder and Issue credits buttons would open (the frames are not built). */
+export const reminderToast = (client: { firstName: string }, b: Booking) =>
+  `The ${LOCATION_LABEL[b.type.location].toLowerCase()} session reminder template (v1.11) opens for ${client.firstName}`;
+export const ISSUE_CREDITS_TOAST = 'Client Sessions › Credits opens in a new tab with the Issue credits popup pre-filled';
+
 export interface PrepareView {
   rowReason: string;
   /** Booked sessions from today on, soonest first. */

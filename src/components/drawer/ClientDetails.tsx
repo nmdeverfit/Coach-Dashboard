@@ -10,7 +10,7 @@ import { Avatar } from '../Avatar';
 import { ClientActions } from '../ClientActions';
 import { StatusChip } from '../StatusChip';
 import { AiAssessment } from './AiAssessment';
-import { ClientTabs } from './ClientTabs';
+import { ClientTabs, type ClientTabKey } from './ClientTabs';
 import { DrawerAside, useCloseOnOutside, useDrawerPresence } from './DrawerShell';
 import { StatusFeedback } from './StatusFeedback';
 
@@ -34,7 +34,17 @@ function ClientTitle({ client }: { client: Client }) {
  * The client detail page in the panel's slot: the Check-in panel's layout with a CLIENT DETAILS title and no
  * footer. Opened from a group card, or from a to-do panel's name link (then ‹ returns to the to-do, AC1.11).
  */
-export function ClientDetailsPanel({ client, onClose, onBack }: { client: Client; onClose: () => void; onBack?: () => void }) {
+export function ClientDetailsPanel({
+  client,
+  onClose,
+  onBack,
+  initialTab,
+}: {
+  client: Client;
+  onClose: () => void;
+  onBack?: () => void;
+  initialTab?: ClientTabKey | null;
+}) {
   const { showToast } = useStore();
   const profile = getProfile(client.id);
   const assessment = buildClientAssessment(client, profile, DEMO_TODAY);
@@ -67,7 +77,7 @@ export function ClientDetailsPanel({ client, onClose, onBack }: { client: Client
           />
           <StatusFeedback client={client} />
         </div>
-        <ClientTabs client={client} profile={profile} />
+        <ClientTabs client={client} profile={profile} initialTab={initialTab} />
       </div>
     </div>
   );
@@ -82,7 +92,7 @@ export function ClientDrawer() {
   if (!shown) return null;
   return (
     <DrawerAside label="Client details" closing={closing}>
-      <ClientDetailsPanel client={getClient(shown)} onClose={close} />
+      <ClientDetailsPanel client={getClient(shown)} onClose={close} initialTab={state.selectedClientTab} />
     </DrawerAside>
   );
 }
