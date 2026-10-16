@@ -2,7 +2,7 @@ import iconExpandArrow from '../../assets/figma/icon-expand-arrow.svg';
 import legendNotLogged from '../../assets/figma/legend-not-logged.svg';
 import tooltipArrow from '../../assets/figma/tooltip-arrow.svg';
 import type { MealKey, NutritionLog } from '../../data/types';
-import { MEALS, foodCalories, weekdayLabel, type NutritionSummary, type WeekGridData } from '../../lib/checkin';
+import { MEALS, addDays, foodCalories, weekdayLabel, type NutritionSummary, type WeekGridData } from '../../lib/checkin';
 import { formatMonthDay, parseDay } from '../../lib/dates';
 import { useStore } from '../../state/store';
 
@@ -199,12 +199,18 @@ const weekRange = (week: WeekGridData) => {
  * Both weeks in one grid: a single meal-label column on the left, then 7 day columns per week with a divider between,
  * so the labels line up with the cells whatever their size.
  */
-function MealGrid({ weeks, log }: { weeks: WeekGridData[]; log: NutritionLog }) {
+function MealGrid({ weeks, log, today }: { weeks: WeekGridData[]; log: NutritionLog; today: string }) {
   const columns = weeks.map(() => 'repeat(7, minmax(0, 1fr))').join(' 17px ');
   // Column of each week's first day: labels take column 1, each divider takes one column.
   const firstCol = (w: number) => 2 + w * 8;
+  const todayWeek = weeks.findIndex((w) => w.dates.includes(today));
+  const todayCol = todayWeek < 0 ? null : firstCol(todayWeek) + weeks[todayWeek].dates.indexOf(today);
   return (
     <div className="grid gap-x-1 gap-y-1 px-5 py-4" style={{ gridTemplateColumns: `68px ${columns}` }}>
+      {/* Today: a light brand band behind its column, under the cells, from the date down to the last meal. */}
+      {todayCol !== null && (
+        <span aria-hidden className="-mx-0.5 -mb-1 rounded-md bg-brand/[0.07]" style={{ gridColumn: todayCol, gridRow: `2 / span ${MEALS.length + 1}` }} />
+      )}
       {weeks.map((week, w) => (
         <p
           key={`title-${week.start}`}
@@ -222,10 +228,17 @@ function MealGrid({ weeks, log }: { weeks: WeekGridData[]; log: NutritionLog }) 
         week.dates.map((d, i) => (
           <span
             key={`day-${d}`}
-            className="text-center text-[12px] leading-[18px] text-ink-secondary tabular-nums"
+            title={d === today ? 'Today' : undefined}
+            className="flex justify-center pt-0.5 text-[12px] leading-[18px] text-ink-secondary tabular-nums"
             style={{ gridColumn: firstCol(w) + i, gridRow: 2 }}
           >
-            {parseDay(d).getUTCDate()}
+            {d === today ? (
+              <span className="flex size-[18px] items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-white">
+                {parseDay(d).getUTCDate()}
+              </span>
+            ) : (
+              parseDay(d).getUTCDate()
+            )}
           </span>
         )),
       )}
@@ -255,7 +268,8 @@ function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSu
   return (
     <div className="flex flex-col rounded-lg border border-ink/10 bg-elevated p-px shadow-card">
       <CardHeader title="Meal Log" link="View food log" />
-      <MealGrid weeks={summary.weeks} log={log} />
+      {/* The summary covers the 7 days before today, so today is the day after its window. */}
+      <MealGrid weeks={summary.weeks} log={log} today={addDays(summary.window.end, 1)} />
       <div className="flex items-center justify-center gap-4 px-4 py-3 text-[12px] leading-[18px] text-ink">
         <span className="flex items-center gap-2">
           1 meal
@@ -273,6 +287,10 @@ function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSu
         <span className="flex items-center gap-2">
           <span className="size-4 rounded-[2.837px] border-[1.064px] border-dashed border-ink-muted" />
           Upcoming
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="size-4 rounded-full bg-brand" />
+          Today
         </span>
       </div>
       <div className="flex flex-col px-4 pb-4 pt-2 text-[13px] leading-[18px] text-ink">
