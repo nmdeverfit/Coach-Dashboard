@@ -77,6 +77,7 @@ type Action =
   | { type: 'openInbox'; clientId: string }
   | { type: 'sideTab'; tab: SideTab }
   | { type: 'closeSideTab'; tab: SideTab }
+  | { type: 'closeSide' }
   | { type: 'sendMessage'; clientId: string; text: string };
 
 const initialState: State = {
@@ -191,9 +192,10 @@ function reducer(state: State, action: Action): State {
         action.type === 'openOlly'
           ? { clientId: action.clientId, inbox: prev?.inbox ?? false, olly: { ...action.request, seq: (prev?.olly?.seq ?? 0) + 1 }, active: 'olly' }
           : { clientId: action.clientId, inbox: true, olly: prev?.olly ?? null, active: 'inbox' };
-      // The column sits beside a panel: from a list row, the client's detail page opens with it.
+      // Beside the client's open panel it docks to it. From a list row it opens on its own, at the right edge, and
+      // does not open the client detail page (the user's call); another client's panel closes.
       const shown = state.selectedTodoId ? todoClient(state) : state.selectedClientId;
-      return shown === action.clientId ? { ...state, side } : { ...state, side, selectedClientId: action.clientId, selectedTodoId: null, selectedClientTab: null };
+      return shown === action.clientId ? { ...state, side } : { ...state, side, selectedClientId: null, selectedTodoId: null };
     }
     case 'sideTab':
       return state.side ? { ...state, side: { ...state.side, active: action.tab } } : state;
@@ -203,6 +205,8 @@ function reducer(state: State, action: Action): State {
       if (!next.inbox && !next.olly) return { ...state, side: null };
       return { ...state, side: { ...next, active: next.inbox ? (next.olly ? next.active : 'inbox') : 'olly' } };
     }
+    case 'closeSide':
+      return { ...state, side: null };
     case 'sendMessage':
       return { ...state, sent: { ...state.sent, [action.clientId]: [...(state.sent[action.clientId] ?? []), { text: action.text, at: `${DEMO_TODAY}T06:00` }] } };
     case 'reviewClient':
@@ -310,6 +314,7 @@ interface Store {
   openInbox: (clientId: string) => void;
   setSideTab: (tab: SideTab) => void;
   closeSideTab: (tab: SideTab) => void;
+  closeSide: () => void;
   sendMessage: (clientId: string, text: string) => void;
 }
 
@@ -370,6 +375,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       openInbox: (clientId) => dispatch({ type: 'openInbox', clientId }),
       setSideTab: (tab) => dispatch({ type: 'sideTab', tab }),
       closeSideTab: (tab) => dispatch({ type: 'closeSideTab', tab }),
+      closeSide: () => dispatch({ type: 'closeSide' }),
       sendMessage: (clientId, text) => dispatch({ type: 'sendMessage', clientId, text }),
       completeFromPanel: (id) => {
         dispatch({ type: 'completeFromPanel', id });

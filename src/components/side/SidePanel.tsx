@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import iconExternal from '../../assets/figma/icon-external.svg';
 import iconClose from '../../assets/figma/icon-olly-close.svg';
 import iconTabClose from '../../assets/figma/icon-panel-close-tab.svg';
 import { getClient, useStore, type SidePanelState, type SideTab } from '../../state/store';
 import { AiPill } from '../AiPill';
+import { useCloseOnOutside } from '../drawer/DrawerShell';
 import { InboxConversation } from './InboxConversation';
 import { OllyConversation } from './OllyConversation';
 
@@ -57,8 +58,14 @@ function useSidePresence(current: SidePanelState | null) {
 }
 
 export function SidePanel() {
-  const { state, setSideTab, closeSideTab, showToast } = useStore();
+  const { state, setSideTab, closeSideTab, closeSide, showToast } = useStore();
   const { side, closing } = useSidePresence(state.side);
+  // Docked beside the client's open panel, or on its own at the right edge when opened from a list row.
+  const panelClient = state.selectedTodoId ? state.todos.find((t) => t.id === state.selectedTodoId)?.clientId : state.selectedClientId;
+  const docked = Boolean(side && panelClient === side.clientId);
+  // On its own it closes like a panel: ×, Esc or a click outside (with a panel, it closes with the panel).
+  const close = useCallback(() => closeSide(), [closeSide]);
+  useCloseOnOutside(Boolean(state.side) && !docked, close);
   if (!side) return null;
   const client = getClient(side.clientId);
   const both = side.inbox && side.olly;
@@ -69,7 +76,9 @@ export function SidePanel() {
     <aside
       data-side-panel
       aria-label={active === 'olly' ? 'Olly' : `Messages with ${client.name}`}
-      className={`fixed inset-y-0 right-[720px] z-[39] flex w-[360px] flex-col border-r border-[#f2f2f2] shadow-[-4px_0_60px_rgba(0,0,0,0.2)] ${
+      className={`fixed inset-y-0 z-[39] flex w-[360px] flex-col border-r border-[#f2f2f2] shadow-[-4px_0_60px_rgba(0,0,0,0.2)] transition-[right] duration-300 ${
+        docked ? 'right-[720px]' : 'right-0'
+      } ${
         closing ? 'pointer-events-none animate-side-out' : 'animate-side-in'
       }`}
       style={{ background: active === 'olly' ? OLLY_BG : '#ffffff' }}

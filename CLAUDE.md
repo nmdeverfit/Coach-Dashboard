@@ -73,8 +73,10 @@ the same change.
   Send → "Message sent" + Open Inbox; composer with Stop while busy; steps come from `tellTask` / `draftTask` /
   `sendTask` in `lib/olly.ts`),
   `InboxConversation` (thread by day + composer). State is `side` / `sent` in the store: `openOlly`,
-  `openInbox`, `closeSideTab`, `sendMessage`. The column belongs to one client's panel: it closes with the panel
-  or when another client opens; from a list row it opens the client detail page with it. Sending never completes
+  `openInbox`, `closeSideTab`, `sendMessage`. The column docks left of the client's open panel and closes with it
+  or when another client opens. From a list row (no panel open) it opens on its own at the right edge, without the
+  client detail page (the user's call), and closes on ×, Esc or a click outside; opening that client's row then
+  docks it beside the panel. Sending never completes
   a to-do (AC2.2).
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
   `NutritionTab` (inline-SVG calorie ring + macros, Meal Log with cell tooltips; one shared meal-label column for both

@@ -166,7 +166,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   semibold ink, underlined. Brief: no hero or to-dos; the 2 × 2 group cards and Client highlights span the width
   (descriptions drop their two-line min height). Upcoming bookings labels always give the date on a past week.
 - **Middle column** (Olly / Inbox, Figma `5699:137932`, `5124:499989`, `5699:137775`, `5699:138912`): 360 px,
-  fixed left of the 720 px panel, full height, `shadow-[-4px_0_60px_rgba(0,0,0,0.2)]`. It slides out from behind
+  fixed left of the 720 px panel (or at the right edge on its own, when opened from a list row with no panel;
+  it glides to `right-[720px]` if the client's panel then opens), full height, `shadow-[-4px_0_60px_rgba(0,0,0,0.2)]`. It slides out from behind
   the panel, right to left (`animate-side-in`, 320 ms), and back under it on close (`animate-side-out`, 220 ms). One at a time it has a 56 px header (Olly 16 px bold `black/70` + BETA tag; Inbox the
   client's name 16 px bold), pop-out and ×. Both open: one 44 px tab bar, the inbox tab (name 14 px bold + ×) then
   Olly (14 px semibold + AI pill, pop-out, ×); active tab `#fefefe`, inactive `#f0f0f2`. Olly's background is the
