@@ -142,7 +142,13 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   chip (13 px, 21 px line height).
 - The client name is a blue link only on the drawer title, never on Check-in, never on rows.
 - Actions without a built destination show a toast that says where they would go ("… opens in a new tab").
-- Motion respects `prefers-reduced-motion` (global rule in `index.css`).
+- **View switch** (Today's Brief ⇄ Dashboard, `ViewLayer` in `App.tsx`): everything below the header slides as one
+  track, 420 ms `cubic-bezier(0.65, 0, 0.35, 1)`. To the Dashboard the brief leaves left and the list comes in from
+  the right; back to the brief the reverse. Both views stay mounted, so each keeps its scroll, tab and search.
+- **Review from the list** (✓ in a row): the row slides 24 % left and fades (first 55 % of 520 ms), its gap closes,
+  then the review lands and the row opens its space in the other section and fades in from 24 px right (420 ms).
+  The section's count chip bumps (scale 1.35, 320 ms). Undoing a review moves the row back the same way.
+- Motion respects `prefers-reduced-motion` (global rule in `index.css`; the WAAPI row moves check it and skip).
 
 ## 8. Copy
 

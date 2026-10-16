@@ -150,7 +150,8 @@ the same change.
   brief says seven cards and Paused keeps its tab only, so the demo shows seven. The tab "No activites" is spelled
   "No activities". The design's names, dates (Jan 15, Apr 1 – Apr 8) and counts are placeholders; the demo's come
   from the profiles. On Monday 06:00 nobody is reviewed yet, so Review Completed starts empty; the list's ✓
-  toggles (the detail page's is one-way, as drawn). Search filters by name; the coach, group, status and column
+  toggles (the detail page's is one-way, as drawn) and animates the row out and into the other section; switching
+  views slides the body (both trialled at the user's request, no Figma motion spec). Search filters by name; the coach, group, status and column
   dropdowns, + and All Views only toast. Booking shows no count, as drawn.
 - Tell me more (Olly column), the Change status modal, the vertical row expand (rows open the client detail
   drawer instead), settings, tour and What's New are not built yet.

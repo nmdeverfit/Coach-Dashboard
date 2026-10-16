@@ -92,7 +92,9 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         view: action.view,
-        dashboardTab: action.view === 'brief' ? 'all' : state.dashboardTab,
+        // The header toggle opens the list on All clients; the brief keeps nothing to reset, so the list sliding
+        // out does not change under the coach's eyes.
+        dashboardTab: action.view === 'dashboard' && state.view !== 'dashboard' ? 'all' : state.dashboardTab,
         selectedTodoId: action.view === 'brief' ? state.selectedTodoId : null,
         selectedClientId: action.view === 'brief' ? state.selectedClientId : null,
       };

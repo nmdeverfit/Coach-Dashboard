@@ -13,9 +13,10 @@ const ICON_BUTTON = `${ICON_BASE} bg-white hover:bg-surface-secondary`;
 /**
  * The four 32 px quick actions (Draft with AI · Send message · Mark as reviewed · More), shared by the client detail
  * page (Figma 5671:141948) and the client list's Action column (5676:145292). On the list the ✓ toggles, so a review
- * can be taken back; on the detail page it is one-way, as drawn.
+ * can be taken back; on the detail page it is one-way, as drawn. `onToggleReview` lets the list animate the row out
+ * before the review lands.
  */
-export function ClientActions({ client, where }: { client: Client; where: 'panel' | 'list' }) {
+export function ClientActions({ client, where, onToggleReview }: { client: Client; where: 'panel' | 'list'; onToggleReview?: () => void }) {
   const { state, showToast, reviewClient, toggleReview } = useStore();
   const reviewed = Boolean(state.reviewed[client.id]);
   const beside = where === 'panel' ? 'beside this panel' : 'beside the list';
@@ -44,7 +45,7 @@ export function ClientActions({ client, where }: { client: Client; where: 'panel
         aria-label={reviewed ? (canToggle ? 'Undo review' : 'Reviewed') : 'Mark as reviewed'}
         aria-pressed={reviewed}
         disabled={reviewed && !canToggle}
-        onClick={() => (canToggle ? toggleReview(client.id) : reviewClient(client.id))}
+        onClick={() => (canToggle ? (onToggleReview ?? (() => toggleReview(client.id)))() : reviewClient(client.id))}
         className={reviewed ? `${ICON_BASE} bg-checked ${canToggle ? 'hover:brightness-110' : 'cursor-default'}` : ICON_BUTTON}
       >
         <span className="relative size-4">

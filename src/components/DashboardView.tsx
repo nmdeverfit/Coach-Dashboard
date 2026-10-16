@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import iconCalendarDays from '../assets/figma/icon-calendar-days.svg';
 import iconColumns from '../assets/figma/icon-columns.svg';
 import iconDownViews from '../assets/figma/icon-down-views.svg';
@@ -86,6 +86,13 @@ export function DashboardView() {
   const { state, setDashboardTab } = useStore();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState({ need: true, done: true });
+  // The client whose row just changed section, so its new row animates in once.
+  const [arrived, setArrived] = useState<string | null>(null);
+  useEffect(() => {
+    if (!arrived) return;
+    const t = window.setTimeout(() => setArrived(null), ROW_IN_MS + 100);
+    return () => window.clearTimeout(t);
+  }, [arrived]);
 
   const formToReview = useMemo(
     () => new Set(clients.filter((c) => hasFormToReview(c, getProfile(c.id), state.todos)).map((c) => c.id)),
@@ -129,13 +136,23 @@ export function DashboardView() {
         <SearchAndFilters query={query} onQuery={setQuery} />
         <div className="flex flex-col gap-2">
           <TableHeader />
-          <Section title="Need Review" rows={need} open={open.need} onToggle={() => setOpen((o) => ({ ...o, need: !o.need }))} empty="Everyone in this view has been reviewed this week." />
+          <Section
+            title="Need Review"
+            rows={need}
+            open={open.need}
+            onToggle={() => setOpen((o) => ({ ...o, need: !o.need }))}
+            empty="Everyone in this view has been reviewed this week."
+            arrived={arrived}
+            onMoved={setArrived}
+          />
           <Section
             title="Review Completed"
             rows={done}
             open={open.done}
             onToggle={() => setOpen((o) => ({ ...o, done: !o.done }))}
             empty="Clients you mark as reviewed this week move here."
+            arrived={arrived}
+            onMoved={setArrived}
           />
         </div>
       </div>
@@ -261,32 +278,107 @@ function TableHeader() {
   );
 }
 
-function Section({ title, rows, open, onToggle, empty }: { title: string; rows: Row[]; open: boolean; onToggle: () => void; empty: string }) {
+interface SectionProps {
+  title: string;
+  rows: Row[];
+  open: boolean;
+  onToggle: () => void;
+  empty: string;
+  arrived: string | null;
+  onMoved: (clientId: string) => void;
+}
+
+function Section({ title, rows, open, onToggle, empty, arrived, onMoved }: SectionProps) {
+  // The count bumps when a row joins or leaves, so the move reads even when the section is off screen.
+  const chip = useRef<HTMLSpanElement>(null);
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    if (!reducedMotion()) chip.current?.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 320, easing: 'ease-out' });
+  }, [rows.length]);
   return (
     <section>
       <button type="button" aria-expanded={open} onClick={onToggle} className="flex h-12 w-full items-center gap-2 rounded-lg bg-surface-secondary p-3 text-left">
         <img src={iconExpand} alt="" width={16} height={16} className={`transition-transform ${open ? 'rotate-90' : ''}`} />
         <span className="text-[16px] font-semibold leading-[1.5] text-ink">{title}</span>
-        <span className="min-w-[19px] rounded-[4px] border border-line-chip bg-white px-[3px] py-0.5 text-center text-[11px] font-semibold leading-normal text-ink/80 tabular-nums">
+        <span
+          ref={chip}
+          className="min-w-[19px] rounded-[4px] border border-line-chip bg-white px-[3px] py-0.5 text-center text-[11px] font-semibold leading-normal text-ink/80 tabular-nums"
+        >
           {rows.length}
         </span>
       </button>
       {open && (
         <div className="mt-2">
-          {rows.length ? rows.map((row) => <ClientRow key={row.client.id} row={row} />) : <p className="px-4 py-4 text-[13px] leading-[1.5] text-ink-muted">{empty}</p>}
+          {rows.length ? rows.map((row) => <ClientRow key={row.client.id} row={row} arriving={arrived === row.client.id} onMoved={onMoved} />) : <p className="px-4 py-4 text-[13px] leading-[1.5] text-ink-muted">{empty}</p>}
         </div>
       )}
     </section>
   );
 }
 
-function ClientRow({ row }: { row: Row }) {
-  const { state, selectClient } = useStore();
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ROW_OUT_MS = 520;
+const ROW_IN_MS = 420;
+const EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
+
+function ClientRow({ row, arriving, onMoved }: { row: Row; arriving: boolean; onMoved: (clientId: string) => void }) {
+  const { state, selectClient, toggleReview } = useStore();
   const { client } = row;
   const selected = state.selectedClientId === client.id;
   const ends = client.programEndsInDays;
+  const ref = useRef<HTMLDivElement>(null);
+  const leaving = useRef(false);
+
+  // ✓ on the list: the row slides left and fades, the gap closes, then the review lands and the row appears in the
+  // other section.
+  const moveOut = () => {
+    const el = ref.current;
+    const land = () => {
+      onMoved(client.id);
+      toggleReview(client.id);
+    };
+    if (!el || reducedMotion()) return land();
+    if (leaving.current) return;
+    leaving.current = true;
+    const h = el.offsetHeight;
+    el.style.overflow = 'hidden';
+    el.style.pointerEvents = 'none';
+    el.animate(
+      [
+        { transform: 'translateX(0)', opacity: 1, height: `${h}px` },
+        { transform: 'translateX(-24%)', opacity: 0, height: `${h}px`, offset: 0.55 },
+        { transform: 'translateX(-24%)', opacity: 0, height: '0px', borderBottomWidth: '0px' },
+      ],
+      { duration: ROW_OUT_MS, easing: EASE, fill: 'forwards' },
+    ).onfinish = land;
+  };
+
+  // The moved row opens its space in the new section, then fades in from the right.
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!arriving || !el || reducedMotion()) return;
+    const h = el.offsetHeight;
+    el.style.overflow = 'hidden';
+    const a = el.animate(
+      [
+        { transform: 'translateX(24px)', opacity: 0, height: '0px' },
+        { transform: 'translateX(24px)', opacity: 0, height: `${h}px`, offset: 0.4 },
+        { transform: 'translateX(0)', opacity: 1, height: `${h}px` },
+      ],
+      { duration: ROW_IN_MS, easing: EASE },
+    );
+    a.onfinish = () => (el.style.overflow = '');
+    // Mount only: a row animates in once, when it changes section.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div
+      ref={ref}
       role="button"
       tabIndex={0}
       data-client-row
@@ -319,7 +411,7 @@ function ClientRow({ row }: { row: Row }) {
       <div className={`${COL.activity} px-4 py-3`}>{row.activity && <Activity client={client} line={row.activity} />}</div>
       <div className={`${COL.last} px-4 py-3 text-[13px] leading-[1.5] text-ink/60`}>{row.lastActive}</div>
       <div className={`${COL.action} flex justify-center px-3 py-2`}>
-        <ClientActions client={client} where="list" />
+        <ClientActions client={client} where="list" onToggleReview={moveOut} />
       </div>
     </div>
   );
