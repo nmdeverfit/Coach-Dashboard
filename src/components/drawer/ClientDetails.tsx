@@ -1,10 +1,5 @@
 import { useCallback } from 'react';
 import iconClose from '../../assets/figma/icon-close.svg';
-import iconMarkDoneChecked from '../../assets/figma/icon-markdone-checked.svg';
-import iconMarkDone from '../../assets/figma/icon-markdone.svg';
-import iconMessage from '../../assets/figma/icon-message-dots.svg';
-import iconMore from '../../assets/figma/icon-more.svg';
-import iconPencilAi from '../../assets/figma/icon-pencil-ai.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { Client } from '../../data/types';
@@ -12,20 +7,15 @@ import { buildClientAssessment } from '../../lib/client';
 import { formatDayMonth, parseDay } from '../../lib/dates';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
+import { ClientActions } from '../ClientActions';
 import { StatusChip } from '../StatusChip';
-import { Tooltip } from '../Tooltip';
 import { AiAssessment } from './AiAssessment';
 import { ClientTabs } from './ClientTabs';
 import { DrawerAside, useCloseOnOutside, useDrawerPresence } from './DrawerShell';
 import { StatusFeedback } from './StatusFeedback';
 
-const ICON_BASE = 'group/tip relative flex size-8 items-center justify-center rounded-md border border-black/15';
-const ICON_BUTTON = `${ICON_BASE} bg-white hover:bg-surface-secondary`;
-
 /** Avatar, name, status and the four quick actions of the client detail page (Figma 5671:141948). */
 function ClientTitle({ client }: { client: Client }) {
-  const { state, showToast, reviewClient } = useStore();
-  const reviewed = Boolean(state.reviewed[client.id]);
   return (
     <div className="flex items-center gap-4 px-[30px] py-5">
       <Avatar name={client.name} src={client.avatar} size={44} />
@@ -35,42 +25,7 @@ function ClientTitle({ client }: { client: Client }) {
           Status: <StatusChip status={client.status} />
         </p>
       </div>
-      <div className="flex shrink-0 items-center gap-1">
-        {/* The AI button clips its own light sweep, so its tooltip hangs off a wrapper. */}
-        <span className="group/tip relative">
-          <button
-            type="button"
-            aria-label="Draft with AI"
-            onClick={() => showToast(`Draft with AI opens beside this panel with a message for ${client.firstName}`)}
-            className="ai-btn flex size-8 items-center justify-center rounded-[4px] border border-black/15 bg-white shadow-[inset_0_0_8px_rgba(222,172,231,0.6)]"
-          >
-            <img src={iconPencilAi} alt="" width={20} height={20} />
-          </button>
-          <Tooltip label="Draft with AI" />
-        </span>
-        <button type="button" aria-label="Send message" onClick={() => showToast('The message composer opens beside this panel, empty')} className={ICON_BUTTON}>
-          <img src={iconMessage} alt="" width={16.2} height={16.2} />
-          <Tooltip label="Send message" />
-        </button>
-        <button
-          type="button"
-          aria-label={reviewed ? 'Reviewed' : 'Mark as reviewed'}
-          disabled={reviewed}
-          onClick={() => reviewClient(client.id)}
-          className={reviewed ? `${ICON_BASE} cursor-default bg-checked` : ICON_BUTTON}
-        >
-          <span className="relative size-4">
-            <span className="absolute bottom-[25.73%] left-[16.64%] right-[16.67%] top-1/4">
-              <img src={reviewed ? iconMarkDoneChecked : iconMarkDone} alt="" className="block size-full max-w-none" />
-            </span>
-          </span>
-          <Tooltip label={reviewed ? 'Reviewed this week' : 'Mark as reviewed'} />
-        </button>
-        <button type="button" aria-label="More" onClick={() => showToast('More client actions (pause, archive…) open here')} className={ICON_BUTTON}>
-          <img src={iconMore} alt="" width={16} height={16} />
-          <Tooltip label="More" />
-        </button>
-      </div>
+      <ClientActions client={client} where="panel" />
     </div>
   );
 }

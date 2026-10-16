@@ -11,6 +11,8 @@ export interface Client {
   programEndsInDays?: number;
   /** Next 1:1 session label, when one is booked in the next few days. */
   nextSession?: string;
+  /** Last week's status, when it differs from this week's (feeds the client list's Activity line). */
+  lastWeekStatus?: ClientStatus;
 }
 
 /**
@@ -235,6 +237,15 @@ export interface ClientNote {
  * Everything the client detail page and the data tabs read for one client. `focus` is the main_signal that opens
  * first and is tagged in the assessment.
  */
+/** One message in the coach–client thread. Only its time and sender are read; the text is never quoted (BL4). */
+export interface ClientMessage {
+  from: 'coach' | 'client';
+  /** "YYYY-MM-DDTHH:MM" */
+  at: string;
+  /** A check-in message from the coach. */
+  checkin?: boolean;
+}
+
 export interface ClientProfile {
   focus: 'nutrition' | 'training';
   nutrition: NutritionLog;
@@ -243,4 +254,5 @@ export interface ClientProfile {
   tasks: ClientTask[];
   habits: Habit[];
   notes: ClientNote[];
+  messages: ClientMessage[];
 }

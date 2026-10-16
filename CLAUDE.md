@@ -27,7 +27,7 @@ the same change.
   `t7` Acknowledge (Darrell's nutrition log + training), a Phase 2 type trialled at the user's request. Kudos (Cody)
   and Aima's carried Check-in have none and open a placeholder panel.
 - `src/data/profiles.ts`: `getProfile(clientId)` gives every client a `ClientProfile` (focus, nutrition, training,
-  forms, tasks, habits, notes) for the client detail page and all six data tabs. Clients with to-do data reuse it
+  forms, tasks, habits, notes, messages) for the client detail page and all six data tabs. Clients with to-do data reuse it
   (Clint t3, Glen t4, Leo t8, Darrell t7, the Respond forms; Aima goes silent for 15 days to match her row); the rest
   are generated from a seed of their id and shaped by status (At risk logs and trains least). Program ending clients'
   programs end exactly on their card's countdown.
@@ -36,6 +36,9 @@ the same change.
   Status rows and grouped notes.
 - `src/lib/todos.ts`: the same for the five other types (`build*View`, `rowReasonFor`). Every row reason in `mock.ts`
   that has panel data comes from these builders. `LOW_CREDIT_THRESHOLD = 2`; expiry window 7 days.
+- `src/lib/dashboard.ts`: the client list (`DashboardTab`, `inTab`, `statusLine` = the detail page's assessment
+  headline minus "Current", `activityLine` from `Client.lastWeekStatus` and the message thread's timing, never its
+  text, `lastActive` from every log, `hasFormToReview`).
 - `src/lib/checkin.ts`: computes every figure and sentence from those inputs (row reason, status line, assessment,
   Macro AVG, Meal Log, summary rows), so they cannot disagree (AC4). **Never hard-code a derived number in copy**;
   add raw data and derive it. Calories come from macros (4/9/4 kcal/g); averages are over logged days in the 7 days
@@ -47,7 +50,8 @@ the same change.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights; the list is fixed at the height of 10
-  one-line rows and scrolls past that), `DashboardView` (placeholder), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
+  one-line rows and scrolls past that), `DashboardView` (client list, Figma `5676:145292`), `ClientActions` (the
+  four 32 px quick actions, shared by the detail page and list rows), `Glyph` (Figma vector with inset/bleed), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
   `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons and on the row checkbox and
   the panel's ✓, "Complete this task", while the to-do is open).
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
@@ -142,8 +146,14 @@ the same change.
   sentence case. A workout counts toward "Complete N workouts" only when every section is done.
 - Client details: the drawer covers the right rail, as every panel does, so another client opens after closing it.
   Generated clients' numbers are consistent but invented; only to-do clients carry hand-written data.
-- Dashboard view, Tell me more (Olly column), the Change status modal, settings, tour and
-  What's New are not built yet.
+- Client list (Dashboard tab, `5676:145292`): the frame draws an eighth metric card, Paused, cut off at 1440; the
+  brief says seven cards and Paused keeps its tab only, so the demo shows seven. The tab "No activites" is spelled
+  "No activities". The design's names, dates (Jan 15, Apr 1 – Apr 8) and counts are placeholders; the demo's come
+  from the profiles. On Monday 06:00 nobody is reviewed yet, so Review Completed starts empty; the list's ✓
+  toggles (the detail page's is one-way, as drawn). Search filters by name; the coach, group, status and column
+  dropdowns, + and All Views only toast. Booking shows no count, as drawn.
+- Tell me more (Olly column), the Change status modal, the vertical row expand (rows open the client detail
+  drawer instead), settings, tour and What's New are not built yet.
 
 ---
 

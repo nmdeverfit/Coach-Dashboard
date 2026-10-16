@@ -17,20 +17,9 @@ import { formatMonthDay, parseDay } from '../../lib/dates';
 import { LOCATION_LABEL, timeRange, type CreditPoolView, type PrepareView, type UnblockView } from '../../lib/todos';
 import { useStore } from '../../state/store';
 import { CardHeader } from './NutritionTab';
+import { Glyph } from '../Glyph';
 
 /** Exported vectors keep Figma's inset/bleed wrappers so they sit exactly as drawn. */
-function Glyph({ src, size, inset, bleed }: { src: string; size: number; inset: string; bleed: string }) {
-  return (
-    <span className="relative shrink-0 overflow-hidden" style={{ width: size, height: size }}>
-      <span className="absolute" style={{ inset }}>
-        <span className="absolute" style={{ inset: bleed }}>
-          <img src={src} alt="" className="block size-full max-w-none" />
-        </span>
-      </span>
-    </span>
-  );
-}
-
 function Swatch({ color }: { color: string }) {
   return <span className="size-[14px] shrink-0 rounded-[4px] border border-black/10" style={{ backgroundColor: color }} />;
 }

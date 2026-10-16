@@ -65,8 +65,8 @@ const seeds: Seed[] = [
     programEndsInDays: summarizeTraining((todoDetails.t3 as CheckinDetail).training, DEMO_TODAY).program.endsInDays,
   },
   { slug: 'wilma-flintstone', name: 'Wilma Flintstone', status: 'at_risk' },
-  { slug: 'marcus-hale', name: 'Marcus Hale', status: 'at_risk' },
-  { slug: 'priya-nair', name: 'Priya Nair', status: 'at_risk' },
+  { slug: 'marcus-hale', name: 'Marcus Hale', status: 'at_risk', lastWeekStatus: 'on_track' },
+  { slug: 'priya-nair', name: 'Priya Nair', status: 'at_risk', lastWeekStatus: 'needs_attention' },
   { slug: 'tom-becker', name: 'Tom Becker', status: 'at_risk' },
   { slug: 'sofia-rossi', name: 'Sofia Rossi', status: 'at_risk' },
   // Needs attention
@@ -104,7 +104,8 @@ const seeds: Seed[] = [
   { slug: 'glen-johnson', name: 'Glen Johnson', status: 'on_track' },
   { slug: 'wendy-kurtz', name: 'Wendy Kurtz', status: 'on_track' },
   { slug: 'darrell-steward', name: 'Darrell Steward', status: 'on_track' },
-  { slug: 'cody-fisher', name: 'Cody Fisher', status: 'on_track' },
+  // Back on track after two weeks at risk (his carried Kudos row).
+  { slug: 'cody-fisher', name: 'Cody Fisher', status: 'on_track', lastWeekStatus: 'at_risk' },
   { slug: 'jenny-wilson', name: 'Jenny Wilson', status: 'on_track' },
   { slug: 'leo-midgett', name: 'Leo Midgett', status: 'on_track' },
 ];

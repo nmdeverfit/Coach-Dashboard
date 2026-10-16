@@ -90,6 +90,8 @@ Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the bann
 | Feedback | `Toast` via `showToast` (ink pill, bottom centre) | `Toast.tsx` |
 | Status | `StatusChip` (21 px pill) | `StatusChip.tsx` |
 | Avatar | `Avatar` (photo or initials) | `Avatar.tsx` |
+| Quick actions (AI draft · message · ✓ · more) | `ClientActions` (`where="panel"` one-way ✓, `"list"` toggles) | `ClientActions.tsx` |
+| Exported vector with inset/bleed | `Glyph` | `Glyph.tsx` |
 
 Card anatomy: `rounded-lg border border-ink/15 bg-elevated p-px`, `CardHeader` on top, body `p-3`. Credits and
 Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
@@ -114,6 +116,17 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   ✓ / Dismiss and no footer. Title block: name 18 px bold, "Status:" + chip, then four 32 px icon buttons (Draft
   with AI uses `ai-btn`; its tooltip hangs off a wrapper because `ai-btn` clips). Opened from a group-card row or
   the drawer's name link (‹ back).
+- **Client list** (Dashboard tab, Figma `5676:145292`): page `bg-surface-secondary`; metric row `p-3 gap-2`, seven
+  equal white cards (`px-3 py-4`, 20 px icon + 14 px semibold label, 20 px semibold number); clicking a card opens
+  its tab. Then one white block `p-4 gap-4`: tab row (37 px, 14 px semibold, active = brand text + 2 px underline +
+  `bg-brand/10` count; others `ink-secondary` + `bg-ink/5` count; scrolls sideways with no bar), search 376 px and
+  dropdowns 38 px tall with a `line-input` border, table header (40 px, sticky, 13 px semibold `ink/50`; Status
+  in the Olly gradient with an "AI" pill). Columns: Client 280 · Status (fills) · Activity 440 · Last active 111 ·
+  Action 164. Sections Need Review and Review Completed: 48 px `bg-surface-secondary` header, 16 px semibold title,
+  white count chip, chevron that collapses. Rows: 8 px status dot (`status-*-dot`), 40 px avatar, name 14 px bold,
+  "Program ends Nd" 12 px semibold `ink-secondary`; status chip over the summary (13 px); Activity rich text with
+  semibold facts, a "Follow Up" link (bold brand, underlined) or a "Draft a reach out" AI button (28 px); Last
+  active 13 px `ink/60`. Hover `bg-elevated`, selected `bg-surface-secondary`; click opens the client detail drawer.
 - **Session log cells** (Training tab): 76 px tall, `pt-1.5 pb-2.5`. Date row (20 px) then the state label, which
   sits 39 px from the top on every state; the "3/3" count hangs below the label.
 - **Habit day circles** (28 px): done = green tint + check, missed (daily habits) = `#fef2f2` + red ×, not ticked on

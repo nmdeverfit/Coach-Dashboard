@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { DEMO_TODAY, clients, todos as seedTodos } from '../data/mock';
 import type { Client, FeedbackState, GroupKey, Todo } from '../data/types';
+import type { DashboardTab } from '../lib/dashboard';
 
 export type View = 'brief' | 'dashboard';
 
@@ -9,8 +10,8 @@ interface State {
   view: View;
   /** 0 is the current week; the week selector always opens here. */
   weekOffset: number;
-  /** Which group card sent the coach to the client list, if any. */
-  dashboardFilter: GroupKey | null;
+  /** The client list's open tab; a group card's "View all" lands on its own. */
+  dashboardTab: DashboardTab;
   toast: string | null;
   /** The to-do whose panel is open. */
   selectedTodoId: string | null;
@@ -34,6 +35,8 @@ type Action =
   | { type: 'select'; id: string | null }
   | { type: 'selectClient'; id: string | null }
   | { type: 'reviewClient'; clientId: string }
+  | { type: 'toggleReview'; clientId: string }
+  | { type: 'setDashboardTab'; tab: DashboardTab }
   | { type: 'markReviewed'; clientId: string }
   | { type: 'completeFromPanel'; id: string }
   | { type: 'feedback'; clientId: string; value: FeedbackState };
@@ -42,7 +45,7 @@ const initialState: State = {
   todos: seedTodos,
   view: 'brief',
   weekOffset: 0,
-  dashboardFilter: null,
+  dashboardTab: 'all',
   toast: null,
   selectedTodoId: null,
   selectedClientId: null,
@@ -51,6 +54,13 @@ const initialState: State = {
 };
 
 const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
+
+const GROUP_TAB: Record<GroupKey, DashboardTab> = {
+  at_risk: 'at_risk',
+  needs_attention: 'needs_attention',
+  program_ending: 'program_ending',
+  upcoming_bookings: 'booking',
+};
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -82,7 +92,7 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         view: action.view,
-        dashboardFilter: action.view === 'brief' ? null : state.dashboardFilter,
+        dashboardTab: action.view === 'brief' ? 'all' : state.dashboardTab,
         selectedTodoId: action.view === 'brief' ? state.selectedTodoId : null,
         selectedClientId: action.view === 'brief' ? state.selectedClientId : null,
       };
@@ -91,7 +101,9 @@ function reducer(state: State, action: Action): State {
     case 'resetWeek':
       return { ...state, weekOffset: 0 };
     case 'openGroup':
-      return { ...state, view: 'dashboard', dashboardFilter: action.group };
+      return { ...state, view: 'dashboard', dashboardTab: action.group ? GROUP_TAB[action.group] : 'all', selectedClientId: null, selectedTodoId: null };
+    case 'setDashboardTab':
+      return { ...state, dashboardTab: action.tab };
     case 'toast':
       return { ...state, toast: action.message };
     case 'select':
@@ -107,6 +119,19 @@ function reducer(state: State, action: Action): State {
           t.clientId === action.clientId && t.type === 'checkin' && t.state === 'open' ? { ...t, state: 'completed' } : t,
         ),
       };
+    case 'toggleReview': {
+      // The client list's ✓ toggles the week's review; undoing it reopens the Check-in to-dos it completed.
+      const reviewing = !state.reviewed[action.clientId];
+      return {
+        ...state,
+        reviewed: { ...state.reviewed, [action.clientId]: reviewing },
+        todos: state.todos.map((t) =>
+          t.clientId === action.clientId && t.type === 'checkin' && t.state === (reviewing ? 'open' : 'completed')
+            ? { ...t, state: reviewing ? 'completed' : 'open' }
+            : t,
+        ),
+      };
+    }
     case 'markReviewed':
       // Review is per client: it completes every Check-in to-do raised for that client (S3 BL5).
       // The panel closes and the coach lands back on the list (Spec 4 AC2.5).
@@ -165,6 +190,9 @@ interface Store {
   selectClient: (id: string | null) => void;
   /** Mark as reviewed from the client detail page. */
   reviewClient: (clientId: string) => void;
+  /** The client list's ✓: marks the client reviewed, or takes the review back. */
+  toggleReview: (clientId: string) => void;
+  setDashboardTab: (tab: DashboardTab) => void;
   markReviewed: (clientId: string) => void;
   completeFromPanel: (id: string) => void;
   setFeedback: (clientId: string, value: FeedbackState) => void;
@@ -211,6 +239,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'reviewClient', clientId });
         showToast(`${getClient(clientId).firstName} marked as reviewed`);
       },
+      toggleReview: (clientId) => {
+        const name = getClient(clientId).firstName;
+        showToast(state.reviewed[clientId] ? `Review undone for ${name}` : `${name} marked as reviewed`);
+        dispatch({ type: 'toggleReview', clientId });
+      },
+      setDashboardTab: (tab) => dispatch({ type: 'setDashboardTab', tab }),
       markReviewed: (clientId) => {
         dispatch({ type: 'markReviewed', clientId });
         showToast(`${getClient(clientId).firstName} marked as reviewed`);

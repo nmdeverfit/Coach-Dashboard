@@ -21,6 +21,7 @@ export default {
           button: '#d4d7d9',
           chip: '#d4d4d4',
           nav: '#e1e1ea',
+          input: '#dbdce3', // search bar and dropdowns on the client list
         },
         brand: '#184eff', // Icon/Brand
         orange: '#ff6b16', // Icon/Orange
@@ -34,12 +35,15 @@ export default {
           'risk-bg': '#fbdfdf',
           'risk-fg': '#7b2339',
           'risk-line': '#fc6969',
+          'risk-dot': '#f03358',
           'attention-bg': '#ffe9d9',
           'attention-fg': '#8a3b0b',
           'attention-line': '#ffa36b',
+          'attention-dot': '#f59e0b',
           'track-bg': '#dcf5e7',
           'track-fg': '#1d6b40',
           'track-line': '#6fd39a',
+          'track-dot': '#059669',
           'none-bg': '#eceef2',
           'none-fg': '#6b7280',
         },

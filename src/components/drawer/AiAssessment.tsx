@@ -4,7 +4,7 @@ import iconTellMeMore from '../../assets/figma/icon-tell-me-more.svg';
 import type { Assessment } from '../../lib/checkin';
 
 /** Gradient used on the "AI Assessment" label in Figma. */
-const AI_GRADIENT =
+export const AI_GRADIENT =
   'radial-gradient(120% 260% at 0% 0%, #f2617d 0%, #c159aa 22%, #8f51d6 44%, #6c59e0 58%, #4861e9 72%, #2469f3 86%, #0071fd 100%)';
 
 interface Props {

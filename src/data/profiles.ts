@@ -7,6 +7,7 @@ import type {
   BuildDetail,
   CheckinDetail,
   Client,
+  ClientMessage,
   ClientNote,
   ClientProfile,
   ClientStatus,
@@ -144,6 +145,39 @@ function generateNotes(rnd: () => number): ClientNote[] {
   });
 }
 
+const stamp = (daysAgo: number, hour: number, minute = 0) =>
+  `${addDays(DEMO_TODAY, -daysAgo)}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
+/**
+ * The thread's recent shape, weighted by status: a check-in sent and awaiting a reply, messages left unanswered for
+ * days, a recent reply, or a quiet thread whose last word was the client's.
+ */
+const THREAD_ODDS: Record<ClientStatus, { sent: number; silent: number; replied: number }> = {
+  at_risk: { sent: 0.35, silent: 0.45, replied: 0.2 },
+  needs_attention: { sent: 0.35, silent: 0.2, replied: 0.3 },
+  on_track: { sent: 0.2, silent: 0, replied: 0.3 },
+  no_activities: { sent: 0, silent: 0, replied: 0 },
+};
+
+function generateMessages(status: ClientStatus, rnd: () => number): ClientMessage[] {
+  const odds = THREAD_ODDS[status];
+  const roll = rnd();
+  const minute = [5, 20, 35, 50][Math.floor(rnd() * 4)];
+  // Every thread starts with an older exchange the client closed.
+  const older: ClientMessage[] = [
+    { from: 'coach', at: stamp(9 + Math.floor(rnd() * 4), 10, minute) },
+    { from: 'client', at: stamp(7 + Math.floor(rnd() * 2), 19, minute) },
+  ];
+  if (roll < odds.sent) return [...older, { from: 'coach', at: stamp(1 + Math.floor(rnd() * 2), 9, minute), checkin: true }];
+  if (roll < odds.sent + odds.silent) {
+    const first = 3 + Math.floor(rnd() * 3);
+    return [...older, { from: 'coach', at: stamp(first, 9, minute), checkin: true }, { from: 'coach', at: stamp(first - 2, 17, minute) }];
+  }
+  if (roll < odds.sent + odds.silent + odds.replied)
+    return [...older, { from: 'coach', at: stamp(2, 9, minute), checkin: true }, { from: 'client', at: stamp(1, 14 + Math.floor(rnd() * 8), minute) }];
+  return older;
+}
+
 /** The weekly check-in form, due on Sundays. At risk clients missed yesterday's. */
 function weeklyForm(status: ClientStatus): AssignedForm {
   return status === 'at_risk'
@@ -175,6 +209,7 @@ function generate(client: Client): ClientProfile {
     tasks: weekTasks(rnd, b),
     habits: generateHabits(rnd, b),
     notes: generateNotes(rnd),
+    messages: generateMessages(client.status, rnd),
   };
 }
 
@@ -191,6 +226,8 @@ function silenceSince(profile: ClientProfile, since: string): ClientProfile {
     training: { ...profile.training, days },
     nutrition: { ...profile.nutrition, days: food },
     habits: profile.habits.map((h) => ({ ...h, doneOn: h.doneOn.filter((d) => d < since) })),
+    // The last form came in the Sunday before the silence.
+    forms: profile.forms.map((f) => ({ ...f, lastSubmittedOn: addDays(since, -7) })),
     tasks: profile.tasks.map((t) => (t.kind === 'custom' ? { ...t, done: false } : t)),
   };
 }
@@ -228,7 +265,16 @@ function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
     case 'jenny-wilson':
       return { ...base, forms: respond(todoDetails.p3 as RespondDetail) };
     case 'aima-ansari':
-      return silenceSince(base, addDays(DEMO_TODAY, -15));
+      // Last reply 16 days ago; the coach has written twice since without an answer.
+      return {
+        ...silenceSince(base, addDays(DEMO_TODAY, -15)),
+        messages: [
+          { from: 'coach', at: stamp(17, 10, 5) },
+          { from: 'client', at: stamp(16, 18, 40) },
+          { from: 'coach', at: stamp(15, 9, 20), checkin: true },
+          { from: 'coach', at: stamp(8, 9, 20) },
+        ],
+      };
     default:
       return base;
   }
