@@ -72,18 +72,21 @@ function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: Title
             </span>
           )}
         </div>
-        <div className="flex min-w-0 items-center gap-2">
-          {/* Only Check-in is status-derived, so only it carries the status label (BL2, AC9.1). */}
+        {/*
+          The reason line is shown in full: it flows inline after the chip and wraps under it instead of truncating.
+          Only Check-in is status-derived, so only it carries the status label (BL2, AC9.1).
+        */}
+        <p className="text-[13px] leading-[21px] text-ink-tertiary">
           {isCheckin && (
             <>
-              <StatusChip status={client.status} />
-              <img src={dot} alt="" width={4} height={4} className="shrink-0" />
+              <span className="mr-2 inline-flex align-top">
+                <StatusChip status={client.status} />
+              </span>
+              <img src={dot} alt="" width={4} height={4} className="mr-2 inline-block align-middle" />
             </>
           )}
-          <p title={todo.reason} className="min-w-0 flex-1 truncate text-[13px] leading-normal text-ink-tertiary">
-            {todo.reason}
-          </p>
-        </div>
+          {todo.reason}
+        </p>
       </div>
       <div className="flex shrink-0 items-center gap-3 px-0.5 py-1.5">
         <button

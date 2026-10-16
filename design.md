@@ -123,6 +123,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 - **Task status colours:** Done `#059669` · partial / Overdue `status-risk-fg` · nothing yet `ink-muted`.
 - Hover reveals Dismiss on rows. Tooltips: Dismiss → "Dismiss"; the row checkbox and the panel ✓ →
   "Complete this task" (hidden once completed).
+- The drawer's reason line is never truncated: it flows inline after the status chip and dot, and wraps under the
+  chip (13 px, 21 px line height).
 - The client name is a blue link only on the drawer title, never on Check-in, never on rows.
 - Actions without a built destination show a toast that says where they would go ("… opens in a new tab").
 - Motion respects `prefers-reduced-motion` (global rule in `index.css`).
