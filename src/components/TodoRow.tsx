@@ -59,7 +59,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss }: To
             aria-checked={done}
             aria-label={`Mark "${todo.action} ${client.name}" as done`}
             onClick={stop(onToggle)}
-            className={`absolute left-1/2 top-[5.75px] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border-[0.938px] border-black/15 ${
+            className={`group/tip absolute left-1/2 top-[5.75px] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border-[0.938px] border-black/15 ${
               done ? 'bg-checked' : 'bg-white hover:border-brand'
             }`}
           >
@@ -68,6 +68,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss }: To
                 <img src={done ? iconCheckWhite : iconCheck} alt="" className="block size-full max-w-none" />
               </span>
             </span>
+            {!done && <Tooltip label="Complete this task" />}
           </button>
         </div>
         <div className={`flex min-w-0 flex-1 flex-col gap-1 ${done ? 'opacity-60' : ''}`}>

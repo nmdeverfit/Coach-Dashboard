@@ -120,7 +120,6 @@ type TodoSeed = Omit<Todo, 'reason'> & { reason?: string };
 
 const todoSeeds: TodoSeed[] = [
   // Suggested (raised by today's generation), in ranked order
-  { id: 't1', clientId: 'wilma-flintstone', type: 'adjust', action: 'Adjust the plan for', reason: 'Wilma is back from pause today — she paused for health or injury.', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't2', clientId: 'sidney-goyette-kihn', type: 'respond', action: 'Reply to', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't3', clientId: 'clint-jacobi', type: 'checkin', action: 'Check in with', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't4', clientId: 'glen-johnson', type: 'build', action: 'Assign a new program to', raisedOn: DEMO_TODAY, state: 'open' },

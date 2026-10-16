@@ -20,7 +20,7 @@ follow the design for visuals and **raise the conflict with the user** instead o
 - `src/data/details.ts`: raw panel inputs by to-do id, one `TodoDetail` per Phase 1 type: `t3` Check-in (Clint,
   nutrition focus), `t2` / `p3` Respond (form answers), `t4` Build (Glen's training log; program ended Thu 27 Aug),
   `t8` Remind (Leo's assigned forms + training + nutrition), `t5` Unblock (credit batches), `t6` Prepare (bookings).
-  Phase 2 rows (adjust, congratulate, kudos) and Aima's carried Check-in have none and open a placeholder panel.
+  Phase 2 rows (congratulate, kudos) and Aima's carried Check-in have none and open a placeholder panel.
 - `src/lib/todos.ts`: the same for the five other types (`build*View`, `rowReasonFor`). Every row reason in `mock.ts`
   that has panel data comes from these builders. `LOW_CREDIT_THRESHOLD = 2`; expiry window 7 days.
 - `src/lib/checkin.ts`: computes every figure and sentence from those inputs (row reason, status line, assessment,
@@ -35,7 +35,8 @@ follow the design for visuals and **raise the conflict with the user** instead o
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights; the list is fixed at the height of 10
   one-line rows and scrolls past that), `DashboardView` (placeholder), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
-  `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons).
+  `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons and on the row checkbox,
+  "Complete this task", while the row is open).
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
   `NutritionTab` (inline-SVG calorie ring + macros, Meal Log with cell tooltips; one shared meal-label column for both
   weeks), `TrainingTab` (Session log: last week + this week in 7 states, Last workout, 2-week adherence, 4-week trend
@@ -80,7 +81,8 @@ follow the design for visuals and **raise the conflict with the user** instead o
 
 ### Known gaps between the demo and the brief (open with the user)
 
-- The design's to-do rows include Phase 2 titles (Adjust, Congratulate, Kudos). The brief says only the six Phase 1 types render.
+- The design's to-do rows include Phase 2 titles (Congratulate, Kudos). The brief says only the six Phase 1 types render.
+  The Adjust row (Wilma) was removed at the user's request.
 - In the design, Wilma Flintstone appears in both Suggested and Previous, which the brief forbids. The demo moves the
   carried-over Check-in to Aima Ansari.
 - The design's Check-in numbers were placeholders that disagreed with each other; the demo replaces them with one
