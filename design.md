@@ -116,6 +116,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   the drawer's name link (‹ back).
 - **Habit day circles** (28 px): done = green tint + check, missed (daily habits) = `#fef2f2` + red ×, not ticked on
   a weekly habit = white with "–". Labels 9 px uppercase in the matching colour.
+- **No data:** charts never hide. With nothing logged, Nutrition keeps the ring (empty track, "–" in the centre),
+  empty macro bars ("– / 240g"), a Meal Log of "Not logged" cells and summary rows reading "0 meals" / "Nothing
+  logged". Training keeps the session log (Missed or Not assigned cells), "No workout yet", "—" adherence and empty
+  trend columns.
 - **Task status colours:** Done `#059669` · partial / Overdue `status-risk-fg` · nothing yet `ink-muted`.
 - Hover reveals Dismiss on rows. Tooltips: Dismiss → "Dismiss"; the row checkbox and the panel ✓ →
   "Complete this task" (hidden once completed).

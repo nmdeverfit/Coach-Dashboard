@@ -52,7 +52,7 @@ the same change.
   the panel's ✓, "Complete this task", while the to-do is open).
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,
   `NutritionTab` (inline-SVG calorie ring + macros, Meal Log with cell tooltips; one shared meal-label column for both
-  weeks), `TrainingTab` (Session log: last week + this week in 7 states, Last workout, 2-week adherence, 4-week trend
+  weeks; with nothing logged it shows the same cards in their empty state, per the user), `TrainingTab` (Session log: last week + this week in 7 states, Last workout, 2-week adherence, 4-week trend
   columns; `ProgramCard`), `PanelParts` (`TabBar`, `DataArea`, footer buttons), `RespondBody` (form Q&A),
   `SessionsBodies` (`UnblockBody` credits card, `PrepareBody` Sessions card), `AssessedBodies` (`BuildBody`, whose
   Training tab is Check-in's `TrainingTab`, per the user; `RemindBody` with the Form Status table). In the session

@@ -99,6 +99,8 @@ export function CardHeader({
 
 function MacroCard({ summary }: { summary: NutritionSummary }) {
   const { avgCalories, targetCalories, macros } = summary;
+  // Nothing logged: the same card with an empty ring and empty bars, values read "–" rather than a misleading 0.
+  const empty = summary.daysLogged === 0;
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border border-ink/10 bg-elevated p-px shadow-card">
       <CardHeader title="Macro AVG" link="View nutrition" />
@@ -111,7 +113,9 @@ function MacroCard({ summary }: { summary: NutritionSummary }) {
               </div>
             </div>
             <div className="absolute left-[19.39px] top-[38.79px] flex w-[84.848px] flex-col items-center gap-1 whitespace-nowrap text-center leading-none">
-              <p className="text-[29.076px] font-bold tracking-[-0.58px] text-black tabular-nums">{fmt(avgCalories)}</p>
+              <p className={`text-[29.076px] font-bold tracking-[-0.58px] tabular-nums ${empty ? 'text-black/30' : 'text-black'}`}>
+                {empty ? '–' : fmt(avgCalories)}
+              </p>
               <p className="text-[13px] font-semibold tracking-[-0.26px] text-black/40">/ {targetCalories} kCal</p>
             </div>
           </div>
@@ -122,7 +126,7 @@ function MacroCard({ summary }: { summary: NutritionSummary }) {
               <div className="flex items-center justify-between text-[13px] font-semibold leading-[18px] text-ink">
                 <span>{m.label}</span>
                 <span className="tabular-nums">
-                  {m.value} <span className="text-ink/60">/ {m.target}g</span>
+                  {empty ? <span className="text-ink/40">–</span> : m.value} <span className="text-ink/60">/ {m.target}g</span>
                 </span>
               </div>
               <div className="flex h-2 overflow-hidden rounded-full bg-black/[0.08]">
@@ -274,7 +278,7 @@ function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSu
       <div className="flex flex-col px-4 pb-4 pt-2 text-[13px] leading-[18px] text-ink">
         {[
           [`Meals logged (${summary.window.label})`, `${summary.mealsLogged} meals`],
-          ['Avg calories (logged days)', `${fmt(summary.avgCalories)} Cal`],
+          ['Avg calories (logged days)', summary.daysLogged ? `${fmt(summary.avgCalories)} Cal` : 'Nothing logged'],
         ].map(([label, value]) => (
           <div key={label} className="flex items-baseline border-t border-ink/10 px-1 pb-2.5 pt-[11px]">
             <span className="w-[200px] shrink-0">{label}</span>
@@ -287,14 +291,8 @@ function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSu
 }
 
 export function NutritionTab({ log, summary }: { log: NutritionLog; summary: NutritionSummary }) {
-  // A tab with no data names what is missing instead of drawing an empty chart (Spec 4 AC2.4, AC10.5).
-  if (summary.daysLogged === 0) {
-    return (
-      <p className="w-full rounded-lg border border-dashed border-line-light bg-elevated px-4 py-10 text-center text-[13px] text-ink-secondary">
-        Nothing logged from {summary.window.label}. No meals, so no calories or macros to show.
-      </p>
-    );
-  }
+  // With nothing logged the cards still render, in their empty state: empty ring and bars, every Meal Log cell
+  // "Not logged", and the summary rows say so (Spec 4 AC2.4, AC10.5).
   return (
     <div className="flex w-full flex-col gap-[15px]">
       <MacroCard summary={summary} />
