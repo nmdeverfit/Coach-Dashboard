@@ -20,7 +20,8 @@ follow the design for visuals and **raise the conflict with the user** instead o
 - `src/data/details.ts`: raw panel inputs by to-do id, one `TodoDetail` per Phase 1 type: `t3` Check-in (Clint,
   nutrition focus), `t2` / `p3` Respond (form answers), `t4` Build (Glen's training log; program ended Thu 27 Aug),
   `t8` Remind (Leo's assigned forms + training + nutrition), `t5` Unblock (credit batches), `t6` Prepare (bookings).
-  Phase 2 rows (congratulate, kudos) and Aima's carried Check-in have none and open a placeholder panel.
+  `t7` Acknowledge (Darrell's nutrition log + training), a Phase 2 type trialled at the user's request. Kudos (Cody)
+  and Aima's carried Check-in have none and open a placeholder panel.
 - `src/lib/todos.ts`: the same for the five other types (`build*View`, `rowReasonFor`). Every row reason in `mock.ts`
   that has panel data comes from these builders. `LOW_CREDIT_THRESHOLD = 2`; expiry window 7 days.
 - `src/lib/checkin.ts`: computes every figure and sentence from those inputs (row reason, status line, assessment,
@@ -110,6 +111,11 @@ follow the design for visuals and **raise the conflict with the user** instead o
   match their dates; Glen's last workout is the program's last day; Respond's reason names the client and form
   instead of "Her". Build's Training tab uses Check-in's two-week session log instead of the frame's one-week
   strip of day circles (the user's call).
+- Acknowledge (trial, no Figma frame, not in Spec 4): the brief makes it Phase 2 with "one trigger". The demo's
+  trigger is a turnaround (back on the calorie goal N days running after weeks under it), kept apart from Catch-up
+  milestones, which OQ21 keeps in Client highlights. Panel = assessed layout: green-bordered assessment with the
+  nutrition tag + Tell me more, tabs Nutrition (first) · Training · Notes, footer Draft with AI · Send message, ✓
+  completes. Row title stays the design's "Congratulate". Revert this if the user drops it.
 - Dashboard view, Tell me more (Olly column), the Change status modal, settings, tour and
   What's New are not built yet.
 

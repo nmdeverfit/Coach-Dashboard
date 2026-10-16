@@ -3,10 +3,10 @@ import iconMarkDoneChecked from '../../assets/figma/icon-markdone-checked.svg';
 import iconMarkDoneDisabled from '../../assets/figma/icon-markdone-disabled.svg';
 import iconMarkDone from '../../assets/figma/icon-markdone.svg';
 import { DEMO_TODAY } from '../../data/mock';
-import type { BuildDetail, Client, RemindDetail } from '../../data/types';
+import type { AcknowledgeDetail, BuildDetail, Client, RemindDetail } from '../../data/types';
 import { summarizeNutrition } from '../../lib/checkin';
 import { formatDayMonth, parseDay } from '../../lib/dates';
-import { daysAgo, type BuildView, type FormStatusRow, type RemindView } from '../../lib/todos';
+import { daysAgo, type AcknowledgeView, type BuildView, type FormStatusRow, type RemindView } from '../../lib/todos';
 import { useStore } from '../../state/store';
 import { AiAssessment } from './AiAssessment';
 import { CardHeader, NutritionTab } from './NutritionTab';
@@ -16,12 +16,12 @@ import { TrainingTab } from './TrainingTab';
 /** Build and Remind draw the assessment card with the red border in their frames (5647:133017, 5647:133214). */
 const ASSESSMENT_BORDER = 'border-status-risk-line';
 
-function Assessment({ client, assessment }: { client: Client; assessment: BuildView['assessment'] }) {
+function Assessment({ client, assessment, border = ASSESSMENT_BORDER }: { client: Client; assessment: BuildView['assessment']; border?: string }) {
   const { showToast } = useStore();
   return (
     <div className="px-[30px] pb-[30px] pt-2.5">
       <AiAssessment
-        border={ASSESSMENT_BORDER}
+        border={border}
         assessment={assessment}
         onTellMeMore={() =>
           showToast(`Olly BI opens beside this panel: “Tell me more about ${client.firstName}’s status on ${formatDayMonth(parseDay(DEMO_TODAY))}”`)
@@ -148,6 +148,37 @@ export function RemindBody({ client, detail, view }: { client: Client; detail: R
           <TrainingTab log={detail.training} today={DEMO_TODAY} />
         ) : tab === 'nutrition' ? (
           <NutritionTab log={detail.nutrition} summary={summarizeNutrition(detail.nutrition, DEMO_TODAY)} />
+        ) : (
+          <TabPlaceholder label="Notes" />
+        )}
+      </DataArea>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------- Acknowledge (Phase 2, trialled)
+
+const ACKNOWLEDGE_TABS = [
+  { key: 'nutrition', label: 'Nutrition' },
+  { key: 'training', label: 'Training' },
+  { key: 'notes', label: 'Notes', muted: true },
+] as const;
+
+/**
+ * Acknowledge: no Figma frame, so it borrows the assessed-type layout. A positive card (green border), Tell me more,
+ * no status chip and no feedback; the tab of the win opens first.
+ */
+export function AcknowledgeBody({ client, detail, view }: { client: Client; detail: AcknowledgeDetail; view: AcknowledgeView }) {
+  const [tab, setTab] = useState<(typeof ACKNOWLEDGE_TABS)[number]['key']>('nutrition');
+  return (
+    <>
+      <Assessment client={client} assessment={view.assessment} border="border-status-track-line" />
+      <DataArea>
+        <TabBar tabs={ACKNOWLEDGE_TABS} active={tab} onChange={setTab} />
+        {tab === 'nutrition' ? (
+          <NutritionTab log={detail.nutrition} summary={summarizeNutrition(detail.nutrition, DEMO_TODAY)} />
+        ) : tab === 'training' ? (
+          <TrainingTab log={detail.training} today={DEMO_TODAY} />
         ) : (
           <TabPlaceholder label="Notes" />
         )}

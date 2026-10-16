@@ -13,7 +13,7 @@ import { todoDetails } from '../../data/details';
 import { DEMO_TODAY } from '../../data/mock';
 import type { CheckinDetail, Client, Todo, TodoDetail } from '../../data/types';
 import { buildCheckinView } from '../../lib/checkin';
-import { buildBuildView, buildPrepareView, buildRemindView, buildRespondView, buildUnblockView } from '../../lib/todos';
+import { buildAcknowledgeView, buildBuildView, buildPrepareView, buildRemindView, buildRespondView, buildUnblockView } from '../../lib/todos';
 import { formatDayMonth, parseDay } from '../../lib/dates';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
@@ -21,7 +21,7 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import { StatusChip } from '../StatusChip';
 import { Tooltip } from '../Tooltip';
 import { AiAssessment, STATUS_BORDER } from './AiAssessment';
-import { BuildBody, RemindBody } from './AssessedBodies';
+import { AcknowledgeBody, BuildBody, RemindBody } from './AssessedBodies';
 import { NutritionTab } from './NutritionTab';
 import { DataArea, DraftWithAiButton, FooterButton, PanelFooter, SendMessageButton, TabBar, TabPlaceholder } from './PanelParts';
 import { RespondBody } from './RespondBody';
@@ -197,6 +197,14 @@ function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Clie
           <SendMessageButton />
         </PanelFooter>
       );
+    case 'acknowledge':
+      // Like Remind: the work is a message, so there is no primary action; ✓ completes.
+      return (
+        <PanelFooter>
+          <DraftWithAiButton firstName={client.firstName} about="that celebrates the streak" />
+          <SendMessageButton />
+        </PanelFooter>
+      );
     case 'unblock':
       // The dashboard never issues credits; issuing does not complete (AC8.4, AC8.5).
       return (
@@ -235,6 +243,8 @@ function Body({ todo, client, detail }: { todo: Todo; client: Client; detail: To
       return <BuildBody client={client} detail={detail} view={buildBuildView(detail, first, DEMO_TODAY)} />;
     case 'remind':
       return <RemindBody client={client} detail={detail} view={buildRemindView(detail, first, DEMO_TODAY)} />;
+    case 'acknowledge':
+      return <AcknowledgeBody client={client} detail={detail} view={buildAcknowledgeView(detail, first, DEMO_TODAY)} />;
     case 'unblock':
       return <UnblockBody view={buildUnblockView(detail, first, DEMO_TODAY)} />;
     case 'prepare':

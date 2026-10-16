@@ -127,7 +127,8 @@ const todoSeeds: TodoSeed[] = [
   { id: 't8', clientId: 'leo-midgett', type: 'remind', action: 'Remind', actionAfter: 'to submit a check-in form', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't5', clientId: 'wendy-kurtz', type: 'unblock', action: 'Issue credit for', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't6', clientId: 'malcom-reed', type: 'prepare', action: 'Prepare for the session with', raisedOn: DEMO_TODAY, state: 'open' },
-  { id: 't7', clientId: 'darrell-steward', type: 'congratulate', action: 'Congratulate', reason: 'Hit the +300 kcal surplus 6 days running after three weeks short', raisedOn: DEMO_TODAY, state: 'open' },
+  // Acknowledge is Phase 2 in the brief; the demo trials its panel on the design's Congratulate row.
+  { id: 't7', clientId: 'darrell-steward', type: 'acknowledge', action: 'Congratulate', raisedOn: DEMO_TODAY, state: 'open' },
   // Previous (carried forward, newest first)
   // Aima rather than the design's Wilma: Wilma already has today's to-do, and a client is never in both sections.
   { id: 'p1', clientId: 'aima-ansari', type: 'checkin', action: 'Check in with', reason: 'No app activity, no workouts and no reply in 15 days.', raisedOn: '2026-08-30', state: 'open' },

@@ -70,6 +70,36 @@ const LEO_NUTRITION: NutritionLog = {
   },
 };
 
+/**
+ * A logged day at about `kcal` calories: `protein` grams, fat at 28% of calories, carbs for the rest, split over
+ * breakfast / lunch / dinner / snack as 25 / 30 / 35 / 10 %. Food names rotate so the Meal Log tooltips vary.
+ */
+const MEAL_SPLIT: [MealKey, number, string[]][] = [
+  ['breakfast', 0.25, ['Oats with peanut butter', 'Egg and avocado toast', 'Protein pancakes']],
+  ['lunch', 0.3, ['Chicken and rice bowl', 'Beef burrito', 'Salmon poke bowl']],
+  ['dinner', 0.35, ['Steak, potatoes and greens', 'Chicken pasta', 'Turkey chili with rice']],
+  ['snack', 0.1, ['Greek yogurt and granola', 'Protein shake', 'Trail mix']],
+];
+function dayAt(kcal: number, protein: number, seed: number): Partial<Record<MealKey, FoodEntry[]>> {
+  return Object.fromEntries(
+    MEAL_SPLIT.map(([meal, share, names]) => {
+      const p = Math.round(protein * share);
+      const f = Math.round((kcal * share * 0.28) / 9);
+      const c = Math.round((kcal * share - p * 4 - f * 9) / 4);
+      return [meal, [{ name: names[seed % names.length], carb: c, fat: f, protein: p }]];
+    }),
+  );
+}
+/** Consecutive days from `first`, one [kcal, protein] pair per day; null skips a day (nothing logged). */
+function loggedDays(first: string, entries: ([number, number] | null)[]): NutritionLog['days'] {
+  const start = new Date(`${first}T00:00:00Z`).getTime();
+  const days: NutritionLog['days'] = {};
+  entries.forEach((e, i) => {
+    if (e) days[new Date(start + i * 86_400_000).toISOString().slice(0, 10)] = dayAt(e[0], e[1], i);
+  });
+  return days;
+}
+
 const LEAN_A = 'Lean Strength A';
 const LEAN_B = 'Lean Strength B';
 const INTERVALS = 'Intervals';
@@ -235,5 +265,32 @@ export const todoDetails: Record<string, TodoDetail> = {
       { type: ASSESSMENT, date: '2026-09-04', start: '14:00', status: 'booked' },
       { type: CONSULT, date: '2026-09-07', start: '14:00', status: 'booked' },
     ],
+  },
+  // "Congratulate Darrell Steward": Acknowledge, a Phase 2 type the demo trials (no Figma frame).
+  t7: {
+    kind: 'acknowledge',
+    // 362 g carb + 88 g fat + 165 g protein = 2,900 kcal: maintenance 2,600 plus the 300 kcal surplus.
+    goal: { surplusKcal: 300 },
+    nutrition: {
+      targets: { carb: 362, fat: 88, protein: 165 },
+      days: loggedDays('2026-08-04', [
+        // Three weeks under the target, Tue 4 Aug – Mon 24 Aug.
+        [2480, 140], [2550, 150], [2520, 145], null, [2600, 150], [2450, 135], [2500, 140],
+        [2580, 150], [2620, 155], [2550, 145], [2600, 150], null, [2650, 150], [2560, 145],
+        [2640, 155], [2700, 160], [2620, 150], [2680, 155], [2720, 160], [2600, 150], [2700, 155],
+        // Then six days running at or above it, Tue 25 Aug – Sun 30 Aug.
+        [2960, 165], [3010, 170], [2940, 162], [3050, 172], [2980, 168], [2930, 160],
+      ]),
+    },
+    training: {
+      days: trainingWeeks('2026-08-03', [
+        [[UPPER, 3, 3], [LOWER, 3, 3], null, [UPPER, 3, 2], [LOWER, 3, 3], null, null],
+        [[UPPER, 3, 3], [LOWER, 3, 2], null, [UPPER, 3, 3], [LOWER, 3, 3], null, null],
+        [[UPPER, 3, 3], [LOWER, 3, 3], null, [UPPER, 3, 3], [LOWER, 3, 2], null, null],
+        [[UPPER, 3, 3], [LOWER, 3, 3], null, [UPPER, 3, 3], [LOWER, 3, 3], null, null],
+        [[UPPER, 3, 0], [LOWER, 3, 0], null, [UPPER, 3, 0], [LOWER, 3, 0], null, null],
+      ]),
+      program: { name: 'Lean Bulk', startsOn: '2026-07-20', weeks: 12 },
+    },
   },
 };

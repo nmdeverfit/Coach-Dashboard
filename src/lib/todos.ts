@@ -1,4 +1,5 @@
 import type {
+  AcknowledgeDetail,
   AssignedForm,
   Booking,
   BuildDetail,
@@ -10,7 +11,7 @@ import type {
   TodoDetail,
   UnblockDetail,
 } from '../data/types';
-import { WEEKDAYS, addDays, buildCheckinView, summarizeNutrition, type Assessment } from './checkin';
+import { WEEKDAYS, addDays, buildCheckinView, foodCalories, summarizeNutrition, type Assessment } from './checkin';
 import { daysBetween, formatDayMonth, formatMonthDay, parseDay } from './dates';
 import { summarizeTraining, type TrainingSummary } from './training';
 
@@ -250,6 +251,80 @@ export function buildRemindView(d: RemindDetail, firstName: string, today: strin
   };
 }
 
+// ---------------------------------------------------------------- Acknowledge (Phase 2, trialled)
+
+export interface AcknowledgeView {
+  rowReason: string;
+  assessment: Assessment;
+  streak: { days: number; start: string; avgCalories: number; avgProtein: number };
+  /** The three 7-day windows before the streak, oldest first; avg is over logged days, null when none. */
+  priorWeeks: { start: string; avgCalories: number | null }[];
+  targetCalories: number;
+}
+
+const kcal = (n: number) => Math.round(n).toLocaleString('en-US');
+/** "25–30 Aug", or "28 Aug – 2 Sep" across months. */
+const dayRange = (from: string, to: string) => {
+  const a = parseDay(from);
+  const b = parseDay(to);
+  return a.getUTCMonth() === b.getUTCMonth() ? `${a.getUTCDate()}–${formatDayMonth(b)}` : `${formatDayMonth(a)} – ${formatDayMonth(b)}`;
+};
+
+export function buildAcknowledgeView(d: AcknowledgeDetail, firstName: string, today: string): AcknowledgeView {
+  const { targetCalories, macros } = summarizeNutrition(d.nutrition, today);
+  const foodsOn = (date: string) => Object.values(d.nutrition.days[date] ?? {}).flat();
+  const caloriesOn = (date: string) => {
+    const foods = foodsOn(date);
+    return foods.length ? foods.reduce((sum, f) => sum + foodCalories(f!), 0) : null;
+  };
+
+  // Days at or above the target, counted back from yesterday.
+  let days = 0;
+  for (let date = addDays(today, -1); (caloriesOn(date) ?? 0) >= targetCalories; date = addDays(date, -1)) days += 1;
+  const start = addDays(today, -days);
+  const streakDates = Array.from({ length: days }, (_, i) => addDays(start, i));
+  const avgOf = (dates: string[], pick: (date: string) => number | null) => {
+    const values = dates.map(pick).filter((v): v is number => v !== null);
+    return values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
+  };
+  const avgCalories = avgOf(streakDates, caloriesOn) ?? 0;
+  const avgProtein = avgOf(streakDates, (date) => foodsOn(date).reduce((sum, f) => sum + f!.protein, 0)) ?? 0;
+
+  const priorWeeks = [3, 2, 1].map((n) => {
+    const weekStart = addDays(start, -7 * n);
+    return { start: weekStart, avgCalories: avgOf(Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), caloriesOn) };
+  });
+  // Consecutive short weeks right before the streak.
+  let shortWeeks = 0;
+  for (const w of [...priorWeeks].reverse()) {
+    if (w.avgCalories === null || w.avgCalories >= targetCalories) break;
+    shortWeeks += 1;
+  }
+
+  const protein = macros.find((m) => m.key === 'protein')!;
+  return {
+    rowReason: `${firstName} hit the +${d.goal.surplusKcal} kcal surplus ${days} days running after ${plural(shortWeeks, 'week')} short.`,
+    streak: { days, start, avgCalories, avgProtein },
+    priorWeeks,
+    targetCalories,
+    assessment: {
+      headline: {
+        before: 'Back on the',
+        signal: 'nutrition',
+        after: `goal: ${days} days in a row at or above ${kcal(targetCalories)} kcal, the +${d.goal.surplusKcal} kcal surplus.`,
+      },
+      bullets: [
+        `${dayRange(start, addDays(today, -1))} averaged ${kcal(avgCalories)} kcal a day.`,
+        `The ${plural(shortWeeks, 'week')} before averaged ${priorWeeks
+          .slice(-shortWeeks)
+          .map((w) => kcal(w.avgCalories!))
+          .join(' → ')} kcal, all under target.`,
+        `Protein averaged ${Math.round(avgProtein)} of ${protein.target}g during the streak.`,
+      ],
+    },
+  };
+}
+
 // ---------------------------------------------------------------- Row reason for any type
 
 /** The greyed "why" on a to-do row, from the same builder the panel uses; the panel repeats it verbatim (BL4). */
@@ -267,5 +342,7 @@ export function rowReasonFor(detail: TodoDetail, firstName: string, today: strin
       return buildBuildView(detail, firstName, today).rowReason;
     case 'remind':
       return buildRemindView(detail, firstName, today).rowReason;
+    case 'acknowledge':
+      return buildAcknowledgeView(detail, firstName, today).rowReason;
   }
 }

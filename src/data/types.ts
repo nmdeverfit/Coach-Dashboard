@@ -25,6 +25,8 @@ export type TodoType =
   | 'prepare'
   | 'unblock'
   | 'adjust'
+  /** Phase 2 in the brief, with no drawn panel; the demo trials one (see AcknowledgeDetail). */
+  | 'acknowledge'
   | 'congratulate'
   | 'kudos';
 
@@ -186,6 +188,19 @@ export interface RemindDetail {
   nutrition: NutritionLog;
 }
 
-export type TodoDetail = CheckinDetail | RespondDetail | UnblockDetail | PrepareDetail | BuildDetail | RemindDetail;
+/**
+ * Raw inputs for an Acknowledge to-do (Phase 2, trialled in the demo). One trigger: the client is back on a calorie
+ * goal for several days running after weeks under it. A turnaround, not a Catch-up milestone (those stay in Client
+ * highlights, Spec 4 OQ21).
+ */
+export interface AcknowledgeDetail {
+  kind: 'acknowledge';
+  nutrition: NutritionLog;
+  training: TrainingLog;
+  /** The calorie goal set as a surplus over maintenance; the target itself comes from the macro targets. */
+  goal: { surplusKcal: number };
+}
+
+export type TodoDetail = CheckinDetail | RespondDetail | UnblockDetail | PrepareDetail | BuildDetail | RemindDetail | AcknowledgeDetail;
 
 export type FeedbackState = 'yes' | 'not_quite' | 'hidden';
