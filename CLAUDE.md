@@ -105,10 +105,11 @@ the same change.
   first tab = focus) is shared by the Check-in panel and the client detail page. Transcript (Figma `5731:517688`)
   shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
   every meeting, newest first, under a header per week; rows of date tile · title · "5:30 PM - Aug 27" · platform,
-  lifting onto a white card with View transcript on hover), `AddMeetingDialog` (`5726:141326` Upload file, `5729:516037` Paste text, plus Duration
-  and a read-only End time the user asked for; title, time and a transcript are required and checked on submit,
-  the date can be any day up to today, the meeting must have ended by 06:00 today, files .txt / .docx / .srt /
-  .pdf up to 10 MB, .txt and .srt are read for the preview) and `TranscriptDialog` (View transcript; no frame). Booking (Spec 4 BL2's `booking` tab) shows only for a
+  lifting onto a white card with View transcript on hover), `AddMeetingDialog` (`5726:141326` Upload file, `5729:516037` Paste text; Duration and a
+  read-only End time are built but hidden for now, `SHOW_DURATION`; title, time and a transcript are required and checked on submit,
+  the date can be any day up to today, the meeting must start before 06:00 today, files .txt / .docx / .srt /
+  .pdf up to 10 MB, .txt and .srt are read for the preview) and `TranscriptDialog` (View transcript; no frame: date · start · platform, a search box pinned on top that
+  highlights matches and steps through them with ↑ / ↓ / Enter). Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
@@ -218,8 +219,8 @@ the same change.
 - Transcript tab (`5731:517688`, trialled at the user's request): the brief puts meeting transcription into the
   AI assessment in Phase 2 (Loom integration), so in the demo transcripts are only stored and shown; Olly and the
   assessment never read them. The tab is on the client detail page only (Spec 4 BL1 fixes the Check-in panel's
-  tabs). Duration and End time have no frame (Duration is a select of 15–120 min); the list row shows only the
-  start time and date, as drawn, so the duration reads in the transcript popup's subtitle. The tab
+  tabs). Duration and End time (no frame) are hidden for now at the user's request; the list row shows the start
+  time and date, as drawn. The transcript search has no frame. The tab
   lists every meeting whatever the week selector shows, like the rest of the client detail page.
   The frame's rows are placeholders (one title
   four times, all on day 3); View transcript has no frame and opens a popup with the lines. Time zone choices

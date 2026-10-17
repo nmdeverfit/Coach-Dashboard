@@ -16,6 +16,8 @@ import { Modal } from '../Modal';
 const TIME_ZONES = ['UTC-7', 'UTC-5', 'UTC+0', 'UTC+7'];
 /** The demo's "now" (the brief is generated at 06:00): a meeting with a transcript has already happened. */
 const NOW = '06:00';
+/** Duration and End time are hidden for now (the user's call, to keep the form short); flip to bring them back. */
+const SHOW_DURATION = false;
 /** .txt and .srt are read as text so the transcript can be shown; .docx and .pdf are kept as files. */
 const READABLE = ['.txt', '.srt'];
 
@@ -98,8 +100,7 @@ function SourceButton({ on, icon, label, semibold, onClick }: { on: boolean; ico
 
 /**
  * Add a meeting (Figma 5726:141326 Upload file, 5729:516037 Paste text): client (fixed), title, start date and time
- * with a time zone, duration (no frame; the user asked for it, and the list shows each meeting's time range), an
- * optional meeting link, and the transcript as a file (.txt, .docx, .srt, .pdf, up to 10 MB) or pasted text.
+ * with a time zone, duration (no frame; hidden for now, see SHOW_DURATION), an optional meeting link, and the transcript as a file (.txt, .docx, .srt, .pdf, up to 10 MB) or pasted text.
  * The meeting must have ended by now. Checked on submit.
  */
 export function AddMeetingDialog({ client, onClose }: { client: Client; onClose: () => void }) {
@@ -144,15 +145,17 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
       date: date <= DEMO_TODAY ? undefined : 'Pick a day up to today.',
       time: !time
         ? 'Pick a start time.'
-        : date === DEMO_TODAY && endOf(time, minutes) > NOW
-          ? `The meeting must have ended by now (${fieldTime(NOW)} today).`
+        : date === DEMO_TODAY && endOf(time, SHOW_DURATION ? minutes : 0) > NOW
+          ? SHOW_DURATION
+            ? `The meeting must have ended by now (${fieldTime(NOW)} today).`
+            : `Pick a time before now (${fieldTime(NOW)} today).`
           : undefined,
       link: link.trim() && !url ? 'Enter a full link, like zoom.us/j/123.' : undefined,
       transcript: transcript ? undefined : mode === 'upload' ? 'Upload the transcript file.' : 'Paste the transcript.',
     };
     setErrors(next);
     if (Object.values(next).some(Boolean) || !transcript) return;
-    addMeeting(client.id, { id: `${client.id}-added-${Date.now()}`, title: title.trim(), date, start: time, minutes, timeZone, link: url ?? undefined, transcript });
+    addMeeting(client.id, { id: `${client.id}-added-${Date.now()}`, title: title.trim(), date, start: time, minutes: SHOW_DURATION ? minutes : undefined, timeZone, link: url ?? undefined, transcript });
     onClose();
   };
 
@@ -246,34 +249,36 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
           </Field>
         </div>
 
-        <div className="flex gap-2">
-          <Field label="Duration">
-            <div className={`${BOX} ${boxBorder()} relative justify-between pl-3 pr-2`}>
-              {minutes} min
-              {chevron}
-              <select
-                aria-label="Duration"
-                value={minutes}
-                onChange={(e) => {
-                  setMinutes(Number(e.target.value));
-                  clear('time');
-                }}
-                className="absolute inset-0 cursor-pointer opacity-0"
-              >
-                {DURATIONS.map((m) => (
-                  <option key={m} value={m}>
-                    {m} min
-                  </option>
-                ))}
-              </select>
-            </div>
-          </Field>
-          <Field label="End time">
-            <div className={`${BOX} border-[#e0e0e0] bg-[#f7f7f7] px-3`}>
-              {time ? fieldTime(endOf(time, minutes)) : <span className="text-ink-muted">–</span>}
-            </div>
-          </Field>
-        </div>
+        {SHOW_DURATION && (
+          <div className="flex gap-2">
+            <Field label="Duration">
+              <div className={`${BOX} ${boxBorder()} relative justify-between pl-3 pr-2`}>
+                {minutes} min
+                {chevron}
+                <select
+                  aria-label="Duration"
+                  value={minutes}
+                  onChange={(e) => {
+                    setMinutes(Number(e.target.value));
+                    clear('time');
+                  }}
+                  className="absolute inset-0 cursor-pointer opacity-0"
+                >
+                  {DURATIONS.map((m) => (
+                    <option key={m} value={m}>
+                      {m} min
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </Field>
+            <Field label="End time">
+              <div className={`${BOX} border-[#e0e0e0] bg-[#f7f7f7] px-3`}>
+                {time ? fieldTime(endOf(time, minutes)) : <span className="text-ink-muted">–</span>}
+              </div>
+            </Field>
+          </div>
+        )}
 
         <Field label="Meeting link" optional error={errors.link}>
           <label className={`${BOX} ${boxBorder(errors.link)} pl-3 pr-2.5`}>

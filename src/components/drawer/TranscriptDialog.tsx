@@ -1,51 +1,157 @@
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import iconChevron from '../../assets/figma/icon-chevron-down.svg';
+import iconSearch from '../../assets/figma/icon-search-note.svg';
 import { COACH_FIRST_NAME } from '../../data/mock';
 import type { Client, Meeting } from '../../data/types';
-import { fileSize, meetingDate, meetingTime, platformOf } from '../../lib/meetings';
+import { fieldTime, fileSize, meetingDate, platformOf } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { Modal } from '../Modal';
 
-/** What "View transcript" opens (no Figma frame): the meeting's date, time and platform over its transcript. */
+interface Line {
+  speaker?: string;
+  at?: string;
+  text: string;
+}
+
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * What "View transcript" opens (no Figma frame): the meeting's date, start and platform over its transcript, with a
+ * search box pinned on top. Matches are highlighted as you type; ↑ / ↓ (or Enter / Shift+Enter) step through them,
+ * the current one in a stronger tint and scrolled into view.
+ */
 export function TranscriptDialog({ client, meeting, onClose }: { client: Client; meeting: Meeting; onClose: () => void }) {
   const { showToast } = useStore();
+  const [query, setQuery] = useState('');
+  const [current, setCurrent] = useState(0);
+  const body = useRef<HTMLDivElement>(null);
   const t = meeting.transcript;
-  const text = t.kind === 'text' ? t.text : t.kind === 'file' ? t.text : undefined;
+
+  const lines: Line[] | null =
+    t.kind === 'lines'
+      ? t.lines.map((l) => ({ speaker: l.from === 'coach' ? COACH_FIRST_NAME : client.firstName, at: l.at, text: l.text }))
+      : t.kind === 'text' || t.text !== undefined
+        ? (t.kind === 'text' ? t.text : t.text!).split('\n').map((text) => ({ text }))
+        : null;
+
+  const q = query.trim();
+  const pattern = q ? new RegExp(`(${escape(q)})`, 'gi') : null;
+  const total = pattern && lines ? lines.reduce((n, l) => n + (l.text.match(pattern)?.length ?? 0), 0) : 0;
+
+  // A new query starts at its first match; stepping wraps around.
+  useEffect(() => setCurrent(0), [q]);
+  useEffect(() => {
+    body.current?.querySelector('[data-match-current]')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, [current, q]);
+  const step = (by: number) => total && setCurrent((c) => (c + by + total) % total);
+
+  // Rendered in order, so a running counter numbers every match.
+  let seen = 0;
+  const highlight = (text: string): ReactNode => {
+    if (!pattern) return text;
+    return text.split(pattern).map((part, i) => {
+      if (i % 2 === 0) return part;
+      const index = seen++;
+      const on = index === current;
+      return (
+        <mark key={i} data-match-current={on || undefined} className={`rounded-sm px-px text-ink ${on ? 'bg-[#ffd666]' : 'bg-[#fff1b8]'}`}>
+          {part}
+        </mark>
+      );
+    });
+  };
 
   return (
     <Modal
       title={meeting.title}
-      subtitle={[meetingDate(meeting.date), meetingTime(meeting), meeting.link && platformOf(meeting.link)].filter(Boolean).join(' · ')}
+      subtitle={[meetingDate(meeting.date), fieldTime(meeting.start), meeting.link && platformOf(meeting.link)].filter(Boolean).join(' · ')}
       width={600}
       onClose={onClose}
       closeOnBackdrop
     >
-      <div className="px-[30px] pb-[30px] pt-5">
-        {t.kind === 'file' && (
-          <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-[#e0e0e0] px-3 py-2.5">
-            <p className="min-w-0 truncate text-[13px] font-semibold leading-[18px] text-ink">
-              {t.name} <span className="font-normal text-ink-tertiary">· {fileSize(t.size)}</span>
-            </p>
-            <button type="button" onClick={() => showToast(`${t.name} downloads`)} className="shrink-0 text-[13px] font-semibold text-brand hover:underline">
-              Download
-            </button>
+      <div ref={body}>
+        {lines && (
+          <div className="sticky top-0 z-[1] bg-white px-[30px] pb-3 pt-5">
+            {/* The Notes tab's search field. */}
+            <label className="flex h-[38px] items-center gap-2.5 rounded-[5px] border border-[#dbdce3] px-3 focus-within:border-brand">
+              <span className="relative size-5 shrink-0 overflow-hidden">
+                <span className="absolute inset-[15%_14.69%_14.69%_15%]">
+                  <span className="absolute inset-[-3.56%]">
+                    <img src={iconSearch} alt="" className="block size-full max-w-none" />
+                  </span>
+                </span>
+              </span>
+              <input
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    step(e.key === 'ArrowUp' || (e.key === 'Enter' && e.shiftKey) ? -1 : 1);
+                  }
+                }}
+                placeholder="Search transcript"
+                aria-label="Search transcript"
+                className="min-w-0 flex-1 bg-transparent text-[13px] leading-[1.5] text-ink outline-none placeholder:text-ink-tertiary"
+              />
+              {q && (
+                <span className="flex shrink-0 items-center gap-1">
+                  <span className="whitespace-nowrap text-[12px] tabular-nums leading-[18px] text-ink-secondary" aria-live="polite">
+                    {total ? `${current + 1} of ${total}` : 'No matches'}
+                  </span>
+                  {[-1, 1].map((by) => (
+                    <button
+                      key={by}
+                      type="button"
+                      aria-label={by < 0 ? 'Previous match' : 'Next match'}
+                      disabled={!total}
+                      onClick={() => step(by)}
+                      className="flex size-6 items-center justify-center rounded hover:bg-surface-secondary disabled:opacity-40"
+                    >
+                      <img src={iconChevron} alt="" width={16} height={16} className={by < 0 ? 'rotate-180' : ''} />
+                    </button>
+                  ))}
+                </span>
+              )}
+            </label>
           </div>
         )}
-        {t.kind === 'lines' ? (
-          <ol className="flex flex-col gap-4">
-            {t.lines.map((l, i) => (
-              <li key={i} className="flex flex-col gap-0.5">
-                <p className="flex items-baseline gap-2">
-                  <span className="text-[13px] font-semibold leading-[18px] text-ink">{l.from === 'coach' ? COACH_FIRST_NAME : client.firstName}</span>
-                  <span className="text-[12px] tabular-nums leading-[18px] text-ink-muted">{l.at}</span>
+        <div className={`px-[30px] pb-[30px] ${lines ? 'pt-2' : 'pt-5'}`}>
+          {t.kind === 'file' && (
+            <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-[#e0e0e0] px-3 py-2.5">
+              <p className="min-w-0 truncate text-[13px] font-semibold leading-[18px] text-ink">
+                {t.name} <span className="font-normal text-ink-tertiary">· {fileSize(t.size)}</span>
+              </p>
+              <button type="button" onClick={() => showToast(`${t.name} downloads`)} className="shrink-0 text-[13px] font-semibold text-brand hover:underline">
+                Download
+              </button>
+            </div>
+          )}
+          {!lines ? (
+            <p className="text-[13px] leading-[1.5] text-ink-tertiary">There’s no preview for this file type. Download it to read the transcript.</p>
+          ) : t.kind === 'lines' ? (
+            <ol className="flex flex-col gap-4">
+              {lines.map((l, i) => (
+                <li key={i} className="flex flex-col gap-0.5">
+                  <p className="flex items-baseline gap-2">
+                    <span className="text-[13px] font-semibold leading-[18px] text-ink">{l.speaker}</span>
+                    <span className="text-[12px] tabular-nums leading-[18px] text-ink-muted">{l.at}</span>
+                  </p>
+                  <p className="text-[13px] leading-[1.5] text-[#484848]">{highlight(l.text)}</p>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <div className="break-words text-[13px] leading-[1.5] text-[#484848]">
+              {lines.map((l, i) => (
+                <p key={i} className="min-h-[1.5em] whitespace-pre-wrap">
+                  {highlight(l.text)}
                 </p>
-                <p className="text-[13px] leading-[1.5] text-[#484848]">{l.text}</p>
-              </li>
-            ))}
-          </ol>
-        ) : text !== undefined ? (
-          <p className="whitespace-pre-wrap break-words text-[13px] leading-[1.5] text-[#484848]">{text}</p>
-        ) : (
-          <p className="text-[13px] leading-[1.5] text-ink-tertiary">There’s no preview for this file type. Download it to read the transcript.</p>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </Modal>
   );

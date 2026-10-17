@@ -172,6 +172,11 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `0 0 10px rgba(0,0,0,0.05)`, 5 px wider than the list on each side, its border hidden, and "View transcript"
   (13 px semibold ink) shows at the right; a click anywhere on the row opens the transcript. Empty: "No meetings
   with {first} yet." With eight tabs the tab padding drops to 12 px.
+- **Transcript popup** (View transcript, no frame): 600 px `Modal`, title = meeting title, subtitle 13 px
+  `ink-tertiary` "Thu, Aug 27, 2026 · 5:30 PM · Microsoft Teams". The Notes search field (38 px, `#dbdce3`, brand
+  on focus) is pinned on top of the scrolling body, focused on open; with a query it shows "2 of 8" (12 px
+  `ink-secondary`) and ↑ / ↓ buttons (24 px, the chevron icon). Matches `#fff1b8`, the current one `#ffd666`,
+  scrolled to the centre. Lines: speaker 13 px semibold + time 12 px `ink-muted`, text 13 px `#484848`, `gap-4`.
 - **Popup** (`Modal`, Figma `5726:511926`): backdrop `black/50` fades in, the card rises in (220 ms). 500 px, white,
   rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
   fields, footer `px-[30px] py-5` + top border. The × is the design's 18 px black disc centred on the top-right
@@ -180,9 +185,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `ink-secondary`; input 40 px, `rounded-lg`, `#e0e0e0` border (brand on focus), 14 px / 22 px, placeholder
   `ink-muted`; read-only field `#f7f7f7`. Date and time are native pickers under the design's text ("Aug 31, 2026",
   "7:00 AM"); the time zone is a select behind "UTC-7 ⌄" (11 px semibold `#8c8c8c`, 18 px divider). Errors show on
-  submit: `danger` border + 12 px `danger` line under the field, cleared as the coach types. Under date and time a
-  second row (no frame): Duration (select, "60 min" + the design's chevron) and End time (read-only `#f7f7f7`,
-  "–" until a start time is set). The date picker goes up to today. Upload file / Paste
+  submit: `danger` border + 12 px `danger` line under the field, cleared as the coach types. Duration (select +
+  the design's chevron) and End time (read-only `#f7f7f7`) sit under date and time but are hidden for now
+  (`SHOW_DURATION`). The date picker goes up to today. Upload file / Paste
   text: two 36 px buttons, active `border-brand bg-brand/[0.03]` brand text and icon (Upload's label semibold,
   Paste's regular, as drawn). Drop zone and paste box 120 px, `border-[1.5px]` (dashed for the drop zone, brand
   while dragging). Buttons: Cancel 36 px white `#e0e0e0` rounded 6, primary 36 px brand rounded 8, both `px-[30px]`

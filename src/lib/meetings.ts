@@ -2,7 +2,6 @@ import { getMeetings } from '../data/meetings';
 import type { Meeting } from '../data/types';
 import { WEEKDAYS } from './checkin';
 import { daysBetween, formatMonthDay, parseDay, weekLabel } from './dates';
-import { clockSpan } from './todos';
 import { weekAsOf } from './week';
 
 /** Every meeting with the client, the demo's plus the ones the coach added, newest first (date, then start time). */
@@ -63,9 +62,6 @@ export function normalizeLink(raw: string): string | null {
 
 /** "2:00 PM - Aug 27": a list row's start time and date (Figma 5731:517688). */
 export const meetingWhen = (m: Meeting) => `${fieldTime(m.start)} - ${formatMonthDay(parseDay(m.date))}`;
-
-/** "2:00 - 3:00pm (60 min)", "11:30am - 12:30pm (60 min)" across noon: the transcript popup's line. */
-export const meetingTime = (m: Meeting) => `${clockSpan(m.start, m.minutes)} (${m.minutes} min)`;
 
 /** The form's duration choices, in minutes. */
 export const DURATIONS = [15, 30, 45, 60, 90, 120];
