@@ -12,9 +12,13 @@ import { NutritionTab } from './NutritionTab';
 import { DataArea, TabBar } from './PanelParts';
 import { CreditsCard, SessionsCard } from './SessionsBodies';
 import { TaskHabitTab } from './TaskHabitTab';
+import { TranscriptTab } from './TranscriptTab';
 import { CurrentProgramCard, TrainingTab } from './TrainingTab';
 
-/** The six data tabs of a Check-in panel and the client detail page (Spec 4 BL1). */
+/**
+ * The six data tabs of a Check-in panel and the client detail page (Spec 4 BL1), plus Booking for clients with
+ * sessions or credits and Transcript (meetings the coach adds) on the client detail page only.
+ */
 export const CLIENT_TABS = [
   { key: 'training', label: 'Training' },
   { key: 'nutrition', label: 'Nutrition' },
@@ -23,6 +27,7 @@ export const CLIENT_TABS = [
   { key: 'form', label: 'Form' },
   { key: 'booking', label: 'Booking' },
   { key: 'notes', label: 'Notes' },
+  { key: 'transcript', label: 'Transcript' },
 ] as const;
 
 export type ClientTabKey = (typeof CLIENT_TABS)[number]['key'];
@@ -32,8 +37,18 @@ export type ClientTabKey = (typeof CLIENT_TABS)[number]['key'];
  * Booking tab of the client list opens Booking). Booking (Spec 4 BL2's `booking` tab) only shows for a client with 1:1
  * sessions or session credits.
  */
-export function ClientTabs({ client, profile, initialTab }: { client: Client; profile: ClientProfile; initialTab?: ClientTabKey | null }) {
-  const tabs = CLIENT_TABS.filter((t) => t.key !== 'booking' || getSessions(client.id));
+export function ClientTabs({
+  client,
+  profile,
+  initialTab,
+  withTranscript,
+}: {
+  client: Client;
+  profile: ClientProfile;
+  initialTab?: ClientTabKey | null;
+  withTranscript?: boolean;
+}) {
+  const tabs = CLIENT_TABS.filter((t) => (t.key !== 'booking' || getSessions(client.id)) && (t.key !== 'transcript' || withTranscript));
   const [tab, setTab] = useState<ClientTabKey>(() => (initialTab && tabs.some((t) => t.key === initialTab) ? initialTab : profile.focus));
   return (
     <DataArea>
@@ -59,6 +74,8 @@ export function ClientTabContent({ tab, client, profile }: { tab: ClientTabKey; 
       return <BookingTab client={client} />;
     case 'notes':
       return <NotesTab client={client} notes={profile.notes} />;
+    case 'transcript':
+      return <TranscriptTab client={client} />;
   }
 }
 

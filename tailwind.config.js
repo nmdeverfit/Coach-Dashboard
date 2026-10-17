@@ -76,6 +76,9 @@ export default {
         shimmer: { from: { backgroundPosition: '100% 0' }, to: { backgroundPosition: '-100% 0' } },
         'dot-wave': { '0%, 80%, 100%': { opacity: '0.35', transform: 'scale(0.8)' }, '40%': { opacity: '1', transform: 'scale(1)' } },
         'bubble-in': { from: { transform: 'translateY(6px)', opacity: '0' }, to: { transform: 'translateY(0)', opacity: '1' } },
+        // Popups (Add a meeting, transcript): the backdrop fades, the card rises a little and scales up.
+        'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
+        'pop-in': { from: { transform: 'translateY(8px) scale(0.98)', opacity: '0' }, to: { transform: 'none', opacity: '1' } },
       },
       animation: {
         'drawer-in': 'drawer-in 280ms cubic-bezier(0.22, 1, 0.36, 1)',
@@ -85,6 +88,8 @@ export default {
         shimmer: 'shimmer 1.6s linear infinite',
         'dot-wave': 'dot-wave 1.2s ease-in-out infinite',
         'bubble-in': 'bubble-in 220ms ease-out both',
+        'fade-in': 'fade-in 180ms ease-out both',
+        'pop-in': 'pop-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both',
       },
       fontFamily: {
         sans: ['"Open Sans"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],

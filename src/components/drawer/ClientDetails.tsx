@@ -74,7 +74,7 @@ export function ClientDetailsPanel({
           />
           <StatusFeedback client={client} />
         </div>
-        <ClientTabs client={client} profile={profile} initialTab={initialTab} />
+        <ClientTabs client={client} profile={profile} initialTab={initialTab} withTranscript />
       </div>
     </div>
   );

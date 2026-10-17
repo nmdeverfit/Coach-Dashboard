@@ -13,8 +13,9 @@ export function TabBar<K extends string>({
   active: K;
   onChange: (key: K) => void;
 }) {
-  // Labels never wrap; with seven tabs (Booking added) the padding tightens so all of them fit the 660 px row.
-  const px = tabs.length > 6 ? 'px-4' : 'px-5';
+  // Labels never wrap; with seven tabs (Booking added) or eight (Transcript too) the padding tightens so all of them
+  // fit the 660 px row.
+  const px = tabs.length > 7 ? 'px-3' : tabs.length > 6 ? 'px-4' : 'px-5';
   return (
     <div role="tablist" aria-label="Client data" className="flex w-full items-center border-b border-line">
       {tabs.map((t) => {

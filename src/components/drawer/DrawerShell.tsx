@@ -32,7 +32,7 @@ export function useDrawerPresence(selected: string | null) {
 export function useCloseOnOutside(open: boolean, close: () => void) {
   useEffect(() => {
     if (!open) return;
-    const busy = () => document.querySelector('[role="alertdialog"]');
+    const busy = () => document.querySelector('[aria-modal="true"]');
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && !busy() && close();
     const onPointer = (e: PointerEvent) => {
       if (busy() || (e.target as Element).closest(KEEP_OPEN)) return;

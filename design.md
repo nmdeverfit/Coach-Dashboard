@@ -72,13 +72,13 @@ Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the bann
 | Need | Use | File |
 |---|---|---|
 | Card with title + "View …" link | `CardHeader` (44 px, white, bottom border) | `drawer/NutritionTab.tsx` |
-| Data tabs | `TabBar` + `DataArea`; labels never wrap, padding 20 px (16 px with 7 tabs); tabs with no data area yet are `muted` | `drawer/PanelParts.tsx` |
+| Data tabs | `TabBar` + `DataArea`; labels never wrap, padding 20 px (16 px with 7 tabs, 12 px with 8); tabs with no data area yet are `muted` | `drawer/PanelParts.tsx` |
 | Footer buttons | `PanelFooter`, `FooterButton` (`primary` / `ai` / `plain`), `DraftWithAiButton`, `SendMessageButton` | `drawer/PanelParts.tsx` |
 | AI Assessment | `AiAssessment` (sparkle + gradient label, quote line, summary + ≤3 facts, Tell me more) | `drawer/AiAssessment.tsx` |
 | Label / value rows | `Row` (210 px label column) | `drawer/TrainingTab.tsx` |
 | Session log, program | `TrainingTab`, `ProgramCard` (shared by Check-in, Build, Remind, Acknowledge) | `drawer/TrainingTab.tsx` |
 | Nutrition | `NutritionTab` (calorie ring + macros, Meal Log) | `drawer/NutritionTab.tsx` |
-| The data tabs | `ClientTabs` / `ClientTabContent` (Check-in panel, client detail page; Booking only for clients with sessions or credits) | `drawer/ClientTabs.tsx` |
+| The data tabs | `ClientTabs` / `ClientTabContent` (Check-in panel, client detail page; Booking only for clients with sessions or credits; Transcript on the client detail page only, `withTranscript`) | `drawer/ClientTabs.tsx` |
 | Sessions / Session credits cards | `SessionsCard` (`onRemind` adds a per-session Draft a reminder + green "N completed"), `CreditsCard` (`onIssue` adds Issue Credits beside the balance and starts collapsed) | `drawer/SessionsBodies.tsx` |
 | 28 px session buttons | `DraftReminderButton`, `IssueCreditsButton` | `drawer/SessionsBodies.tsx` |
 | Task & Habit | `TaskHabitTab` (tasks card, habits card with 7 day circles) | `drawer/TaskHabitTab.tsx` |
@@ -89,6 +89,8 @@ Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the bann
 | Panel shell | `DrawerAside`, `useDrawerPresence`, `useCloseOnOutside` | `drawer/DrawerShell.tsx` |
 | Tooltip | `Tooltip`; the trigger needs `group/tip relative` | `Tooltip.tsx` |
 | Confirm | `ConfirmDialog` (400 px, ink primary) | `ConfirmDialog.tsx` |
+| Popup (forms, viewers) | `Modal` (500 px, rounded 16, × on the corner, 20 px title, footer right-aligned) | `Modal.tsx` |
+| Transcript tab, Add a meeting, transcript viewer | `TranscriptTab`, `AddMeetingDialog`, `TranscriptDialog` | `drawer/` |
 | Feedback | `Toast` via `showToast` (ink pill, bottom centre) | `Toast.tsx` |
 | Status | `StatusChip` (21 px pill) | `StatusChip.tsx` |
 | Avatar | `Avatar` (photo or initials) | `Avatar.tsx` |
@@ -160,6 +162,26 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `#e0e0e0`, rounded 8, alarm 13 px). Credits: "Balance: N", then swatch + type · "N credits expiring in N days"
   (`#ca410a`) or the "Low credits" badge (`LowCreditsBadge`, `#ffebb0` / `#71381d`), and a white 28 px "Issue
   Credits" button with a 12 px +. Action: Send message only. Sections: Upcoming sessions · No sessions booked.
+- **Transcript tab** (Figma `5731:517688`, client detail page only, last tab): one card, `border-ink/10`,
+  `bg-elevated`, `shadow-[0_1px_3px_rgba(24,78,255,0.07)]`. Header "Meetings with {first}" 15 px semibold + "+ Add
+  meeting" 14 px semibold brand. `#f9fafa` well `px-3 pb-3`; rows `px-1 pt-4 pb-[17px]`, bottom border `ink/10` on
+  every row. Date tile 56 px (`rounded-[9px]`, day 20 px, weekday 12 px, full date on hover), title 14 px semibold,
+  then 12 px `#484848`: clock 14 · time · `#d9d9d9` 4 px dot · video icon + platform (underlined) · "View
+  transcript" (semibold ink, underlined). Newest first; empty: "No meetings with {first} yet." With eight tabs the
+  tab padding drops to 12 px.
+- **Popup** (`Modal`, Figma `5726:511926`): backdrop `black/50` fades in, the card rises in (220 ms). 500 px, white,
+  rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
+  fields, footer `px-[30px] py-5` + top border. The × is the design's 18 px black disc centred on the top-right
+  corner. Forms don't close on a backdrop click (viewers do).
+- **Form fields** (Add a meeting): label 13 px semibold ink (Transcript 12 px, as drawn), `(Optional)` 12 px
+  `ink-secondary`; input 40 px, `rounded-lg`, `#e0e0e0` border (brand on focus), 14 px / 22 px, placeholder
+  `ink-muted`; read-only field `#f7f7f7`. Date and time are native pickers under the design's text ("Aug 31, 2026",
+  "7:00 AM"); the time zone is a select behind "UTC-7 ⌄" (11 px semibold `#8c8c8c`, 18 px divider). Errors show on
+  submit: `danger` border + 12 px `danger` line under the field, cleared as the coach types. Upload file / Paste
+  text: two 36 px buttons, active `border-brand bg-brand/[0.03]` brand text and icon (Upload's label semibold,
+  Paste's regular, as drawn). Drop zone and paste box 120 px, `border-[1.5px]` (dashed for the drop zone, brand
+  while dragging). Buttons: Cancel 36 px white `#e0e0e0` rounded 6, primary 36 px brand rounded 8, both `px-[30px]`
+  14 px semibold.
 - **Past week** (Figma `4780:125157`, `4798:172414`): Back, Next and Today all enabled (Today white with a
   `line-nav` border; disabled it is `surface-secondary` with muted text). A banner sits under the header: `#f3f6ff`,
   border top and bottom, `px-5 py-2`, history icon 16 px, 13 px `#484848` text, then "Back to this week" 13 px

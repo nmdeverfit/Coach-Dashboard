@@ -47,6 +47,11 @@ the same change.
   `lastWeekStatus`, older weeks back-filled with the current status), program countdown and next session;
   `groupsInWeek` feeds the group cards. `MIN_WEEK_OFFSET = -3` (logs start 3 Aug). Past reviews come from
   `seededReview` (about 75 % reviewed) plus the coach's changes (`pastReviewed` in the store).
+- `src/data/meetings.ts` + `src/lib/meetings.ts`: the Transcript tab's meetings. Up to four calls per client in the
+  eight weeks before today, generated from a seed of the id (Aima's stop when she went quiet), each with stand-in
+  transcript lines; `meetingsFor` adds the coach's (`meetings` in the store, `addMeeting`) newest first. Platform
+  comes from the link (Zoom, Google Meet, Microsoft Teams). Nothing reads a transcript (Olly and the assessment
+  stay on the stored status).
 - `src/lib/olly.ts`: the middle column's content. `tellPrompt` (Spec 4's one fixed prompt), `tellAnswer` (the
   assessment's own facts + where they come from + a donut in the assessment's units: days logged for nutrition,
   sections done for training), `draftFor` (a draft per to-do type from the panel's data; client page and list rows
@@ -66,7 +71,8 @@ the same change.
   `ClientListParts` (row shell, client cell, section header shared by both tables), `ClientActions` (the
   four 32 px quick actions, shared by the detail page and list rows), `Glyph` (Figma vector with inset/bleed), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
   `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons and on the row checkbox and
-  the panel's ✓, "Complete this task", while the to-do is open).
+  the panel's ✓, "Complete this task", while the to-do is open), `Modal` (the design's 500 px popup, rendered
+  into `<body>`; Esc closes it, and the panel behind ignores Esc and clicks while any `aria-modal` is up).
 - `src/components/side/`: the middle column, 360 px, fixed left of the 720 px panel (Figma Olly `5699:137932`,
   Draft `5124:499989`, Inbox `5699:137775`, both tabbed `5699:138912`). `SidePanel` (header or tabs),
   `OllyConversation` (turns of prompt → `OllyTask` working state → result: Tell me more answer, Draft card →
@@ -93,8 +99,13 @@ the same change.
   feedback, the six tabs (`ClientTabs`), no footer. `ClientDrawer` opens it from a group-card row (`data-client-row`);
   the to-do panel's name link shows it with ‹ back. Shell hooks in `DrawerShell.tsx`. Mark as reviewed here completes
   the client's Check-in to-dos and keeps the panel open; ticking a Check-in row marks the client reviewed (one action).
-- Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Booking · Notes, first tab = focus)
-  is shared by the Check-in panel and the client detail page. Booking (Spec 4 BL2's `booking` tab) shows only for a
+- Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Booking · Notes · Transcript,
+  first tab = focus) is shared by the Check-in panel and the client detail page. Transcript (Figma `5731:517688`)
+  shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
+  rows of date tile · title · time · platform · View transcript), `AddMeetingDialog` (`5726:141326` Upload file,
+  `5729:516037` Paste text; title, date, time and a transcript are required and checked on submit, the meeting
+  can't start after 06:00 today, files .txt / .docx / .srt / .pdf up to 10 MB, .txt and .srt are read for the
+  preview) and `TranscriptDialog` (View transcript; no frame). Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
@@ -201,6 +212,13 @@ the same change.
   statuses, summaries, activity and reviews. Highlights carry no dates, so a past week shows the same 20. Form to
   review is today's queue (0 on past weeks); the Booking tab and the client detail page stay point-in-time (BL6).
   The design's past-week numbers (Today 6:30 PM on a past week, 25 clients) are placeholders.
+- Transcript tab (`5731:517688`, trialled at the user's request): the brief puts meeting transcription into the
+  AI assessment in Phase 2 (Loom integration), so in the demo transcripts are only stored and shown; Olly and the
+  assessment never read them. The tab is on the client detail page only (Spec 4 BL1 fixes the Check-in panel's
+  tabs). The Add a meeting form has no end time or duration, so a meeting the coach adds shows only its start
+  ("7:00am") where the design's rows read "2:00 - 3:00pm (60 min)". The frame's rows are placeholders (one title
+  four times, all on day 3); View transcript has no frame and opens a popup with the lines. Time zone choices
+  (UTC-7, -5, +0, +7) are the demo's.
 - The Change status modal, the vertical row expand (rows open the client detail
   drawer instead), settings, tour and What's New are not built yet.
 

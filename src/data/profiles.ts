@@ -32,7 +32,7 @@ const LAST_SUNDAY = addDays(DEMO_TODAY, -1);
 const THIS_SUNDAY = addDays(DEMO_TODAY, 6);
 
 /** Deterministic PRNG (mulberry32) seeded from a string, so a client's profile is the same on every load. */
-function random(seed: string) {
+export function random(seed: string) {
   let h = 2166136261;
   for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
   return () => {

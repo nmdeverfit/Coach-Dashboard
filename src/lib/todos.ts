@@ -123,12 +123,14 @@ export const time12 = (hhmm: string) => {
 };
 
 /** "2:00 - 3:00pm", or "11:30am - 12:30pm" across noon. */
-export function timeSpan(b: Booking) {
-  const start = clock(minutesOf(b.start));
-  const end = clock(minutesOf(b.start) + b.type.minutes);
+export function clockSpan(startHhmm: string, minutes: number) {
+  const start = clock(minutesOf(startHhmm));
+  const end = clock(minutesOf(startHhmm) + minutes);
   const from = start.meridiem === end.meridiem ? start.text : `${start.text}${start.meridiem}`;
   return `${from} - ${end.text}${end.meridiem}`;
 }
+
+export const timeSpan = (b: Booking) => clockSpan(b.start, b.type.minutes);
 
 /** "2:00 - 3:00pm (60 min)" */
 export const timeRange = (b: Booking) => `${timeSpan(b)} (${b.type.minutes} min)`;

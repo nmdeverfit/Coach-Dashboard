@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { DEMO_TODAY, clients, todos as seedTodos } from '../data/mock';
-import type { Client, FeedbackState, GroupKey, Todo } from '../data/types';
+import type { Client, FeedbackState, GroupKey, Meeting, Todo } from '../data/types';
 import type { Assessment } from '../lib/checkin';
 import type { ClientTabKey } from '../components/drawer/ClientTabs';
 import type { DashboardTab } from '../lib/dashboard';
@@ -54,6 +54,8 @@ interface State {
   sent: Record<string, SentMessage[]>;
   /** Answer to "Does '{status}' look right for {first_name}?" per client. */
   feedback: Record<string, FeedbackState>;
+  /** Meetings the coach added on the Transcript tab in this session, by client. */
+  meetings: Record<string, Meeting[]>;
 }
 
 type Action =
@@ -78,7 +80,8 @@ type Action =
   | { type: 'sideTab'; tab: SideTab }
   | { type: 'closeSideTab'; tab: SideTab }
   | { type: 'closeSide' }
-  | { type: 'sendMessage'; clientId: string; text: string };
+  | { type: 'sendMessage'; clientId: string; text: string }
+  | { type: 'addMeeting'; clientId: string; meeting: Meeting };
 
 const initialState: State = {
   todos: seedTodos,
@@ -94,6 +97,7 @@ const initialState: State = {
   side: null,
   sent: {},
   feedback: {},
+  meetings: {},
 };
 
 const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
@@ -209,6 +213,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, side: null };
     case 'sendMessage':
       return { ...state, sent: { ...state.sent, [action.clientId]: [...(state.sent[action.clientId] ?? []), { text: action.text, at: `${DEMO_TODAY}T06:00` }] } };
+    case 'addMeeting':
+      return { ...state, meetings: { ...state.meetings, [action.clientId]: [action.meeting, ...(state.meetings[action.clientId] ?? [])] } };
     case 'reviewClient':
       // A review from the client detail page completes the client's Check-in to-dos too; the panel stays open.
       return {
@@ -316,6 +322,7 @@ interface Store {
   closeSideTab: (tab: SideTab) => void;
   closeSide: () => void;
   sendMessage: (clientId: string, text: string) => void;
+  addMeeting: (clientId: string, meeting: Meeting) => void;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -377,6 +384,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       closeSideTab: (tab) => dispatch({ type: 'closeSideTab', tab }),
       closeSide: () => dispatch({ type: 'closeSide' }),
       sendMessage: (clientId, text) => dispatch({ type: 'sendMessage', clientId, text }),
+      addMeeting: (clientId, meeting) => {
+        dispatch({ type: 'addMeeting', clientId, meeting });
+        showToast('Meeting added');
+      },
       completeFromPanel: (id) => {
         dispatch({ type: 'completeFromPanel', id });
         showToast('To-do completed');

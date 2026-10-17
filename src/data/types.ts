@@ -256,3 +256,31 @@ export interface ClientProfile {
   notes: ClientNote[];
   messages: ClientMessage[];
 }
+
+/** One line of a meeting transcript: who spoke, how far into the call ("04:12"), what was said. */
+export interface TranscriptLine {
+  from: 'coach' | 'client';
+  at: string;
+  text: string;
+}
+
+/** How the coach brought a transcript in: the demo's recorded lines, pasted text, or an uploaded file. */
+export type Transcript =
+  | { kind: 'lines'; lines: TranscriptLine[] }
+  | { kind: 'text'; text: string }
+  | { kind: 'file'; name: string; size: number; /** Read for .txt and .srt; .docx and .pdf are not previewed. */ text?: string };
+
+/** A coach–client meeting on the Transcript tab. */
+export interface Meeting {
+  id: string;
+  title: string;
+  /** YYYY-MM-DD */
+  date: string;
+  /** "HH:MM", 24 h */
+  start: string;
+  /** Unknown when the coach adds the meeting (the Add a meeting form has no end time). */
+  minutes?: number;
+  timeZone: string;
+  link?: string;
+  transcript: Transcript;
+}
