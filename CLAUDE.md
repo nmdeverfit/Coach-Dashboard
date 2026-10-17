@@ -48,12 +48,17 @@ the same change.
   `groupsInWeek` feeds the group cards. `MIN_WEEK_OFFSET = -3` (logs start 3 Aug). Past reviews come from
   `seededReview` (about 75 % reviewed) plus the coach's changes (`pastReviewed` in the store).
 - `src/data/meetings.ts` + `src/lib/meetings.ts`: the Transcript tab's meetings. Up to two calls a week per client
-  in the last three weeks and up to one in the three before (none yet this week, since today is Monday 06:00),
+  in the last three weeks and up to one in the three before, each 30, 45 or 60 minutes (none yet this week, since
+  today is Monday 06:00),
   generated from a seed of the id (Aima's stop when she went quiet), each with stand-in transcript lines;
   `meetingsFor(id, added)` adds the coach's (`meetings` in the store, `addMeeting`) and sorts newest first;
   `meetingWeeks` splits them by week, labelled like the week selector ("Aug 24 - Aug 30"). Platform
   comes from the link (Zoom, Google Meet, Microsoft Teams). Nothing reads a transcript (Olly and the assessment
   stay on the stored status).
+- `src/data/transcripts.ts`: the transcripts' stand-in wording, sections of a coaching call (opener, recap by
+  status, training, nutrition, recovery, habits, schedule, goals, mindset, plan, questions, wrap-up) taken in turn
+  at about two lines a minute, so a 60-minute call has about 120 lines. No figures from the logs, no injuries.
+  `samples/transcript-30min.txt` and `-60min.txt` are the same text as plain files, to try Upload file with.
 - `src/lib/olly.ts`: the middle column's content. `tellPrompt` (Spec 4's one fixed prompt), `tellAnswer` (the
   assessment's own facts + where they come from + a donut in the assessment's units: days logged for nutrition,
   sections done for training), `draftFor` (a draft per to-do type from the panel's data; client page and list rows
