@@ -5,6 +5,7 @@ import { COACH_FIRST_NAME } from '../../data/mock';
 import type { Client, Meeting } from '../../data/types';
 import { fieldTime, fileSize, meetingDate, platformOf } from '../../lib/meetings';
 import { useStore } from '../../state/store';
+import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Modal } from '../Modal';
 
 interface Line {
@@ -119,10 +120,14 @@ export function TranscriptDialog({ client, meeting, onClose }: { client: Client;
         )}
         <div className={`px-[30px] pb-[30px] ${lines ? 'pt-2' : 'pt-5'}`}>
           {t.kind === 'file' && (
-            <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-[#e0e0e0] px-3 py-2.5">
-              <p className="min-w-0 truncate text-[13px] font-semibold leading-[18px] text-ink">
-                {t.name} <span className="font-normal text-ink-tertiary">· {fileSize(t.size)}</span>
-              </p>
+            <div className="mb-4 flex items-center gap-3 rounded-lg border border-[#e0e0e0] p-3">
+              <FileTypeIcon name={t.name} />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <p className="truncate text-[13px] font-semibold leading-[1.5] text-ink">{t.name}</p>
+                <p className="text-[12px] leading-[18px] text-ink-tertiary">
+                  {fileSize(t.size)} · {fileExtension(t.name).toUpperCase()}
+                </p>
+              </div>
               <button type="button" onClick={() => showToast(`${t.name} downloads`)} className="shrink-0 text-[13px] font-semibold text-brand hover:underline">
                 Download
               </button>

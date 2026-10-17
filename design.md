@@ -89,6 +89,7 @@ Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the bann
 | Panel shell | `DrawerAside`, `useDrawerPresence`, `useCloseOnOutside` | `drawer/DrawerShell.tsx` |
 | Tooltip | `Tooltip`; the trigger needs `group/tip relative` | `Tooltip.tsx` |
 | Confirm | `ConfirmDialog` (400 px, ink primary) | `ConfirmDialog.tsx` |
+| File chip icon | `FileTypeIcon` (tile tinted by extension) | `FileTypeIcon.tsx` |
 | Popup (forms, viewers) | `Modal` (500 px, rounded 16, × on the corner, 20 px title, footer right-aligned) | `Modal.tsx` |
 | Transcript tab, Add a meeting, transcript viewer | `TranscriptTab`, `AddMeetingDialog`, `TranscriptDialog` | `drawer/` |
 | Feedback | `Toast` via `showToast` (ink pill, bottom centre) | `Toast.tsx` |
@@ -190,7 +191,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   (`SHOW_DURATION`). The date picker goes up to today. Upload file / Paste
   text: two 36 px buttons, active `border-brand bg-brand/[0.03]` brand text and icon (Upload's label semibold,
   Paste's regular, as drawn). Drop zone and paste box 120 px, `border-[1.5px]` (dashed for the drop zone, brand
-  while dragging). Buttons: Cancel 36 px white `#e0e0e0` rounded 6, primary 36 px brand rounded 8, both `px-[30px]`
+  while dragging). A chosen file replaces the drop zone with one left-aligned row (`p-3 gap-3`, solid border):
+  `FileTypeIcon` (40 px tinted tile, lucide icon: .pdf red, .docx brand, .srt purple captions, .txt grey), name 13 px
+  semibold (truncates) over "5 KB · TXT" 12 px `ink-tertiary`, then Replace (brand) and Remove (`ink-secondary`)
+  13 px semibold at the right edge. The transcript popup shows an uploaded file with the same icon and lines. Buttons: Cancel 36 px white `#e0e0e0` rounded 6, primary 36 px brand rounded 8, both `px-[30px]`
   14 px semibold.
 - **Past week** (Figma `4780:125157`, `4798:172414`): Back, Next and Today all enabled (Today white with a
   `line-nav` border; disabled it is `surface-secondary` with muted text). A banner sits under the header: `#f3f6ff`,

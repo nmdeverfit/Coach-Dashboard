@@ -10,6 +10,7 @@ import type { Client, Transcript } from '../../data/types';
 import { DURATIONS, TRANSCRIPT_MAX_BYTES, TRANSCRIPT_TYPES, endOf, fieldDate, fieldTime, fileSize, normalizeLink } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
+import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Glyph } from '../Glyph';
 import { Modal } from '../Modal';
 
@@ -314,17 +315,25 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
             </div>
             {mode === 'upload' ? (
               file ? (
-                <div className="flex h-[120px] flex-col items-center justify-center gap-1 rounded-lg border-[1.5px] border-[#e0e0e0] p-3 text-center text-[13px] leading-[1.5]">
-                  <p className="max-w-full truncate font-semibold text-ink">{file.name}</p>
-                  <p className="text-ink-tertiary">{fileSize(file.size)}</p>
-                  <p className="flex gap-3 font-semibold">
+                // The chosen file: type icon, name over size, then Replace and Remove at the right edge.
+                <div className="flex items-center gap-3 rounded-lg border-[1.5px] border-[#e0e0e0] p-3 text-[13px] leading-[1.5]">
+                  <FileTypeIcon name={file.name} />
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <p className="truncate font-semibold text-ink" title={file.name}>
+                      {file.name}
+                    </p>
+                    <p className="text-[12px] leading-[18px] text-ink-tertiary">
+                      {fileSize(file.size)} · {fileExtension(file.name).toUpperCase()}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3 font-semibold">
                     <button type="button" onClick={() => fileInput.current?.click()} className="text-brand hover:underline">
                       Replace
                     </button>
                     <button type="button" onClick={() => setFile(null)} className="text-ink-secondary hover:text-ink">
                       Remove
                     </button>
-                  </p>
+                  </div>
                 </div>
               ) : (
                 <button
