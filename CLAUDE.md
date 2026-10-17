@@ -113,7 +113,8 @@ the same change.
   lifting onto a white card with View transcript on hover), `AddMeetingDialog` (`5726:141326` Upload file, `5729:516037` Paste text; Duration and a
   read-only End time are built but hidden for now, `SHOW_DURATION`; title, time and a transcript are required and checked on submit,
   the date can be any day up to today, the meeting must start before 06:00 today, files .txt / .docx / .srt /
-  .pdf up to 10 MB, .txt and .srt are read for the preview) and `TranscriptDialog` (View transcript; no frame: date · start · platform, a search box pinned on top that
+  .pdf up to 10 MB, .txt and .srt are read for the preview) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
+  artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; no frame: date · start · platform, a search box pinned on top that
   highlights matches and steps through them with ↑ / ↓ / Enter). Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in

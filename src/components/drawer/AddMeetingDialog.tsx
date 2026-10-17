@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useCallback, useRef, useState, type ReactNode } from 'react';
 import iconChevron from '../../assets/figma/icon-chevron-tz.svg';
 import iconClipboardBrand from '../../assets/figma/icon-clipboard-brand.svg';
 import iconClipboard from '../../assets/figma/icon-clipboard.svg';
@@ -13,6 +13,7 @@ import { Avatar } from '../Avatar';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Glyph } from '../Glyph';
 import { Modal } from '../Modal';
+import { DatePicker, TimePicker } from './Pickers';
 
 const TIME_ZONES = ['UTC-7', 'UTC-5', 'UTC+0', 'UTC+7'];
 /** The demo's "now" (the brief is generated at 06:00): a meeting with a transcript has already happened. */
@@ -41,37 +42,6 @@ function Field({ label, optional, labelSize = 13, error, children }: { label: st
       {children}
       {error && <p className="text-[12px] leading-[18px] text-danger">{error}</p>}
     </div>
-  );
-}
-
-/** A native date or time picker under the design's field, so the value reads "Aug 31, 2026" / "7:00 AM". */
-function PickerInput({
-  type,
-  value,
-  min,
-  max,
-  label,
-  onChange,
-}: {
-  type: 'date' | 'time';
-  value: string;
-  min?: string;
-  max?: string;
-  label: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <input
-      type={type}
-      aria-label={label}
-      value={value}
-      min={min}
-      max={max}
-      required
-      onChange={(e) => onChange(e.target.value)}
-      onClick={(e) => e.currentTarget.showPicker?.()}
-      className="absolute inset-0 cursor-pointer opacity-0"
-    />
   );
 }
 
@@ -117,7 +87,13 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
   const [pasted, setPasted] = useState('');
   const [dragging, setDragging] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+  const [picker, setPicker] = useState<'date' | 'time' | null>(null);
+  const closePicker = useCallback(() => setPicker(null), []);
+  const dateField = useRef<HTMLButtonElement>(null);
+  const timeField = useRef<HTMLDivElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  // Today, the latest start that still ends by now.
+  const latestToday = endOf(NOW, -(SHOW_DURATION ? minutes : 0));
 
   const clear = (key: keyof Errors) => setErrors((e) => (e[key] ? { ...e, [key]: undefined } : e));
   const switchTo = (m: Mode) => {
@@ -200,35 +176,54 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
 
         <div className="flex gap-2">
           <Field label="Start date" error={errors.date}>
-            <div className={`${BOX} ${boxBorder(errors.date)} relative pl-3 pr-2.5`}>
+            <button
+              ref={dateField}
+              type="button"
+              aria-label={`Start date, ${fieldDate(date)}`}
+              aria-expanded={picker === 'date'}
+              onClick={() => setPicker((p) => (p === 'date' ? null : 'date'))}
+              className={`${BOX} ${boxBorder(errors.date)} justify-between pl-3 pr-2 text-left ${picker === 'date' ? '!border-brand' : ''}`}
+            >
               {fieldDate(date)}
-              <PickerInput
-                type="date"
-                label="Start date"
+              {chevron}
+            </button>
+            {picker === 'date' && (
+              <DatePicker
+                anchor={dateField}
                 value={date}
                 max={DEMO_TODAY}
-                onChange={(v) => {
-                  if (!v) return;
+                onPick={(v) => {
                   setDate(v);
                   clear('date');
+                  clear('time');
                 }}
+                onClose={closePicker}
               />
-            </div>
+            )}
           </Field>
           <Field label="Start time" error={errors.time}>
-            <div className={`${BOX} ${boxBorder(errors.time)} gap-2.5 pl-3 pr-2`}>
-              <span className="relative flex h-full min-w-0 flex-1 items-center">
+            <div ref={timeField} className={`${BOX} ${boxBorder(errors.time)} gap-2.5 pl-3 pr-2 ${picker === 'time' ? '!border-brand' : ''}`}>
+              <button
+                type="button"
+                aria-label={`Start time, ${time ? fieldTime(time) : 'not set'}`}
+                aria-expanded={picker === 'time'}
+                onClick={() => setPicker((p) => (p === 'time' ? null : 'time'))}
+                className="flex h-full min-w-0 flex-1 items-center text-left"
+              >
                 {time ? fieldTime(time) : <span className="text-ink-muted">Select time</span>}
-                <PickerInput
-                  type="time"
-                  label="Start time"
+              </button>
+              {picker === 'time' && (
+                <TimePicker
+                  anchor={timeField}
                   value={time}
-                  onChange={(v) => {
+                  latest={date === DEMO_TODAY ? latestToday : undefined}
+                  onPick={(v) => {
                     setTime(v);
                     clear('time');
                   }}
+                  onClose={closePicker}
                 />
-              </span>
+              )}
               <span className="flex items-center gap-1">
                 <span className="h-[18px] w-px bg-[#e0e0e0]" />
                 <span className="relative flex items-center py-0.5 pl-1.5 pr-0.5 text-[11px] font-semibold leading-[18px] text-[#8c8c8c]">

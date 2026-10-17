@@ -184,8 +184,14 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   corner. Forms don't close on a backdrop click (viewers do).
 - **Form fields** (Add a meeting): label 13 px semibold ink (Transcript 12 px, as drawn), `(Optional)` 12 px
   `ink-secondary`; input 40 px, `rounded-lg`, `#e0e0e0` border (brand on focus), 14 px / 22 px, placeholder
-  `ink-muted`; read-only field `#f7f7f7`. Date and time are native pickers under the design's text ("Aug 31, 2026",
-  "7:00 AM"); the time zone is a select behind "UTC-7 ⌄" (11 px semibold `#8c8c8c`, 18 px divider). Errors show on
+  `ink-muted`; read-only field `#f7f7f7`. Date and time open the page's own dropdowns (`Pickers.tsx`), never the browser's:
+  the published page runs in an iframe that blocks `showPicker()`. The fields read "Aug 31, 2026" (+ the design's
+  chevron) and "7:00 AM"; the dropdown hangs 4 px under the field (white, `#e0e0e0` border, rounded 8,
+  `0 8px 24px rgba(0,0,0,0.12)`, rendered into `<body>`). Date: a 280 px month calendar (‹ month year ›, Su–Sa,
+  32 px day circles, selected brand, today brand semibold, days after today greyed). Time: 15-minute steps, 32 px
+  rows, selected `brand-subtle`, opens centred on the choice (else 9:00 AM, or on today the latest allowed, 6:00 AM,
+  with later times greyed). Esc or a click outside closes only the dropdown. The time zone is a native select
+  behind "UTC-7 ⌄" (11 px semibold `#8c8c8c`, 18 px divider). Errors show on
   submit: `danger` border + 12 px `danger` line under the field, cleared as the coach types. Duration (select +
   the design's chevron) and End time (read-only `#f7f7f7`) sit under date and time but are hidden for now
   (`SHOW_DURATION`). The date picker goes up to today. Upload file / Paste
