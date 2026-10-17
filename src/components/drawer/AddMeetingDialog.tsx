@@ -7,8 +7,7 @@ import iconUploadBrand from '../../assets/figma/icon-upload-brand.svg';
 import iconUpload from '../../assets/figma/icon-upload.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import type { Client, Transcript } from '../../data/types';
-import { DURATIONS, TRANSCRIPT_MAX_BYTES, TRANSCRIPT_TYPES, endOf, fieldDate, fieldTime, fileSize, normalizeLink, weekBounds } from '../../lib/meetings';
-import { weekRange } from '../../lib/week';
+import { DURATIONS, TRANSCRIPT_MAX_BYTES, TRANSCRIPT_TYPES, endOf, fieldDate, fieldTime, fileSize, normalizeLink } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
 import { Glyph } from '../Glyph';
@@ -101,16 +100,12 @@ function SourceButton({ on, icon, label, semibold, onClick }: { on: boolean; ico
  * Add a meeting (Figma 5726:141326 Upload file, 5729:516037 Paste text): client (fixed), title, start date and time
  * with a time zone, duration (no frame; the user asked for it, and the list shows each meeting's time range), an
  * optional meeting link, and the transcript as a file (.txt, .docx, .srt, .pdf, up to 10 MB) or pasted text.
- * The date stays within the week on the week selector, so the new meeting shows in the list the coach is looking at,
- * and the meeting must have ended by now. Checked on submit.
+ * The meeting must have ended by now. Checked on submit.
  */
-export function AddMeetingDialog({ client, offset, onClose }: { client: Client; offset: number; onClose: () => void }) {
+export function AddMeetingDialog({ client, onClose }: { client: Client; onClose: () => void }) {
   const { addMeeting } = useStore();
-  const week = weekBounds(offset);
-  const from = week.from;
-  const to = week.to < DEMO_TODAY ? week.to : DEMO_TODAY;
   const [title, setTitle] = useState('');
-  const [date, setDate] = useState(to);
+  const [date, setDate] = useState(DEMO_TODAY);
   const [time, setTime] = useState('');
   const [minutes, setMinutes] = useState(60);
   const [timeZone, setTimeZone] = useState(TIME_ZONES[0]);
@@ -146,7 +141,7 @@ export function AddMeetingDialog({ client, offset, onClose }: { client: Client; 
       mode === 'upload' ? file && { kind: 'file', ...file } : pasted.trim() ? { kind: 'text', text: pasted.trim() } : null;
     const next: Errors = {
       title: title.trim() ? undefined : 'Give the meeting a title.',
-      date: date >= from && date <= to ? undefined : `Pick a day in ${weekRange(offset)}.`,
+      date: date <= DEMO_TODAY ? undefined : 'Pick a day up to today.',
       time: !time
         ? 'Pick a start time.'
         : date === DEMO_TODAY && endOf(time, minutes) > NOW
@@ -207,8 +202,7 @@ export function AddMeetingDialog({ client, offset, onClose }: { client: Client; 
                 type="date"
                 label="Start date"
                 value={date}
-                min={from}
-                max={to}
+                max={DEMO_TODAY}
                 onChange={(v) => {
                   if (!v) return;
                   setDate(v);

@@ -1,23 +1,38 @@
 import { getMeetings } from '../data/meetings';
 import type { Meeting } from '../data/types';
 import { WEEKDAYS } from './checkin';
-import { addDays } from './checkin';
-import { formatMonthDay, parseDay } from './dates';
+import { daysBetween, formatMonthDay, parseDay } from './dates';
 import { clockSpan } from './todos';
-import { weekAsOf } from './week';
+import { weekAsOf, weekRange } from './week';
 
-/** Monday and Sunday of the week `offset` weeks from this one. */
-export const weekBounds = (offset: number) => ({ from: weekAsOf(offset), to: addDays(weekAsOf(offset), 6) });
+/** Every meeting with the client, the demo's plus the ones the coach added, newest first (date, then start time). */
+export function meetingsFor(clientId: string, added: Meeting[] = []): Meeting[] {
+  return [...added, ...getMeetings(clientId)].sort((a, b) => `${b.date}T${b.start}`.localeCompare(`${a.date}T${a.start}`));
+}
 
-/**
- * The Transcript tab's list for the week on the week selector: the demo's meetings plus the ones the coach added,
- * newest first (latest date and start time on top).
- */
-export function meetingsFor(clientId: string, offset: number, added: Meeting[] = []): Meeting[] {
-  const { from, to } = weekBounds(offset);
-  return [...added, ...getMeetings(clientId)]
-    .filter((m) => m.date >= from && m.date <= to)
-    .sort((a, b) => `${b.date}T${b.start}`.localeCompare(`${a.date}T${a.start}`));
+export interface MeetingWeek {
+  /** Monday, YYYY-MM-DD */
+  monday: string;
+  /** "This week · Aug 31 – Sep 6", "Last week · Aug 24 – 30", "Aug 10 – 16" */
+  label: string;
+  meetings: Meeting[];
+}
+
+/** The list split into weeks (Monday to Sunday), newest week first, as Notes splits by day. */
+export function meetingWeeks(meetings: Meeting[]): MeetingWeek[] {
+  const weeks: MeetingWeek[] = [];
+  for (const m of meetings) {
+    const offset = Math.floor(daysBetween(weekAsOf(0), m.date) / 7);
+    const monday = weekAsOf(offset);
+    const range = weekRange(offset);
+    let week = weeks[weeks.length - 1];
+    if (week?.monday !== monday) {
+      week = { monday, label: offset === 0 ? `This week · ${range}` : offset === -1 ? `Last week · ${range}` : range, meetings: [] };
+      weeks.push(week);
+    }
+    week.meetings.push(m);
+  }
+  return weeks;
 }
 
 /** "Zoom", "Google Meet", "Microsoft Teams", from the meeting link; any other link reads "Meeting link". */

@@ -6,20 +6,19 @@ import iconVideo from '../../assets/figma/icon-video.svg';
 import type { Client, Meeting } from '../../data/types';
 import { WEEKDAYS } from '../../lib/checkin';
 import { parseDay } from '../../lib/dates';
-import { meetingDate, meetingTime, meetingsFor, platformOf } from '../../lib/meetings';
-import { weekRange } from '../../lib/week';
+import { meetingDate, meetingTime, meetingWeeks, meetingsFor, platformOf } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { Glyph } from '../Glyph';
 import { AddMeetingDialog } from './AddMeetingDialog';
 import { TranscriptDialog } from './TranscriptDialog';
 
-function MeetingRow({ meeting, onView }: { meeting: Meeting; onView: () => void }) {
+function MeetingRow({ meeting, last, onView }: { meeting: Meeting; last: boolean; onView: () => void }) {
   const { showToast } = useStore();
   const d = parseDay(meeting.date);
   const dot = <img src={dotMeeting} alt="" width={4} height={4} className="shrink-0" />;
   const platform = meeting.link && platformOf(meeting.link);
   return (
-    <li className="flex items-center gap-4 border-b border-ink/10 px-1 pb-[17px] pt-4">
+    <li className={`flex items-center gap-4 px-1 pb-[17px] pt-4 ${last ? '' : 'border-b border-ink/10'}`}>
       <div
         title={meetingDate(meeting.date)}
         className="flex size-14 shrink-0 flex-col items-center justify-center rounded-[9px] border border-line bg-white text-ink"
@@ -54,43 +53,44 @@ function MeetingRow({ meeting, onView }: { meeting: Meeting; onView: () => void 
 }
 
 /**
- * Transcript tab of the client detail page (Figma 5731:517688): the coach's meetings with the client in the week on
- * the week selector, newest first, each opening its transcript. "Add meeting" opens the Add a meeting popup
- * (5726:141326 upload, 5729:516037 paste), dated within that week.
+ * Transcript tab of the client detail page (Figma 5731:517688): every meeting the coach has had with the client,
+ * newest first, under a header per week (as Notes groups by day), each opening its transcript. "Add meeting" opens
+ * the Add a meeting popup (5726:141326 upload, 5729:516037 paste).
  */
 export function TranscriptTab({ client }: { client: Client }) {
   const { state } = useStore();
-  const offset = state.weekOffset;
-  const meetings = meetingsFor(client.id, offset, state.meetings[client.id]);
+  const weeks = meetingWeeks(meetingsFor(client.id, state.meetings[client.id]));
   const [adding, setAdding] = useState(false);
   const [viewing, setViewing] = useState<Meeting | null>(null);
 
   return (
     <section className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/10 bg-elevated p-px shadow-[0_1px_3px_rgba(24,78,255,0.07)]">
       <div className="flex items-center justify-between border-b border-ink/10 bg-white px-3 py-[14px]">
-        <h4 title={weekRange(offset)} className="text-[15px] font-semibold leading-[18px] text-ink">
-          Meetings with {client.firstName}
-        </h4>
+        <h4 className="text-[15px] font-semibold leading-[18px] text-ink">Meetings with {client.firstName}</h4>
         <button type="button" onClick={() => setAdding(true)} className="flex items-center gap-1 text-[14px] font-semibold leading-[18px] text-brand hover:underline">
           <img src={iconPlus} alt="" width={16} height={16} />
           Add meeting
         </button>
       </div>
       {/* #f9fafa: the card well, as drawn. */}
-      <div className="bg-[#f9fafa] px-3 pb-3">
-        {meetings.length ? (
-          <ul className="flex flex-col">
-            {meetings.map((m) => (
-              <MeetingRow key={m.id} meeting={m} onView={() => setViewing(m)} />
-            ))}
-          </ul>
+      <div className="flex flex-col gap-2 bg-[#f9fafa] px-3 pb-3 pt-2">
+        {weeks.length ? (
+          weeks.map((w) => (
+            <section key={w.monday} className="flex flex-col">
+              {/* The week header, styled like Notes' day header. */}
+              <h5 className="py-1 text-[12px] font-semibold uppercase leading-normal text-ink-muted">{w.label}</h5>
+              <ul className="flex flex-col">
+                {w.meetings.map((m, i) => (
+                  <MeetingRow key={m.id} meeting={m} last={i === w.meetings.length - 1} onView={() => setViewing(m)} />
+                ))}
+              </ul>
+            </section>
+          ))
         ) : (
-          <p className="pt-3 text-[13px] leading-[18px] text-ink-muted">
-            {offset === 0 ? `No meetings with ${client.firstName} this week yet.` : `No meetings with ${client.firstName} in ${weekRange(offset)}.`}
-          </p>
+          <p className="pt-1 text-[13px] leading-[18px] text-ink-muted">No meetings with {client.firstName} yet.</p>
         )}
       </div>
-      {adding && <AddMeetingDialog client={client} offset={offset} onClose={() => setAdding(false)} />}
+      {adding && <AddMeetingDialog client={client} onClose={() => setAdding(false)} />}
       {viewing && <TranscriptDialog client={client} meeting={viewing} onClose={() => setViewing(null)} />}
     </section>
   );
