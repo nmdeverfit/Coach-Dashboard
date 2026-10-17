@@ -164,13 +164,14 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Credits" button with a 12 px +. Action: Send message only. Sections: Upcoming sessions · No sessions booked.
 - **Transcript tab** (Figma `5731:517688`, client detail page only, last tab): one card, `border-ink/10`,
   `bg-elevated`, `shadow-[0_1px_3px_rgba(24,78,255,0.07)]`. Header "Meetings with {first}" 15 px semibold + "+ Add
-  meeting" 14 px semibold brand. `#f9fafa` well `px-3 pb-3`; rows `px-1 pt-4 pb-[17px]`, bottom border `ink/10` on
-  every row. Date tile 56 px (`rounded-[9px]`, day 20 px, weekday 12 px, full date on hover), title 14 px semibold,
-  then 12 px `#484848`: clock 14 · time · `#d9d9d9` 4 px dot · video icon + platform (underlined) · "View
-  transcript" (semibold ink, underlined). Time always reads "2:00 - 3:00pm (60 min)". Every meeting, newest first,
-  split by week: a header in Notes' day-header style (12 px semibold uppercase `ink-muted`, `py-1`) reading "This
-  week · Aug 31 – Sep 6", "Last week · Aug 24 – 30", then the range; groups `gap-2`, no border under a group's last
-  row. Empty: "No meetings with {first} yet." With eight tabs the tab padding drops to 12 px.
+  meeting" 14 px semibold brand. `#f9fafa` well `px-3 pb-3`. Every meeting, newest first, under a week header:
+  12 px semibold uppercase `ink-muted`, `pt-3 pb-1`, the week selector's label ("AUG 24 - AUG 30"). Rows `px-1 pt-3
+  pb-[13px]`, bottom border `ink/10`: date tile 56 px (`rounded-[9px]`, day 20 px, weekday 12 px, full date on
+  hover), title 14 px semibold, then 13 px: clock 14 + "5:30 PM - Aug 27" (`#484848`) · `#d9d9d9` 4 px dot · video
+  icon 14 + platform (ink, plain text). Hover (or focus): the row sits on a white card, rounded 4,
+  `0 0 10px rgba(0,0,0,0.05)`, 5 px wider than the list on each side, its border hidden, and "View transcript"
+  (13 px semibold ink) shows at the right; a click anywhere on the row opens the transcript. Empty: "No meetings
+  with {first} yet." With eight tabs the tab padding drops to 12 px.
 - **Popup** (`Modal`, Figma `5726:511926`): backdrop `black/50` fades in, the card rises in (220 ms). 500 px, white,
   rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
   fields, footer `px-[30px] py-5` + top border. The × is the design's 18 px black disc centred on the top-right

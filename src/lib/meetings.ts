@@ -1,9 +1,9 @@
 import { getMeetings } from '../data/meetings';
 import type { Meeting } from '../data/types';
 import { WEEKDAYS } from './checkin';
-import { daysBetween, formatMonthDay, parseDay } from './dates';
+import { daysBetween, formatMonthDay, parseDay, weekLabel } from './dates';
 import { clockSpan } from './todos';
-import { weekAsOf, weekRange } from './week';
+import { weekAsOf } from './week';
 
 /** Every meeting with the client, the demo's plus the ones the coach added, newest first (date, then start time). */
 export function meetingsFor(clientId: string, added: Meeting[] = []): Meeting[] {
@@ -13,7 +13,7 @@ export function meetingsFor(clientId: string, added: Meeting[] = []): Meeting[] 
 export interface MeetingWeek {
   /** Monday, YYYY-MM-DD */
   monday: string;
-  /** "This week · Aug 31 – Sep 6", "Last week · Aug 24 – 30", "Aug 10 – 16" */
+  /** "Aug 31 - Sep 6", "Aug 24 - Aug 30": the week selector's own label (the design sets it in capitals). */
   label: string;
   meetings: Meeting[];
 }
@@ -24,10 +24,9 @@ export function meetingWeeks(meetings: Meeting[]): MeetingWeek[] {
   for (const m of meetings) {
     const offset = Math.floor(daysBetween(weekAsOf(0), m.date) / 7);
     const monday = weekAsOf(offset);
-    const range = weekRange(offset);
     let week = weeks[weeks.length - 1];
     if (week?.monday !== monday) {
-      week = { monday, label: offset === 0 ? `This week · ${range}` : offset === -1 ? `Last week · ${range}` : range, meetings: [] };
+      week = { monday, label: weekLabel(weekAsOf(0), offset), meetings: [] };
       weeks.push(week);
     }
     week.meetings.push(m);
@@ -62,7 +61,10 @@ export function normalizeLink(raw: string): string | null {
   }
 }
 
-/** "2:00 - 3:00pm (60 min)", "11:30am - 12:30pm (60 min)" across noon. */
+/** "2:00 PM - Aug 27": a list row's start time and date (Figma 5731:517688). */
+export const meetingWhen = (m: Meeting) => `${fieldTime(m.start)} - ${formatMonthDay(parseDay(m.date))}`;
+
+/** "2:00 - 3:00pm (60 min)", "11:30am - 12:30pm (60 min)" across noon: the transcript popup's line. */
 export const meetingTime = (m: Meeting) => `${clockSpan(m.start, m.minutes)} (${m.minutes} min)`;
 
 /** The form's duration choices, in minutes. */

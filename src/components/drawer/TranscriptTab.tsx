@@ -6,48 +6,65 @@ import iconVideo from '../../assets/figma/icon-video.svg';
 import type { Client, Meeting } from '../../data/types';
 import { WEEKDAYS } from '../../lib/checkin';
 import { parseDay } from '../../lib/dates';
-import { meetingDate, meetingTime, meetingWeeks, meetingsFor, platformOf } from '../../lib/meetings';
+import { meetingDate, meetingWeeks, meetingWhen, meetingsFor, platformOf } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { Glyph } from '../Glyph';
 import { AddMeetingDialog } from './AddMeetingDialog';
 import { TranscriptDialog } from './TranscriptDialog';
 
-function MeetingRow({ meeting, last, onView }: { meeting: Meeting; last: boolean; onView: () => void }) {
-  const { showToast } = useStore();
+/**
+ * One meeting (Figma 5731:517688): date tile, title, then start time and date · platform. On hover (or keyboard
+ * focus) the row lifts onto a white card with a light shadow, a few px wider than the list, and shows View transcript.
+ * A click anywhere on the row opens the transcript too.
+ */
+function MeetingRow({ meeting, onView }: { meeting: Meeting; onView: () => void }) {
   const d = parseDay(meeting.date);
-  const dot = <img src={dotMeeting} alt="" width={4} height={4} className="shrink-0" />;
   const platform = meeting.link && platformOf(meeting.link);
   return (
-    <li className={`flex items-center gap-4 px-1 pb-[17px] pt-4 ${last ? '' : 'border-b border-ink/10'}`}>
+    <li
+      onClick={onView}
+      className="group/meeting relative flex cursor-pointer items-center gap-4 border-b border-ink/10 px-1 pb-[13px] pt-3 hover:border-transparent focus-within:border-transparent"
+    >
+      {/* The hover card: white, rounded 4, 0 0 10px black/5, 644 px of the list's 634 (5 px past each side). */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -inset-x-[5px] inset-y-0 rounded-[4px] bg-white opacity-0 shadow-[0_0_10px_rgba(0,0,0,0.05)] transition-opacity duration-150 group-hover/meeting:opacity-100 group-focus-within/meeting:opacity-100"
+      />
       <div
         title={meetingDate(meeting.date)}
-        className="flex size-14 shrink-0 flex-col items-center justify-center rounded-[9px] border border-line bg-white text-ink"
+        className="relative flex size-14 shrink-0 flex-col items-center justify-center rounded-[9px] border border-line bg-white text-ink"
       >
         <span className="-mb-1 text-[20px] font-semibold leading-[1.5] tracking-[-0.4px]">{d.getUTCDate()}</span>
         <span className="text-[12px] font-semibold leading-[18px]">{WEEKDAYS[d.getUTCDay()]}</span>
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+      <div className="relative flex min-w-0 flex-1 flex-col gap-1.5">
         <p className="truncate text-[14px] font-semibold leading-5 text-ink">{meeting.title}</p>
-        <div className="flex items-center gap-2 whitespace-nowrap text-[12px] leading-[18px] tracking-[0.12px] text-[#484848]">
-          <span className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2 whitespace-nowrap text-[13px] leading-[18px] tracking-[0.13px]">
+          <span className="flex items-center gap-1.5 text-[#484848]">
             <Glyph src={iconClock} size={14} inset="8.33%" bleed="-6% -5.99% -6% -6.01%" />
-            {meetingTime(meeting)}
+            {meetingWhen(meeting)}
           </span>
           {platform && (
             <>
-              {dot}
-              <button type="button" onClick={() => showToast(`The ${platform} link opens in a new tab`)} className="flex items-center gap-1.5 hover:text-ink">
+              <img src={dotMeeting} alt="" width={4} height={4} className="shrink-0" />
+              <span className="flex items-center gap-1.5 text-ink">
                 <img src={iconVideo} alt="" width={14} height={14} />
-                <span className="underline">{platform}</span>
-              </button>
+                {platform}
+              </span>
             </>
           )}
-          {dot}
-          <button type="button" onClick={onView} className="font-semibold tracking-normal text-ink underline hover:text-brand">
-            View transcript
-          </button>
         </div>
       </div>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onView();
+        }}
+        className="relative shrink-0 whitespace-nowrap pr-1 text-[13px] font-semibold leading-5 text-ink opacity-0 hover:text-brand focus:opacity-100 group-hover/meeting:opacity-100"
+      >
+        View transcript
+      </button>
     </li>
   );
 }
@@ -73,21 +90,20 @@ export function TranscriptTab({ client }: { client: Client }) {
         </button>
       </div>
       {/* #f9fafa: the card well, as drawn. */}
-      <div className="flex flex-col gap-2 bg-[#f9fafa] px-3 pb-3 pt-2">
+      <div className="flex flex-col bg-[#f9fafa] px-3 pb-3">
         {weeks.length ? (
           weeks.map((w) => (
             <section key={w.monday} className="flex flex-col">
-              {/* The week header, styled like Notes' day header. */}
-              <h5 className="py-1 text-[12px] font-semibold uppercase leading-normal text-ink-muted">{w.label}</h5>
+              <h5 className="pb-1 pt-3 text-[12px] font-semibold uppercase leading-normal text-ink-muted">{w.label}</h5>
               <ul className="flex flex-col">
-                {w.meetings.map((m, i) => (
-                  <MeetingRow key={m.id} meeting={m} last={i === w.meetings.length - 1} onView={() => setViewing(m)} />
+                {w.meetings.map((m) => (
+                  <MeetingRow key={m.id} meeting={m} onView={() => setViewing(m)} />
                 ))}
               </ul>
             </section>
           ))
         ) : (
-          <p className="pt-1 text-[13px] leading-[18px] text-ink-muted">No meetings with {client.firstName} yet.</p>
+          <p className="pt-3 text-[13px] leading-[18px] text-ink-muted">No meetings with {client.firstName} yet.</p>
         )}
       </div>
       {adding && <AddMeetingDialog client={client} onClose={() => setAdding(false)} />}
