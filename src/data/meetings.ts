@@ -1,13 +1,15 @@
 import { addDays } from '../lib/checkin';
+import { MIN_WEEK_OFFSET, weekAsOf } from '../lib/week';
 import { DEMO_TODAY, clients } from './mock';
 import { random } from './profiles';
 import type { Client, ClientStatus, Meeting, TranscriptLine } from './types';
 
 /**
  * Coach–client meetings for the Transcript tab, generated from a seed of the client's id like the rest of the
- * profile: up to four calls in the eight weeks before today, each with a short transcript. Clients with no activity
- * have none, and Aima's stop when she went quiet (15 days ago), so the tab never contradicts her row. Transcripts are
- * stand-in wording; nothing reads them (Olly and the assessment use the stored status only in Phase 1).
+ * profile: zero to two calls in each past week the week selector reaches (from 10 Aug), each with a short
+ * transcript. This week has none yet (today is Monday 06:00). Clients with no activity have none, and Aima's stop
+ * when she went quiet (15 days ago), so the tab never contradicts her row. Transcripts are stand-in wording; nothing
+ * reads them (Olly and the assessment use the stored status only in Phase 1).
  */
 
 const TITLES = ['Monthly check-in call', 'Weekly check-in', 'Program review', 'Nutrition catch-up', 'Goal setting session'];
@@ -50,24 +52,28 @@ function generate(client: Client): Meeting[] {
   if (client.status === 'no_activities') return [];
   const rnd = random(`meetings:${client.id}`);
   const pick = <T,>(xs: readonly T[]) => xs[Math.floor(rnd() * xs.length)];
-  const count = Math.floor(rnd() * 5);
   const latest = client.id === 'aima-ansari' ? addDays(DEMO_TODAY, -16) : addDays(DEMO_TODAY, -1);
   const meetings: Meeting[] = [];
-  let date = addDays(latest, -Math.floor(rnd() * 6));
-  for (let i = 0; i < count; i++) {
-    const title = pick(TITLES);
-    const minutes = pick(MINUTES);
-    meetings.push({
-      id: `${client.id}-m${i}`,
-      title,
-      date,
-      start: pick(STARTS),
-      minutes,
-      timeZone: 'UTC-7',
-      link: pick(LINKS),
-      transcript: { kind: 'lines', lines: transcriptFor(client, title, minutes) },
-    });
-    date = addDays(date, -(7 + Math.floor(rnd() * 10)));
+  for (let offset = MIN_WEEK_OFFSET; offset < 0; offset++) {
+    const r = rnd();
+    const count = r < 0.35 ? 0 : r < 0.8 ? 1 : 2;
+    // Distinct days of that week, never after `latest`.
+    const days = [0, 1, 2, 3, 4, 5, 6].map((d) => addDays(weekAsOf(offset), d)).filter((d) => d <= latest);
+    for (let i = 0; i < count && days.length; i++) {
+      const [date] = days.splice(Math.floor(rnd() * days.length), 1);
+      const title = pick(TITLES);
+      const minutes = pick(MINUTES);
+      meetings.push({
+        id: `${client.id}-m${meetings.length}`,
+        title,
+        date,
+        start: pick(STARTS),
+        minutes,
+        timeZone: 'UTC-7',
+        link: pick(LINKS),
+        transcript: { kind: 'lines', lines: transcriptFor(client, title, minutes) },
+      });
+    }
   }
   return meetings;
 }

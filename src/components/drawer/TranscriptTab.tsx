@@ -7,6 +7,7 @@ import type { Client, Meeting } from '../../data/types';
 import { WEEKDAYS } from '../../lib/checkin';
 import { parseDay } from '../../lib/dates';
 import { meetingDate, meetingTime, meetingsFor, platformOf } from '../../lib/meetings';
+import { weekRange } from '../../lib/week';
 import { useStore } from '../../state/store';
 import { Glyph } from '../Glyph';
 import { AddMeetingDialog } from './AddMeetingDialog';
@@ -53,19 +54,23 @@ function MeetingRow({ meeting, onView }: { meeting: Meeting; onView: () => void 
 }
 
 /**
- * Transcript tab of the client detail page (Figma 5731:517688): the coach's meetings with the client, newest first,
- * each opening its transcript. "Add meeting" opens the Add a meeting popup (5726:141326 upload, 5729:516037 paste).
+ * Transcript tab of the client detail page (Figma 5731:517688): the coach's meetings with the client in the week on
+ * the week selector, newest first, each opening its transcript. "Add meeting" opens the Add a meeting popup
+ * (5726:141326 upload, 5729:516037 paste), dated within that week.
  */
 export function TranscriptTab({ client }: { client: Client }) {
   const { state } = useStore();
-  const meetings = meetingsFor(client.id, state.meetings[client.id]);
+  const offset = state.weekOffset;
+  const meetings = meetingsFor(client.id, offset, state.meetings[client.id]);
   const [adding, setAdding] = useState(false);
   const [viewing, setViewing] = useState<Meeting | null>(null);
 
   return (
     <section className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/10 bg-elevated p-px shadow-[0_1px_3px_rgba(24,78,255,0.07)]">
       <div className="flex items-center justify-between border-b border-ink/10 bg-white px-3 py-[14px]">
-        <h4 className="text-[15px] font-semibold leading-[18px] text-ink">Meetings with {client.firstName}</h4>
+        <h4 title={weekRange(offset)} className="text-[15px] font-semibold leading-[18px] text-ink">
+          Meetings with {client.firstName}
+        </h4>
         <button type="button" onClick={() => setAdding(true)} className="flex items-center gap-1 text-[14px] font-semibold leading-[18px] text-brand hover:underline">
           <img src={iconPlus} alt="" width={16} height={16} />
           Add meeting
@@ -80,10 +85,12 @@ export function TranscriptTab({ client }: { client: Client }) {
             ))}
           </ul>
         ) : (
-          <p className="pt-3 text-[13px] leading-[18px] text-ink-muted">No meetings with {client.firstName} yet.</p>
+          <p className="pt-3 text-[13px] leading-[18px] text-ink-muted">
+            {offset === 0 ? `No meetings with ${client.firstName} this week yet.` : `No meetings with ${client.firstName} in ${weekRange(offset)}.`}
+          </p>
         )}
       </div>
-      {adding && <AddMeetingDialog client={client} onClose={() => setAdding(false)} />}
+      {adding && <AddMeetingDialog client={client} offset={offset} onClose={() => setAdding(false)} />}
       {viewing && <TranscriptDialog client={client} meeting={viewing} onClose={() => setViewing(null)} />}
     </section>
   );

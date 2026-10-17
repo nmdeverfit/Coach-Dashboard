@@ -167,8 +167,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   meeting" 14 px semibold brand. `#f9fafa` well `px-3 pb-3`; rows `px-1 pt-4 pb-[17px]`, bottom border `ink/10` on
   every row. Date tile 56 px (`rounded-[9px]`, day 20 px, weekday 12 px, full date on hover), title 14 px semibold,
   then 12 px `#484848`: clock 14 · time · `#d9d9d9` 4 px dot · video icon + platform (underlined) · "View
-  transcript" (semibold ink, underlined). Newest first; empty: "No meetings with {first} yet." With eight tabs the
-  tab padding drops to 12 px.
+  transcript" (semibold ink, underlined). Time always reads "2:00 - 3:00pm (60 min)". Only the selected week's
+  meetings, newest first; empty: "No meetings with {first} this week yet." / "… in Aug 24 – 30." (the card title's
+  hover gives the range). With eight tabs the tab padding drops to 12 px.
 - **Popup** (`Modal`, Figma `5726:511926`): backdrop `black/50` fades in, the card rises in (220 ms). 500 px, white,
   rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
   fields, footer `px-[30px] py-5` + top border. The × is the design's 18 px black disc centred on the top-right
@@ -177,7 +178,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `ink-secondary`; input 40 px, `rounded-lg`, `#e0e0e0` border (brand on focus), 14 px / 22 px, placeholder
   `ink-muted`; read-only field `#f7f7f7`. Date and time are native pickers under the design's text ("Aug 31, 2026",
   "7:00 AM"); the time zone is a select behind "UTC-7 ⌄" (11 px semibold `#8c8c8c`, 18 px divider). Errors show on
-  submit: `danger` border + 12 px `danger` line under the field, cleared as the coach types. Upload file / Paste
+  submit: `danger` border + 12 px `danger` line under the field, cleared as the coach types. Under date and time a
+  second row (no frame): Duration (select, "60 min" + the design's chevron) and End time (read-only `#f7f7f7`,
+  "–" until a start time is set). The date picker is bounded to the selected week. Upload file / Paste
   text: two 36 px buttons, active `border-brand bg-brand/[0.03]` brand text and icon (Upload's label semibold,
   Paste's regular, as drawn). Drop zone and paste box 120 px, `border-[1.5px]` (dashed for the drop zone, brand
   while dragging). Buttons: Cancel 36 px white `#e0e0e0` rounded 6, primary 36 px brand rounded 8, both `px-[30px]`

@@ -278,8 +278,7 @@ export interface Meeting {
   date: string;
   /** "HH:MM", 24 h */
   start: string;
-  /** Unknown when the coach adds the meeting (the Add a meeting form has no end time). */
-  minutes?: number;
+  minutes: number;
   timeZone: string;
   link?: string;
   transcript: Transcript;

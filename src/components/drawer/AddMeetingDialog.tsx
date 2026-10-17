@@ -7,7 +7,8 @@ import iconUploadBrand from '../../assets/figma/icon-upload-brand.svg';
 import iconUpload from '../../assets/figma/icon-upload.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import type { Client, Transcript } from '../../data/types';
-import { TRANSCRIPT_MAX_BYTES, TRANSCRIPT_TYPES, fieldDate, fieldTime, fileSize, normalizeLink } from '../../lib/meetings';
+import { DURATIONS, TRANSCRIPT_MAX_BYTES, TRANSCRIPT_TYPES, endOf, fieldDate, fieldTime, fileSize, normalizeLink, weekBounds } from '../../lib/meetings';
+import { weekRange } from '../../lib/week';
 import { useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
 import { Glyph } from '../Glyph';
@@ -24,7 +25,7 @@ const BOX = 'flex h-10 w-full items-center rounded-lg border text-[14px] leading
 const boxBorder = (error?: string) => `bg-white ${error ? 'border-danger' : 'border-[#e0e0e0] focus-within:border-brand'}`;
 
 type Mode = 'upload' | 'paste';
-type Errors = Partial<Record<'title' | 'time' | 'link' | 'transcript', string>>;
+type Errors = Partial<Record<'title' | 'date' | 'time' | 'link' | 'transcript', string>>;
 
 function Field({ label, optional, labelSize = 13, error, children }: { label: string; optional?: boolean; labelSize?: 12 | 13; error?: string; children: ReactNode }) {
   return (
@@ -42,12 +43,27 @@ function Field({ label, optional, labelSize = 13, error, children }: { label: st
 }
 
 /** A native date or time picker under the design's field, so the value reads "Aug 31, 2026" / "7:00 AM". */
-function PickerInput({ type, value, max, label, onChange }: { type: 'date' | 'time'; value: string; max?: string; label: string; onChange: (v: string) => void }) {
+function PickerInput({
+  type,
+  value,
+  min,
+  max,
+  label,
+  onChange,
+}: {
+  type: 'date' | 'time';
+  value: string;
+  min?: string;
+  max?: string;
+  label: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <input
       type={type}
       aria-label={label}
       value={value}
+      min={min}
       max={max}
       required
       onChange={(e) => onChange(e.target.value)}
@@ -56,6 +72,13 @@ function PickerInput({ type, value, max, label, onChange }: { type: 'date' | 'ti
     />
   );
 }
+
+/** The design's chevron at the right of a select field. */
+const chevron = (
+  <span className="pointer-events-none flex size-5 items-center justify-center">
+    <Glyph src={iconChevron} size={14} inset="37.5% 25%" bleed="-15.15% -7.58% -30.31% -7.57%" />
+  </span>
+);
 
 /** Upload file / Paste text. The design sets the first label semibold and the second regular, in both states. */
 function SourceButton({ on, icon, label, semibold, onClick }: { on: boolean; icon: ReactNode; label: string; semibold?: boolean; onClick: () => void }) {
@@ -76,14 +99,20 @@ function SourceButton({ on, icon, label, semibold, onClick }: { on: boolean; ico
 
 /**
  * Add a meeting (Figma 5726:141326 Upload file, 5729:516037 Paste text): client (fixed), title, start date and time
- * with a time zone, an optional meeting link, and the transcript as a file (.txt, .docx, .srt, .pdf, up to 10 MB)
- * or pasted text. Checked on submit; the meeting joins the Transcript tab, newest first.
+ * with a time zone, duration (no frame; the user asked for it, and the list shows each meeting's time range), an
+ * optional meeting link, and the transcript as a file (.txt, .docx, .srt, .pdf, up to 10 MB) or pasted text.
+ * The date stays within the week on the week selector, so the new meeting shows in the list the coach is looking at,
+ * and the meeting must have ended by now. Checked on submit.
  */
-export function AddMeetingDialog({ client, onClose }: { client: Client; onClose: () => void }) {
+export function AddMeetingDialog({ client, offset, onClose }: { client: Client; offset: number; onClose: () => void }) {
   const { addMeeting } = useStore();
+  const week = weekBounds(offset);
+  const from = week.from;
+  const to = week.to < DEMO_TODAY ? week.to : DEMO_TODAY;
   const [title, setTitle] = useState('');
-  const [date, setDate] = useState(DEMO_TODAY);
+  const [date, setDate] = useState(to);
   const [time, setTime] = useState('');
+  const [minutes, setMinutes] = useState(60);
   const [timeZone, setTimeZone] = useState(TIME_ZONES[0]);
   const [link, setLink] = useState('');
   const [mode, setMode] = useState<Mode>('upload');
@@ -117,13 +146,18 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
       mode === 'upload' ? file && { kind: 'file', ...file } : pasted.trim() ? { kind: 'text', text: pasted.trim() } : null;
     const next: Errors = {
       title: title.trim() ? undefined : 'Give the meeting a title.',
-      time: !time ? 'Pick a start time.' : date === DEMO_TODAY && time > NOW ? `Pick a time before now (${fieldTime(NOW)} today).` : undefined,
+      date: date >= from && date <= to ? undefined : `Pick a day in ${weekRange(offset)}.`,
+      time: !time
+        ? 'Pick a start time.'
+        : date === DEMO_TODAY && endOf(time, minutes) > NOW
+          ? `The meeting must have ended by now (${fieldTime(NOW)} today).`
+          : undefined,
       link: link.trim() && !url ? 'Enter a full link, like zoom.us/j/123.' : undefined,
       transcript: transcript ? undefined : mode === 'upload' ? 'Upload the transcript file.' : 'Paste the transcript.',
     };
     setErrors(next);
     if (Object.values(next).some(Boolean) || !transcript) return;
-    addMeeting(client.id, { id: `${client.id}-added-${Date.now()}`, title: title.trim(), date, start: time, timeZone, link: url ?? undefined, transcript });
+    addMeeting(client.id, { id: `${client.id}-added-${Date.now()}`, title: title.trim(), date, start: time, minutes, timeZone, link: url ?? undefined, transcript });
     onClose();
   };
 
@@ -166,10 +200,21 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
         </Field>
 
         <div className="flex gap-2">
-          <Field label="Start date">
-            <div className={`${BOX} ${boxBorder()} relative pl-3 pr-2.5`}>
+          <Field label="Start date" error={errors.date}>
+            <div className={`${BOX} ${boxBorder(errors.date)} relative pl-3 pr-2.5`}>
               {fieldDate(date)}
-              <PickerInput type="date" label="Start date" value={date} max={DEMO_TODAY} onChange={(v) => v && setDate(v)} />
+              <PickerInput
+                type="date"
+                label="Start date"
+                value={date}
+                min={from}
+                max={to}
+                onChange={(v) => {
+                  if (!v) return;
+                  setDate(v);
+                  clear('date');
+                }}
+              />
             </div>
           </Field>
           <Field label="Start time" error={errors.time}>
@@ -190,9 +235,7 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
                 <span className="h-[18px] w-px bg-[#e0e0e0]" />
                 <span className="relative flex items-center py-0.5 pl-1.5 pr-0.5 text-[11px] font-semibold leading-[18px] text-[#8c8c8c]">
                   {timeZone}
-                  <span className="flex size-5 items-center justify-center">
-                    <Glyph src={iconChevron} size={14} inset="37.5% 25%" bleed="-15.15% -7.58% -30.31% -7.57%" />
-                  </span>
+                  {chevron}
                   <select
                     aria-label="Time zone"
                     value={timeZone}
@@ -205,6 +248,35 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
                   </select>
                 </span>
               </span>
+            </div>
+          </Field>
+        </div>
+
+        <div className="flex gap-2">
+          <Field label="Duration">
+            <div className={`${BOX} ${boxBorder()} relative justify-between pl-3 pr-2`}>
+              {minutes} min
+              {chevron}
+              <select
+                aria-label="Duration"
+                value={minutes}
+                onChange={(e) => {
+                  setMinutes(Number(e.target.value));
+                  clear('time');
+                }}
+                className="absolute inset-0 cursor-pointer opacity-0"
+              >
+                {DURATIONS.map((m) => (
+                  <option key={m} value={m}>
+                    {m} min
+                  </option>
+                ))}
+              </select>
+            </div>
+          </Field>
+          <Field label="End time">
+            <div className={`${BOX} border-[#e0e0e0] bg-[#f7f7f7] px-3`}>
+              {time ? fieldTime(endOf(time, minutes)) : <span className="text-ink-muted">–</span>}
             </div>
           </Field>
         </div>

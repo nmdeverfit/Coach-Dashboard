@@ -1,12 +1,23 @@
 import { getMeetings } from '../data/meetings';
 import type { Meeting } from '../data/types';
 import { WEEKDAYS } from './checkin';
+import { addDays } from './checkin';
 import { formatMonthDay, parseDay } from './dates';
-import { clockSpan, time12 } from './todos';
+import { clockSpan } from './todos';
+import { weekAsOf } from './week';
 
-/** The Transcript tab's list: the demo's meetings plus the ones the coach added, newest first. */
-export function meetingsFor(clientId: string, added: Meeting[] = []): Meeting[] {
-  return [...added, ...getMeetings(clientId)].sort((a, b) => `${b.date}T${b.start}`.localeCompare(`${a.date}T${a.start}`));
+/** Monday and Sunday of the week `offset` weeks from this one. */
+export const weekBounds = (offset: number) => ({ from: weekAsOf(offset), to: addDays(weekAsOf(offset), 6) });
+
+/**
+ * The Transcript tab's list for the week on the week selector: the demo's meetings plus the ones the coach added,
+ * newest first (latest date and start time on top).
+ */
+export function meetingsFor(clientId: string, offset: number, added: Meeting[] = []): Meeting[] {
+  const { from, to } = weekBounds(offset);
+  return [...added, ...getMeetings(clientId)]
+    .filter((m) => m.date >= from && m.date <= to)
+    .sort((a, b) => `${b.date}T${b.start}`.localeCompare(`${a.date}T${a.start}`));
 }
 
 /** "Zoom", "Google Meet", "Microsoft Teams", from the meeting link; any other link reads "Meeting link". */
@@ -36,8 +47,18 @@ export function normalizeLink(raw: string): string | null {
   }
 }
 
-/** "2:00 - 3:00pm (60 min)", or just "7:00am" when the coach added the meeting without an end time. */
-export const meetingTime = (m: Meeting) => (m.minutes ? `${clockSpan(m.start, m.minutes)} (${m.minutes} min)` : time12(m.start));
+/** "2:00 - 3:00pm (60 min)", "11:30am - 12:30pm (60 min)" across noon. */
+export const meetingTime = (m: Meeting) => `${clockSpan(m.start, m.minutes)} (${m.minutes} min)`;
+
+/** The form's duration choices, in minutes. */
+export const DURATIONS = [15, 30, 45, 60, 90, 120];
+
+/** "HH:MM" plus minutes, as "HH:MM" (same day; the form's durations never cross midnight from a past start). */
+export function endOf(start: string, minutes: number) {
+  const [h, m] = start.split(':').map(Number);
+  const t = h * 60 + m + minutes;
+  return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+}
 
 /** "Wed, Aug 26, 2026" */
 export function meetingDate(iso: string) {
@@ -53,7 +74,8 @@ export function fieldDate(iso: string) {
 
 /** "7:00 AM", as the form shows its time. */
 export function fieldTime(hhmm: string) {
-  const [h, m] = hhmm.split(':').map(Number);
+  const [hh, m] = hhmm.split(':').map(Number);
+  const h = hh % 24;
   return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
 }
 

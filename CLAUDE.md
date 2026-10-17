@@ -47,9 +47,10 @@ the same change.
   `lastWeekStatus`, older weeks back-filled with the current status), program countdown and next session;
   `groupsInWeek` feeds the group cards. `MIN_WEEK_OFFSET = -3` (logs start 3 Aug). Past reviews come from
   `seededReview` (about 75 % reviewed) plus the coach's changes (`pastReviewed` in the store).
-- `src/data/meetings.ts` + `src/lib/meetings.ts`: the Transcript tab's meetings. Up to four calls per client in the
-  eight weeks before today, generated from a seed of the id (Aima's stop when she went quiet), each with stand-in
-  transcript lines; `meetingsFor` adds the coach's (`meetings` in the store, `addMeeting`) newest first. Platform
+- `src/data/meetings.ts` + `src/lib/meetings.ts`: the Transcript tab's meetings. Zero to two calls per client in each
+  past week the selector reaches (none yet this week, since today is Monday 06:00), generated from a seed of the id
+  (Aima's stop when she went quiet), each with stand-in transcript lines; `meetingsFor(id, weekOffset, added)` keeps
+  the selected week's, adds the coach's (`meetings` in the store, `addMeeting`) and sorts newest first. Platform
   comes from the link (Zoom, Google Meet, Microsoft Teams). Nothing reads a transcript (Olly and the assessment
   stay on the stored status).
 - `src/lib/olly.ts`: the middle column's content. `tellPrompt` (Spec 4's one fixed prompt), `tellAnswer` (the
@@ -102,10 +103,11 @@ the same change.
 - Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Booking · Notes · Transcript,
   first tab = focus) is shared by the Check-in panel and the client detail page. Transcript (Figma `5731:517688`)
   shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
-  rows of date tile · title · time · platform · View transcript), `AddMeetingDialog` (`5726:141326` Upload file,
-  `5729:516037` Paste text; title, date, time and a transcript are required and checked on submit, the meeting
-  can't start after 06:00 today, files .txt / .docx / .srt / .pdf up to 10 MB, .txt and .srt are read for the
-  preview) and `TranscriptDialog` (View transcript; no frame). Booking (Spec 4 BL2's `booking` tab) shows only for a
+  rows of date tile · title · "2:00 - 3:00pm (60 min)" · platform · View transcript; only the week on the week
+  selector, per the user), `AddMeetingDialog` (`5726:141326` Upload file, `5729:516037` Paste text, plus Duration
+  and a read-only End time the user asked for; title, time and a transcript are required and checked on submit,
+  the date stays within the selected week, the meeting must have ended by 06:00 today, files .txt / .docx / .srt /
+  .pdf up to 10 MB, .txt and .srt are read for the preview) and `TranscriptDialog` (View transcript; no frame). Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
@@ -215,8 +217,9 @@ the same change.
 - Transcript tab (`5731:517688`, trialled at the user's request): the brief puts meeting transcription into the
   AI assessment in Phase 2 (Loom integration), so in the demo transcripts are only stored and shown; Olly and the
   assessment never read them. The tab is on the client detail page only (Spec 4 BL1 fixes the Check-in panel's
-  tabs). The Add a meeting form has no end time or duration, so a meeting the coach adds shows only its start
-  ("7:00am") where the design's rows read "2:00 - 3:00pm (60 min)". The frame's rows are placeholders (one title
+  tabs). Duration and End time have no frame (Duration is a select of 15–120 min). The tab follows the week
+  selector, so it is the one part of the client detail page that is not point-in-time; this week starts empty.
+  The frame's rows are placeholders (one title
   four times, all on day 3); View transcript has no frame and opens a popup with the lines. Time zone choices
   (UTC-7, -5, +0, +7) are the demo's.
 - The Change status modal, the vertical row expand (rows open the client detail
