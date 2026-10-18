@@ -120,7 +120,7 @@ cards goes past the brief's "no fifth card" (Phase 1); personalisation is Phase 
 - `src/components/drawer/ClientDetails.tsx`: the client detail page (Figma `5671:141948`): CLIENT DETAILS title,
   avatar + name + "Status:" chip, four quick actions (Draft with AI, Send message, Mark as reviewed, More), assessment +
   feedback, the six tabs (`ClientTabs`); once the title row's icons scroll away, `ClientFooter` pins them labelled
-  at the bottom (More · Mark as reviewed · Draft with AI · Send message). `ClientDrawer` opens it from a group-card row (`data-client-row`);
+  at the bottom (Mark as reviewed · Draft with AI · Send message, then More as a square icon). `ClientDrawer` opens it from a group-card row (`data-client-row`);
   the to-do panel's name link shows it with ‹ back. Shell hooks in `DrawerShell.tsx`. Mark as reviewed here completes
   the client's Check-in to-dos and keeps the panel open; ticking a Check-in row marks the client reviewed (one action).
 - Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Booking · Notes · Transcript,

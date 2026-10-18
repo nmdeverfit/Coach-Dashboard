@@ -10,6 +10,7 @@ import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
 import { ClientActions, MORE_ACTIONS_TOAST } from '../ClientActions';
 import { StatusChip } from '../StatusChip';
+import { Tooltip } from '../Tooltip';
 import { AiAssessment } from './AiAssessment';
 import { ClientTabs, type ClientTabKey } from './ClientTabs';
 import { DrawerAside, useCloseOnOutside, useDrawerPresence } from './DrawerShell';
@@ -50,25 +51,33 @@ function useScrolledPast(target: RefObject<HTMLElement>) {
 
 /**
  * The quick actions again, labelled, in a footer pinned to the panel's bottom once the title row's icons have
- * scrolled away (no frame; the to-do panel's footer buttons). Mark as reviewed is the primary, as on Check-in.
+ * scrolled away (no frame; the to-do panel's footer buttons). Mark as reviewed is the primary, as on Check-in;
+ * More stays an icon, last.
  */
 function ClientFooter({ client }: { client: Client }) {
   const { state, reviewClient, showToast } = useStore();
   const reviewed = Boolean(state.reviewed[client.id]);
   return (
-    <footer className="flex shrink-0 animate-footer-in items-center justify-between gap-2 border-t border-line bg-white px-[30px] pb-5 pt-4 shadow-footer">
-      <FooterButton variant="plain" icon={<img src={iconMore} alt="" width={16} height={16} />} label="More" onClick={() => showToast(MORE_ACTIONS_TOAST)} />
-      <div className="flex items-center gap-2">
-        <FooterButton
-          variant="primary"
-          icon={<img src={iconCircleCheck} alt="" width={16} height={16} />}
-          label={reviewed ? 'Reviewed' : 'Mark as reviewed'}
-          disabled={reviewed}
-          onClick={() => reviewClient(client.id)}
-        />
-        <DraftWithAiButton clientId={client.id} />
-        <SendMessageButton clientId={client.id} />
-      </div>
+    <footer className="flex shrink-0 animate-footer-in items-center justify-end gap-2 border-t border-line bg-white px-[30px] pb-5 pt-4 shadow-footer">
+      <FooterButton
+        variant="primary"
+        icon={<img src={iconCircleCheck} alt="" width={16} height={16} />}
+        label={reviewed ? 'Reviewed' : 'Mark as reviewed'}
+        disabled={reviewed}
+        onClick={() => reviewClient(client.id)}
+      />
+      <DraftWithAiButton clientId={client.id} />
+      <SendMessageButton clientId={client.id} />
+      {/* More stays an icon: a 40 px square, the footer buttons' height, with the title row's tooltip. */}
+      <button
+        type="button"
+        aria-label="More"
+        onClick={() => showToast(MORE_ACTIONS_TOAST)}
+        className="group/tip relative flex size-10 shrink-0 items-center justify-center rounded-lg border border-line-light bg-white hover:bg-surface-secondary"
+      >
+        <img src={iconMore} alt="" width={16} height={16} />
+        <Tooltip label="More" />
+      </button>
     </footer>
   );
 }
