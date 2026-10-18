@@ -144,10 +144,10 @@ the same change.
   "Customize metrics" on the list) or a group card's ⋯ menu (`CardMenu` in `CategoryGroup`: Collapse / Expand,
   Remove group, Customize cards…). Shown cards on the left (drag or Alt + ↑ / ↓, ⊖, a count "4/6"), the library on
   the right (⊕ or drag in; "Also on Dashboard" / "Also on Today's Brief" from the other tab's draft). Dragging leaves
-  a grey slot and draws a brand line in the closest gap (`gapAt`). Any card can go as long as one stays. Brief: the
-  four + `EXTRA_GROUPS` (Form to review, On track, Review completed; members from `cardMembers` in `lib/groups.ts`),
-  up to `MAX_GROUPS` = 6; Dashboard: `METRICS` in `components/metrics.ts` (the seven + Upcoming bookings, Paused),
-  up to `MAX_METRICS` = 8. Save and Continue saves both; Cancel / × / Esc drop both; Reset resets the open tab.
+  a grey slot and draws a brand line in the closest gap (`gapAt`). Any card can go as long as one stays. Both tabs
+  offer the same nine cards (`METRIC_ORDER`: the brief's four + `EXTRA_GROUPS` Form to review, On track, Review
+  completed, No activities, Paused; members from `cardMembers` in `lib/groups.ts`, Paused is empty in the demo) and
+  the same limit, `MAX_CARDS` = 8 (the user's call). Defaults stay the brief's four and the list's seven. Save and Continue saves both; Cancel / × / Esc drop both; Reset resets the open tab.
   State: `rail` (order + collapsed) and `metrics` in the store, kept in localStorage; `customize` opens the popup.
 - `tailwind.config.js`: tokens mirror the Figma variables (see below). Use the tokens instead of raw hex values.
 
@@ -262,8 +262,9 @@ the same change.
   the Low touch and Self-guided hints are the demo's wording (only High touch's is drawn).
 - Customize cards goes past Phase 1 on both surfaces: the metric row is fixed (Customize Metrics is Phase 3), the rail
   has "no fifth card", and removing one of the brief's four cards takes away that to-do type's full-list surface on
-  the brief (AC5; the client list's tabs still have it). The user dropped the lock that kept them. Session credits
-  was dropped as a card at the user's request. "Save and Continue" is the design's copy ("Save" was suggested).
+  the brief (AC5; the client list's tabs still have it). The user dropped the lock that kept them. No activities and
+  Paused can be group cards, which the brief rules out ("no group card"). Session credits was dropped as a card at
+  the user's request. "Save and Continue" is the design's copy ("Save" was suggested).
 - The Change status modal, the vertical row expand (rows open the client detail
   drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
   are not built yet.

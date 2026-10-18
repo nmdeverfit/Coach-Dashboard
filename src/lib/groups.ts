@@ -24,5 +24,10 @@ export function cardMembers(key: CardKey, offset: number, ctx: { todos: Todo[]; 
       return offset === 0 ? list.filter((c) => hasFormToReview(c, getProfile(c.id), ctx.todos)) : [];
     case 'review_completed':
       return list.filter((c) => ctx.reviewed(c.id));
+    case 'no_activities':
+      return list.filter((c) => c.status === 'no_activities');
+    case 'paused':
+      // Nobody in the demo is paused; the list's Paused tab is empty too.
+      return [];
   }
 }
