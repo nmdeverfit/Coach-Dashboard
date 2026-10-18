@@ -132,7 +132,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Every panel with an assessment has it (Check-in, Build, Remind, Acknowledge, client details).
 - **Add context** (Figma `5746:520123` button, `5744:519377` open, `5746:519756` saved; `drawer/AiContext.tsx`): the
   card's bottom row is `justify-between`, Add context left, Tell me more right. Button 36 px, white, `border-line-light`,
-  rounded 4, list-plus icon 20 px + "Add context" 13 px semibold `ink-tertiary`. It opens the questionnaire below the
+  rounded 4, list-plus icon 20 px + "Add context" 13 px semibold `ink-tertiary`. Hover (no frame): the dark
+  `Tooltip`, `wide start` (wraps at 240 px, left edge on the button's, arrow over the icon): "Tell the AI how you coach {first}, so the assessment matches your
+  approach." It opens the questionnaire below the
   row (the button hides while open): `bg-surface-secondary`, `border-line-light`, rounded 8; header "Add context for
   AI Assessment" 16 px semibold with Cancel (white, 88 × 32, rounded 5) and Save (brand, 88 × 32, disabled until
   something is filled in). Questions are numbered 14 px semibold, split by `border-line-light`: 1. How do you coach

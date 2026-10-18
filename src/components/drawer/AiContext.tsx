@@ -4,6 +4,7 @@ import iconCheck from '../../assets/figma/icon-circle-check-brand.svg';
 import iconListPlus from '../../assets/figma/icon-list-plus.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import type { AiContext, Client, CoachingStyle, UntrackedArea } from '../../data/types';
+import { Tooltip } from '../Tooltip';
 
 /**
  * Add context for AI Assessment (Figma: button 5746:520123, open 5744:519377, saved 5746:519756). The coach tells
@@ -25,16 +26,17 @@ const MAX_NOTE = 255;
 
 const weeks = (n: number) => `${n} week${n === 1 ? '' : 's'}`;
 
-/** Add context: 36 px, white, Border/Light, list-plus icon + 13 px semibold Text/Tertiary. */
-export function AddContextButton({ onClick }: { onClick: () => void }) {
+/** Add context: 36 px, white, Border/Light, list-plus icon + 13 px semibold Text/Tertiary, with a tooltip on hover. */
+export function AddContextButton({ firstName, onClick }: { firstName: string; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex h-9 items-center gap-2 rounded-[4px] border border-line-light bg-white p-2 text-[13px] font-semibold leading-[1.5] text-ink-tertiary hover:bg-surface-secondary hover:text-ink"
+      className="group/tip relative flex h-9 items-center gap-2 rounded-[4px] border border-line-light bg-white p-2 text-[13px] font-semibold leading-[1.5] text-ink-tertiary hover:bg-surface-secondary hover:text-ink"
     >
       <img src={iconListPlus} alt="" width={20} height={20} />
       Add context
+      <Tooltip wide start label={`Tell the AI how you coach ${firstName}, so the assessment matches your approach.`} />
     </button>
   );
 }
