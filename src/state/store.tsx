@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { DEMO_TODAY, clients, todos as seedTodos } from '../data/mock';
-import type { Client, FeedbackState, GroupKey, Meeting, Todo } from '../data/types';
+import type { CardKey, Client, FeedbackState, GroupKey, Meeting, Todo } from '../data/types';
+import { ALL_GROUPS, DEFAULT_ORDER } from '../components/groups';
 import type { Assessment } from '../lib/checkin';
 import type { ClientTabKey } from '../components/drawer/ClientTabs';
 import type { DashboardTab } from '../lib/dashboard';
@@ -56,6 +57,38 @@ interface State {
   feedback: Record<string, FeedbackState>;
   /** Meetings the coach added on the Transcript tab in this session, by client. */
   meetings: Record<string, Meeting[]>;
+  /** The rail's group cards, as the coach customized them (layout test). */
+  rail: RailLayout;
+}
+
+/** Which group cards the rail shows, in what order, and which are collapsed to their header. */
+export interface RailLayout {
+  order: CardKey[];
+  collapsed: CardKey[];
+}
+
+export const DEFAULT_RAIL: RailLayout = { order: DEFAULT_ORDER, collapsed: [] };
+const RAIL_KEY = 'cid-demo-rail';
+
+/** The coach's layout survives a reload in this browser; storage may be blocked, so every access is guarded. */
+function loadRail(): RailLayout {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(RAIL_KEY) ?? 'null') as RailLayout | null;
+    if (saved && Array.isArray(saved.order) && saved.order.every((k) => k in ALL_GROUPS)) {
+      return { order: saved.order, collapsed: (saved.collapsed ?? []).filter((k) => saved.order.includes(k)) };
+    }
+  } catch {
+    // Private window or blocked storage: start from the default.
+  }
+  return DEFAULT_RAIL;
+}
+
+function saveRail(rail: RailLayout) {
+  try {
+    window.localStorage.setItem(RAIL_KEY, JSON.stringify(rail));
+  } catch {
+    // Not persisted; the layout still holds for this session.
+  }
 }
 
 type Action =
@@ -65,7 +98,9 @@ type Action =
   | { type: 'setView'; view: View }
   | { type: 'shiftWeek'; by: number }
   | { type: 'resetWeek' }
-  | { type: 'openGroup'; group: GroupKey | null }
+  | { type: 'openGroup'; group: CardKey | null }
+  | { type: 'setRail'; rail: RailLayout }
+  | { type: 'toggleCollapsed'; key: CardKey }
   | { type: 'toast'; message: string | null }
   | { type: 'select'; id: string | null }
   | { type: 'selectClient'; id: string | null; tab?: ClientTabKey }
@@ -98,6 +133,7 @@ const initialState: State = {
   sent: {},
   feedback: {},
   meetings: {},
+  rail: loadRail(),
 };
 
 const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
@@ -113,12 +149,6 @@ export function isReviewed(state: Pick<State, 'reviewed' | 'pastReviewed'>, clie
   return state.pastReviewed[offset]?.[clientId] ?? seededReview(clientId, offset);
 }
 
-const GROUP_TAB: Record<GroupKey, DashboardTab> = {
-  at_risk: 'at_risk',
-  needs_attention: 'needs_attention',
-  program_ending: 'program_ending',
-  upcoming_bookings: 'booking',
-};
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -167,7 +197,14 @@ function reducer(state: State, action: Action): State {
     case 'resetWeek':
       return { ...state, weekOffset: 0 };
     case 'openGroup':
-      return { ...state, view: 'dashboard', dashboardTab: action.group ? GROUP_TAB[action.group] : 'all', selectedClientId: null, selectedTodoId: null, side: null };
+      return { ...state, view: 'dashboard', dashboardTab: action.group ? ALL_GROUPS[action.group].tab : 'all', selectedClientId: null, selectedTodoId: null, side: null };
+    case 'setRail':
+      return { ...state, rail: action.rail };
+    case 'toggleCollapsed': {
+      const { collapsed } = state.rail;
+      const next = collapsed.includes(action.key) ? collapsed.filter((k) => k !== action.key) : [...collapsed, action.key];
+      return { ...state, rail: { ...state.rail, collapsed: next } };
+    }
     case 'setDashboardTab':
       return { ...state, dashboardTab: action.tab };
     case 'toast':
@@ -299,7 +336,9 @@ interface Store {
   shiftWeek: (by: number) => void;
   resetWeek: () => void;
   /** Opens the client list filtered to a group; null clears the filter. */
-  openGroup: (group: GroupKey | null) => void;
+  openGroup: (group: CardKey | null) => void;
+  setRail: (rail: RailLayout) => void;
+  toggleCollapsed: (key: CardKey) => void;
   showToast: (message: string) => void;
   selectTodo: (id: string | null) => void;
   /** Opens the client detail page, optionally on a given tab. */
@@ -359,6 +398,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       shiftWeek: (by) => dispatch({ type: 'shiftWeek', by }),
       resetWeek: () => dispatch({ type: 'resetWeek' }),
       openGroup: (group) => dispatch({ type: 'openGroup', group }),
+      setRail: (rail) => {
+        saveRail(rail);
+        dispatch({ type: 'setRail', rail });
+      },
+      toggleCollapsed: (key) => {
+        const { order, collapsed } = state.rail;
+        saveRail({ order, collapsed: collapsed.includes(key) ? collapsed.filter((k) => k !== key) : [...collapsed, key] });
+        dispatch({ type: 'toggleCollapsed', key });
+      },
       showToast,
       selectTodo: (id) => dispatch({ type: 'select', id }),
       selectClient: (id, tab) => dispatch({ type: 'selectClient', id, tab }),

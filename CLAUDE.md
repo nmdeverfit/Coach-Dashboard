@@ -12,7 +12,14 @@ the same change.
 **Branch `claude/layout-3-columns` (layout test, the user's call):** the brief page splits into three parts: Today's
 Brief takes two and the right rail one (`grid-cols-3`, `col-span-2`, each column scrolls on its own). In the narrow
 rail the group cards stack in one column, each list capped at 186 px (three clients and half of the fourth), and
-Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail. It publishes to its own artifact (title "Check-in Dashboard v2 ·
+Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail. Also trialled here,
+**Customize groups** (no Figma frame): "Client groups" + Customize above the cards, and a ⋯ menu on each card
+(Collapse / Expand, Remove for added groups, Customize groups…). Customize turns the cards into compact rows: drag
+or ↑ / ↓ to reorder, Collapse / Expand, × on added groups, "+ Add group" opens `EXTRA_GROUPS` (Form to review, On
+track, Review completed, Session credits; each has a client-list tab behind View all, members from `cardMembers` in
+`lib/groups.ts`), up to `MAX_GROUPS` = 6; Done / Cancel / Reset to default. The brief's four can be collapsed, never
+removed (AC5: a collapsed card keeps its count and View all). Layout in `state.rail`, kept in localStorage. Adding
+cards goes past the brief's "no fifth card" (Phase 1); personalisation is Phase 3. It publishes to its own artifact (title "Check-in Dashboard v2 ·
 3 columns"); the main branch's artifact is unchanged.
 
 ## Project
