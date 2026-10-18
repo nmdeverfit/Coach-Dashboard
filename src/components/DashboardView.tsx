@@ -6,16 +6,10 @@ import iconDropdown from '../assets/figma/icon-dropdown.svg';
 import iconPencilAiSm from '../assets/figma/icon-pencil-ai-sm.svg';
 import iconPlusView from '../assets/figma/icon-plus-view.svg';
 import iconSearch from '../assets/figma/icon-search-note.svg';
-import statAtRisk from '../assets/figma/stat-at-risk.svg';
-import statFormReview from '../assets/figma/stat-form-review.svg';
-import statNeedsAttention from '../assets/figma/stat-needs-attention.svg';
-import statNoActivities from '../assets/figma/stat-no-activities.svg';
-import statOnTrack from '../assets/figma/stat-on-track.svg';
-import statProgramEnding from '../assets/figma/stat-program-ending.svg';
-import statReviewCompleted from '../assets/figma/stat-review-completed.svg';
 import { clients } from '../data/mock';
 import { getProfile } from '../data/profiles';
-import type { Client } from '../data/types';
+import type { Client, MetricKey } from '../data/types';
+import { cardMembers } from '../lib/groups';
 import { activityLine, byUrgency, hasFormToReview, inTab, lastActive, statusLine, type ActivityLine, type DashboardTab } from '../lib/dashboard';
 import { clientsInWeek, weekAsOf } from '../lib/week';
 import { useStore } from '../state/store';
@@ -25,26 +19,14 @@ import { ClientActions } from './ClientActions';
 import { ClientCell, HEAD, reducedMotion, rowProps, SectionHeader } from './ClientListParts';
 import { AI_GRADIENT } from './drawer/AiAssessment';
 import { Glyph } from './Glyph';
+import { METRICS } from './metrics';
 import { StatusChip } from './StatusChip';
 
 /**
- * The client-list view (Figma 5676:145292): the seven-card metric row, the tabs, search and filters, and the client
+ * The client-list view (Figma 5676:145292): the metric row (the brief's seven unless the coach customized it), the tabs, search and filters, and the client
  * table split into Need Review and Review Completed. Marking a client reviewed here is the same review as a
  * Check-in to-do's (brief, S3 BL5), so the row moves between sections and the to-do completes.
  */
-
-type Icon = { src: string; inset: string; bleed: string };
-
-/** Seven cards: the four statuses, then the three workflow cards. Paused keeps its tab only (brief). */
-const METRICS: { tab: DashboardTab; label: string; icon: Icon }[] = [
-  { tab: 'at_risk', label: 'At risk', icon: { src: statAtRisk, inset: '8.33% 8.33% 8.34% 8.34%', bleed: '-4.41%' } },
-  { tab: 'needs_attention', label: 'Needs attention', icon: { src: statNeedsAttention, inset: '12.5%', bleed: '-4.18%' } },
-  { tab: 'on_track', label: 'On track', icon: { src: statOnTrack, inset: '8.33%', bleed: '-4.17%' } },
-  { tab: 'no_activities', label: 'No activities', icon: { src: statNoActivities, inset: '0', bleed: '0' } },
-  { tab: 'program_ending', label: 'Program ending', icon: { src: statProgramEnding, inset: '8.33% 12.5%', bleed: '-3.75% -4.17%' } },
-  { tab: 'form_review', label: 'Form to review', icon: { src: statFormReview, inset: '8.33% 12.5%', bleed: '-3.75% -4.17%' } },
-  { tab: 'review_completed', label: 'Review completed', icon: { src: statReviewCompleted, inset: '8.32% 8.33% 8.33% 8.34%', bleed: '-3.75% -3.76% -3.75% -3.75%' } },
-];
 
 const TABS: { tab: DashboardTab; label: string; noCount?: boolean }[] = [
   { tab: 'all', label: 'All clients' },
@@ -110,6 +92,11 @@ export function DashboardView() {
   const weekClients = clientsInWeek(offset);
   const ctx = (c: Client) => ({ formToReview: formToReview.has(c.id), reviewed: reviewedNow(c.id) });
   const count = (tab: DashboardTab) => weekClients.filter((c) => inTab(tab, c, ctx(c))).length;
+  // Upcoming bookings counts its group, as the rail card does (the Booking tab has no count); the rest count their tab.
+  const metricCount = (key: MetricKey) =>
+    key === 'upcoming_bookings'
+      ? cardMembers(key, offset, { todos: state.todos, reviewed: reviewedNow }).length
+      : count(METRICS[key].tab);
 
   const q = query.trim().toLowerCase();
   const rows = rowsInWeek(offset).filter(
@@ -123,9 +110,9 @@ export function DashboardView() {
   return (
     <div className="flex min-h-full flex-col bg-surface-secondary">
       <div className="flex gap-2 p-3">
-        {METRICS.map((m) => (
+        {state.metrics.map((key) => METRICS[key]).map((m) => (
           <button
-            key={m.tab}
+            key={m.key}
             type="button"
             onClick={() => setDashboardTab(m.tab)}
             className={`flex min-w-0 flex-1 basis-0 flex-col gap-3 overflow-hidden rounded-lg border bg-white px-3 py-4 text-left hover:border-line-light hover:shadow-card ${
@@ -136,7 +123,7 @@ export function DashboardView() {
               <Glyph src={m.icon.src} size={20} inset={m.icon.inset} bleed={m.icon.bleed} />
               <span className="truncate text-[14px] font-semibold leading-[1.5] tracking-[-0.28px] text-ink">{m.label}</span>
             </span>
-            <span className="px-1 text-[20px] font-semibold leading-[1.2] tracking-[-0.4px] text-ink tabular-nums">{count(m.tab)}</span>
+            <span className="px-1 text-[20px] font-semibold leading-[1.2] tracking-[-0.4px] text-ink tabular-nums">{metricCount(m.key)}</span>
           </button>
         ))}
       </div>

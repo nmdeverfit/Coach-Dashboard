@@ -24,6 +24,25 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 - Shell: main sidebar · header (2 rows) · body split in two equal columns (Today's Brief | right rail).
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
   height of 10 one-line rows (560 px) and scrolls inside.
+- **Customize cards** (Figma `5749:521640` + a tab, a trial on both branches; extra cards keep the 2 × 2 grid, so six
+  make three rows): each card's header ends in a chevron (collapse
+  toggle) and a 28 px ⋯ button (`icon-more`) opening a 190 px menu (white, `#e0e0e0` border, rounded 8, shadow
+  `0 8px 24px rgba(0,0,0,0.12)`; Remove in `danger`; last item "Customize cards…"). Collapsed card = header only,
+  `py-3`, with View all at the right (text only, no arrow); in the two-column (past week) grid it spans both columns.
+  The popup is the shared `Modal` at 800 px, title "Customize cards", then the header's view toggle (32 px, 13 px) as
+  tabs Today's Brief | Dashboard, then two columns: shown (449 px, `bg-surface-secondary`, rounded 8, `p-4`, tall
+  enough for eight rows so tabs never change the height; heading 12 px semibold uppercase `ink-tertiary` + "(Drag to
+  reorder)" 13 px, count "4/6" at the right) and the library (275 px, hint "Click ⊕ or drag to left column to add
+  card / metric", or "Up to 6 cards. Remove one to add another." when full). Rows as drawn: white, `border-line`,
+  rounded 8, `py-3 pl-2 pr-3`, drag dots 16 + icon 20 + name 14 px semibold, ⊖ / ⊕ 16 px at the right on every row
+  (no locks; both tabs look the same); library rows add "Also on Dashboard" 11 px `ink-muted` under the name.
+  Dragging (the user's reference): the browser's drag image is the card, its slot stays as an empty
+  `bg-surface-secondary` box, and a 3 px brand line sits in the gap closest to the pointer (none in the card's own
+  two gaps, where nothing would move). Footer: "Reset to default"
+  (13 px semibold underlined) · Cancel (44 px, rounded 5) · Save and Continue (44 px brand). Toast "Cards updated".
+  **Dashboard Settings** (`5749:521870`): open = `bg-brand/10`, `border-black/15`, brand text and gear; the menu
+  hangs 4 px under it, right-aligned, 252 px, white, rounded 4, `0 0 2px #b0bac8, 0 4px 16px rgba(37,40,48,0.1)`,
+  an 8 px arrow, `py-3`, items 34 px, `px-5`, 16 px icon + 13 px `#333`.
 - **To-do details drawer:** 720 px wide, fixed to the right, full height, `shadow-drawer`. Slides in
   (`animate-drawer-in`, 280 ms) and out (`animate-drawer-out`, 220 ms). Closes on ×, Esc or a click outside.
   - Header bar: 56 px, `px-5`, bottom border, "TO-DO DETAILS" 13 px semibold `ink-secondary`, × 20 px.

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { DashboardView } from './components/DashboardView';
+import { CustomizeCards } from './components/CustomizeCards';
 import { ClientDrawer } from './components/drawer/ClientDetails';
 import { TodoDrawer } from './components/drawer/TodoDrawer';
 import { Header } from './components/Header';
@@ -66,6 +67,7 @@ export default function App() {
       <TodoDrawer />
       <ClientDrawer />
       <SidePanel />
+      {state.customize && <CustomizeCards initialTab={state.customize} />}
       <Toast />
     </div>
   );
