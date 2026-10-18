@@ -125,6 +125,7 @@ function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail
     <>
       <div className="flex flex-col gap-2 px-[30px] pb-[30px] pt-2.5">
         <AiAssessment
+          client={client}
           assessment={view.assessment}
           onTellMeMore={() => openOlly(client.id, { mode: 'tell', assessment: view.assessment })}
         />

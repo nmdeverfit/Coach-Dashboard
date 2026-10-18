@@ -19,6 +19,7 @@ function Assessment({ client, assessment }: { client: Client; assessment: BuildV
   return (
     <div className="px-[30px] pb-[30px] pt-2.5">
       <AiAssessment
+          client={client}
         assessment={assessment}
         onTellMeMore={() => openOlly(client.id, { mode: 'tell', assessment })}
       />

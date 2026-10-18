@@ -284,3 +284,20 @@ export interface Meeting {
   link?: string;
   transcript: Transcript;
 }
+
+/** How closely the coach works with a client, from Add context (the AI Assessment's questionnaire). */
+export type CoachingStyle = 'high_touch' | 'low_touch' | 'self_guided';
+/** Data a client doesn't log, so Olly shouldn't read its absence as slipping. */
+export type UntrackedArea = 'nutrition' | 'tasks_habits';
+
+/** What the coach told Olly about a client in Add context (Figma 5744:519377). */
+export interface AiContext {
+  style?: CoachingStyle;
+  untracked: UntrackedArea[];
+  untrackedNote: string;
+  /** "Note for the next N weeks": how long the note applies, from the day it was saved. */
+  nextWeeks: number;
+  nextNote: string;
+  /** YYYY-MM-DD */
+  savedOn: string;
+}

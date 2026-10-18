@@ -126,6 +126,11 @@ the same change.
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
   reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
   close on ×, Esc or click outside.
+- `src/components/drawer/AiContext.tsx`: Add context (Figma `5746:520123`, `5744:519377`, `5746:519756`), inside
+  every AI Assessment card (`AiAssessment` takes `client`): `AddContextButton`, `ContextForm` (coaching style ·
+  what the client doesn't track + note · a note for the next N weeks), `ContextAddedChip` ("Context added | Edit").
+  Stored per client in `aiContext` (`setAiContext`, session only, not persisted), shared by the panel and the
+  client detail page.
 - `tailwind.config.js`: tokens mirror the Figma variables (see below). Use the tokens instead of raw hex values.
 
 ### Design source (Figma)
@@ -232,6 +237,11 @@ the same change.
   The frame's rows are placeholders (one title
   four times, all on day 3); View transcript has no frame and opens a popup with the lines. Time zone choices
   (UTC-7, -5, +0, +7) are the demo's.
+- Add context (trialled at the user's request, not in the brief or Spec 4): the context is only stored and shown;
+  the assessment, Tell me more and drafts do not change with it (it would apply from the next daily generation).
+  Coaching style per client is close to what the brief puts out: coach-facing signal settings (Phase 3),
+  low-touch / on-demand workflows and tone personalisation (Out). The design's "Jordan" is the client's first name;
+  the Low touch and Self-guided hints are the demo's wording (only High touch's is drawn).
 - The Change status modal, the vertical row expand (rows open the client detail
   drawer instead), settings, tour and What's New are not built yet.
 
