@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import heroDivider from '../assets/figma/hero-divider.svg';
-import heroPhoto from '../assets/figma/hero-2.png';
+import heroPhoto from '../assets/figma/hero-2.jpg';
 import dot from '../assets/figma/dot.svg';
 import { COACH_FIRST_NAME, DEMO_TODAY, GENERATED_AT } from '../data/mock';
 import type { Todo } from '../data/types';
