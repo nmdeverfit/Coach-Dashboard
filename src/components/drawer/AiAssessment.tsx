@@ -149,7 +149,7 @@ export function AiAssessment({ client, assessment, onTellMeMore }: Props) {
       ) : saved ? (
         <ContextAddedChip summary={contextSummary(saved)} onEdit={() => edit(fromPin)} />
       ) : (
-        <AddContextButton onClick={() => edit(fromPin)} />
+        <AddContextButton firstName={client.firstName} onClick={() => edit(fromPin)} />
       )}
       <button
         type="button"
