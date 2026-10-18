@@ -79,6 +79,8 @@ export default {
         // Popups (Add a meeting, transcript): the backdrop fades, the card rises a little and scales up.
         'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
         'pop-in': { from: { transform: 'translateY(8px) scale(0.98)', opacity: '0' }, to: { transform: 'none', opacity: '1' } },
+        // The AI Assessment pinning under the panel header once scrolled past.
+        'pin-in': { from: { transform: 'translateY(-6px)', opacity: '0' }, to: { transform: 'none', opacity: '1' } },
       },
       animation: {
         'drawer-in': 'drawer-in 280ms cubic-bezier(0.22, 1, 0.36, 1)',
@@ -90,6 +92,7 @@ export default {
         'bubble-in': 'bubble-in 220ms ease-out both',
         'fade-in': 'fade-in 180ms ease-out both',
         'pop-in': 'pop-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        'pin-in': 'pin-in 180ms ease-out both',
       },
       fontFamily: {
         sans: ['"Open Sans"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],

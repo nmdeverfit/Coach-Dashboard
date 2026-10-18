@@ -143,7 +143,9 @@ cards goes past the brief's "no fifth card" (Phase 1); personalisation is Phase 
   every AI Assessment card (`AiAssessment` takes `client`): `AddContextButton`, `ContextForm` (coaching style ·
   what the client doesn't track + note · a note for the next N weeks), `ContextAddedChip` ("Context added | Edit").
   Stored per client in `aiContext` (`setAiContext`, session only, not persisted), shared by the panel and the
-  client detail page.
+  client detail page. `AiAssessment` also pins a copy under the panel header once scrolled past (Figma
+  `5747:520276` / `520431` / `520587`): it finds the nearest `[data-panel-scroll]` and draws into its parent
+  (`relative`), collapsed to the summary + View more, expanded with the facts and both buttons.
 - `tailwind.config.js`: tokens mirror the Figma variables (see below). Use the tokens instead of raw hex values.
 
 ### Design source (Figma)

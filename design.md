@@ -119,9 +119,17 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 ## 6. AI elements
 
 - **AI Assessment card:** white, `rounded-lg`, 1 px `border-ai-line`, `shadow-ai-card` (inset pink glow), `p-4`.
-  Label "AI Assessment" 14 px semibold with the Olly gradient as text fill. Summary 13 px semibold; facts 13 px
-  `ink-tertiary` bullets. A status-derived type tags its `main_signal` in the summary (blue tint pill); Build,
+  Label "AI Assessment" 14 px semibold with the Olly gradient as text fill. Summary 14 px semibold; facts 14 px
+  `ink-tertiary` bullets (one px up from the frames' 13, the user's call). A status-derived type tags its `main_signal` in the summary (blue tint pill); Build,
   Remind and Acknowledge do not tag. Tell me more sits bottom-right inside the card.
+- **Pinned AI Assessment** (Figma `5747:520276` collapsed, `5747:520431` View more hover, `5747:520587` expanded):
+  once less than 100 px of the card shows in the panel's scroll area, a copy pins under the 56 px header, over the
+  data area (it never moves it): a white strip, `p-2.5`, `0 5px 18px rgba(0,0,0,0.09)`, fading down in (180 ms),
+  around the same card (`pt-3 px-4`, `pb-3` collapsed / `pb-4` open). Collapsed: label + summary, 3 lines at most,
+  its full stop replaced by "… View more" (semibold `ink-tertiary`, underlined, brand on hover). View more
+  adds the facts, "Show less" after the last one, and the Add context · Tell me more row. Add context or Edit from
+  the pinned card scrolls back to the card and opens the questionnaire there. Scrolling back unpins and folds it.
+  Every panel with an assessment has it (Check-in, Build, Remind, Acknowledge, client details).
 - **Add context** (Figma `5746:520123` button, `5744:519377` open, `5746:519756` saved; `drawer/AiContext.tsx`): the
   card's bottom row is `justify-between`, Add context left, Tell me more right. Button 36 px, white, `border-line-light`,
   rounded 4, list-plus icon 20 px + "Add context" 13 px semibold `ink-tertiary`. It opens the questionnaire below the
@@ -133,7 +141,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   [2 weeks ⌄] (1, 2, 4, 8; a native select under the design's field) + note. Choice chips: pill, 36 px, `px-5`,
   13 px; on = `border-brand bg-brand/5` semibold brand, off = `#e0e0e0` + `black/60`. Note box: `#fafbfc`,
   `#d4d7d9` border (brand on focus), 80 px, 0/255 counter 12 px `ink/50`. Saved: a `bg-brand/5` chip, 36 px,
-  brand check-circle 16 px + "Context added" 13 px semibold, a 16 px divider, underlined "Edit" (reopens the form
+  brand check-circle 16 px + "Context added" 12 px semibold, a 16 px divider, underlined "Edit" 12 px (reopens the form
   with the answers); hover shows the summary. Saving with every answer cleared removes the context.
 - **AI buttons** (Draft with AI, Tell me more, and any new AI action): add the `ai-btn` class (`src/index.css`).
   Rest: white with an inset pink glow. Hover (Figma `5654:528490`): the Olly gradient fills the button, text and
