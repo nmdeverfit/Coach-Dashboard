@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { DEMO_TODAY, clients, todos as seedTodos } from '../data/mock';
-import type { AiContext, CardKey, Client, FeedbackState, GroupKey, Meeting, Todo } from '../data/types';
+import type { AiContext, CardKey, Client, FeedbackState, GroupKey, Meeting, MetricKey, Todo } from '../data/types';
 import { ALL_GROUPS, DEFAULT_ORDER } from '../components/groups';
+import { DEFAULT_METRICS, METRICS } from '../components/metrics';
 import type { Assessment } from '../lib/checkin';
 import type { ClientTabKey } from '../components/drawer/ClientTabs';
 import type { DashboardTab } from '../lib/dashboard';
@@ -61,7 +62,13 @@ interface State {
   aiContext: Record<string, AiContext>;
   /** The rail's group cards, as the coach customized them (layout test). */
   rail: RailLayout;
+  /** The client list's metric cards, in order (layout test). */
+  metrics: MetricKey[];
+  /** The Customize cards popup, open on its Today's Brief or Dashboard tab. */
+  customize: CustomizeTab | null;
 }
+
+export type CustomizeTab = 'brief' | 'dashboard';
 
 /** Which group cards the rail shows, in what order, and which are collapsed to their header. */
 export interface RailLayout {
@@ -93,6 +100,26 @@ function saveRail(rail: RailLayout) {
   }
 }
 
+const METRICS_KEY = 'cid-demo-metrics';
+
+function loadMetrics(): MetricKey[] {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(METRICS_KEY) ?? 'null') as MetricKey[] | null;
+    if (Array.isArray(saved) && saved.length > 0 && saved.every((k) => k in METRICS)) return saved;
+  } catch {
+    // Private window or blocked storage: start from the default.
+  }
+  return DEFAULT_METRICS;
+}
+
+function saveMetrics(metrics: MetricKey[]) {
+  try {
+    window.localStorage.setItem(METRICS_KEY, JSON.stringify(metrics));
+  } catch {
+    // Not persisted; the row still holds for this session.
+  }
+}
+
 type Action =
   | { type: 'toggleComplete'; id: string }
   | { type: 'dismiss'; id: string }
@@ -102,6 +129,8 @@ type Action =
   | { type: 'resetWeek' }
   | { type: 'openGroup'; group: CardKey | null }
   | { type: 'setRail'; rail: RailLayout }
+  | { type: 'setMetrics'; metrics: MetricKey[] }
+  | { type: 'customize'; tab: CustomizeTab | null }
   | { type: 'toggleCollapsed'; key: CardKey }
   | { type: 'toast'; message: string | null }
   | { type: 'select'; id: string | null }
@@ -138,6 +167,8 @@ const initialState: State = {
   meetings: {},
   aiContext: {},
   rail: loadRail(),
+  metrics: loadMetrics(),
+  customize: null,
 };
 
 const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
@@ -204,6 +235,10 @@ function reducer(state: State, action: Action): State {
       return { ...state, view: 'dashboard', dashboardTab: action.group ? ALL_GROUPS[action.group].tab : 'all', selectedClientId: null, selectedTodoId: null, side: null };
     case 'setRail':
       return { ...state, rail: action.rail };
+    case 'setMetrics':
+      return { ...state, metrics: action.metrics };
+    case 'customize':
+      return { ...state, customize: action.tab };
     case 'toggleCollapsed': {
       const { collapsed } = state.rail;
       const next = collapsed.includes(action.key) ? collapsed.filter((k) => k !== action.key) : [...collapsed, action.key];
@@ -346,6 +381,9 @@ interface Store {
   /** Opens the client list filtered to a group; null clears the filter. */
   openGroup: (group: CardKey | null) => void;
   setRail: (rail: RailLayout) => void;
+  setMetrics: (metrics: MetricKey[]) => void;
+  /** Opens Customize cards on a tab; null closes it. */
+  openCustomize: (tab: CustomizeTab | null) => void;
   toggleCollapsed: (key: CardKey) => void;
   showToast: (message: string) => void;
   selectTodo: (id: string | null) => void;
@@ -412,6 +450,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         saveRail(rail);
         dispatch({ type: 'setRail', rail });
       },
+      setMetrics: (metrics) => {
+        saveMetrics(metrics);
+        dispatch({ type: 'setMetrics', metrics });
+      },
+      openCustomize: (tab) => dispatch({ type: 'customize', tab }),
       toggleCollapsed: (key) => {
         const { order, collapsed } = state.rail;
         saveRail({ order, collapsed: collapsed.includes(key) ? collapsed.filter((k) => k !== key) : [...collapsed, key] });

@@ -21,9 +21,9 @@ export function GroupIcon({ group }: { group: GroupMeta }) {
   );
 }
 
-/** The ⋯ menu at a card's top-right (layout test): Collapse / Expand, Remove (added groups only), Customize groups. */
-function CardMenu({ group, collapsed, onCustomize }: { group: GroupMeta; collapsed: boolean; onCustomize: () => void }) {
-  const { state, setRail, toggleCollapsed } = useStore();
+/** The ⋯ menu at a card's top-right (layout test): Collapse / Expand, Remove (added groups only), Customize cards. */
+function CardMenu({ group, collapsed }: { group: GroupMeta; collapsed: boolean }) {
+  const { state, setRail, toggleCollapsed, openCustomize } = useStore();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -70,8 +70,8 @@ function CardMenu({ group, collapsed, onCustomize }: { group: GroupMeta; collaps
             </button>
           )}
           <div className="my-1 border-t border-line" />
-          <button type="button" role="menuitem" onClick={run(onCustomize)} className={item}>
-            Customize groups…
+          <button type="button" role="menuitem" onClick={run(() => openCustomize('brief'))} className={item}>
+            Customize cards…
           </button>
         </div>
       )}
@@ -88,12 +88,10 @@ export function CategoryGroup({
   group,
   wide = false,
   narrow = false,
-  onCustomize,
 }: {
   group: GroupMeta;
   wide?: boolean;
   narrow?: boolean;
-  onCustomize: () => void;
 }) {
   const { state, openGroup, selectClient, toggleCollapsed, reviewedNow } = useStore();
   // Cards follow the week selector: a past week shows that Monday's groups.
@@ -126,7 +124,7 @@ export function CategoryGroup({
               View all
             </button>
           )}
-          <CardMenu group={group} collapsed={collapsed} onCustomize={onCustomize} />
+          <CardMenu group={group} collapsed={collapsed} />
         </div>
         {/* Half width, two-line descriptions keep the paired cards aligned; at full width each fits one line. */}
         {!collapsed && <p className={`${wide ? '' : 'min-h-[36px]'} text-[12px] leading-[1.5] text-ink-secondary`}>{group.description}</p>}

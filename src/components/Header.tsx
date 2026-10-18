@@ -4,6 +4,11 @@ import iconChevronLeft from '../assets/figma/icon-chevron-left.svg';
 import iconChevronDisabled from '../assets/figma/icon-chevron-right.svg';
 import iconRocket from '../assets/figma/icon-rocket.svg';
 import iconSearch from '../assets/figma/icon-search.svg';
+import iconSettingsBrand from '../assets/figma/icon-settings-brand.svg';
+import iconSettingsHome from '../assets/figma/icon-settings-home.svg';
+import iconSettingsStatus from '../assets/figma/icon-settings-status.svg';
+import iconSettingsUndo from '../assets/figma/icon-settings-undo.svg';
+import iconSettingsWidget from '../assets/figma/icon-settings-widget.svg';
 import iconSettings from '../assets/figma/icon-settings.svg';
 import iconTasks from '../assets/figma/icon-tasks.svg';
 import iconTour from '../assets/figma/icon-tour.svg';
@@ -12,6 +17,7 @@ import { DEMO_TODAY } from '../data/mock';
 import iconHistory from '../assets/figma/icon-history.svg';
 import { weekLabel } from '../lib/dates';
 import { MIN_WEEK_OFFSET, weekRange } from '../lib/week';
+import { useEffect, useRef, useState } from 'react';
 import { useStore, type View } from '../state/store';
 
 const VIEWS: { key: View; label: string }[] = [
@@ -103,6 +109,75 @@ function OutlineButton({ icon, label, onClick }: { icon: string; label: string; 
   );
 }
 
+/**
+ * Dashboard Settings and its menu (Figma 5749:521870): Home screen settings · About Client status & data · Customize
+ * · Switch back to old dashboard. Customize opens Customize cards on the tab of the view on screen, so it reads
+ * "Customize group cards" on the brief and "Customize metrics" on the client list. The other three only toast.
+ */
+function SettingsMenu() {
+  const { state, showToast, openCustomize } = useStore();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: PointerEvent) => !ref.current?.contains(e.target as Node) && setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('pointerdown', onPointer);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onPointer);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const brief = state.view === 'brief';
+  const items = [
+    { icon: iconSettingsHome, label: 'Home screen settings', run: () => showToast('Home screen settings open here') },
+    { icon: iconSettingsStatus, label: 'About Client status & data', run: () => showToast('About Client status & data opens here') },
+    { icon: iconSettingsWidget, label: brief ? 'Customize group cards' : 'Customize metrics', run: () => openCustomize(brief ? 'brief' : 'dashboard') },
+    { icon: iconSettingsUndo, label: 'Switch back to old dashboard', run: () => showToast('Switch back to the old dashboard happens here') },
+  ];
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={`flex h-[30px] items-center gap-2 rounded-[4px] border px-[13px] text-[12px] font-semibold leading-[15px] ${
+          open ? 'rounded-md border-black/15 bg-brand/10 text-brand' : 'border-line-button text-ink-tertiary hover:bg-surface-secondary'
+        }`}
+      >
+        <img src={open ? iconSettingsBrand : iconSettings} alt="" width={16} height={16} />
+        Dashboard Settings
+      </button>
+      {open && (
+        <div role="menu" className="absolute right-0 top-[34px] z-30 w-[252px] animate-fade-in">
+          {/* The dropdown's arrow, pointing at the button. */}
+          <span aria-hidden className="absolute -top-[4px] right-[60px] size-2 rotate-45 rounded-tl-[1px] bg-white shadow-[-1px_-1px_1px_rgba(176,186,200,0.6)]" />
+          <div className="flex flex-col rounded-[4px] bg-white py-3 shadow-[0_0_2px_#b0bac8,0_4px_16px_rgba(37,40,48,0.1)]">
+            {items.map((it) => (
+              <button
+                key={it.icon}
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false);
+                  it.run();
+                }}
+                className="flex h-[34px] items-center gap-2.5 px-5 text-left text-[13px] leading-normal text-[#333] hover:bg-surface-secondary"
+              >
+                <img src={it.icon} alt="" width={16} height={16} />
+                {it.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const topActions = [
   { label: 'What’s new', icon: iconWhatsNew, width: 20, height: 20 },
   { label: 'Search', icon: iconSearch, width: 24, height: 24 },
@@ -157,7 +232,7 @@ export function Header() {
         </div>
         <div className="flex items-center gap-2">
           <OutlineButton icon={iconTour} label="Dashboard Tour" onClick={() => showToast('Dashboard Tour is coming in a later build')} />
-          <OutlineButton icon={iconSettings} label="Dashboard Settings" onClick={() => showToast('Dashboard Settings is coming in a later build')} />
+          <SettingsMenu />
         </div>
       </div>
     </header>
