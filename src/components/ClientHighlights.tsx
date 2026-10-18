@@ -78,7 +78,8 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
             );
           })}
         </div>
-        <ul className="scroll-thin flex min-w-0 flex-1 flex-col overflow-y-auto pt-2.5" style={{ height: LIST_HEIGHT }}>
+        {/* Stacked under the tabs (narrow), flex-1 would let the list grow to every row, so it keeps a fixed height. */}
+        <ul className={`scroll-thin flex min-w-0 flex-col overflow-y-auto pt-2.5 ${narrow ? 'shrink-0' : 'flex-1'}`} style={{ height: LIST_HEIGHT }}>
           {items.map((h, i) => (
             <li
               key={h.id}

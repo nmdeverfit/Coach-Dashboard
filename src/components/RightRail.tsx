@@ -12,7 +12,7 @@ export function RightRail({ wide = false, narrow = false }: { wide?: boolean; na
     <aside className="flex min-w-0 flex-col bg-surface-secondary">
       <div className={`grid ${narrow ? 'grid-cols-1 gap-4' : 'grid-cols-2 gap-5'} items-start px-5 pt-5`}>
         {GROUPS.map((group) => (
-          <CategoryGroup key={group.key} group={group} wide={wide || narrow} />
+          <CategoryGroup key={group.key} group={group} wide={wide || narrow} narrow={narrow} />
         ))}
       </div>
       <ClientHighlights narrow={narrow} />

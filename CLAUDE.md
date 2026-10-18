@@ -11,8 +11,8 @@ the same change.
 
 **Branch `claude/layout-3-columns` (layout test, the user's call):** the brief page splits into three parts: Today's
 Brief takes two and the right rail one (`grid-cols-3`, `col-span-2`, each column scrolls on its own). In the narrow
-rail the group cards stack in one column and Client highlights put their tabs in a row above the list
-(`RightRail narrow`). Past weeks keep the full-width rail. It publishes to its own artifact (title "Check-in Dashboard v2 ·
+rail the group cards stack in one column, each list capped at 186 px (three clients and half of the fourth), and
+Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail. It publishes to its own artifact (title "Check-in Dashboard v2 ·
 3 columns"); the main branch's artifact is unchanged.
 
 ## Project

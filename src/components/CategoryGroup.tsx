@@ -5,7 +5,8 @@ import { Avatar } from './Avatar';
 import { CountChip } from './CountChip';
 import type { GroupMeta } from './groups';
 
-export function CategoryGroup({ group, wide = false }: { group: GroupMeta; wide?: boolean }) {
+/** `narrow`: the three-part layout's stacked rail, where the list stops partway into the fourth client to keep it short. */
+export function CategoryGroup({ group, wide = false, narrow = false }: { group: GroupMeta; wide?: boolean; narrow?: boolean }) {
   const { state, openGroup, selectClient } = useStore();
   // Cards follow the week selector: a past week shows that Monday's groups.
   const members = groupsInWeek(state.weekOffset)[group.key];
@@ -27,7 +28,8 @@ export function CategoryGroup({ group, wide = false }: { group: GroupMeta; wide?
         {/* Half width, two-line descriptions keep the paired cards aligned; at full width each fits one line. */}
         <p className={`${wide ? '' : 'min-h-[36px]'} text-[12px] leading-[1.5] text-ink-secondary`}>{group.description}</p>
       </header>
-      <ul className="scroll-thin h-[210px] overflow-y-auto px-3">
+      {/* Rows are 53 px: 210 shows four; 186 shows three and half of the fourth, a hint that the list scrolls. */}
+      <ul className={`scroll-thin ${narrow ? 'max-h-[186px]' : 'h-[210px]'} overflow-y-auto px-3`}>
         {members.map((client) => (
           <li key={client.id}>
             <button
