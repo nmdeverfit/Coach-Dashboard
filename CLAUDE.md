@@ -28,6 +28,9 @@ cards goes past the brief's "no fifth card" (Phase 1); personalisation is Phase 
   (`lucide-react` only for the few icons the design does not draw, e.g. the row dismiss ✕). Mock data only, no backend.
 - Commands: `npm run dev`, `npm run typecheck`, `npm run build`,
   `npm run build:artifact` (single-file page in `dist-single/coach-dashboard.html`, published as a claude.ai Artifact).
+  Keep the page small: the artifact service rejected the page once it passed about 3.5 MB (it read it as a
+  "review page, too large"). Photos go in as JPEG (the banner `hero-2.jpg` is 177 KB), and `mock.ts` globs every
+  PNG in `src/assets/figma/`, so a large PNG there is embedded even when nothing imports it.
 - Layout: web-only, designed at **1440 × 900**. Below 1280px the shell scrolls sideways. No mobile layout (out of scope per brief).
 - Demo "today" is **Mon 2026-08-31** (`DEMO_TODAY` in `src/data/mock.ts`). Coach name: Long. Brief generated at 06:00 AM.
 
