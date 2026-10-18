@@ -1,4 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
+import iconCircleCheck from '../../assets/figma/icon-circle-check-fill.svg';
+import iconMore from '../../assets/figma/icon-more.svg';
 import iconClose from '../../assets/figma/icon-close.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
@@ -6,15 +8,16 @@ import type { Client } from '../../data/types';
 import { buildClientAssessment } from '../../lib/client';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
-import { ClientActions } from '../ClientActions';
+import { ClientActions, MORE_ACTIONS_TOAST } from '../ClientActions';
 import { StatusChip } from '../StatusChip';
 import { AiAssessment } from './AiAssessment';
 import { ClientTabs, type ClientTabKey } from './ClientTabs';
 import { DrawerAside, useCloseOnOutside, useDrawerPresence } from './DrawerShell';
+import { DraftWithAiButton, FooterButton, SendMessageButton } from './PanelParts';
 import { StatusFeedback } from './StatusFeedback';
 
 /** Avatar, name, status and the four quick actions of the client detail page (Figma 5671:141948). */
-function ClientTitle({ client }: { client: Client }) {
+function ClientTitle({ client, actions }: { client: Client; actions: RefObject<HTMLDivElement> }) {
   return (
     <div className="flex items-center gap-4 px-[30px] py-5">
       <Avatar name={client.name} src={client.avatar} size={44} />
@@ -24,8 +27,49 @@ function ClientTitle({ client }: { client: Client }) {
           Status: <StatusChip status={client.status} />
         </p>
       </div>
-      <ClientActions client={client} where="panel" />
+      <div ref={actions}>
+        <ClientActions client={client} where="panel" />
+      </div>
     </div>
+  );
+}
+
+/** True once `target` has scrolled up out of its `[data-panel-scroll]` area. */
+function useScrolledPast(target: RefObject<HTMLElement>) {
+  const [past, setPast] = useState(false);
+  useEffect(() => {
+    const el = target.current;
+    const root = el?.closest<HTMLElement>('[data-panel-scroll]');
+    if (!el || !root) return;
+    const watch = new IntersectionObserver(([e]) => setPast(!e.isIntersecting && e.boundingClientRect.top < (e.rootBounds?.top ?? 0)), { root });
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, [target]);
+  return past;
+}
+
+/**
+ * The quick actions again, labelled, in a footer pinned to the panel's bottom once the title row's icons have
+ * scrolled away (no frame; the to-do panel's footer buttons). Mark as reviewed is the primary, as on Check-in.
+ */
+function ClientFooter({ client }: { client: Client }) {
+  const { state, reviewClient, showToast } = useStore();
+  const reviewed = Boolean(state.reviewed[client.id]);
+  return (
+    <footer className="flex shrink-0 animate-footer-in items-center justify-between gap-2 border-t border-line bg-white px-[30px] pb-5 pt-4 shadow-footer">
+      <FooterButton variant="plain" icon={<img src={iconMore} alt="" width={16} height={16} />} label="More" onClick={() => showToast(MORE_ACTIONS_TOAST)} />
+      <div className="flex items-center gap-2">
+        <FooterButton
+          variant="primary"
+          icon={<img src={iconCircleCheck} alt="" width={16} height={16} />}
+          label={reviewed ? 'Reviewed' : 'Mark as reviewed'}
+          disabled={reviewed}
+          onClick={() => reviewClient(client.id)}
+        />
+        <DraftWithAiButton clientId={client.id} />
+        <SendMessageButton clientId={client.id} />
+      </div>
+    </footer>
   );
 }
 
@@ -47,6 +91,8 @@ export function ClientDetailsPanel({
   const { openOlly } = useStore();
   const profile = getProfile(client.id);
   const assessment = buildClientAssessment(client, profile, DEMO_TODAY);
+  const actions = useRef<HTMLDivElement>(null);
+  const footer = useScrolledPast(actions);
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
@@ -66,7 +112,7 @@ export function ClientDetailsPanel({
         </button>
       </header>
       <div key={client.id} data-panel-scroll className="flex-1 overflow-y-auto">
-        <ClientTitle client={client} />
+        <ClientTitle client={client} actions={actions} />
         <div className="flex flex-col gap-2 px-[30px] pb-[30px]">
           <AiAssessment
             client={client}
@@ -77,6 +123,7 @@ export function ClientDetailsPanel({
         </div>
         <ClientTabs client={client} profile={profile} initialTab={initialTab} withTranscript />
       </div>
+      {footer && <ClientFooter client={client} />}
     </div>
   );
 }

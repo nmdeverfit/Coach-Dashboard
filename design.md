@@ -143,9 +143,12 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 - **To-do row** (`TodoRow`, Figma `3925:6908`): Default · Hover (white, `shadow-row`) · Selected (4 px brand left
   border) · Completed (opacity 60%, line-through, filled check). Past rows show the age at the right.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
-  ✓ / Dismiss and no footer. Title block: name 18 px bold, "Status:" + chip, then four 32 px icon buttons (Draft
+  ✓ / Dismiss. Title block: name 18 px bold, "Status:" + chip, then four 32 px icon buttons (Draft
   with AI uses `ai-btn`; its tooltip hangs off a wrapper because `ai-btn` clips). Opened from a group-card row or
-  the drawer's name link (‹ back).
+  the drawer's name link (‹ back). No footer while the icons show; once they scroll up out of view the same four
+  actions rise in as the to-do panel's footer (no frame, the user's call; 220 ms slide up), labelled: "More" (plain,
+  left) · "Mark as reviewed" (primary, "Reviewed" and disabled once done) · "Draft with AI" · "Send message"
+  (right). Scrolling back to the top removes it.
 - **Client list** (Dashboard tab, Figma `5676:145292`): page `bg-surface-secondary`; metric row `p-3 gap-2`, seven
   equal white cards (`px-3 py-4`, 20 px icon + 14 px semibold label, 20 px semibold number); clicking a card opens
   its tab. Then one white block `p-4 gap-4`: tab row (37 px, 14 px semibold, active = brand text + 2 px underline +

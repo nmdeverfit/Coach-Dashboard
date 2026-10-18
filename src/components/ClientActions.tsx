@@ -7,6 +7,9 @@ import type { Client } from '../data/types';
 import { useStore } from '../state/store';
 import { Tooltip } from './Tooltip';
 
+/** What More does until its menu is built (the detail page's footer uses it too). */
+export const MORE_ACTIONS_TOAST = 'More client actions (pause, archive…) open here';
+
 const ICON_BASE = 'group/tip relative flex size-8 items-center justify-center rounded-md border border-black/15';
 const ICON_BUTTON = `${ICON_BASE} bg-white hover:bg-surface-secondary`;
 
@@ -55,7 +58,7 @@ export function ClientActions({ client, where, onToggleReview }: { client: Clien
         </span>
         <Tooltip label={reviewed ? (canToggle ? 'Undo review' : 'Reviewed this week') : 'Mark as reviewed'} />
       </button>
-      <button type="button" aria-label="More" onClick={() => showToast('More client actions (pause, archive…) open here')} className={ICON_BUTTON}>
+      <button type="button" aria-label="More" onClick={() => showToast(MORE_ACTIONS_TOAST)} className={ICON_BUTTON}>
         <img src={iconMore} alt="" width={16} height={16} />
         <Tooltip label="More" />
       </button>

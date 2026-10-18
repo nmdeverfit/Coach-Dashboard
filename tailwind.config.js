@@ -81,6 +81,8 @@ export default {
         'pop-in': { from: { transform: 'translateY(8px) scale(0.98)', opacity: '0' }, to: { transform: 'none', opacity: '1' } },
         // The AI Assessment pinning under the panel header once scrolled past.
         'pin-in': { from: { transform: 'translateY(-6px)', opacity: '0' }, to: { transform: 'none', opacity: '1' } },
+        // The client detail page's footer rising in once its quick actions scroll away.
+        'footer-in': { from: { transform: 'translateY(100%)' }, to: { transform: 'none' } },
       },
       animation: {
         'drawer-in': 'drawer-in 280ms cubic-bezier(0.22, 1, 0.36, 1)',
@@ -93,6 +95,7 @@ export default {
         'fade-in': 'fade-in 180ms ease-out both',
         'pop-in': 'pop-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'pin-in': 'pin-in 180ms ease-out both',
+        'footer-in': 'footer-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both',
       },
       fontFamily: {
         sans: ['"Open Sans"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
