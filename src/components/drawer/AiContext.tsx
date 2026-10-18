@@ -43,12 +43,12 @@ export function AddContextButton({ onClick }: { onClick: () => void }) {
 export function ContextAddedChip({ summary, onEdit }: { summary: string; onEdit: () => void }) {
   return (
     <div title={summary} className="flex h-9 items-center gap-3 rounded-[4px] bg-brand/5 px-3">
-      <span className="flex items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink">
+      <span className="flex items-center gap-1.5 text-[12px] font-semibold leading-[1.5] text-ink">
         <img src={iconCheck} alt="" width={16} height={16} />
         Context added
       </span>
       <span aria-hidden className="h-4 w-px bg-line-light" />
-      <button type="button" onClick={onEdit} className="text-[13px] font-semibold leading-[1.5] text-ink-secondary underline hover:text-ink">
+      <button type="button" onClick={onEdit} className="text-[12px] font-semibold leading-[1.5] text-ink-secondary underline hover:text-ink">
         Edit
       </button>
     </div>

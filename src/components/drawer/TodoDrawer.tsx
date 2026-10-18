@@ -267,14 +267,14 @@ export function TodoDrawer() {
     <DrawerAside label="To-do details" closing={closing}>
       {clientOpen && <ClientDetailsPanel client={client} onBack={() => setClientOpen(false)} onClose={close} />}
       {/* Kept mounted behind client details so ‹ returns to the same tab and scroll (AC1.11). */}
-      <div className={`flex min-h-0 flex-1 flex-col ${clientOpen ? 'hidden' : ''}`}>
+      <div className={`relative flex min-h-0 flex-1 flex-col ${clientOpen ? 'hidden' : ''}`}>
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-5 pb-2.5 pt-[15px]">
           <p className="text-[13px] font-semibold leading-[1.5] text-ink-secondary">TO-DO DETAILS</p>
           <button type="button" aria-label="Close to-do details" onClick={() => selectTodo(null)} className="relative size-5 overflow-hidden rounded hover:opacity-70">
             <img src={iconClose} alt="" className="absolute left-1/2 top-1/2 size-6 max-w-none -translate-x-1/2 -translate-y-1/2" />
           </button>
         </header>
-        <div key={todo.id} className="flex-1 overflow-y-auto">
+        <div key={todo.id} data-panel-scroll className="flex-1 overflow-y-auto">
           <TitleBlock todo={todo} client={client} onComplete={complete} onDismiss={() => setConfirmDismiss(true)} onOpenClient={() => setClientOpen(true)} />
           {detail ? <Body todo={todo} client={client} detail={detail} /> : <PlaceholderBody />}
         </div>

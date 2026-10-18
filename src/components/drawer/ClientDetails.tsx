@@ -49,7 +49,7 @@ export function ClientDetailsPanel({
   const assessment = buildClientAssessment(client, profile, DEMO_TODAY);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="relative flex min-h-0 flex-1 flex-col">
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-5 pb-2.5 pt-[15px]">
         {onBack ? (
           <button type="button" onClick={onBack} className="flex items-center gap-2 text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:text-ink">
@@ -65,11 +65,11 @@ export function ClientDetailsPanel({
           <img src={iconClose} alt="" className="absolute left-1/2 top-1/2 size-6 max-w-none -translate-x-1/2 -translate-y-1/2" />
         </button>
       </header>
-      <div key={client.id} className="flex-1 overflow-y-auto">
+      <div key={client.id} data-panel-scroll className="flex-1 overflow-y-auto">
         <ClientTitle client={client} />
         <div className="flex flex-col gap-2 px-[30px] pb-[30px]">
           <AiAssessment
-          client={client}
+            client={client}
             assessment={assessment}
             onTellMeMore={() => openOlly(client.id, { mode: 'tell', assessment })}
           />
