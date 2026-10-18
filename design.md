@@ -22,6 +22,9 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 
 - One layout, **1440 × 900**, web only. Below 1280 px the shell scrolls sideways; no responsive ladder.
 - Shell: main sidebar · header (2 rows) · body split in two equal columns (Today's Brief | right rail).
+  **Layout test (branch `claude/layout-3-columns`):** three parts instead, Today's Brief 2/3 (917 px at 1440) and the
+  rail 1/3 (459 px), each scrolling on its own; group cards stack (`gap-4`, descriptions unpinned) and the highlights'
+  category tabs become a row of chips above the list (scrolls sideways if needed).
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
   height of 10 one-line rows (560 px) and scrolls inside.
 - **To-do details drawer:** 720 px wide, fixed to the right, full height, `shadow-drawer`. Slides in

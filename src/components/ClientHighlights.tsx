@@ -42,8 +42,8 @@ function CatchUpBadge({ category }: { category: HighlightCategory }) {
   );
 }
 
-/** The v1 Catch-up tab, moved into the right rail. */
-export function ClientHighlights() {
+/** The v1 Catch-up tab, moved into the right rail. `narrow` (a third of the page): the tabs sit in a row above the list. */
+export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
   const [tab, setTab] = useState<Tab>('all');
   const items = tab === 'all' ? highlights : highlights.filter((h) => h.category === tab);
 
@@ -54,8 +54,12 @@ export function ClientHighlights() {
         <h3 className="text-[14px] font-bold leading-[1.5] text-ink">Client highlights</h3>
         <CountChip value={highlights.length} />
       </div>
-      <div className="flex items-start gap-2.5 rounded-lg bg-white px-2.5 pb-2.5 pt-2">
-        <div role="tablist" aria-orientation="vertical" className="flex w-[191px] shrink-0 flex-col gap-1 pt-2.5">
+      <div className={`flex ${narrow ? 'flex-col' : 'items-start'} gap-2.5 rounded-lg bg-white px-2.5 pb-2.5 pt-2`}>
+        <div
+          role="tablist"
+          aria-orientation={narrow ? 'horizontal' : 'vertical'}
+          className={narrow ? 'scroll-none flex gap-1 overflow-x-auto pt-1' : 'flex w-[191px] shrink-0 flex-col gap-1 pt-2.5'}
+        >
           {TABS.map((t) => {
             const active = t.key === tab;
             return (
@@ -65,7 +69,7 @@ export function ClientHighlights() {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setTab(t.key)}
-                className={`flex items-center gap-1 rounded-[4px] p-2 text-left text-[13px] font-semibold ${
+                className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-[4px] p-2 text-left text-[13px] font-semibold ${
                   active ? 'bg-brand/[0.08] text-brand' : 'text-ink-secondary hover:bg-surface-secondary hover:text-ink'
                 }`}
               >

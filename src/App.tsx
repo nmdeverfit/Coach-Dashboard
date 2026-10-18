@@ -44,11 +44,15 @@ export default function App() {
           <div className="relative flex-1 overflow-hidden">
             <ViewLayer active={state.view === 'brief'} offset="-100%">
               {state.weekOffset === 0 ? (
-                <div className="grid min-h-full grid-cols-2">
-                  <div className="relative z-[1] bg-white shadow-column">
+                // Layout test (branch claude/layout-3-columns): three parts, the brief takes two and the rail one.
+                // The stacked rail runs far longer than the brief, so each column scrolls on its own.
+                <div className="grid h-full grid-cols-3">
+                  <div className="scroll-thin relative z-[1] col-span-2 overflow-y-auto bg-white shadow-column">
                     <TodayBrief />
                   </div>
-                  <RightRail />
+                  <div className="scroll-thin overflow-y-auto bg-surface-secondary">
+                    <RightRail narrow />
+                  </div>
                 </div>
               ) : (
                 // A past week has no to-do list (BL AC10.6): the group cards and highlights take the full width.
