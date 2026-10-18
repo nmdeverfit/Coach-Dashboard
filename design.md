@@ -26,8 +26,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   rail 1/3 (459 px), each scrolling on its own; group cards stack (`gap-4`, descriptions unpinned, each list `max-h-[186px]`: three
   rows and half of the fourth, so the scroll shows) and the highlights'
   category tabs become a row of chips above the list (scrolls sideways if needed).
-  **Customize groups (same branch, no frame):** above the cards a row "CLIENT GROUPS" (13 px semibold uppercase
-  `ink-muted`) + "Customize" (14 px sliders icon, 13 px semibold `ink-secondary`). Each card's header ends in a
+  **Customize groups (same branch, no frame):** Customize opens from the card menu only (the "CLIENT GROUPS · Customize"
+  row above the cards is set aside for now). Each card's header ends in a
   chevron (collapse toggle) and a 28 px ⋯ button (`icon-more`) opening a 190 px menu (white, `#e0e0e0` border,
   rounded 8, shadow `0 8px 24px rgba(0,0,0,0.12)`; Remove in `danger`). Collapsed card = header only, `py-3`, with
   View all at the right; in the two-column (past week) grid it spans both columns. Customize mode: a white card with

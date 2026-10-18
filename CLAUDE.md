@@ -13,7 +13,7 @@ the same change.
 Brief takes two and the right rail one (`grid-cols-3`, `col-span-2`, each column scrolls on its own). In the narrow
 rail the group cards stack in one column, each list capped at 186 px (three clients and half of the fourth), and
 Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail. Also trialled here,
-**Customize groups** (no Figma frame): "Client groups" + Customize above the cards, and a ⋯ menu on each card
+**Customize groups** (no Figma frame): a ⋯ menu on each card (the "Client groups · Customize" row above the cards is set aside for now, the user's call)
 (Collapse / Expand, Remove for added groups, Customize groups…). Customize turns the cards into compact rows: drag
 or ↑ / ↓ to reorder, Collapse / Expand, × on added groups, "+ Add group" opens `EXTRA_GROUPS` (Form to review, On
 track, Review completed, Session credits; each has a client-list tab behind View all, members from `cardMembers` in
