@@ -6,6 +6,7 @@ import type { Client, Meeting } from '../../data/types';
 import { fieldTime, fileSize, meetingDate, platformOf } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
+import { Avatar } from '../Avatar';
 import { Modal } from '../Modal';
 
 interface Line {
@@ -46,6 +47,12 @@ export function TranscriptDialog({ client, meeting, onClose }: { client: Client;
   }, [current, q]);
   const step = (by: number) => total && setCurrent((c) => (c + by + total) % total);
 
+  // Pasted or uploaded text: a line that opens with the coach's or the client's name ("Long:", "Malcom (04:12):")
+  // gets that name in bold, like the recorded lines.
+  const names = [client.name, client.firstName, COACH_FIRST_NAME].map(escape).join('|');
+  const speakerAt = new RegExp(`^(?:${names})(?=\\s*(?:\\([^)]*\\))?\\s*:)`, 'i');
+  const speakerOf = (text: string) => text.match(speakerAt)?.[0];
+
   // Rendered in order, so a running counter numbers every match.
   let seen = 0;
   const highlight = (text: string): ReactNode => {
@@ -65,7 +72,16 @@ export function TranscriptDialog({ client, meeting, onClose }: { client: Client;
   return (
     <Modal
       title={meeting.title}
-      subtitle={[meetingDate(meeting.date), fieldTime(meeting.start), meeting.link && platformOf(meeting.link)].filter(Boolean).join(' · ')}
+      subtitle={
+        <span className="flex items-center gap-2">
+          <span className="flex shrink-0 items-center gap-1.5 font-semibold text-ink">
+            <Avatar name={client.name} src={client.avatar} size={20} />
+            {client.name}
+          </span>
+          <span aria-hidden className="size-1 shrink-0 rounded-full bg-[#d9d9d9]" />
+          {[meetingDate(meeting.date), fieldTime(meeting.start), meeting.link && platformOf(meeting.link)].filter(Boolean).join(' · ')}
+        </span>
+      }
       width={600}
       onClose={onClose}
       closeOnBackdrop
@@ -140,7 +156,7 @@ export function TranscriptDialog({ client, meeting, onClose }: { client: Client;
               {lines.map((l, i) => (
                 <li key={i} className="flex flex-col gap-0.5">
                   <p className="flex items-baseline gap-2">
-                    <span className="text-[13px] font-semibold leading-[18px] text-ink">{l.speaker}</span>
+                    <span className="text-[13px] font-bold leading-[18px] text-ink">{l.speaker}</span>
                     <span className="text-[12px] tabular-nums leading-[18px] text-ink-muted">{l.at}</span>
                   </p>
                   <p className="text-[13px] leading-[1.5] text-[#484848]">{highlight(l.text)}</p>
@@ -151,7 +167,14 @@ export function TranscriptDialog({ client, meeting, onClose }: { client: Client;
             <div className="break-words text-[13px] leading-[1.5] text-[#484848]">
               {lines.map((l, i) => (
                 <p key={i} className="min-h-[1.5em] whitespace-pre-wrap">
-                  {highlight(l.text)}
+                  {speakerOf(l.text) ? (
+                    <>
+                      <span className="font-bold text-ink">{highlight(speakerOf(l.text)!)}</span>
+                      {highlight(l.text.slice(speakerOf(l.text)!.length))}
+                    </>
+                  ) : (
+                    highlight(l.text)
+                  )}
                 </p>
               ))}
             </div>

@@ -110,11 +110,12 @@ the same change.
   first tab = focus) is shared by the Check-in panel and the client detail page. Transcript (Figma `5731:517688`)
   shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
   every meeting, newest first, under a header per week; rows of date tile · title · "5:30 PM - Aug 27" · platform,
-  lifting onto a white card with View transcript on hover), `AddMeetingDialog` (`5726:141326` Upload file, `5729:516037` Paste text; Duration and a
+  lifting onto a white card with View transcript in brand on hover; the list is capped at 580 px like Notes and
+  scrolls inside, week headers pinned), `AddMeetingDialog` (`5726:141326` Upload file, `5729:516037` Paste text; Duration and a
   read-only End time are built but hidden for now, `SHOW_DURATION`; title, time and a transcript are required and checked on submit,
   the date can be any day up to today, the meeting must start before 06:00 today, files .txt / .docx / .srt /
   .pdf up to 10 MB, .txt and .srt are read for the preview) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
-  artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; no frame: date · start · platform, a search box pinned on top that
+  artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; no frame: client avatar + name · date · start · platform, speaker names in bold, a search box pinned on top that
   highlights matches and steps through them with ↑ / ↓ / Enter). Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in

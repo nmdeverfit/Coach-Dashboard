@@ -83,7 +83,7 @@ Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the bann
 | 28 px session buttons | `DraftReminderButton`, `IssueCreditsButton` | `drawer/SessionsBodies.tsx` |
 | Task & Habit | `TaskHabitTab` (tasks card, habits card with 7 day circles) | `drawer/TaskHabitTab.tsx` |
 | Program Ending | `CurrentProgramCard` (180 px labels, end date with year) | `drawer/TrainingTab.tsx` |
-| Notes | `NotesTab` (search, day groups, sort, New note) | `drawer/NotesTab.tsx` |
+| Notes | `NotesTab` (search, day groups, sort, New note; every note has a bottom line, title 14 px, date 11 px; list capped at 580 px) | `drawer/NotesTab.tsx` |
 | Form | `FormStatus` (Form Status table) | `drawer/AssessedBodies.tsx` |
 | Client detail page | `ClientDetailsPanel`, `ClientDrawer` | `drawer/ClientDetails.tsx` |
 | Panel shell | `DrawerAside`, `useDrawerPresence`, `useCloseOnOutside` | `drawer/DrawerShell.tsx` |
@@ -171,13 +171,16 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   hover), title 14 px semibold, then 13 px: clock 14 + "5:30 PM - Aug 27" (`#484848`) · `#d9d9d9` 4 px dot · video
   icon 14 + platform (ink, plain text). Hover (or focus): the row sits on a white card, rounded 4,
   `0 0 10px rgba(0,0,0,0.05)`, 5 px wider than the list on each side, its border hidden, and "View transcript"
-  (13 px semibold ink) shows at the right; a click anywhere on the row opens the transcript. Empty: "No meetings
+  (13 px semibold, brand on hover) shows at the right; a click anywhere on the row opens the transcript. The well is
+  capped at 580 px like the Notes list and scrolls inside, each week header pinned (`sticky`, `#f9fafa`). Empty: "No meetings
   with {first} yet." With eight tabs the tab padding drops to 12 px.
 - **Transcript popup** (View transcript, no frame): 600 px `Modal`, title = meeting title, subtitle 13 px
-  `ink-tertiary` "Thu, Aug 27, 2026 · 5:30 PM · Microsoft Teams". The Notes search field (38 px, `#dbdce3`, brand
+  `ink-tertiary`: 20 px avatar + client name (semibold ink) · 4 px `#d9d9d9` dot · "Thu, Aug 27, 2026 · 5:30 PM ·
+  Microsoft Teams". The Notes search field (38 px, `#dbdce3`, brand
   on focus) is pinned on top of the scrolling body, focused on open; with a query it shows "2 of 8" (12 px
   `ink-secondary`) and ↑ / ↓ buttons (24 px, the chevron icon). Matches `#fff1b8`, the current one `#ffd666`,
-  scrolled to the centre. Lines: speaker 13 px semibold + time 12 px `ink-muted`, text 13 px `#484848`, `gap-4`.
+  scrolled to the centre. Lines: speaker 13 px bold + time 12 px `ink-muted`, text 13 px `#484848`, `gap-4`. In
+  pasted or uploaded text, a line opening with the coach's or client's name ("Long (04:12):") has the name in bold.
 - **Popup** (`Modal`, Figma `5726:511926`): backdrop `black/50` fades in, the card rises in (220 ms). 500 px, white,
   rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
   fields, footer `px-[30px] py-5` + top border. The × is the design's 18 px black disc centred on the top-right

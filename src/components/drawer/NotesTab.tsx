@@ -65,15 +65,15 @@ export function NotesTab({ client, notes }: { client: Client; notes: ClientNote[
                   )}
                 </div>
                 <ul className="flex flex-col">
-                  {g.notes.map((n, i) => (
+                  {g.notes.map((n) => (
                     <li key={n.at + n.title}>
                       <button
                         type="button"
                         onClick={() => showToast(`“${n.title}” opens in ${client.firstName}’s notes`)}
-                        className={`flex w-full flex-col items-start gap-1 rounded-lg px-3 py-2 text-left hover:bg-[#e1e1ea]/60 ${i ? 'border-t border-ink/10 hover:border-transparent' : ''}`}
+                        className="flex w-full flex-col items-start gap-1 rounded-lg border-b border-ink/10 px-3 py-2 text-left hover:border-transparent hover:bg-[#e1e1ea]/60"
                       >
-                        <span className="text-[13px] font-semibold leading-[1.5] text-ink">{n.title}</span>
-                        <span className="text-[10px] leading-normal text-[#636f7a]">{n.label}</span>
+                        <span className="text-[14px] font-semibold leading-[1.5] text-ink">{n.title}</span>
+                        <span className="text-[11px] leading-normal text-[#636f7a]">{n.label}</span>
                       </button>
                     </li>
                   ))}

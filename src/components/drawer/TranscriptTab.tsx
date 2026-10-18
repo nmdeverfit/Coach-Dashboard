@@ -14,7 +14,8 @@ import { TranscriptDialog } from './TranscriptDialog';
 
 /**
  * One meeting (Figma 5731:517688): date tile, title, then start time and date · platform. On hover (or keyboard
- * focus) the row lifts onto a white card with a light shadow, a few px wider than the list, and shows View transcript.
+ * focus) the row lifts onto a white card with a light shadow, a few px wider than the list, and shows View transcript
+ * in brand blue.
  * A click anywhere on the row opens the transcript too.
  */
 function MeetingRow({ meeting, onView }: { meeting: Meeting; onView: () => void }) {
@@ -61,7 +62,7 @@ function MeetingRow({ meeting, onView }: { meeting: Meeting; onView: () => void 
           e.stopPropagation();
           onView();
         }}
-        className="relative shrink-0 whitespace-nowrap pr-1 text-[13px] font-semibold leading-5 text-ink opacity-0 hover:text-brand focus:opacity-100 group-hover/meeting:opacity-100"
+        className="relative shrink-0 whitespace-nowrap pr-1 text-[13px] font-semibold leading-5 text-ink opacity-0 focus:opacity-100 group-hover/meeting:text-brand group-hover/meeting:opacity-100"
       >
         View transcript
       </button>
@@ -89,12 +90,13 @@ export function TranscriptTab({ client }: { client: Client }) {
           Add meeting
         </button>
       </div>
-      {/* #f9fafa: the card well, as drawn. */}
-      <div className="flex flex-col bg-[#f9fafa] px-3 pb-3">
+      {/* #f9fafa: the card well, as drawn. Capped like the Notes list (580 px) and scrolls inside; each week's header
+          stays pinned while its meetings scroll under it. */}
+      <div className="scroll-thin flex max-h-[580px] flex-col overflow-y-auto bg-[#f9fafa] px-3 pb-3">
         {weeks.length ? (
           weeks.map((w) => (
             <section key={w.monday} className="flex flex-col">
-              <h5 className="pb-1 pt-3 text-[12px] font-semibold uppercase leading-normal text-ink-muted">{w.label}</h5>
+              <h5 className="sticky top-0 z-[1] bg-[#f9fafa] pb-1 pt-3 text-[12px] font-semibold uppercase leading-normal text-ink-muted">{w.label}</h5>
               <ul className="flex flex-col">
                 {w.meetings.map((m) => (
                   <MeetingRow key={m.id} meeting={m} onView={() => setViewing(m)} />
