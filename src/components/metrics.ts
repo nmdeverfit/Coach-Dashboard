@@ -1,4 +1,3 @@
-import iconCoins from '../assets/figma/icon-coins.svg';
 import statAtRisk from '../assets/figma/stat-at-risk.svg';
 import statFormReview from '../assets/figma/stat-form-review.svg';
 import statNeedsAttention from '../assets/figma/stat-needs-attention.svg';
@@ -38,7 +37,6 @@ export const METRICS: Record<MetricKey, MetricMeta> = {
   // The popup's "Upcoming booking"; plural to match the rail card it shares a key with.
   upcoming_bookings: { key: 'upcoming_bookings', tab: 'booking', label: 'Upcoming bookings', description: group('upcoming_bookings'), icon: { src: upcomingBookingsIcon, inset: '8.32% 12.5%', bleed: '-3.75% -4.17%' } },
   paused: { key: 'paused', tab: 'paused', label: 'Paused', description: 'Clients whose coaching is paused.', icon: { src: statPaused, inset: '5% 5% 5.01% 5%', bleed: '-3.81%' } },
-  credits: { key: 'credits', tab: 'booking', label: 'Session credits', description: group('credits'), icon: { src: iconCoins, inset: '7.69%', bleed: '-5.9%' } },
 };
 
 /** The brief's seven cards: the four statuses, then the three workflow cards (Paused keeps its tab only). */

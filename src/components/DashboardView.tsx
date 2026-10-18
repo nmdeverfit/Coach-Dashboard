@@ -92,9 +92,9 @@ export function DashboardView() {
   const weekClients = clientsInWeek(offset);
   const ctx = (c: Client) => ({ formToReview: formToReview.has(c.id), reviewed: reviewedNow(c.id) });
   const count = (tab: DashboardTab) => weekClients.filter((c) => inTab(tab, c, ctx(c))).length;
-  // The two cards on the Booking tab count their own group, as the rail card does; the rest count their tab.
+  // Upcoming bookings counts its group, as the rail card does (the Booking tab has no count); the rest count their tab.
   const metricCount = (key: MetricKey) =>
-    key === 'upcoming_bookings' || key === 'credits'
+    key === 'upcoming_bookings'
       ? cardMembers(key, offset, { todos: state.todos, reviewed: reviewedNow }).length
       : count(METRICS[key].tab);
 

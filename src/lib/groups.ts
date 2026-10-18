@@ -1,7 +1,6 @@
-import { DEMO_TODAY } from '../data/mock';
 import { getProfile } from '../data/profiles';
 import type { CardKey, Client, Todo } from '../data/types';
-import { bookingRow, hasFormToReview } from './dashboard';
+import { hasFormToReview } from './dashboard';
 import { clientsInWeek, groupsInWeek } from './week';
 
 /**
@@ -25,8 +24,5 @@ export function cardMembers(key: CardKey, offset: number, ctx: { todos: Todo[]; 
       return offset === 0 ? list.filter((c) => hasFormToReview(c, getProfile(c.id), ctx.todos)) : [];
     case 'review_completed':
       return list.filter((c) => ctx.reviewed(c.id));
-    case 'credits':
-      // Credits are point-in-time (BL6), whatever week is on screen.
-      return list.filter((c) => bookingRow(c, DEMO_TODAY).credits?.alert);
   }
 }

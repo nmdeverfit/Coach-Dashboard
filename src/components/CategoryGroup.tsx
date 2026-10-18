@@ -6,7 +6,7 @@ import { cardMembers } from '../lib/groups';
 import { useStore } from '../state/store';
 import { Avatar } from './Avatar';
 import { CountChip } from './CountChip';
-import { isCore, type GroupMeta } from './groups';
+import type { GroupMeta } from './groups';
 
 /** The card's 20 px icon, inside Figma's inset/bleed wrappers. */
 export function GroupIcon({ group }: { group: GroupMeta }) {
@@ -21,7 +21,7 @@ export function GroupIcon({ group }: { group: GroupMeta }) {
   );
 }
 
-/** The ⋯ menu at a card's top-right (layout test): Collapse / Expand, Remove (added groups only), Customize cards. */
+/** The ⋯ menu at a card's top-right (layout test): Collapse / Expand, Remove group, Customize cards. */
 function CardMenu({ group, collapsed }: { group: GroupMeta; collapsed: boolean }) {
   const { state, setRail, toggleCollapsed, openCustomize } = useStore();
   const [open, setOpen] = useState(false);
@@ -59,7 +59,8 @@ function CardMenu({ group, collapsed }: { group: GroupMeta; collapsed: boolean }
           <button type="button" role="menuitem" onClick={run(() => toggleCollapsed(group.key))} className={item}>
             {collapsed ? 'Expand' : 'Collapse'}
           </button>
-          {!isCore(group.key) && (
+          {/* Any card can go, as in Customize, as long as one stays. */}
+          {state.rail.order.length > 1 && (
             <button
               type="button"
               role="menuitem"

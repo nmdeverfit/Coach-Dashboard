@@ -2,13 +2,11 @@ import atRiskIcon from '../assets/figma/group-at-risk.svg';
 import needsAttentionIcon from '../assets/figma/group-needs-attention.svg';
 import programEndingIcon from '../assets/figma/group-program-ending.svg';
 import upcomingBookingsIcon from '../assets/figma/group-upcoming-bookings.svg';
-import iconCoins from '../assets/figma/icon-coins.svg';
 import statFormReview from '../assets/figma/stat-form-review.svg';
 import statOnTrack from '../assets/figma/stat-on-track.svg';
 import statReviewCompleted from '../assets/figma/stat-review-completed.svg';
 import type { CardKey, Client, GroupKey } from '../data/types';
-import { DEMO_TODAY } from '../data/mock';
-import { bookingRow, type DashboardTab } from '../lib/dashboard';
+import type { DashboardTab } from '../lib/dashboard';
 
 export interface GroupMeta {
   key: CardKey;
@@ -27,7 +25,7 @@ export interface GroupMeta {
 
 const days = (n: number) => `${n} day${n === 1 ? '' : 's'}`;
 
-/** The brief's four cards, in its order. In Customize they can be moved and collapsed but not removed (AC5). */
+/** The brief's four cards, in its order (the default rail). */
 export const GROUPS: (GroupMeta & { key: GroupKey })[] = [
   {
     key: 'at_risk',
@@ -71,8 +69,7 @@ export const GROUPS: (GroupMeta & { key: GroupKey })[] = [
 
 /**
  * Groups a coach can add in Customize (layout test, no Figma frame): only ones with a client-list tab, so View all
- * always lands somewhere and the counts come from the same source (AC3). Credits is a lifecycle card and carries row
- * meta; the others carry none.
+ * always lands somewhere and the counts come from the same source (AC3). None carries row meta.
  */
 export const EXTRA_GROUPS: GroupMeta[] = [
   {
@@ -102,21 +99,6 @@ export const EXTRA_GROUPS: GroupMeta[] = [
     iconInset: 'inset-[8.32%_8.33%_8.33%_8.34%]',
     iconBleed: 'inset-[-3.75%_-3.76%_-3.75%_-3.75%]',
   },
-  {
-    key: 'credits',
-    tab: 'booking',
-    title: 'Session credits',
-    description: 'Clients with credits expiring soon or a low balance.',
-    icon: iconCoins,
-    iconInset: 'inset-[7.69%]',
-    iconBleed: 'inset-[-5.9%]',
-    // Credits are point-in-time (BL6): "3 expiring in 5 days", else "Low credits", from the Booking tab's figures.
-    suffix: (c) => {
-      const alert = bookingRow(c, DEMO_TODAY).credits?.alert;
-      if (!alert) return '';
-      return alert.kind === 'expiring' ? alert.label.replace(/ credits?/, '') : 'Low credits';
-    },
-  },
 ];
 
 export const ALL_GROUPS: Record<CardKey, GroupMeta> = Object.fromEntries([...GROUPS, ...EXTRA_GROUPS].map((g) => [g.key, g])) as Record<
@@ -127,4 +109,3 @@ export const ALL_GROUPS: Record<CardKey, GroupMeta> = Object.fromEntries([...GRO
 export const DEFAULT_ORDER: CardKey[] = GROUPS.map((g) => g.key);
 /** Keeps the rail short: the brief's four plus two added. */
 export const MAX_GROUPS = 6;
-export const isCore = (key: CardKey): key is GroupKey => GROUPS.some((g) => g.key === key);

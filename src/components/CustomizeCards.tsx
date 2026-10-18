@@ -1,4 +1,3 @@
-import { Lock } from 'lucide-react';
 import { useState, type DragEvent, type KeyboardEvent, type ReactNode } from 'react';
 import iconDrag from '../assets/figma/icon-drag-indicator.svg';
 import iconMinus from '../assets/figma/icon-circle-minus-fill.svg';
@@ -8,10 +7,9 @@ import type { CardKey, MetricKey } from '../data/types';
 import { useStore, type CustomizeTab } from '../state/store';
 import { GroupIcon } from './CategoryGroup';
 import { Glyph } from './Glyph';
-import { ALL_GROUPS, DEFAULT_ORDER, EXTRA_GROUPS, MAX_GROUPS, isCore } from './groups';
+import { ALL_GROUPS, DEFAULT_ORDER, EXTRA_GROUPS, MAX_GROUPS } from './groups';
 import { DEFAULT_METRICS, MAX_METRICS, METRICS, METRIC_ORDER } from './metrics';
 import { Modal } from './Modal';
-import { Tooltip } from './Tooltip';
 
 const TABS: { key: CustomizeTab; label: string }[] = [
   { key: 'brief', label: 'Today’s Brief' },
@@ -28,64 +26,61 @@ interface Item {
   icon: ReactNode;
   /** Where else the group shows, from the other tab's draft; only library rows say it. */
   alsoOn?: string;
-  locked?: boolean;
 }
 
-/** One card in either column (Figma 5749:521640 "stat block"): drag handle, icon, name, then − / + or a lock. */
+/** The 3 px brand line drawn in the gap where a dragged card will land (the user's reference). */
+function DropLine({ at }: { at: 'top' | 'bottom' }) {
+  return <span aria-hidden className={`pointer-events-none absolute inset-x-0 h-[3px] rounded-full bg-brand ${at === 'top' ? '-top-[5.5px]' : '-bottom-[5.5px]'}`} />;
+}
+
+/**
+ * One card in either column (Figma 5749:521640 "stat block"): drag handle, icon, name, then − / +. While it is being
+ * dragged its slot stays behind as an empty grey box.
+ */
 function Row({
   item,
   shown,
-  dragging,
-  marker,
+  placeholder,
+  line,
   disabled,
-  lockNote,
   onAction,
   onDragStart,
-  onDragOver,
   onDragEnd,
   onKeyDown,
 }: {
   item: Item;
   shown: boolean;
-  dragging: boolean;
-  /** Where a card dragged in from the library will land. */
-  marker?: boolean;
+  placeholder: boolean;
+  line?: 'top' | 'bottom';
   disabled?: boolean;
-  lockNote: string;
   onAction: () => void;
   onDragStart: (e: DragEvent) => void;
-  onDragOver?: (e: DragEvent) => void;
   onDragEnd: () => void;
   onKeyDown?: (e: KeyboardEvent) => void;
 }) {
   return (
     <li
+      data-row
       draggable
       tabIndex={shown ? 0 : undefined}
       title={item.description}
       onDragStart={onDragStart}
-      onDragOver={onDragOver}
       onDragEnd={onDragEnd}
       onKeyDown={onKeyDown}
-      className={`relative flex cursor-grab items-center gap-1 rounded-lg border border-line py-3 pl-2 pr-3 outline-none focus-visible:border-brand ${
-        shown ? 'bg-white' : 'bg-white/0 hover:bg-white'
-      } ${dragging ? 'opacity-40 ring-2 ring-brand/30' : 'hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)]'}`}
+      className={`relative flex cursor-grab items-center gap-1 rounded-lg border py-3 pl-2 pr-3 outline-none focus-visible:border-brand ${
+        placeholder ? 'border-transparent bg-surface-secondary' : 'border-line bg-white hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)]'
+      }`}
     >
-      {marker && <span aria-hidden className="absolute -top-[6px] left-0 right-0 h-0.5 rounded bg-brand" />}
-      <img src={iconDrag} alt="" width={16} height={16} className="shrink-0" />
-      <span className="flex min-w-0 flex-1 items-center gap-2">
-        {item.icon}
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[14px] font-semibold leading-[1.5] tracking-[-0.28px] text-ink">{item.title}</span>
-          {!shown && item.alsoOn && <span className="text-[11px] leading-[1.4] text-ink-muted">Also on {item.alsoOn}</span>}
+      {line && <DropLine at={line} />}
+      <span className={`flex min-w-0 flex-1 items-center gap-1 ${placeholder ? 'invisible' : ''}`}>
+        <img src={iconDrag} alt="" width={16} height={16} className="shrink-0" />
+        <span className="flex min-w-0 flex-1 items-center gap-2">
+          {item.icon}
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate text-[14px] font-semibold leading-[1.5] tracking-[-0.28px] text-ink">{item.title}</span>
+            {!shown && item.alsoOn && <span className="text-[11px] leading-[1.4] text-ink-muted">Also on {item.alsoOn}</span>}
+          </span>
         </span>
-      </span>
-      {item.locked ? (
-        <span className="group/tip relative flex size-4 shrink-0 items-center justify-center text-ink-muted" aria-label={lockNote}>
-          <Lock size={13} strokeWidth={2.25} aria-hidden />
-          <Tooltip wide label={lockNote} />
-        </span>
-      ) : (
         <button
           type="button"
           aria-label={`${shown ? 'Remove' : 'Add'} ${item.title}`}
@@ -95,17 +90,27 @@ function Row({
         >
           <img src={shown ? iconMinus : iconPlus} alt="" width={16} height={16} />
         </button>
-      )}
+      </span>
     </li>
   );
 }
 
+/** Which gap (0 = above the first row, n = below the last) the pointer is closest to, from the rows' midpoints. */
+function gapAt(list: HTMLElement, y: number) {
+  const rows = [...list.querySelectorAll<HTMLElement>('[data-row]')];
+  const i = rows.findIndex((r) => {
+    const box = r.getBoundingClientRect();
+    return y < box.top + box.height / 2;
+  });
+  return i === -1 ? rows.length : i;
+}
+
 /**
- * Customize cards (Figma 5749:521640, with a Today's Brief tab added): one popup for the rail's group cards and the
- * client list's metric cards, from one library of groups. Each tab has its own order and limit; a library row says
- * when the group already shows on the other surface. It opens on the tab of the view it was opened from (Dashboard
- * Settings › Customize, or a group card's ⋯). The brief's four group cards are locked: their to-dos open from them
- * (AC5). Nothing changes until Save; Cancel or × throws both drafts away; Reset to default resets the open tab.
+ * Customize cards (Figma 5749:521640; both tabs drawn the same): one popup for the rail's group cards and the client
+ * list's metric cards, from one library of groups. Each tab has its own order and limit; a library row says when the
+ * group already shows on the other surface. It opens on the tab of the view it was opened from (Dashboard Settings ›
+ * Customize, or a group card's ⋯). Dragging, a brand line marks the closest gap the card will drop into. Nothing
+ * changes until Save; Cancel or × throws both drafts away; Reset to default resets the open tab.
  */
 export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
   const { state, setRail, setMetrics, openCustomize, showToast } = useStore();
@@ -113,7 +118,8 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
   const [brief, setBrief] = useState<CardKey[]>(state.rail.order);
   const [dash, setDash] = useState<MetricKey[]>(state.metrics);
   const [drag, setDrag] = useState<Drag>(null);
-  const [insertAt, setInsertAt] = useState<number | null>(null);
+  // The gap in the shown list the dragged card would drop into.
+  const [gap, setGap] = useState<number | null>(null);
   const close = () => openCustomize(null);
 
   const isBrief = tab === 'brief';
@@ -122,47 +128,48 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
   const full = shownKeys.length >= max;
   const setShown = (keys: Key[]) => (isBrief ? setBrief(keys as CardKey[]) : setDash(keys as MetricKey[]));
 
-  const item = (key: Key): Item =>
-    isBrief
-      ? {
-          key,
-          title: ALL_GROUPS[key as CardKey].title,
-          description: ALL_GROUPS[key as CardKey].description,
-          icon: <GroupIcon group={ALL_GROUPS[key as CardKey]} />,
-          alsoOn: dash.includes(key as MetricKey) ? 'Dashboard' : undefined,
-          locked: isCore(key as CardKey),
-        }
-      : {
-          key,
-          title: METRICS[key as MetricKey].label,
-          description: METRICS[key as MetricKey].description,
-          icon: <Glyph src={METRICS[key as MetricKey].icon.src} size={20} inset={METRICS[key as MetricKey].icon.inset} bleed={METRICS[key as MetricKey].icon.bleed} />,
-          alsoOn: brief.includes(key as CardKey) ? 'Today’s Brief' : undefined,
-        };
-  // The brief's library is the groups that can be a card; No activities and Paused have no group card (brief).
-  const library: Key[] = (isBrief ? EXTRA_GROUPS.map((g) => g.key) : METRIC_ORDER).filter((k) => !shownKeys.includes(k));
-
-  const moveTo = (key: Key, index: number) => {
-    const keys = shownKeys.filter((k) => k !== key);
-    keys.splice(Math.max(0, Math.min(index, keys.length)), 0, key);
-    setShown(keys);
+  const item = (key: Key): Item => {
+    if (isBrief) {
+      const g = ALL_GROUPS[key as CardKey];
+      return { key, title: g.title, description: g.description, icon: <GroupIcon group={g} />, alsoOn: dash.includes(key as MetricKey) ? 'Dashboard' : undefined };
+    }
+    const m = METRICS[key as MetricKey];
+    return {
+      key,
+      title: m.label,
+      description: m.description,
+      icon: <Glyph src={m.icon.src} size={20} inset={m.icon.inset} bleed={m.icon.bleed} />,
+      alsoOn: brief.includes(key as CardKey) ? 'Today’s Brief' : undefined,
+    };
   };
+  // The brief's library is the groups that can be a card; No activities and Paused have no group card (brief).
+  const library: Key[] = (isBrief ? [...DEFAULT_ORDER, ...EXTRA_GROUPS.map((g) => g.key)] : METRIC_ORDER).filter((k) => !shownKeys.includes(k));
+
   const add = (key: Key, index = shownKeys.length) => {
     if (full) return;
     const keys = [...shownKeys];
     keys.splice(index, 0, key);
     setShown(keys);
   };
-  // The Dashboard keeps at least one metric; the brief's four never leave (locked).
-  const canRemove = (key: Key) => (isBrief ? !isCore(key as CardKey) : shownKeys.length > 1);
-  const remove = (key: Key) => canRemove(key) && setShown(shownKeys.filter((k) => k !== key));
+  // At least one card stays on each surface.
+  const canRemove = shownKeys.length > 1;
+  const remove = (key: Key) => canRemove && setShown(shownKeys.filter((k) => k !== key));
   const endDrag = () => {
     setDrag(null);
-    setInsertAt(null);
+    setGap(null);
+  };
+  // A card's own gaps (just above or below it) would not move it, so they draw no line.
+  const from = drag?.from === 'shown' ? shownKeys.indexOf(drag.key) : -1;
+  const lineGap = gap === null || (from >= 0 && (gap === from || gap === from + 1)) ? null : gap;
+  const drop = () => {
+    if (!drag || lineGap === null) return;
+    if (drag.from === 'library') return add(drag.key, lineGap);
+    const keys = shownKeys.filter((k) => k !== drag.key);
+    keys.splice(lineGap > from ? lineGap - 1 : lineGap, 0, drag.key);
+    setShown(keys);
   };
 
   const noun = isBrief ? 'card' : 'metric';
-  const lockNote = 'Its to-dos open from this card, so it stays on Today’s Brief.';
 
   return (
     <Modal
@@ -222,16 +229,20 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
         <div className="flex items-start gap-4">
           <section
             aria-label={isBrief ? 'Shown on Today’s Brief' : 'Shown on Dashboard'}
-            onDragOver={(e) => drag?.from === 'library' && e.preventDefault()}
+            onDragOver={(e) => {
+              if (!drag || (drag.from === 'library' && full)) return;
+              e.preventDefault();
+              const list = e.currentTarget.querySelector('ul');
+              if (list) setGap(gapAt(list, e.clientY));
+            }}
+            onDragLeave={(e) => !e.currentTarget.contains(e.relatedTarget as Node) && setGap(null)}
             onDrop={(e) => {
               e.preventDefault();
-              if (drag?.from === 'library') add(drag.key, insertAt ?? shownKeys.length);
+              drop();
               endDrag();
             }}
             // Tall enough for eight rows, so switching tabs never changes the popup's height.
-            className={`flex min-h-[486px] w-[449px] shrink-0 flex-col gap-3 self-stretch rounded-lg p-4 ${
-              drag?.from === 'library' ? 'bg-brand/[0.06] ring-1 ring-inset ring-brand/30' : 'bg-surface-secondary'
-            }`}
+            className="flex min-h-[486px] w-[449px] shrink-0 flex-col gap-3 self-stretch rounded-lg bg-surface-secondary p-4"
           >
             <div className="flex items-baseline justify-between gap-2 text-ink-tertiary">
               <p className="flex items-baseline gap-1 whitespace-nowrap">
@@ -244,39 +255,42 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
             </div>
             <ul className="flex flex-col gap-2">
               {shownKeys.map((key, i) => (
-                  <Row
-                    key={key}
-                    item={item(key)}
-                    shown
-                    dragging={drag?.key === key}
-                    marker={insertAt === i && drag?.from === 'library'}
-                    disabled={!canRemove(key)}
-                    lockNote={lockNote}
-                    onAction={() => remove(key)}
-                    onDragStart={(e) => {
-                      e.dataTransfer.effectAllowed = 'move';
-                      setDrag({ key, from: 'shown' });
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      if (drag?.from === 'shown' && drag.key !== key) moveTo(drag.key, i);
-                      if (drag?.from === 'library') setInsertAt(i);
-                    }}
-                    onDragEnd={endDrag}
-                    onKeyDown={(e) => {
-                      // Alt + ↑ / ↓ moves the focused card, for anyone not dragging.
-                      if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
-                      e.preventDefault();
-                      moveTo(key, i + (e.key === 'ArrowUp' ? -1 : 1));
-                    }}
-                  />
+                <Row
+                  key={key}
+                  item={item(key)}
+                  shown
+                  placeholder={drag?.key === key}
+                  line={lineGap === i ? 'top' : lineGap === shownKeys.length && i === shownKeys.length - 1 ? 'bottom' : undefined}
+                  disabled={!canRemove}
+                  onAction={() => remove(key)}
+                  onDragStart={(e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    // After the browser has taken its drag image, so the image is the card and not the empty slot.
+                    window.setTimeout(() => setDrag({ key, from: 'shown' }));
+                  }}
+                  onDragEnd={endDrag}
+                  onKeyDown={(e) => {
+                    // Alt + ↑ / ↓ moves the focused card, for anyone not dragging.
+                    if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+                    e.preventDefault();
+                    const to = i + (e.key === 'ArrowUp' ? -1 : 1);
+                    if (to < 0 || to >= shownKeys.length) return;
+                    const keys = shownKeys.filter((k) => k !== key);
+                    keys.splice(to, 0, key);
+                    setShown(keys);
+                  }}
+                />
               ))}
             </ul>
           </section>
 
           <section
             aria-label={`Add a ${noun}`}
-            onDragOver={(e) => drag?.from === 'shown' && canRemove(drag.key) && e.preventDefault()}
+            onDragOver={(e) => {
+              if (drag?.from !== 'shown' || !canRemove) return;
+              e.preventDefault();
+              setGap(null);
+            }}
             onDrop={(e) => {
               e.preventDefault();
               if (drag?.from === 'shown') remove(drag.key);
@@ -302,14 +316,13 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
                     key={key}
                     item={item(key)}
                     shown={false}
-                    dragging={drag?.key === key}
+                    placeholder={drag?.key === key}
                     disabled={full}
-                    lockNote={lockNote}
                     onAction={() => add(key)}
                     onDragStart={(e) => {
                       if (full) return e.preventDefault();
                       e.dataTransfer.effectAllowed = 'move';
-                      setDrag({ key, from: 'library' });
+                      window.setTimeout(() => setDrag({ key, from: 'library' }));
                     }}
                     onDragEnd={endDrag}
                   />
