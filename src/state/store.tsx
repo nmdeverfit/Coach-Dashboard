@@ -60,9 +60,9 @@ interface State {
   meetings: Record<string, Meeting[]>;
   /** What the coach told Olly about each client through Add context on the AI Assessment. */
   aiContext: Record<string, AiContext>;
-  /** The rail's group cards, as the coach customized them (layout test). */
+  /** The rail's group cards, as the coach customized them (Customize cards, a trial). */
   rail: RailLayout;
-  /** The client list's metric cards, in order (layout test). */
+  /** The client list's metric cards, in order (Customize cards, a trial). */
   metrics: MetricKey[];
   /** The Customize cards popup, open on its Today's Brief or Dashboard tab. */
   customize: CustomizeTab | null;

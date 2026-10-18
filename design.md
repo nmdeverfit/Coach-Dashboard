@@ -26,7 +26,11 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   rail 1/3 (459 px), each scrolling on its own; group cards stack (`gap-4`, descriptions unpinned, each list `max-h-[186px]`: three
   rows and half of the fourth, so the scroll shows) and the highlights'
   category tabs become a row of chips above the list (scrolls sideways if needed).
-  **Customize cards (same branch, Figma `5749:521640` + a tab):** each card's header ends in a chevron (collapse
+  Customize cards: as on the main branch (below), the stacked cards included.
+- Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
+  height of 10 one-line rows (560 px) and scrolls inside.
+- **Customize cards** (Figma `5749:521640` + a tab, a trial on both branches; on the main layout extra cards keep the 2 × 2
+  grid, so six make three rows): each card's header ends in a chevron (collapse
   toggle) and a 28 px ⋯ button (`icon-more`) opening a 190 px menu (white, `#e0e0e0` border, rounded 8, shadow
   `0 8px 24px rgba(0,0,0,0.12)`; Remove in `danger`; last item "Customize cards…"). Collapsed card = header only,
   `py-3`, with View all at the right (text only, no arrow); in the two-column (past week) grid it spans both columns.
@@ -44,8 +48,6 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   **Dashboard Settings** (`5749:521870`): open = `bg-brand/10`, `border-black/15`, brand text and gear; the menu
   hangs 4 px under it, right-aligned, 252 px, white, rounded 4, `0 0 2px #b0bac8, 0 4px 16px rgba(37,40,48,0.1)`,
   an 8 px arrow, `py-3`, items 34 px, `px-5`, 16 px icon + 13 px `#333`.
-- Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
-  height of 10 one-line rows (560 px) and scrolls inside.
 - **To-do details drawer:** 720 px wide, fixed to the right, full height, `shadow-drawer`. Slides in
   (`animate-drawer-in`, 280 ms) and out (`animate-drawer-out`, 220 ms). Closes on ×, Esc or a click outside.
   - Header bar: 56 px, `px-5`, bottom border, "TO-DO DETAILS" 13 px semibold `ink-secondary`, × 20 px.

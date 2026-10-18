@@ -12,23 +12,9 @@ the same change.
 **Branch `claude/layout-3-columns` (layout test, the user's call):** the brief page splits into three parts: Today's
 Brief takes two and the right rail one (`grid-cols-3`, `col-span-2`, each column scrolls on its own). In the narrow
 rail the group cards stack in one column, each list capped at 186 px (three clients and half of the fourth), and
-Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail. Also trialled here,
-**Customize cards** (Figma `5749:521640`, a Today's Brief tab added; option B of the brainstorm, the user's call): one
-popup, `CustomizeCards`, for the rail's group cards and the client list's metric cards, with tabs Today's Brief |
-Dashboard. It opens on the tab of the view it comes from: Dashboard Settings (`5749:521870`, `SettingsMenu` in
-`Header`; its item reads "Customize group cards" on the brief, "Customize metrics" on the list) or a card's ⋯ menu
-(Collapse / Expand, Remove group, Customize cards…). Both tabs are drawn the same (the user's call): shown cards on
-the left (drag or Alt + ↑ / ↓ to reorder, ⊖ to remove, a count "4/6"), the library on the right (⊕ or drag in; a row
-says "Also on Dashboard" / "Also on Today's Brief" from the other tab's draft). Dragging leaves an empty grey slot
-behind and draws a brand line in the closest gap (`gapAt`, from the rows' midpoints). Every card can be removed,
-as long as one stays (the brief's four were locked for AC5 at first; the user dropped the lock). Brief: the four plus
-`EXTRA_GROUPS` (Form to review, On track, Review completed; members from `cardMembers` in `lib/groups.ts`), up to
-`MAX_GROUPS` = 6; No activities and Paused never get a group card (brief). Dashboard: `METRICS` in
-`components/metrics.ts` (the seven + Upcoming bookings and Paused, same keys as the rail's groups), up to
-`MAX_METRICS` = 8. Session credits was dropped from both at the user's request. Save and Continue saves both tabs; Cancel / × / Esc drop
-both; Reset to default resets the open tab. Stored in `state.rail` and `state.metrics` (localStorage), popup in
-`state.customize`. Both go past Phase 1: the metric row is fixed (Customize Metrics is Phase 3) and the rail has "no
-fifth card". It publishes to its own artifact (title "Check-in Dashboard v2 ·
+Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail.
+Customize cards (see the Structure entry) is shared with the main branch; here the narrow rail stacks the cards in
+one column. It publishes to its own artifact (title "Check-in Dashboard v2 ·
 3 columns"); the main branch's artifact is unchanged.
 
 ## Project
@@ -159,6 +145,18 @@ fifth card". It publishes to its own artifact (title "Check-in Dashboard v2 ·
   client detail page. `AiAssessment` also pins a copy under the panel header once scrolled past (Figma
   `5747:520276` / `520431` / `520587`): it finds the nearest `[data-panel-scroll]` and draws into its parent
   (`relative`), collapsed to the summary + View more, expanded with the facts and both buttons.
+- Customize cards (trial, Figma `5749:521640` with a Today's Brief tab added, the user's call; also on branch
+  `claude/layout-3-columns`): `CustomizeCards` is one popup for the rail's group cards and the client list's metric
+  cards, tabs Today's Brief | Dashboard, both drawn the same. It opens on the tab of the view it comes from: Dashboard
+  Settings (`5749:521870`, `SettingsMenu` in `Header`; the item reads "Customize group cards" on the brief,
+  "Customize metrics" on the list) or a group card's ⋯ menu (`CardMenu` in `CategoryGroup`: Collapse / Expand,
+  Remove group, Customize cards…). Shown cards on the left (drag or Alt + ↑ / ↓, ⊖, a count "4/6"), the library on
+  the right (⊕ or drag in; "Also on Dashboard" / "Also on Today's Brief" from the other tab's draft). Dragging leaves
+  a grey slot and draws a brand line in the closest gap (`gapAt`). Any card can go as long as one stays. Brief: the
+  four + `EXTRA_GROUPS` (Form to review, On track, Review completed; members from `cardMembers` in `lib/groups.ts`),
+  up to `MAX_GROUPS` = 6; Dashboard: `METRICS` in `components/metrics.ts` (the seven + Upcoming bookings, Paused),
+  up to `MAX_METRICS` = 8. Save and Continue saves both; Cancel / × / Esc drop both; Reset resets the open tab.
+  State: `rail` (order + collapsed) and `metrics` in the store, kept in localStorage; `customize` opens the popup.
 - `tailwind.config.js`: tokens mirror the Figma variables (see below). Use the tokens instead of raw hex values.
 
 ### Design source (Figma)
@@ -270,8 +268,13 @@ fifth card". It publishes to its own artifact (title "Check-in Dashboard v2 ·
   Coaching style per client is close to what the brief puts out: coach-facing signal settings (Phase 3),
   low-touch / on-demand workflows and tone personalisation (Out). The design's "Jordan" is the client's first name;
   the Low touch and Self-guided hints are the demo's wording (only High touch's is drawn).
+- Customize cards goes past Phase 1 on both surfaces: the metric row is fixed (Customize Metrics is Phase 3), the rail
+  has "no fifth card", and removing one of the brief's four cards takes away that to-do type's full-list surface on
+  the brief (AC5; the client list's tabs still have it). The user dropped the lock that kept them. Session credits
+  was dropped as a card at the user's request. "Save and Continue" is the design's copy ("Save" was suggested).
 - The Change status modal, the vertical row expand (rows open the client detail
-  drawer instead), settings, tour and What's New are not built yet.
+  drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
+  are not built yet.
 
 ---
 

@@ -68,7 +68,7 @@ export const GROUPS: (GroupMeta & { key: GroupKey })[] = [
 ];
 
 /**
- * Groups a coach can add in Customize (layout test, no Figma frame): only ones with a client-list tab, so View all
+ * Groups a coach can add in Customize cards (a trial): only ones with a client-list tab, so View all
  * always lands somewhere and the counts come from the same source (AC3). None carries row meta.
  */
 export const EXTRA_GROUPS: GroupMeta[] = [

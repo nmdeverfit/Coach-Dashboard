@@ -21,7 +21,7 @@ export function GroupIcon({ group }: { group: GroupMeta }) {
   );
 }
 
-/** The ⋯ menu at a card's top-right (layout test): Collapse / Expand, Remove group, Customize cards. */
+/** The ⋯ menu at a card's top-right (trial): Collapse / Expand, Remove group, Customize cards. */
 function CardMenu({ group, collapsed }: { group: GroupMeta; collapsed: boolean }) {
   const { state, setRail, toggleCollapsed, openCustomize } = useStore();
   const [open, setOpen] = useState(false);
