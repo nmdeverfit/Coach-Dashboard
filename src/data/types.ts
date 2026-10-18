@@ -62,10 +62,10 @@ export interface Highlight {
 
 export type GroupKey = 'at_risk' | 'needs_attention' | 'program_ending' | 'upcoming_bookings';
 /** Groups a coach can add to the rail in Customize cards (a trial); each has a client-list tab behind its View all. */
-export type ExtraGroupKey = 'form_review' | 'on_track' | 'review_completed';
+export type ExtraGroupKey = 'form_review' | 'on_track' | 'review_completed' | 'no_activities' | 'paused';
 export type CardKey = GroupKey | ExtraGroupKey;
-/** Metric cards on the client list: every rail group, plus the two the rail never shows (no group card, brief). */
-export type MetricKey = CardKey | 'no_activities' | 'paused';
+/** Metric cards on the client list: the same nine groups as the rail's cards (one set for both tabs, the user's call). */
+export type MetricKey = CardKey;
 
 export type MealKey = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 export type MacroKey = 'carb' | 'fat' | 'protein';

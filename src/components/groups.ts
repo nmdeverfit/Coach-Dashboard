@@ -3,7 +3,9 @@ import needsAttentionIcon from '../assets/figma/group-needs-attention.svg';
 import programEndingIcon from '../assets/figma/group-program-ending.svg';
 import upcomingBookingsIcon from '../assets/figma/group-upcoming-bookings.svg';
 import statFormReview from '../assets/figma/stat-form-review.svg';
+import statNoActivities from '../assets/figma/stat-no-activities.svg';
 import statOnTrack from '../assets/figma/stat-on-track.svg';
+import statPaused from '../assets/figma/stat-paused.svg';
 import statReviewCompleted from '../assets/figma/stat-review-completed.svg';
 import type { CardKey, Client, GroupKey } from '../data/types';
 import type { DashboardTab } from '../lib/dashboard';
@@ -99,6 +101,25 @@ export const EXTRA_GROUPS: GroupMeta[] = [
     iconInset: 'inset-[8.32%_8.33%_8.33%_8.34%]',
     iconBleed: 'inset-[-3.75%_-3.76%_-3.75%_-3.75%]',
   },
+  // The brief gives these two no group card; Customize offers them on both tabs (the user's call).
+  {
+    key: 'no_activities',
+    tab: 'no_activities',
+    title: 'No activities',
+    description: 'No activity logged this week.',
+    icon: statNoActivities,
+    iconInset: 'inset-0',
+    iconBleed: 'inset-0',
+  },
+  {
+    key: 'paused',
+    tab: 'paused',
+    title: 'Paused',
+    description: 'Clients whose coaching is paused.',
+    icon: statPaused,
+    iconInset: 'inset-[5%_5%_5.01%_5%]',
+    iconBleed: 'inset-[-3.81%]',
+  },
 ];
 
 export const ALL_GROUPS: Record<CardKey, GroupMeta> = Object.fromEntries([...GROUPS, ...EXTRA_GROUPS].map((g) => [g.key, g])) as Record<
@@ -107,5 +128,5 @@ export const ALL_GROUPS: Record<CardKey, GroupMeta> = Object.fromEntries([...GRO
 >;
 
 export const DEFAULT_ORDER: CardKey[] = GROUPS.map((g) => g.key);
-/** Keeps the rail short: the brief's four plus two added. */
-export const MAX_GROUPS = 6;
+/** The same limit on both tabs: eight metric cards still fit one row at 1440 px (the rail takes four rows). */
+export const MAX_CARDS = 8;

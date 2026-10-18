@@ -7,8 +7,8 @@ import type { CardKey, MetricKey } from '../data/types';
 import { useStore, type CustomizeTab } from '../state/store';
 import { GroupIcon } from './CategoryGroup';
 import { Glyph } from './Glyph';
-import { ALL_GROUPS, DEFAULT_ORDER, EXTRA_GROUPS, MAX_GROUPS } from './groups';
-import { DEFAULT_METRICS, MAX_METRICS, METRICS, METRIC_ORDER } from './metrics';
+import { ALL_GROUPS, DEFAULT_ORDER, MAX_CARDS } from './groups';
+import { DEFAULT_METRICS, METRICS, METRIC_ORDER } from './metrics';
 import { Modal } from './Modal';
 
 const TABS: { key: CustomizeTab; label: string }[] = [
@@ -124,7 +124,7 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
 
   const isBrief = tab === 'brief';
   const shownKeys: Key[] = isBrief ? brief : dash;
-  const max = isBrief ? MAX_GROUPS : MAX_METRICS;
+  const max = MAX_CARDS;
   const full = shownKeys.length >= max;
   const setShown = (keys: Key[]) => (isBrief ? setBrief(keys as CardKey[]) : setDash(keys as MetricKey[]));
 
@@ -142,8 +142,8 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
       alsoOn: brief.includes(key as CardKey) ? 'Today’s Brief' : undefined,
     };
   };
-  // The brief's library is the groups that can be a card; No activities and Paused have no group card (brief).
-  const library: Key[] = (isBrief ? [...DEFAULT_ORDER, ...EXTRA_GROUPS.map((g) => g.key)] : METRIC_ORDER).filter((k) => !shownKeys.includes(k));
+  // One set of nine cards on both tabs, in one order.
+  const library: Key[] = METRIC_ORDER.filter((k) => !shownKeys.includes(k));
 
   const add = (key: Key, index = shownKeys.length) => {
     if (full) return;
