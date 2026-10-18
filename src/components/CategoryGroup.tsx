@@ -120,10 +120,10 @@ export function CategoryGroup({
             <button
               type="button"
               onClick={() => openGroup(group.key)}
-              className="flex shrink-0 items-center gap-1 text-[12px] font-semibold leading-normal text-ink-secondary hover:text-ink"
+              className="shrink-0 text-[12px] font-semibold leading-normal text-ink-secondary hover:text-ink"
             >
+              {/* No arrow here: the header already ends in the collapse chevron (the user's call). */}
               View all
-              <img src={chevronSmall} alt="" width={14} height={14} />
             </button>
           )}
           <CardMenu group={group} collapsed={collapsed} onCustomize={onCustomize} />

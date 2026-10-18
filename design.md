@@ -30,7 +30,7 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   row above the cards is set aside for now). Each card's header ends in a
   chevron (collapse toggle) and a 28 px ⋯ button (`icon-more`) opening a 190 px menu (white, `#e0e0e0` border,
   rounded 8, shadow `0 8px 24px rgba(0,0,0,0.12)`; Remove in `danger`). Collapsed card = header only, `py-3`, with
-  View all at the right; in the two-column (past week) grid it spans both columns. Customize mode: a white card with
+  View all at the right (text only, no arrow); in the two-column (past week) grid it spans both columns. Customize mode: a white card with
   a `brand/30` border (title 14 px bold, hint 12 px, Reset to default link, Cancel 32 px white, Done 32 px brand), then
   one 44 px white row per group (grip, icon, title 14 px bold, count chip, Collapse / Expand 12 px semibold, ↑ ↓ 28 px,
   × on added groups), then a 44 px dashed `brand/40` "+ Add group" tile that opens the addable groups (icon, title +
