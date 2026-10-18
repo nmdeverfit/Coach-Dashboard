@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { DEMO_TODAY, clients, todos as seedTodos } from '../data/mock';
-import type { CardKey, Client, FeedbackState, GroupKey, Meeting, Todo } from '../data/types';
+import type { AiContext, CardKey, Client, FeedbackState, GroupKey, Meeting, Todo } from '../data/types';
 import { ALL_GROUPS, DEFAULT_ORDER } from '../components/groups';
 import type { Assessment } from '../lib/checkin';
 import type { ClientTabKey } from '../components/drawer/ClientTabs';
@@ -57,6 +57,8 @@ interface State {
   feedback: Record<string, FeedbackState>;
   /** Meetings the coach added on the Transcript tab in this session, by client. */
   meetings: Record<string, Meeting[]>;
+  /** What the coach told Olly about each client through Add context on the AI Assessment. */
+  aiContext: Record<string, AiContext>;
   /** The rail's group cards, as the coach customized them (layout test). */
   rail: RailLayout;
 }
@@ -116,7 +118,8 @@ type Action =
   | { type: 'closeSideTab'; tab: SideTab }
   | { type: 'closeSide' }
   | { type: 'sendMessage'; clientId: string; text: string }
-  | { type: 'addMeeting'; clientId: string; meeting: Meeting };
+  | { type: 'addMeeting'; clientId: string; meeting: Meeting }
+  | { type: 'setAiContext'; clientId: string; context: AiContext | null };
 
 const initialState: State = {
   todos: seedTodos,
@@ -133,6 +136,7 @@ const initialState: State = {
   sent: {},
   feedback: {},
   meetings: {},
+  aiContext: {},
   rail: loadRail(),
 };
 
@@ -250,6 +254,10 @@ function reducer(state: State, action: Action): State {
       return { ...state, side: null };
     case 'sendMessage':
       return { ...state, sent: { ...state.sent, [action.clientId]: [...(state.sent[action.clientId] ?? []), { text: action.text, at: `${DEMO_TODAY}T06:00` }] } };
+    case 'setAiContext': {
+      const { [action.clientId]: _old, ...rest } = state.aiContext;
+      return { ...state, aiContext: action.context ? { ...rest, [action.clientId]: action.context } : rest };
+    }
     case 'addMeeting':
       return { ...state, meetings: { ...state.meetings, [action.clientId]: [action.meeting, ...(state.meetings[action.clientId] ?? [])] } };
     case 'reviewClient':
@@ -362,6 +370,8 @@ interface Store {
   closeSide: () => void;
   sendMessage: (clientId: string, text: string) => void;
   addMeeting: (clientId: string, meeting: Meeting) => void;
+  /** Saves (or, with null, clears) the coach's context for a client's AI Assessment. */
+  setAiContext: (clientId: string, context: AiContext | null) => void;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -432,6 +442,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       closeSideTab: (tab) => dispatch({ type: 'closeSideTab', tab }),
       closeSide: () => dispatch({ type: 'closeSide' }),
       sendMessage: (clientId, text) => dispatch({ type: 'sendMessage', clientId, text }),
+      setAiContext: (clientId, context) => {
+        dispatch({ type: 'setAiContext', clientId, context });
+        showToast(context ? `Context saved for ${getClient(clientId).firstName}` : 'Context cleared');
+      },
       addMeeting: (clientId, meeting) => {
         dispatch({ type: 'addMeeting', clientId, meeting });
         showToast('Meeting added');

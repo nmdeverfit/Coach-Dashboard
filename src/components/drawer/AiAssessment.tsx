@@ -1,21 +1,34 @@
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import quoteLine from '../../assets/figma/ai-quote-line.svg';
 import iconTellMeMore from '../../assets/figma/icon-tell-me-more.svg';
+import { useState } from 'react';
+import type { Client } from '../../data/types';
 import type { Assessment } from '../../lib/checkin';
+import { useStore } from '../../state/store';
+import { AddContextButton, ContextAddedChip, ContextForm, contextSummary } from './AiContext';
 
 /** Gradient used on the "AI Assessment" label in Figma. */
 export const AI_GRADIENT =
   'radial-gradient(120% 260% at 0% 0%, #f2617d 0%, #c159aa 22%, #8f51d6 44%, #6c59e0 58%, #4861e9 72%, #2469f3 86%, #0071fd 100%)';
 
 interface Props {
+  client: Client;
   assessment: Assessment;
   onTellMeMore: () => void;
 }
 
-export function AiAssessment({ assessment, onTellMeMore }: Props) {
+/**
+ * The AI Assessment card. Its bottom row holds Add context (or "Context added · Edit" once saved, Figma 5746:519756)
+ * and Tell me more; Add context opens the questionnaire under the row, and the left button hides while it is open
+ * (5744:519377). The context is per client, so every panel showing this client's assessment shares it.
+ */
+export function AiAssessment({ client, assessment, onTellMeMore }: Props) {
+  const { state, setAiContext } = useStore();
+  const [editing, setEditing] = useState(false);
+  const saved = state.aiContext[client.id];
   const { headline, bullets } = assessment;
   return (
-    <section className="relative flex flex-col gap-3 rounded-lg border border-ai-line bg-white p-4 shadow-ai-card">
+    <section className="relative flex flex-col gap-4 rounded-lg border border-ai-line bg-white p-4 shadow-ai-card">
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <img src={iconSparkle} alt="" width={16} height={16} />
@@ -54,7 +67,14 @@ export function AiAssessment({ assessment, onTellMeMore }: Props) {
           </div>
         </div>
       </div>
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-3">
+        {editing ? (
+          <span />
+        ) : saved ? (
+          <ContextAddedChip summary={contextSummary(saved)} onEdit={() => setEditing(true)} />
+        ) : (
+          <AddContextButton onClick={() => setEditing(true)} />
+        )}
         <button
           type="button"
           onClick={onTellMeMore}
@@ -64,6 +84,17 @@ export function AiAssessment({ assessment, onTellMeMore }: Props) {
           Tell me more
         </button>
       </div>
+      {editing && (
+        <ContextForm
+          client={client}
+          initial={saved}
+          onCancel={() => setEditing(false)}
+          onSave={(ctx) => {
+            setAiContext(client.id, ctx);
+            setEditing(false);
+          }}
+        />
+      )}
     </section>
   );
 }

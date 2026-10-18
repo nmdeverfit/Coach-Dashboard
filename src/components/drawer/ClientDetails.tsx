@@ -69,6 +69,7 @@ export function ClientDetailsPanel({
         <ClientTitle client={client} />
         <div className="flex flex-col gap-2 px-[30px] pb-[30px]">
           <AiAssessment
+          client={client}
             assessment={assessment}
             onTellMeMore={() => openOlly(client.id, { mode: 'tell', assessment })}
           />

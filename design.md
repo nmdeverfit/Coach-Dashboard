@@ -122,6 +122,19 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Label "AI Assessment" 14 px semibold with the Olly gradient as text fill. Summary 13 px semibold; facts 13 px
   `ink-tertiary` bullets. A status-derived type tags its `main_signal` in the summary (blue tint pill); Build,
   Remind and Acknowledge do not tag. Tell me more sits bottom-right inside the card.
+- **Add context** (Figma `5746:520123` button, `5744:519377` open, `5746:519756` saved; `drawer/AiContext.tsx`): the
+  card's bottom row is `justify-between`, Add context left, Tell me more right. Button 36 px, white, `border-line-light`,
+  rounded 4, list-plus icon 20 px + "Add context" 13 px semibold `ink-tertiary`. It opens the questionnaire below the
+  row (the button hides while open): `bg-surface-secondary`, `border-line-light`, rounded 8; header "Add context for
+  AI Assessment" 16 px semibold with Cancel (white, 88 × 32, rounded 5) and Save (brand, 88 × 32, disabled until
+  something is filled in). Questions are numbered 14 px semibold, split by `border-line-light`: 1. How do you coach
+  {first}? (High touch · Low touch · Self-guided, single choice, a 13 px `ink-tertiary` hint under the choice);
+  2. What doesn't {first} track? (Nutrition · Tasks & Habit, multi) + Additional note; 3. Note for the next
+  [2 weeks ⌄] (1, 2, 4, 8; a native select under the design's field) + note. Choice chips: pill, 36 px, `px-5`,
+  13 px; on = `border-brand bg-brand/5` semibold brand, off = `#e0e0e0` + `black/60`. Note box: `#fafbfc`,
+  `#d4d7d9` border (brand on focus), 80 px, 0/255 counter 12 px `ink/50`. Saved: a `bg-brand/5` chip, 36 px,
+  brand check-circle 16 px + "Context added" 13 px semibold, a 16 px divider, underlined "Edit" (reopens the form
+  with the answers); hover shows the summary. Saving with every answer cleared removes the context.
 - **AI buttons** (Draft with AI, Tell me more, and any new AI action): add the `ai-btn` class (`src/index.css`).
   Rest: white with an inset pink glow. Hover (Figma `5654:528490`): the Olly gradient fills the button, text and
   icon turn white, shadow `0 4px 10px rgba(181,45,223,.2)`, and a blurred white band (opacity 0.5) sweeps once from
