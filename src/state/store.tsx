@@ -542,10 +542,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setSideTab: (tab) => dispatch({ type: 'sideTab', tab }),
       closeSideTab: (tab) => dispatch({ type: 'closeSideTab', tab }),
       closeSide: () => dispatch({ type: 'closeSide' }),
-      sendMessage: (clientId, text, highlightId) => {
-        dispatch({ type: 'sendMessage', clientId, text, highlightId });
-        showToast(`Message sent to ${getClient(clientId).firstName}`);
-      },
+      // No toast: Olly and the Inbox show the sent message themselves (the user's call).
+      sendMessage: (clientId, text, highlightId) => dispatch({ type: 'sendMessage', clientId, text, highlightId }),
       dismissHighlight: (id) => dispatch({ type: 'dismissHighlight', id }),
       restoreHighlight: (id) => dispatch({ type: 'restoreHighlight', id }),
       clearHighlightHistory: () => dispatch({ type: 'clearHighlightHistory' }),
