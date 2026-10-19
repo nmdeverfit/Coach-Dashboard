@@ -264,56 +264,99 @@ export function transcriptText(coach: string, first: string, lines: TranscriptLi
 
 // ---------------------------------------------------------------- Summary
 
+interface TopicNote {
+  name: string;
+  discuss: string;
+  /** What the two settled, for "You agreed to …" in the overview. */
+  agreed?: string;
+  /** Short takeaways for the Latest call card. */
+  points: string[];
+  followUp?: string;
+}
+
 /**
- * What each section of a call comes to, in the coach's words for the Summary tab: what was discussed and settled,
- * a short "agreed" phrase for the overview, and the coach's own follow-ups (what the coach said they would do).
- * Written from the section's lines, so the summary never says more than the transcript does.
+ * What each section of a call comes to, in the coach's words for the Summary tab and the Latest call card: what was
+ * discussed and settled, what was agreed, short takeaways, and the coach's own follow-ups (what the coach said they
+ * would do). Written from the section's lines, so a summary never says more than the transcript does. Listed in the
+ * order the overview and the card pick from: a new goal first, then what changes in the week.
  */
-const TOPICS: Record<Exclude<Topic, 'opener' | 'recap' | 'plan'>, { name: string; discuss: string; agreed?: string; followUp?: string }> = {
-  training: {
-    name: 'training',
-    discuss: 'Training: upper body days feel good, leg days are tough and the last set is sometimes skipped. Lighter weight beats a skipped set, and on short days the warm-up and first two exercises are enough.',
-    agreed: 'lighter weights over skipped sets',
-  },
-  nutrition: {
-    name: 'food',
-    discuss: 'Food: breakfast and lunch are easy, dinner falls apart on busy days. A photo is enough for dinners that aren’t logged, and the one change is a protein breakfast (yogurt on weekdays, eggs at weekends).',
-    agreed: 'a protein breakfast on weekdays',
-    followUp: 'Look for dinner photos on days {first} doesn’t log.',
-  },
-  recovery: {
-    name: 'sleep and stress',
-    discuss: 'Sleep and stress: bedtimes slip because of the phone, and stress leans high this week. The phone stays out of the bedroom on weeknights for a week, and the training load stays where it is.',
-    agreed: 'the phone out of the bedroom on weeknights',
-    followUp: 'Ask how mornings feel after a week with the phone out of the bedroom.',
-  },
-  habits: {
-    name: 'habits',
-    discuss: 'Habits: water is easy now; the evening walk happens about half the time. The walk becomes ten minutes, plus two minutes of stretching after sessions.',
-    agreed: 'a ten-minute evening walk',
-  },
-  schedule: {
-    name: 'schedule',
-    discuss: 'Schedule: earlier starts on Tuesday and Thursday free up those evenings, and a three-day work trip is coming the week after next.',
-    agreed: 'longer sessions on Tuesday and Thursday evenings',
-    followUp: 'Add a travel version of the program (bodyweight and dumbbells, 25 minutes) before {first}’s trip.',
-  },
-  goals: {
-    name: 'goals',
-    discuss: 'Goals: {first} feels stronger, with more energy on days after good sleep. New goal for the next block: a full push-up.',
-    agreed: 'a push-up goal for the next block',
-    followUp: 'Build push-up progressions into the upper body days.',
-  },
-  mindset: {
-    name: 'mindset',
-    discuss: 'Mindset: {first} no longer feels a week has to be perfect; consistent is enough. A monthly look at progress photos helps on harder days.',
-  },
-  questions: {
-    name: 'questions',
-    discuss: 'Questions: missed sessions aren’t made up unless {first} feels fresh, and messages between calls are welcome.',
-    followUp: 'Answer messages between calls and adjust the plan as needed.',
-  },
-};
+const TOPICS: [Exclude<Topic, 'opener' | 'recap' | 'plan'>, TopicNote][] = [
+  [
+    'goals',
+    {
+      name: 'goals',
+      discuss: 'Goals: {first} feels stronger, with more energy on days after good sleep. New goal for the next block: a full push-up.',
+      agreed: 'work towards a full push-up',
+      points: ['New goal: a full push-up.'],
+      followUp: 'Build push-up progressions into the upper body days.',
+    },
+  ],
+  [
+    'training',
+    {
+      name: 'training',
+      discuss: 'Training: upper body days feel good, leg days are tough and the last set is sometimes skipped. Lighter weight beats a skipped set, and on short days the warm-up and first two exercises are enough.',
+      agreed: 'go lighter rather than skip sets',
+      points: ['Do the last set lighter rather than skip it.', 'Short on time: the warm-up and first two exercises are the non-negotiables.'],
+    },
+  ],
+  [
+    'nutrition',
+    {
+      name: 'food',
+      discuss: 'Food: breakfast and lunch are easy, dinner falls apart on busy days. A photo is enough for dinners that aren’t logged, and the one change is a protein breakfast (yogurt on weekdays, eggs at weekends).',
+      agreed: 'add a protein breakfast on weekdays',
+      points: ['One change: a protein breakfast on weekdays.', 'A photo is enough for dinners that aren’t logged.'],
+      followUp: 'Look for dinner photos on days {first} doesn’t log.',
+    },
+  ],
+  [
+    'recovery',
+    {
+      name: 'sleep and stress',
+      discuss: 'Sleep and stress: bedtimes slip because of the phone, and stress leans high this week. The phone stays out of the bedroom on weeknights for a week, and the training load stays where it is.',
+      agreed: 'keep the phone out of the bedroom on weeknights',
+      points: ['Phone out of the bedroom on weeknights, for one week.'],
+      followUp: 'Ask how mornings feel after a week with the phone out of the bedroom.',
+    },
+  ],
+  [
+    'schedule',
+    {
+      name: 'schedule',
+      discuss: 'Schedule: earlier starts on Tuesday and Thursday free up those evenings, and a three-day work trip is coming the week after next.',
+      agreed: 'move the longer sessions to Tuesday and Thursday evenings',
+      points: ['Longer sessions move to Tuesday and Thursday evenings.'],
+      followUp: 'Add a travel version of the program (bodyweight and dumbbells, 25 minutes) before {first}’s trip.',
+    },
+  ],
+  [
+    'habits',
+    {
+      name: 'habits',
+      discuss: 'Habits: water is easy now; the evening walk happens about half the time. The walk becomes ten minutes, plus two minutes of stretching after sessions.',
+      agreed: 'make the evening walk ten minutes',
+      points: ['The evening walk becomes ten minutes.'],
+    },
+  ],
+  [
+    'mindset',
+    {
+      name: 'mindset',
+      discuss: 'Mindset: {first} no longer feels a week has to be perfect; consistent is enough. A monthly look at progress photos helps on harder days.',
+      points: ['Consistent is enough; a week doesn’t have to be perfect.'],
+    },
+  ],
+  [
+    'questions',
+    {
+      name: 'questions',
+      discuss: 'Questions: missed sessions aren’t made up unless {first} feels fresh, and messages between calls are welcome.',
+      points: ['Missed sessions aren’t made up unless {first} feels fresh.'],
+      followUp: 'Answer messages between calls and adjust the plan as needed.',
+    },
+  ],
+];
 
 const RECAP_DISCUSS: Record<Mood, string> = {
   on_track: 'Recap: {first} got every session in and logging has become a habit; planning the week on Sunday night is what makes it stick.',
@@ -321,17 +364,19 @@ const RECAP_DISCUSS: Record<Mood, string> = {
   at_risk: 'Recap: work and home have been intense and the app fell off. Two short sessions a week is realistic for now.',
 };
 
-const HEADLINE: Record<Mood, string> = {
-  on_track: 'A positive call: {first} is keeping up with the plan, and you settled small changes for the next block.',
-  needs_attention: 'A mixed couple of weeks for {first}: busy evenings cost sessions and dinner logs, so you kept the plan and made the evenings easier.',
-  at_risk: 'A hard stretch for {first}: work and home pushed training aside, and you agreed to restart small.',
+/** The overview's first sentence, from the recap. */
+const RECAP_SHORT: Record<Mood, string> = {
+  on_track: '{first} got every session in and logging is now a habit.',
+  needs_attention: 'Busy evenings cost {first} a couple of sessions and dinner logs; the plan itself is working.',
+  at_risk: 'Work and home pushed training aside for {first}, so the restart is two short sessions a week.',
 };
 
 const list = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
 /**
- * The Summary tab of a generated call. Only sections the call got all the way through count, so the summary never
- * names a point the transcript cut off before (a 45-minute call stops partway into goals, before the push-up).
+ * The Summary tab and Latest call card of a generated call. Only sections the call got all the way through count, so
+ * the summary never names a point the transcript cut off before (a 45-minute call stops partway into goals, before
+ * the push-up).
  */
 export function callSummary(first: string, status: ClientStatus, title: string, minutes: number): MeetingSummary {
   const mood = moodOf(status);
@@ -339,9 +384,14 @@ export function callSummary(first: string, status: ClientStatus, title: string, 
   const covered = reached(title, mood, minutes)
     .filter(([, section, n]) => n === section.length)
     .map(([topic]) => topic);
-  const topics = covered.filter((t): t is keyof typeof TOPICS => t in TOPICS).map((t) => TOPICS[t]);
+  // In call order for Discuss; the overview and the card take them in TOPICS order.
+  const inCall = covered.flatMap((t) => TOPICS.filter(([k]) => k === t).map(([, note]) => note));
+  // A nutrition catch-up leads with food, as its transcript does.
+  const ranked = TOPICS.filter(([k]) => covered.includes(k))
+    .sort(([a], [b]) => (title === 'Nutrition catch-up' ? Number(b === 'nutrition') - Number(a === 'nutrition') : 0))
+    .map(([, note]) => note);
 
-  const discuss = [...(covered.includes('recap') ? [RECAP_DISCUSS[mood]] : []), ...topics.map((t) => t.discuss)];
+  const discuss = [...(covered.includes('recap') ? [RECAP_DISCUSS[mood]] : []), ...inCall.map((t) => t.discuss)];
   if (covered.includes('plan')) {
     discuss.push(
       mood === 'at_risk'
@@ -350,13 +400,18 @@ export function callSummary(first: string, status: ClientStatus, title: string, 
     );
   }
   // Every call ends on the wrap-up, where the coach promises the updated plan tonight.
-  const followUp = [...topics.flatMap((t) => (t.followUp ? [t.followUp] : [])), 'Send the updated plan tonight and check back on it at the next call.'];
-  const agreed = topics.flatMap((t) => (t.agreed ? [t.agreed] : [])).slice(0, 3);
+  const followUp = [...inCall.flatMap((t) => (t.followUp ? [t.followUp] : [])), 'Send the updated plan tonight and check back on it at the next call.'];
+  const agreed = ranked.flatMap((t) => (t.agreed ? [t.agreed] : [])).slice(0, 2);
+  const headline = `${RECAP_SHORT[mood]}${agreed.length ? ` You agreed to ${list(agreed)}.` : ''}`;
 
   const bullets = [
-    `Covered ${list(topics.map((t) => t.name).filter((n) => n !== 'questions'))}.`,
-    ...(agreed.length ? [`Agreed on ${list(agreed)}.`] : []),
+    `Covered ${list(inCall.map((t) => t.name).filter((n) => n !== 'questions'))}.`,
     `${followUp.length} follow-up${followUp.length === 1 ? '' : 's'} for you, listed below.`,
   ];
-  return { overview: { headline: name(HEADLINE[mood]), bullets: bullets.map(name) }, discuss: discuss.map(name), followUp: followUp.map(name) };
+  return {
+    overview: { headline: name(headline), bullets: bullets.map(name) },
+    highlights: ranked.flatMap((t) => t.points).slice(0, 3).map(name),
+    discuss: discuss.map(name),
+    followUp: followUp.map(name),
+  };
 }

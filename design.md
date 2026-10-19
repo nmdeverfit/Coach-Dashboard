@@ -219,6 +219,13 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   (13 px semibold, brand on hover) shows at the right; a click anywhere on the row opens the transcript. The well is
   capped at 580 px like the Notes list and scrolls inside, each week header pinned (`sticky`, `#f9fafa`). Empty: "No meetings
   with {first} yet." With eight tabs the tab padding drops to 12 px.
+- **Latest call** (the user's mock): on top of the Transcript tab's well, above the scrolling list (which keeps its
+  580 px cap): "LATEST CALL" 12 px semibold uppercase `ink-muted`, then a white card (`border-line`, rounded 8, `p-4`,
+  `gap-4`): the 56 px date tile + title 15 px semibold + "2:00 PM · 45 min · Microsoft Teams" 13 px `ink-tertiary`;
+  the Call Summary's overview 14 px semibold ink; "Discuss" 13 px semibold `ink-secondary` over up to three 14 px
+  `#484848` bullets (muted markers); a top border, then "View full summary" (brand, opens the popup on Summary) and
+  "Transcript" (`ink-secondary`, opens it on Transcript), 14 px semibold. The mock's top-right element and its pink
+  callout were struck out, so neither is built.
 - **Meeting popup tabs** (the user's brief, no frame): under the subtitle, the panel's `TabBar` with Summary |
   Transcript, pinned with the search on Transcript; the body is at least 640 px so both tabs keep one height.
   Summary (default for recorded calls): a "Call Summary" card drawn exactly as the AI Assessment (`AiCard`: sparkle +
