@@ -59,8 +59,8 @@ export interface Highlight {
   clientName: string;
   /** The rest of the sentence after the client's name. */
   text: string;
-  /** Milestones: the day the client reached it (the sentence then says when). */
-  achievedOn?: string;
+  /** The day of the moment (reached, birthday, anniversary); the row's timestamp reads from it. */
+  on: string;
   image?: string;
 }
 
