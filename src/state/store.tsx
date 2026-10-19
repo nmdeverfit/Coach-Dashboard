@@ -195,6 +195,16 @@ const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
 
 const todoClient = (state: State) => state.todos.find((t) => t.id === state.selectedTodoId)?.clientId ?? null;
 
+/**
+ * Opened from a Client highlight on the brief, with no client panel beside it, the middle column is a sidebar (the
+ * user's call): it takes 360 px of the page, which reflows beside it, instead of floating over it.
+ */
+export const sideIsSidebar = (state: State) => {
+  if (!state.side?.highlightId || state.view !== 'brief') return false;
+  const panel = state.selectedTodoId ? todoClient(state) : state.selectedClientId;
+  return panel !== state.side.clientId;
+};
+
 /** The middle column belongs to one client's panel: it closes with the panel or when another client opens. */
 const keepSide = (side: SidePanelState | null, clientId: string | null) => (side && side.clientId === clientId ? side : null);
 

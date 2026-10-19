@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import iconExternal from '../../assets/figma/icon-external.svg';
 import iconClose from '../../assets/figma/icon-olly-close.svg';
 import iconTabClose from '../../assets/figma/icon-panel-close-tab.svg';
-import { getClient, useStore, type SidePanelState, type SideTab } from '../../state/store';
+import { getClient, sideIsSidebar, useStore, type SidePanelState, type SideTab } from '../../state/store';
 import { AiPill } from '../AiPill';
 import { useCloseOnOutside } from '../drawer/DrawerShell';
 import { InboxConversation } from './InboxConversation';
@@ -63,9 +63,12 @@ export function SidePanel() {
   // Docked beside the client's open panel, or on its own at the right edge when opened from a list row.
   const panelClient = state.selectedTodoId ? state.todos.find((t) => t.id === state.selectedTodoId)?.clientId : state.selectedClientId;
   const docked = Boolean(side && panelClient === side.clientId);
+  // From a Client highlight it is a sidebar the page makes room for (`sideIsSidebar`): no overlay shadow, and only
+  // × or Esc close it, so the coach can keep working on the brief beside it.
+  const sidebar = sideIsSidebar(state);
   // On its own it closes like a panel: ×, Esc or a click outside (with a panel, it closes with the panel).
   const close = useCallback(() => closeSide(), [closeSide]);
-  useCloseOnOutside(Boolean(state.side) && !docked, close);
+  useCloseOnOutside(Boolean(state.side) && !docked, close, !sidebar);
   if (!side) return null;
   const client = getClient(side.clientId);
   const both = side.inbox && side.olly;
@@ -76,7 +79,9 @@ export function SidePanel() {
     <aside
       data-side-panel
       aria-label={active === 'olly' ? 'Olly' : `Messages with ${client.name}`}
-      className={`fixed inset-y-0 z-[39] flex w-[360px] flex-col border-r border-[#f2f2f2] shadow-[-4px_0_60px_rgba(0,0,0,0.2)] transition-[right] duration-300 ${
+      className={`fixed inset-y-0 z-[39] flex w-[360px] flex-col border-r border-[#f2f2f2] transition-[right] duration-300 ${
+        sidebar ? 'border-l border-l-line shadow-[-4px_0_16px_rgba(0,0,0,0.04)]' : 'shadow-[-4px_0_60px_rgba(0,0,0,0.2)]'
+      } ${
         docked ? 'right-[720px]' : 'right-0'
       } ${
         closing ? 'pointer-events-none animate-side-out' : 'animate-side-in'

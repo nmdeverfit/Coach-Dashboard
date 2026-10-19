@@ -18,7 +18,7 @@ import iconPencilAi from '../assets/figma/icon-pencil-ai.svg';
 import { DEMO_TODAY, highlights } from '../data/mock';
 import { daysBetween, formatMonthDay, parseDay } from '../lib/dates';
 import type { Highlight, HighlightCategory } from '../data/types';
-import { useStore } from '../state/store';
+import { sideIsSidebar, useStore } from '../state/store';
 import { Avatar } from './Avatar';
 import { ConfirmDialog } from './ConfirmDialog';
 import { CountChip } from './CountChip';
@@ -263,8 +263,10 @@ const VIEWS: { key: View; label: string }[] = [
  * in the store (`highlightLog`, session only). `narrow` (a third of the page): the category tabs sit in a row above
  * the list.
  */
-export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
+export function ClientHighlights({ narrow: narrowRail = false }: { narrow?: boolean }) {
   const { state, showToast, dismissHighlight, clearHighlightHistory } = useStore();
+  // With the sidebar open the rail is narrower, so the category tabs move into a row above the list.
+  const narrow = narrowRail || sideIsSidebar(state);
   const [confirmClear, setConfirmClear] = useState(false);
   const [view, setView] = useState<View>('attention');
   const [tab, setTab] = useState<Tab>('all');

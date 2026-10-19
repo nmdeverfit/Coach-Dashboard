@@ -29,7 +29,7 @@ export function useDrawerPresence(selected: string | null) {
 }
 
 /** ×, Esc or a click outside closes the panel without changing anything (Spec 4 AC1.4). Ignored while a dialog is up. */
-export function useCloseOnOutside(open: boolean, close: () => void) {
+export function useCloseOnOutside(open: boolean, close: () => void, outside = true) {
   useEffect(() => {
     if (!open) return;
     const busy = () => document.querySelector('[aria-modal="true"]');
@@ -39,12 +39,13 @@ export function useCloseOnOutside(open: boolean, close: () => void) {
       close();
     };
     window.addEventListener('keydown', onKey);
-    document.addEventListener('pointerdown', onPointer);
+    // `outside` false: Esc only (a sidebar the page reflows around stays while the coach works beside it).
+    if (outside) document.addEventListener('pointerdown', onPointer);
     return () => {
       window.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onPointer);
     };
-  }, [open, close]);
+  }, [open, close, outside]);
 }
 
 /** The 720 px panel that slides in from the right over the right rail. */
