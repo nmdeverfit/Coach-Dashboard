@@ -1,6 +1,6 @@
 import { addDays } from '../lib/checkin';
 import { dayAt, todoDetails } from './details';
-import { DEMO_TODAY, clients } from './mock';
+import { DEMO_TODAY, findPerson } from './mock';
 import type {
   AcknowledgeDetail,
   AssignedForm,
@@ -285,7 +285,7 @@ const cache = new Map<string, ClientProfile>();
 export function getProfile(clientId: string): ClientProfile {
   let profile = cache.get(clientId);
   if (!profile) {
-    const client = clients.find((c) => c.id === clientId)!;
+    const client = findPerson(clientId)!;
     profile = fromTodoDetails(client, generate(client));
     cache.set(clientId, profile);
   }

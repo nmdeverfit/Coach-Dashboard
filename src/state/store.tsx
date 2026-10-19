@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
-import { DEMO_TODAY, clients, todos as seedTodos } from '../data/mock';
+import { DEMO_TODAY, clients, findPerson, todos as seedTodos } from '../data/mock';
 import type { AiContext, CardKey, Client, FeedbackState, GroupKey, Meeting, MetricKey, Todo } from '../data/types';
 import { ALL_GROUPS, DEFAULT_ORDER } from '../components/groups';
 import { DEFAULT_METRICS, METRICS } from '../components/metrics';
@@ -18,6 +18,8 @@ export interface OllyRequest {
   assessment?: Assessment;
   /** Draft with AI: the to-do whose context scopes the draft. */
   todoId?: string;
+  /** Draft with AI from a Client highlight row: the highlight the note is about. */
+  highlightId?: string;
   /** Bumped on every request, so asking again starts a fresh conversation. */
   seq: number;
 }
@@ -350,9 +352,9 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-const clientById = new Map(clients.map((c) => [c.id, c]));
+// Highlight-only people resolve too, for the middle column (Draft with AI, Send message from a highlight).
 export const getClient = (id: string): Client => {
-  const client = clientById.get(id);
+  const client = findPerson(id);
   if (!client) throw new Error(`Unknown client ${id}`);
   return client;
 };

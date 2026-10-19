@@ -88,7 +88,11 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights; the list is fixed at the height of 10
-  one-line rows and scrolls past that), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`),
+  one-line rows and scrolls past that; on hover a row shows `HighlightActions`, Figma `5795:175100`: React 👍 (hidden for now, `SHOW_REACTION`) ·
+  Draft with AI (Olly with `highlightDraft` in `lib/olly.ts`: a congratulation, birthday wish or anniversary note
+  from the highlight's sentence) · Send message · Dismiss (leaves the list and its counts, session only). Nine
+  highlight people are not dashboard clients: `highlightOnlyClients` / `findPerson` in `mock.ts` give them a
+  profile and a thread without counting them anywhere), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`),
   `ClientListParts` (row shell, client cell, section header shared by both tables), `ClientActions` (the
   four 32 px quick actions, shared by the detail page and list rows), `Glyph` (Figma vector with inset/bleed), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
   `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons and on the row checkbox and
@@ -285,6 +289,11 @@ one column. The Upcoming bookings session list is shared with the main branch to
   the user's request. "Save and Continue" is the design's copy ("Save" was suggested).
 - Upcoming bookings lists sessions (the user's call): the brief's cards show "four clients", and its count counts
   sessions, so a client with three bookings fills three rows. AC5 still holds (sessions ≥ clients ≥ Prepare to-dos).
+- Client highlight actions (Figma `5795:175100`): the brief puts "Reactions on client highlights" in Phase 2, but the
+  row's 👍 is drawn. The demo built it (toggles, toasts "Reaction sent to {first}") and hides it for now
+  (`SHOW_REACTION`, the user's call).
+  Dismiss on a highlight has no spec; the demo drops the row for the session. The frame's Send message button is
+  28 px beside three 32 px ones; the demo makes all four 32 px.
 - Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief
   says "A completed row stays in place, de-emphasised". With more than seven suggestions a completed row can sink
   under "Show N more".

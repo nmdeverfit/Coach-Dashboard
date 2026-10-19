@@ -159,6 +159,7 @@ export const todos: Todo[] = todoSeeds.map((t) => {
 const hl = (id: string, category: Highlight['category'], clientName: string, text: string): Highlight => ({
   id,
   category,
+  clientId: slugOf(clientName),
   clientName,
   text,
   image: avatar(slugOf(clientName)),
@@ -187,3 +188,22 @@ export const highlights: Highlight[] = [
   hl('grace-adams', 'anniversary', 'Grace Adams', 'just reached her 1-year coaching anniversary'),
   hl('owen-price', 'anniversary', 'Owen Price', 'just reached his 6-month coaching anniversary'),
 ];
+
+/**
+ * People who show up only in Client highlights (the design's names). They are on track and sit outside the 20 the
+ * dashboard counts (no card, tab or to-do), so a highlight's Draft with AI and Send message have someone to write to.
+ */
+export const highlightOnlyClients: Client[] = [
+  ...new Map(
+    highlights
+      .filter((h) => !clients.some((c) => c.id === h.clientId))
+      .map((h): [string, Client] => [
+        h.clientId,
+        { id: h.clientId, name: h.clientName, firstName: h.clientName.split(' ')[0], avatar: h.image, status: 'on_track' },
+      ]),
+  ).values(),
+];
+
+/** Any person the coach can open a conversation with: a dashboard client or a highlight-only one. */
+export const findPerson = (id: string): Client | undefined =>
+  clients.find((c) => c.id === id) ?? highlightOnlyClients.find((c) => c.id === id);
