@@ -16,7 +16,7 @@ Client highlights put their tabs in a row above the list, which keeps its 10-row
 Customize cards (see the Structure entry) is shared with the main branch; here the narrow rail stacks the cards in
 one column. Here the Upcoming bookings card lists sessions, not clients (the user's call): one row per booked
 session, soonest first (`sessionsInWeek` in `lib/week.ts`, same bookings and window as the card's clients): line 1
-the type colour swatch · session name, line 2 a 16 px avatar · client name · "Today" or "Sep 1" • time span;
+the type colour swatch · session name, line 2 "Today" or "Sep 1" • time span · a 16 px avatar · client name;
 the count is the sessions'. A row opens its client on the Booking tab. It publishes to its own artifact (title "Check-in Dashboard v2 ·
 3 columns"); the main branch's artifact is unchanged.
 
