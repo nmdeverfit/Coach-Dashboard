@@ -1,11 +1,16 @@
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import chevronSmall from '../assets/figma/icon-chevron-right-small.svg';
+import dotTiny from '../assets/figma/dot-tiny.svg';
 import iconMore from '../assets/figma/icon-more.svg';
+import { formatMonthDay, parseDay } from '../lib/dates';
 import { cardMembers } from '../lib/groups';
+import { timeSpan } from '../lib/todos';
+import { sessionsInWeek, weekAsOf } from '../lib/week';
 import { useStore } from '../state/store';
 import { Avatar } from './Avatar';
 import { CountChip } from './CountChip';
+import { Swatch } from './drawer/SessionsBodies';
 import type { GroupMeta } from './groups';
 
 /** The card's 20 px icon, inside Figma's inset/bleed wrappers. */
@@ -98,6 +103,9 @@ export function CategoryGroup({
   // Cards follow the week selector: a past week shows that Monday's groups.
   const members = cardMembers(group.key, state.weekOffset, { todos: state.todos, reviewed: reviewedNow });
   const collapsed = state.rail.collapsed.includes(group.key);
+  // Upcoming bookings lists sessions, not clients (the user's call, tried on the three-part layout first): its count is theirs.
+  const sessions = group.key === 'upcoming_bookings' ? sessionsInWeek(state.weekOffset) : undefined;
+  const today = weekAsOf(state.weekOffset);
 
   return (
     // In the two-column grid (past weeks) a collapsed card spans both columns as one slim bar, so it leaves no hole.
@@ -112,7 +120,7 @@ export function CategoryGroup({
           >
             <GroupIcon group={group} />
             <h3 className="truncate text-[14px] font-bold leading-[1.5] text-ink">{group.title}</h3>
-            <CountChip value={members.length} />
+            <CountChip value={sessions?.length ?? members.length} />
             <ChevronDown size={14} className={`shrink-0 text-ink-secondary transition-transform ${collapsed ? '-rotate-90' : ''}`} aria-hidden />
           </button>
           {collapsed && (
@@ -134,8 +142,38 @@ export function CategoryGroup({
         <>
           {/* Rows are 53 px: 210 shows four; 186 shows three and half of the fourth, a hint that the list scrolls. */}
           <ul className={`scroll-thin ${narrow ? 'max-h-[186px]' : 'h-[210px]'} overflow-y-auto px-3`}>
-            {members.length === 0 && <li className="px-1 py-3 text-[13px] leading-[1.5] text-ink-muted">No clients here right now.</li>}
-            {members.map((client) => (
+            {(sessions ?? members).length === 0 && (
+              <li className="px-1 py-3 text-[13px] leading-[1.5] text-ink-muted">{sessions ? 'No sessions booked right now.' : 'No clients here right now.'}</li>
+            )}
+            {/* A session row: type colour · session name, then date and time · a 16 px avatar · client name on the line
+                below. It opens its client on the Booking tab. */}
+            {sessions?.map(({ client, booking }) => (
+              <li key={`${client.id}:${booking.date}:${booking.start}`}>
+                <button
+                  type="button"
+                  data-client-row
+                  aria-current={state.selectedClientId === client.id ? 'true' : undefined}
+                  onClick={() => selectClient(client.id, 'booking')}
+                  className={`flex w-full flex-col gap-1.5 border-b border-line/80 px-1 py-2.5 text-left hover:bg-surface-secondary/60 ${
+                    state.selectedClientId === client.id ? 'bg-surface-secondary' : ''
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Swatch color={booking.type.color} />
+                    <span className="truncate text-[14px] font-semibold leading-[1.5] text-ink">{booking.type.name}</span>
+                  </span>
+                  <span className="flex min-w-0 items-center gap-1.5 text-[12px] leading-[1.5]">
+                    <span className="whitespace-nowrap text-ink-secondary tabular-nums">
+                      {booking.date === today ? 'Today' : formatMonthDay(parseDay(booking.date))} • {timeSpan(booking)}
+                    </span>
+                    <img src={dotTiny} alt="" width={2} height={2} className="shrink-0" />
+                    <Avatar name={client.name} src={client.avatar} size={16} />
+                    <span className="truncate font-medium text-ink">{client.name}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+            {!sessions && members.map((client) => (
               <li key={client.id}>
                 <button
                   type="button"

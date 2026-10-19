@@ -43,8 +43,11 @@ the same change.
   headline minus "Current", `activityLine` from `Client.lastWeekStatus` and the message thread's timing, never its
   text, `lastActive` from every log, `hasFormToReview`).
 - `src/data/sessions.ts`: 1:1 bookings and session credits by client (Malcom's are his Prepare panel's, Wendy's
-  credits her Unblock panel's). The Upcoming bookings card's labels (`Client.nextSession`) and the Booking tab
-  (`bookingRow` in `lib/dashboard.ts`, credit figures from `buildUnblockView`) are computed from it.
+  credits her Unblock panel's). The Upcoming bookings card and the Booking tab
+  (`bookingRow` in `lib/dashboard.ts`, credit figures from `buildUnblockView`) are computed from it. The card lists
+  sessions, not clients (`sessionsInWeek` in `lib/week.ts`, same bookings and window as `Client.nextSession`): line 1
+  type swatch · session name, line 2 "Today" or "Sep 1" • time span · a 16 px avatar · client name; the count is
+  the sessions'; a row opens its client on the Booking tab.
 - `src/lib/week.ts`: the week selector. A week's figures are read as of its Monday 06:00 (`weekAsOf`), so a past week
   reuses every builder with an earlier "today". `clientsInWeek` gives that week's status (last week =
   `lastWeekStatus`, older weeks back-filled with the current status), program countdown and next session;
@@ -271,6 +274,8 @@ the same change.
   the brief (AC5; the client list's tabs still have it). The user dropped the lock that kept them. No activities and
   Paused can be group cards, which the brief rules out ("no group card"). Session credits was dropped as a card at
   the user's request. "Save and Continue" is the design's copy ("Save" was suggested).
+- Upcoming bookings lists sessions (the user's call): the brief's cards show "four clients", and its count counts
+  sessions, so a client with three bookings fills three rows. AC5 still holds (sessions ≥ clients ≥ Prepare to-dos).
 - Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief
   says "A completed row stays in place, de-emphasised". With more than seven suggestions a completed row can sink
   under "Show N more".

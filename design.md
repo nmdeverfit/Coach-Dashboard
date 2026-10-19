@@ -24,6 +24,11 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 - Shell: main sidebar · header (2 rows) · body split in two equal columns (Today's Brief | right rail).
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
   height of 10 one-line rows (560 px) and scrolls inside.
+  Upcoming bookings is a session list (the user's call, on both branches): one row per booked session, soonest
+  first, rows `py-2.5`, `gap-1.5` between lines. Line 1: 14 px `Swatch` in the type's colour + session name 14 px
+  semibold ink. Line 2 (12 px, left-aligned with line 1): date • time `ink-secondary` ("Today • 6:30 - 7:30pm",
+  "Sep 1 • 8:00 - 9:00am", no weekday), a 2 px dot, 16 px avatar, client name medium (500) ink. Empty state "No
+  sessions booked right now."; the count chip counts sessions. A row opens its client on the Booking tab.
 - **Customize cards** (Figma `5749:521640` + a tab, a trial on both branches; extra cards keep the 2 × 2 grid, so six
   make three rows): each card's header ends in a chevron (collapse
   toggle) and a 28 px ⋯ button (`icon-more`) opening a 190 px menu (white, `#e0e0e0` border, rounded 8, shadow
@@ -73,7 +78,7 @@ inline with a comment.
 
 ## 4. Typography
 
-Open Sans everywhere (Inter Bold for the greeting, Newsreader italic as the banner's serif stand-in).
+Open Sans everywhere (weights 400, 500, 600, 700 loaded; Inter Bold for the greeting, Newsreader italic as the banner's serif stand-in).
 
 | Role | Style |
 |---|---|

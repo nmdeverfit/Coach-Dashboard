@@ -1,7 +1,7 @@
 import { DEMO_TODAY, clients } from '../data/mock';
 import { getProfile } from '../data/profiles';
 import { getSessions } from '../data/sessions';
-import type { Client, ClientStatus, GroupKey } from '../data/types';
+import type { Booking, Client, ClientStatus, GroupKey } from '../data/types';
 import { addDays } from './checkin';
 import { daysBetween, formatMonthDay, parseDay } from './dates';
 import { sessionRailLabel } from './todos';
@@ -44,6 +44,22 @@ function clientAt(c: Client, offset: number): Client {
     programEndsInDays: ends >= 0 && ends <= 7 ? ends : undefined,
     nextSession: next && sessionRailLabel(next, asOf, false),
   };
+}
+
+/**
+ * The sessions on the Upcoming bookings card: one row per session, soonest first, from the same
+ * bookings and rules as the card's clients, so every client on the card has a row and the Booking tab agrees.
+ * The current week lists every booked session from today on; a past week, the sessions in that Monday's window.
+ */
+export function sessionsInWeek(offset: number): { client: Client; booking: Booking }[] {
+  const asOf = weekAsOf(offset);
+  const inWindow = (b: Booking) =>
+    offset === 0
+      ? b.status === 'booked' && b.date >= asOf
+      : b.status !== 'early_cancel' && b.date >= asOf && daysBetween(asOf, b.date) <= BOOKING_WINDOW_DAYS;
+  return groupsInWeek(offset)
+    .upcoming_bookings.flatMap((client) => (getSessions(client.id)?.sessions ?? []).filter(inWindow).map((booking) => ({ client, booking })))
+    .sort((a, b) => a.booking.date.localeCompare(b.booking.date) || a.booking.start.localeCompare(b.booking.start));
 }
 
 const weekCache = new Map<number, Client[]>();
