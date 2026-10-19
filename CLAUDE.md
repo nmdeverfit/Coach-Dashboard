@@ -119,7 +119,7 @@ the same change.
   read-only End time are built but hidden for now, `SHOW_DURATION`; title, time and a transcript are required and checked on submit,
   the date can be any day up to today, the meeting must start before 06:00 today, files .txt / .docx / .srt /
   .pdf up to 10 MB, .txt and .srt are read for the preview) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
-  artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; no frame: client avatar + name · date · start · platform, speaker names in bold, a search box pinned on top that
+  artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; Figma `5759:161235`: client avatar + name · date · start · platform, speaker names in bold, a search box pinned on top that
   highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
   `meeting.summary`: a Call Summary card (`AiCard` in `AiAssessment.tsx`), Discuss and Your Follow Up, written by
   `callSummary` in `data/transcripts.ts` from the sections the call got all the way through, so it never names a

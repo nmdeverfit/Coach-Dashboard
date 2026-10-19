@@ -15,6 +15,7 @@ export function Modal({
   onClose,
   closeOnBackdrop = false,
   footer,
+  headerBorder = true,
   children,
 }: {
   title: string;
@@ -24,6 +25,8 @@ export function Modal({
   /** Off for forms, so a stray click never throws away what the coach typed. */
   closeOnBackdrop?: boolean;
   footer?: ReactNode;
+  /** Off when the body starts with its own bordered bar (the meeting popup's tabs). */
+  headerBorder?: boolean;
   children: ReactNode;
 }) {
   const titleId = useId();
@@ -53,7 +56,7 @@ export function Modal({
         >
           <img src={iconClose} alt="" width={18} height={18} className="block" />
         </button>
-        <header className="shrink-0 border-b border-line px-[30px] py-5">
+        <header className={`shrink-0 px-[30px] py-5 ${headerBorder ? 'border-b border-line' : ''}`}>
           <h2 id={titleId} className="text-[20px] font-semibold leading-[1.5] text-ink">
             {title}
           </h2>
