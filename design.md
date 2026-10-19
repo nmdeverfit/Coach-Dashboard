@@ -231,16 +231,17 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `#484848` bullets (muted markers); a top border, then "View full summary" (brand, opens the popup on Summary) and
   "Transcript" (`ink-secondary`, opens it on Transcript), 14 px semibold. The mock's top-right element and its pink
   callout were struck out, so neither is built.
-- **Meeting popup tabs** (the user's brief, no frame): under the subtitle, the panel's `TabBar` with Summary |
-  Transcript, pinned with the search on Transcript; the body is at least 640 px so both tabs keep one height.
-  Summary (default for recorded calls): a "Call Summary" card drawn exactly as the AI Assessment (`AiCard`: sparkle +
-  gradient label, quote line, 14 px semibold overview + 14 px `ink-tertiary` bullets) without its bottom row, then
-  "Discuss" and "Your Follow Up" (15 px semibold ink headings, 13 px `#484848` bullets `gap-1.5`, a leading "Topic:"
-  in semibold ink). Meetings the coach added have no summary: Transcript opens first and Summary reads "No summary for
-  this meeting yet…".
-- **Transcript popup** (View transcript, no frame): 600 px `Modal`, title = meeting title, subtitle 13 px
-  `ink-tertiary`: 20 px avatar + client name (semibold ink) · 4 px `#d9d9d9` dot · "Thu, Aug 27, 2026 · 5:30 PM ·
-  Microsoft Teams". The Notes search field (38 px, `#dbdce3`, brand
+- **Meeting popup** (Figma `5759:161235`): 620 px `Modal` with no rule under its header; title 20 px semibold, then
+  14 px / 22 px: 20 px avatar + client name (semibold ink) · 4 px `#d9d9d9` dot · "Tue, Aug 4, 2026 · 12:30 PM ·
+  Google Meet" (`ink-tertiary`). Then a full-width tab bar (`border-b border-line`, `px-5`; tabs `px-5`, 13 px
+  semibold; active brand with a 2 px brand underline, `pt-1.5 pb-2`; inactive `ink/40`), pinned with the search on
+  Transcript. Body `px-5`, at least 640 px so both tabs keep one height. Summary (default for recorded calls):
+  "Call summary" card drawn exactly as the AI Assessment (`AiCard`) without its bottom row, then `gap-6` and
+  "Discuss" and "Your Follow Up", each under a `border-line` top rule, `px-2 py-4 gap-2`: 16 px semibold title
+  (`-0.32px`), 13 px / 1.5 ink bullets (`ms-[19.5px]`, no gap), a leading "Topic:" in bold. The frame's footer
+  (Cancel · Add meeting) is left out: it is the Add a meeting form's and has no job in a viewer. Meetings the coach
+  added have no summary: Transcript opens first and Summary reads "No summary for this meeting yet…".
+- **Transcript tab of the popup**: the Notes search field (38 px, `#dbdce3`, brand
   on focus) is pinned on top of the scrolling body, focused on open; with a query it shows "2 of 8" (12 px
   `ink-secondary`) and ↑ / ↓ buttons (24 px, the chevron icon). Matches `#fff1b8`, the current one `#ffd666`,
   scrolled to the centre. Lines: speaker 13 px bold + time 12 px `ink-muted`, text 13 px `#484848`, `gap-4`. In

@@ -9,7 +9,6 @@ import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Avatar } from '../Avatar';
 import { Modal } from '../Modal';
 import { AiCard } from './AiAssessment';
-import { TabBar } from './PanelParts';
 
 interface Line {
   speaker?: string;
@@ -24,20 +23,20 @@ const TABS = [
   { key: 'transcript', label: 'Transcript' },
 ] as const;
 
-/** One list section of the Summary tab; a leading "Topic:" is set in semibold. */
+/** One list section of the Summary tab (Figma 5759:161274): a top rule, 16 px title, 13 px bullets, "Topic:" in bold. */
 function SummaryList({ title, items }: { title: string; items: string[] }) {
   return (
-    <section className="flex flex-col gap-2">
-      <h4 className="text-[15px] font-semibold leading-[1.5] text-ink">{title}</h4>
-      <ul className="flex list-disc flex-col gap-1.5 text-[13px] leading-[1.5] text-[#484848]">
+    <section className="flex flex-col gap-2 border-t border-line px-2 py-4">
+      <h4 className="text-[16px] font-semibold tracking-[-0.32px] text-ink">{title}</h4>
+      <ul className="list-disc text-[13px] leading-[1.5] text-ink">
         {items.map((it) => {
           const at = it.indexOf(': ');
           const lead = at > 0 && at < 24 ? it.slice(0, at) : null;
           return (
-            <li key={it} className="ms-5">
+            <li key={it} className="ms-[19.5px]">
               {lead ? (
                 <>
-                  <span className="font-semibold text-ink">{lead}:</span> {it.slice(at + 2)}
+                  <span className="font-bold">{lead}:</span> {it.slice(at + 2)}
                 </>
               ) : (
                 it
@@ -51,9 +50,9 @@ function SummaryList({ title, items }: { title: string; items: string[] }) {
 }
 
 /**
- * What "View transcript" opens (no Figma frame): the meeting's date, start and platform, then two tabs. Summary (the
- * user's brief): a Call Summary card drawn like the AI Assessment without its buttons, then Discuss and Your Follow
- * Up. Transcript: the lines, with a search box pinned on top; matches are highlighted as you type and ↑ / ↓ (or
+ * What "View transcript" opens (Figma 5759:161235): the meeting's title, then client · date · start · platform at
+ * 14 px, then two tabs on a full-width bar. Summary: a Call summary card drawn like the AI Assessment without its
+ * buttons, then Discuss and Your Follow Up, each under a rule. Transcript: the lines, with a search box pinned on top; matches are highlighted as you type and ↑ / ↓ (or
  * Enter / Shift+Enter) step through them, the current one in a stronger tint and scrolled into view.
  */
 export function TranscriptDialog({
@@ -120,8 +119,8 @@ export function TranscriptDialog({
     <Modal
       title={meeting.title}
       subtitle={
-        <span className="flex items-center gap-2">
-          <span className="flex shrink-0 items-center gap-1.5 font-semibold text-ink">
+        <span className="mt-1 flex items-center gap-2 text-[14px] leading-[22px]">
+          <span className="flex shrink-0 items-center gap-2 font-semibold text-ink">
             <Avatar name={client.name} src={client.avatar} size={20} />
             {client.name}
           </span>
@@ -129,17 +128,35 @@ export function TranscriptDialog({
           {[meetingDate(meeting.date), fieldTime(meeting.start), meeting.link && platformOf(meeting.link)].filter(Boolean).join(' · ')}
         </span>
       }
-      width={600}
+      width={620}
       onClose={onClose}
       closeOnBackdrop
+      headerBorder={false}
     >
       {/* One height for both tabs (up to the window's), so switching never resizes the popup. */}
       <div ref={body} className="min-h-[640px]">
         {/* Tabs, and on Transcript the search, stay pinned while the body scrolls. */}
-        <div className="sticky top-0 z-[1] bg-white px-[30px] pt-3">
-          <TabBar tabs={TABS} active={tab} onChange={setTab} />
+        <div className="sticky top-0 z-[1] bg-white">
+          <div role="tablist" aria-label="Meeting" className="flex items-center border-b border-line px-5">
+            {TABS.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                role="tab"
+                aria-selected={tab === t.key}
+                onClick={() => setTab(t.key)}
+                className={
+                  tab === t.key
+                    ? '-mb-px border-b-2 border-brand px-5 pb-2 pt-1.5 text-[13px] font-semibold text-brand'
+                    : 'px-5 py-1.5 text-[13px] font-semibold tracking-[-0.26px] text-ink/40 hover:text-ink/70'
+                }
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
           {tab === 'transcript' && lines && (
-            <div className="pb-3 pt-4">
+            <div className="px-5 pb-3 pt-4">
               {/* The Notes tab's search field. */}
               <label className="flex h-[38px] items-center gap-2.5 rounded-[5px] border border-[#dbdce3] px-3 focus-within:border-brand">
                 <span className="relative size-5 shrink-0 overflow-hidden">
@@ -187,12 +204,14 @@ export function TranscriptDialog({
           )}
         </div>
         {tab === 'summary' && (
-          <div className="flex flex-col gap-5 px-[30px] pb-[30px] pt-5">
+          <div className="flex flex-col gap-6 px-5 pb-5 pt-5">
             {summary ? (
               <>
-                <AiCard title="Call Summary" assessment={{ headline: { before: summary.overview.headline }, bullets: summary.overview.bullets }} />
-                <SummaryList title="Discuss" items={summary.discuss} />
-                <SummaryList title="Your Follow Up" items={summary.followUp} />
+                <AiCard title="Call summary" assessment={{ headline: { before: summary.overview.headline }, bullets: summary.overview.bullets }} />
+                <div className="flex flex-col">
+                  <SummaryList title="Discuss" items={summary.discuss} />
+                  <SummaryList title="Your Follow Up" items={summary.followUp} />
+                </div>
               </>
             ) : (
               <p className="text-[13px] leading-[1.5] text-ink-tertiary">
@@ -202,7 +221,7 @@ export function TranscriptDialog({
           </div>
         )}
         {tab === 'transcript' && (
-          <div className={`px-[30px] pb-[30px] ${lines ? 'pt-2' : 'pt-5'}`}>
+          <div className={`px-5 pb-[30px] ${lines ? 'pt-2' : 'pt-5'}`}>
             {t.kind === 'file' && (
               <div className="mb-4 flex items-center gap-3 rounded-lg border border-[#e0e0e0] p-3">
                 <FileTypeIcon name={t.name} />
