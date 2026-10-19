@@ -145,7 +145,7 @@ export function CategoryGroup({
             {(sessions ?? members).length === 0 && (
               <li className="px-1 py-3 text-[13px] leading-[1.5] text-ink-muted">{sessions ? 'No sessions booked right now.' : 'No clients here right now.'}</li>
             )}
-            {/* A session row: type colour · session name, then a 24 px avatar · client name · date and time on the line
+            {/* A session row: type colour · session name, then client name · date and time on the line
                 below. It opens its client on the Booking tab. */}
             {sessions?.map(({ client, booking }) => (
               <li key={`${client.id}:${booking.date}:${booking.start}`}>
@@ -162,8 +162,7 @@ export function CategoryGroup({
                     <Swatch color={booking.type.color} />
                     <span className="truncate text-[13px] font-semibold leading-[1.5] text-ink">{booking.type.name}</span>
                   </span>
-                  <span className="flex min-w-0 items-center gap-1.5 text-[12px] leading-[1.5]">
-                    <Avatar name={client.name} src={client.avatar} size={24} />
+                  <span className="flex min-w-0 items-center gap-1.5 pl-[22px] text-[12px] leading-[1.5]">
                     <span className="truncate font-semibold text-ink">{client.name}</span>
                     <img src={dotTiny} alt="" width={2} height={2} className="shrink-0" />
                     <span className="whitespace-nowrap text-ink-secondary tabular-nums">
