@@ -3,6 +3,7 @@ import anniversaryBadge from '../assets/figma/badge-anniversary.png';
 import milestoneBadge from '../assets/figma/badge-milestone.svg';
 import thumbsUp from '../assets/figma/emoji-thumbs-up.png';
 import chatBubbles from '../assets/figma/icon-chat-bubbles.svg';
+import checkOne from '../assets/figma/icon-check-one-brand.svg';
 import closeStroke from '../assets/figma/icon-close-stroke.svg';
 import confetti from '../assets/figma/icon-confetti.svg';
 import iconPencilAi from '../assets/figma/icon-pencil-ai.svg';
@@ -59,10 +60,25 @@ const ACTION = 'group/tip relative flex size-8 items-center justify-center round
  * as from a client-list row; the draft is about the highlight (`highlightDraft`). `tipBelow`: the first row's
  * tooltips hang under the bar, since the list clips the space above it.
  */
-function HighlightActions({ h, reacted, tipBelow, onReact, onDismiss }: { h: Highlight; reacted: boolean; tipBelow: boolean; onReact: () => void; onDismiss: () => void }) {
+function HighlightActions({
+  h,
+  reacted,
+  tipBelow,
+  sent,
+  onReact,
+  onDismiss,
+}: {
+  h: Highlight;
+  reacted: boolean;
+  tipBelow: boolean;
+  sent: boolean;
+  onReact: () => void;
+  onDismiss: () => void;
+}) {
   const { openOlly, openInbox } = useStore();
   return (
-    <div className="absolute right-1 top-1/2 hidden -translate-y-1/2 items-center rounded-lg bg-white p-1 drop-shadow-[0_4px_10px_rgba(0,0,0,0.06)] group-focus-within/row:flex group-hover/row:flex">
+    // On a two-line (sent) row the bar stays level with the first line, clear of Open chat.
+    <div className={`absolute right-1 hidden items-center ${sent ? 'top-1' : 'top-1/2 -translate-y-1/2'} rounded-lg bg-white p-1 drop-shadow-[0_4px_10px_rgba(0,0,0,0.06)] group-focus-within/row:flex group-hover/row:flex`}>
       {SHOW_REACTION && (
         <button type="button" aria-label={reacted ? 'Remove reaction' : 'React'} aria-pressed={reacted} onClick={onReact} className={`${ACTION} ${reacted ? 'bg-brand/10 hover:bg-brand/15' : ''}`}>
           <img src={thumbsUp} alt="" width={20} height={20} />
@@ -82,13 +98,7 @@ function HighlightActions({ h, reacted, tipBelow, onReact, onDismiss }: { h: Hig
         <Tooltip label="Draft with AI" below={tipBelow} />
       </span>
       <button type="button" aria-label="Send message" onClick={() => openInbox(h.clientId)} className={ACTION}>
-        <span className="relative size-[18px]">
-          <span className="absolute inset-[14.59%_12.54%_10.42%_12.46%]">
-            <span className="absolute inset-[-4.82%_-4.82%_-4.81%_-4.82%]">
-              <img src={chatBubbles} alt="" className="block size-full max-w-none" />
-            </span>
-          </span>
-        </span>
+        <ChatIcon />
         <Tooltip label="Send message" below={tipBelow} />
       </button>
       <button type="button" aria-label="Dismiss" onClick={onDismiss} className={ACTION}>
@@ -99,9 +109,48 @@ function HighlightActions({ h, reacted, tipBelow, onReact, onDismiss }: { h: Hig
   );
 }
 
+/** The chat bubbles in Figma's inset/bleed wrappers, shared by the Send message button and Open chat. */
+function ChatIcon() {
+  return (
+    <span className="relative size-[18px] shrink-0">
+      <span className="absolute inset-[14.59%_12.54%_10.42%_12.46%]">
+        <span className="absolute inset-[-4.82%_-4.82%_-4.81%_-4.82%]">
+          <img src={chatBubbles} alt="" className="block size-full max-w-none" />
+        </span>
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Under a highlight once the coach has messaged that client this session (Figma 4341:459184): a "Message sent" tag
+ * and Open chat, which opens the Inbox column.
+ */
+function SentLine({ clientId }: { clientId: string }) {
+  const { openInbox } = useStore();
+  return (
+    <div className="flex items-center gap-3 pr-[18px]">
+      <span className="flex w-[116px] items-center justify-center gap-1.5 self-stretch rounded-lg bg-[rgba(227,236,255,0.8)] px-6 py-2">
+        <span className="relative size-3 shrink-0 overflow-hidden">
+          <span className="absolute inset-[8.82%_8.83%_8.83%_8.81%]">
+            <span className="absolute inset-[-6.67%]">
+              <img src={checkOne} alt="" className="block size-full max-w-none" />
+            </span>
+          </span>
+        </span>
+        <span className="whitespace-nowrap text-[12px] font-semibold leading-[1.5] text-brand">Message sent</span>
+      </span>
+      <button type="button" onClick={() => openInbox(clientId)} className="flex items-center gap-1 text-[12px] font-semibold leading-[1.5] text-ink hover:underline">
+        <ChatIcon />
+        Open chat
+      </button>
+    </div>
+  );
+}
+
 /** The v1 Catch-up tab, moved into the right rail. `narrow` (a third of the page): the tabs sit in a row above the list. */
 export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
-  const { showToast } = useStore();
+  const { state, showToast } = useStore();
   const [tab, setTab] = useState<Tab>('all');
   // Session only: a dismissed highlight leaves the list (and its counts); a reaction marks the 👍.
   const [dismissed, setDismissed] = useState<string[]>([]);
@@ -143,38 +192,46 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
         </div>
         {/* Stacked under the tabs (narrow), flex-1 would let the list grow to every row, so it keeps a fixed height. */}
         <ul className={`scroll-thin flex min-w-0 flex-col overflow-y-auto pt-2.5 ${narrow ? 'shrink-0' : 'flex-1'}`} style={{ height: LIST_HEIGHT }}>
-          {items.map((h, i) => (
-            <li
-              key={h.id}
-              className={`group/row relative flex min-h-[55px] shrink-0 items-center gap-4 pb-3 pl-3 pr-2 pt-2.5 hover:bg-surface-secondary ${
-                i < items.length - 1 ? 'border-b border-line' : ''
-              }`}
-            >
-              <span className="flex shrink-0 items-end">
-                <span className="-mr-4">
-                  <Avatar name={h.clientName} src={h.image} size={32} />
-                </span>
-                <CatchUpBadge category={h.category} />
-              </span>
-              <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-ink">
-                <span className="font-semibold">{h.clientName}</span> {h.text}
-              </p>
-              <HighlightActions
-                h={h}
-                reacted={reacted.includes(h.id)}
-                tipBelow={i === 0}
-                onReact={() => {
-                  const on = !reacted.includes(h.id);
-                  setReacted((r) => (on ? [...r, h.id] : r.filter((id) => id !== h.id)));
-                  if (on) showToast(`Reaction sent to ${h.clientName.split(' ')[0]}`);
-                }}
-                onDismiss={() => {
-                  setDismissed((d) => [...d, h.id]);
-                  showToast('Highlight dismissed');
-                }}
-              />
-            </li>
-          ))}
+          {items.map((h, i) => {
+            // Any message to this client this session, from Olly or the Inbox, marks the highlight as answered.
+            const sent = Boolean(state.sent[h.clientId]?.length);
+            return (
+              <li
+                key={h.id}
+                className={`group/row relative flex min-h-[55px] shrink-0 pb-3 pl-3 pr-2 pt-2.5 hover:bg-surface-secondary ${
+                  sent ? 'flex-col gap-3 bg-[rgba(244,246,251,0.8)]' : 'items-center'
+                } ${i < items.length - 1 ? 'border-b border-line' : ''}`}
+              >
+                <div className="flex min-w-0 items-center gap-4">
+                  <span className="flex shrink-0 items-end">
+                    <span className="-mr-4">
+                      <Avatar name={h.clientName} src={h.image} size={32} />
+                    </span>
+                    <CatchUpBadge category={h.category} />
+                  </span>
+                  <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-ink">
+                    <span className="font-semibold">{h.clientName}</span> {h.text}
+                  </p>
+                </div>
+                {sent && <SentLine clientId={h.clientId} />}
+                <HighlightActions
+                  h={h}
+                  reacted={reacted.includes(h.id)}
+                  tipBelow={i === 0}
+                  sent={sent}
+                  onReact={() => {
+                    const on = !reacted.includes(h.id);
+                    setReacted((r) => (on ? [...r, h.id] : r.filter((id) => id !== h.id)));
+                    if (on) showToast(`Reaction sent to ${h.clientName.split(' ')[0]}`);
+                  }}
+                  onDismiss={() => {
+                    setDismissed((d) => [...d, h.id]);
+                    showToast('Highlight dismissed');
+                  }}
+                />
+              </li>
+            );
+          })}
         </ul>
       </div>
     </section>
