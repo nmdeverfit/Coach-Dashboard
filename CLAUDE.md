@@ -10,7 +10,8 @@ reuse, AI elements, states, copy rules). Keep it up to date: when a design decis
 the same change.
 
 **Branch `claude/layout-3-columns` (layout test, the user's call):** the brief page splits into three parts: Today's
-Brief takes two and the right rail one (`grid-cols-3`, `col-span-2`, each column scrolls on its own). In the narrow
+Brief takes two and the right rail one (the rail fixed at a third of the page, `calc((max(100vw,1280px)-4rem)/3)`, each
+column scrolls on its own; with the highlights' sidebar open only the brief narrows, the user's call). In the narrow
 rail the group cards stack in one column, each list capped at 186 px (three clients and half of the fourth), and
 Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail.
 Customize cards (see the Structure entry) is shared with the main branch; here the narrow rail stacks the cards in

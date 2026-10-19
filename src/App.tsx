@@ -48,9 +48,11 @@ export default function App() {
             <ViewLayer active={state.view === 'brief'} offset="-100%">
               {state.weekOffset === 0 ? (
                 // Layout test (branch claude/layout-3-columns): three parts, the brief takes two and the rail one.
-                // The stacked rail runs far longer than the brief, so each column scrolls on its own.
-                <div className="grid h-full grid-cols-3">
-                  <div className="scroll-thin relative z-[1] col-span-2 overflow-y-auto bg-white shadow-column">
+                // The stacked rail runs far longer than the brief, so each column scrolls on its own. The rail is
+                // fixed at a third of the page (sidebar excluded), so when the highlights' sidebar opens only the
+                // brief gives up its 360 px (the user's call).
+                <div className="grid h-full grid-cols-[minmax(0,1fr)_calc((max(100vw,1280px)-4rem)/3)]">
+                  <div className="scroll-thin relative z-[1] overflow-y-auto bg-white shadow-column">
                     <TodayBrief />
                   </div>
                   <div className="scroll-thin overflow-y-auto bg-surface-secondary">
