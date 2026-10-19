@@ -160,10 +160,10 @@ export function CategoryGroup({
                 >
                   <span className="flex items-center gap-2">
                     <Swatch color={booking.type.color} />
-                    <span className="truncate text-[13px] font-semibold leading-[1.5] text-ink">{booking.type.name}</span>
+                    <span className="truncate text-[14px] font-semibold leading-[1.5] text-ink">{booking.type.name}</span>
                   </span>
                   <span className="flex min-w-0 items-center gap-1.5 text-[12px] leading-[1.5]">
-                    <span className="truncate text-ink">{client.name}</span>
+                    <span className="truncate font-medium text-ink">{client.name}</span>
                     <img src={dotTiny} alt="" width={2} height={2} className="shrink-0" />
                     <span className="whitespace-nowrap text-ink-secondary tabular-nums">
                       {booking.date === today ? 'Today' : formatMonthDay(parseDay(booking.date))} • {timeSpan(booking)}
