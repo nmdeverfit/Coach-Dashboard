@@ -271,6 +271,9 @@ the same change.
   the brief (AC5; the client list's tabs still have it). The user dropped the lock that kept them. No activities and
   Paused can be group cards, which the brief rules out ("no group card"). Session credits was dropped as a card at
   the user's request. "Save and Continue" is the design's copy ("Save" was suggested).
+- Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief
+  says "A completed row stays in place, de-emphasised". With more than seven suggestions a completed row can sink
+  under "Show N more".
 - The Change status modal, the vertical row expand (rows open the client detail
   drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
   are not built yet.

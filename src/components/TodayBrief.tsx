@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import heroDivider from '../assets/figma/hero-divider.svg';
 import heroPhoto from '../assets/figma/hero-2.jpg';
 import dot from '../assets/figma/dot.svg';
@@ -6,6 +6,7 @@ import { COACH_FIRST_NAME, DEMO_TODAY, GENERATED_AT } from '../data/mock';
 import type { Todo } from '../data/types';
 import { ageLabel, formatMonthDay, parseDay } from '../lib/dates';
 import { getClient, useStore } from '../state/store';
+import { reducedMotion } from './ClientListParts';
 import { ConfirmDialog } from './ConfirmDialog';
 import { CountChip } from './CountChip';
 import { TodoRow } from './TodoRow';
@@ -47,15 +48,68 @@ function SectionTitle({ title, count }: { title: string; count: number }) {
   );
 }
 
+/**
+ * Slides rows to their new places when a list reorders (a ticked row dropping to the bottom, the rest closing up):
+ * each row is measured against the list before and after, then eased from its old offset (FLIP).
+ */
+function useSlideRows(list: RefObject<HTMLUListElement>, order: string) {
+  const last = useRef(new Map<string, number>());
+  useLayoutEffect(() => {
+    const now = new Map<string, number>();
+    list.current?.querySelectorAll<HTMLElement>('[data-todo-id]').forEach((row) => {
+      const id = row.dataset.todoId!;
+      now.set(id, row.offsetTop);
+      const before = last.current.get(id);
+      if (before !== undefined && before !== row.offsetTop && !reducedMotion()) {
+        row.animate([{ transform: `translateY(${before - row.offsetTop}px)` }, { transform: 'none' }], {
+          duration: 380,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        });
+      }
+    });
+    last.current = now;
+  }, [list, order]);
+}
+
+/** How long a ticked row shows its tick in place before it drops to the bottom. */
+const SINK_DELAY_MS = 450;
+
+/**
+ * Completed rows drop to the bottom of their section and the open ones close up (the user's call; the brief keeps a
+ * completed row in place). A row sinks a beat after it is ticked, so the tick is seen first; rows completed before
+ * the page opened start at the bottom. The sort is stable, so each group keeps its rank, and an unticked row goes
+ * straight back to its place.
+ */
+function useDoneLast(todos: Todo[]): Todo[] {
+  const done = todos.filter((t) => t.state === 'completed').map((t) => t.id);
+  const [sunk, setSunk] = useState(() => new Set(done));
+  const key = done.join();
+  useEffect(() => {
+    const now = new Set(key ? key.split(',') : []);
+    // Unticked rows come back at once; newly ticked ones sink after the pause.
+    setSunk((s) => new Set([...s].filter((id) => now.has(id))));
+    const timer = window.setTimeout(() => setSunk(now), SINK_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [key]);
+  return [...todos].sort((a, b) => Number(sunk.has(a.id)) - Number(sunk.has(b.id)));
+}
+
 type PendingDismiss = { kind: 'one'; todo: Todo } | { kind: 'all'; count: number };
 
 export function TodayBrief() {
-  const { state, suggested, previous, openSuggestedCount, toggleComplete, dismiss, dismissAllPrevious, selectTodo } = useStore();
+  const store = useStore();
+  const { state, openSuggestedCount, toggleComplete, dismiss, dismissAllPrevious, selectTodo } = store;
+  const suggested = useDoneLast(store.suggested);
+  const previous = useDoneLast(store.previous);
   const [expanded, setExpanded] = useState(false);
   const [pending, setPending] = useState<PendingDismiss | null>(null);
 
   const visibleSuggested = expanded ? suggested : suggested.slice(0, INITIAL_ROWS);
   const hiddenCount = suggested.length - visibleSuggested.length;
+  const suggestedList = useRef<HTMLUListElement>(null);
+  const previousList = useRef<HTMLUListElement>(null);
+  useSlideRows(suggestedList, visibleSuggested.map((t) => t.id).join());
+  useSlideRows(previousList, previous.map((t) => t.id).join());
 
   const confirmDismiss = () => {
     if (!pending) return;
@@ -95,7 +149,7 @@ export function TodayBrief() {
           <SectionTitle title="Suggested to-dos" count={suggested.length} />
           {suggested.length > 0 ? (
             <div className="rounded-lg bg-surface-secondary px-2 pt-1">
-              <ul>
+              <ul ref={suggestedList} className="relative">
                 {visibleSuggested.map((todo) => (
                   <TodoRow
                     key={todo.id}
@@ -136,7 +190,7 @@ export function TodayBrief() {
                 Dismiss all
               </button>
             </div>
-            <ul className="rounded-lg bg-surface-secondary px-2 pt-1">
+            <ul ref={previousList} className="relative rounded-lg bg-surface-secondary px-2 pt-1">
               {previous.map((todo) => (
                 <TodoRow
                   key={todo.id}

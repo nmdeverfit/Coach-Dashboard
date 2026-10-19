@@ -44,6 +44,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss }: To
   return (
     <li
       data-todo-row
+      data-todo-id={todo.id}
       tabIndex={0}
       aria-current={selected ? 'true' : undefined}
       aria-label={`${todo.action} ${client.name}`}
