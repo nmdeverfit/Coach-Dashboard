@@ -68,6 +68,8 @@ export default {
       },
       keyframes: {
         'drawer-in': { from: { transform: 'translateX(100%)' }, to: { transform: 'translateX(0)' } },
+        // The toast slides in from the top-right corner.
+        'toast-in': { from: { opacity: '0', transform: 'translateX(24px)' }, to: { opacity: '1', transform: 'translateX(0)' } },
         'drawer-out': { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(100%)' } },
         // The middle column slides out from behind the panel and back under it.
         'side-in': { from: { transform: 'translateX(100%)' }, to: { transform: 'translateX(0)' } },
@@ -86,6 +88,7 @@ export default {
       },
       animation: {
         'drawer-in': 'drawer-in 280ms cubic-bezier(0.22, 1, 0.36, 1)',
+        'toast-in': 'toast-in 240ms cubic-bezier(0.22, 1, 0.36, 1)',
         'drawer-out': 'drawer-out 220ms ease-in forwards',
         'side-in': 'side-in 320ms cubic-bezier(0.22, 1, 0.36, 1)',
         'side-out': 'side-out 220ms ease-in forwards',

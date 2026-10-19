@@ -91,7 +91,8 @@ the same change.
   highlight people are not dashboard clients: `highlightOnlyClients` / `findPerson` in `mock.ts` give them a
   profile and a thread without counting them anywhere), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`),
   `ClientListParts` (row shell, client cell, section header shared by both tables), `ClientActions` (the
-  four 32 px quick actions, shared by the detail page and list rows), `Glyph` (Figma vector with inset/bleed), `StatusChip`, `Toast`, `Avatar`, `CountChip`,
+  four 32 px quick actions, shared by the detail page and list rows), `Glyph` (Figma vector with inset/bleed), `StatusChip`, `Toast` (Figma `4805:185601`, top-right, ✕ = `hideToast`; every
+  finished action shows one), `Avatar`, `CountChip`,
   `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons and on the row checkbox and
   the panel's ✓, "Complete this task", while the to-do is open), `Modal` (the design's 500 px popup, rendered
   into `<body>`; Esc closes it, and the panel behind ignores Esc and clicks while any `aria-modal` is up).
