@@ -223,7 +223,6 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
         <div role="tablist" aria-label="Highlights" className="flex items-center border-b border-line px-2.5">
           {VIEWS.map((v) => {
             const on = v.key === view;
-            const n = v.key === 'attention' ? attention.length : history.length;
             return (
               <button
                 key={v.key}
@@ -235,7 +234,7 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
                   on ? 'border-brand text-brand' : 'border-transparent text-ink-secondary hover:text-ink'
                 }`}
               >
-                {v.label} ({n})
+                {v.label}
               </button>
             );
           })}
