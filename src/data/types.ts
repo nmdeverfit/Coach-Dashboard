@@ -54,6 +54,8 @@ export type HighlightCategory = 'milestone' | 'birthday' | 'anniversary';
 export interface Highlight {
   id: string;
   category: HighlightCategory;
+  /** A dashboard client's id, or a highlight-only person's (`highlightOnlyClients`). */
+  clientId: string;
   clientName: string;
   /** The rest of the sentence after the client's name. */
   text: string;

@@ -3,11 +3,11 @@ import iconArrowUp from '../../assets/figma/icon-arrow-up.svg';
 import iconMic from '../../assets/figma/icon-mic.svg';
 import iconThumbDown from '../../assets/figma/icon-thumb-down.svg';
 import iconThumbUp from '../../assets/figma/icon-thumb-up.svg';
-import { DEMO_TODAY } from '../../data/mock';
+import { DEMO_TODAY, highlights } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { Client } from '../../data/types';
 import { buildClientAssessment } from '../../lib/client';
-import { draftFor, draftTask, sendTask, tellAnswer, tellPrompt, tellTask, type OllyAnswer, type OllyChart, type OllyTaskSpec } from '../../lib/olly';
+import { draftFor, draftTask, highlightDraft, sendTask, tellAnswer, tellPrompt, tellTask, type OllyAnswer, type OllyChart, type OllyTaskSpec } from '../../lib/olly';
 import { getClient, useStore, type OllyRequest } from '../../state/store';
 import { OllyTask } from './OllyTask';
 
@@ -238,13 +238,14 @@ export function OllyConversation({ clientId, request }: { clientId: string; requ
   const client = getClient(clientId);
   const todo = state.todos.find((t) => t.id === request.todoId);
   const assessment = request.assessment ?? buildClientAssessment(client, getProfile(client.id), DEMO_TODAY);
-  const draft = draftFor(client, todo, DEMO_TODAY);
+  const highlight = highlights.find((h) => h.id === request.highlightId);
+  const draft = highlight ? highlightDraft(client, highlight) : draftFor(client, todo, DEMO_TODAY);
   const answer = tellAnswer(client, assessment, DEMO_TODAY);
   const [text, setText] = useState(draft.text);
   const [turns, setTurns] = useState<Turn[]>(() => [
     request.mode === 'tell'
       ? { id: 0, user: tellPrompt(client, DEMO_TODAY), task: tellTask(client, DEMO_TODAY), result: 'answer' }
-      : { id: 0, user: draft.request, task: draftTask(client), result: 'draft' },
+      : { id: 0, user: draft.request, task: draftTask(client, Boolean(highlight)), result: 'draft' },
   ]);
   const [busy, setBusy] = useState(true);
   const sent = turns.some((t) => t.result === 'sent' && !t.stopped);

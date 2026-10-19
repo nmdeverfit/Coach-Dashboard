@@ -5,6 +5,7 @@ import type {
   BuildDetail,
   Client,
   ClientMessage,
+  Highlight,
   PrepareDetail,
   RemindDetail,
   RespondDetail,
@@ -111,9 +112,9 @@ export function tellTask(client: Client, today: string): OllyTaskSpec {
   };
 }
 
-export const draftTask = (client: Client): OllyTaskSpec => ({
+export const draftTask = (client: Client, fromHighlight = false): OllyTaskSpec => ({
   title: 'Drafting your message…',
-  steps: [`Read ${client.firstName}’s to-do and status`, 'Write the draft'],
+  steps: [fromHighlight ? `Read ${client.firstName}’s highlight` : `Read ${client.firstName}’s to-do and status`, 'Write the draft'],
   doneLabel: 'Drafted 1 message',
 });
 
@@ -191,6 +192,44 @@ export function draftFor(client: Client, todo: Todo | undefined, today: string):
     default:
       return { request: ask('check in on the week'), text: checkinText(client, today) };
   }
+}
+
+/**
+ * A note for a Client highlight (Draft with AI on its row): a congratulation, a birthday wish or an anniversary
+ * thank-you, written from the highlight's own sentence. The sentence is the system's, never the client's words.
+ */
+export function highlightDraft(client: Client, h: Highlight): OllyDraft {
+  const first = client.firstName;
+  const ask = (purpose: string) => `Draft a message for ${client.name} to ${purpose}.`;
+  if (h.category === 'birthday') {
+    const request = ask(`wish ${first} a happy birthday`);
+    const late = /ago|yesterday/.test(h.text);
+    const ahead = /tomorrow/.test(h.text);
+    return {
+      request,
+      text: late
+        ? `Happy belated birthday, ${first}! I hope it was a great day. Here’s to a strong year ahead.`
+        : ahead
+          ? `Happy birthday for tomorrow, ${first}! I hope it’s a great day. Here’s to a strong year ahead.`
+          : `Happy birthday, ${first}! I hope it’s a great day. Here’s to a strong year ahead.`,
+    };
+  }
+  const span = h.text.match(/(\d+)-(month|year)/);
+  if (h.category === 'anniversary' && span) {
+    const request = ask(`mark ${first}’s coaching anniversary`);
+    const length = `${span[1]} ${span[2]}${span[1] === '1' ? '' : 's'}`;
+    return {
+      request,
+      text: `Hi ${first}, ${length} since we started working together today! Thanks for showing up week after week. I’m proud of how far you’ve come.`,
+    };
+  }
+  // "hit her goal - target weight 65 kg" → "you hit your goal: target weight 65 kg"
+  const request = ask(`congratulate ${first}: ${h.text.replace(/\.$/, '')}`);
+  const done = h.text.replace(/\b(his|her)\b/g, 'your').replace(/\s+-\s+/, ': ').replace(/\.$/, '');
+  return {
+    request,
+    text: `Hi ${first}, congratulations, you ${done}! That’s a big one, and well earned. What would you like to aim for next?`,
+  };
 }
 
 /** A check-in written from the client's leading signal. */
