@@ -215,8 +215,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   pb-[13px]`, bottom border `ink/10`: date tile 56 px (`rounded-[9px]`, day 20 px, weekday 12 px, full date on
   hover), title 14 px semibold, then 13 px: clock 14 + "5:30 PM - Aug 27" (`#484848`) · `#d9d9d9` 4 px dot · video
   icon 14 + platform (ink, plain text). Hover (or focus): the row sits on a white card, rounded 4,
-  `0 0 10px rgba(0,0,0,0.05)`, 5 px wider than the list on each side, its border hidden, and "View transcript"
-  (13 px semibold, brand on hover) shows at the right; a click anywhere on the row opens the transcript. The well is
+  `0 0 10px rgba(0,0,0,0.05)`, 5 px wider than the list on each side, its border hidden, and "View summary"
+  (13 px semibold, brand on hover; "View transcript" for a meeting the coach added) shows at the right; a click anywhere on the row opens the popup. The well is
   capped at 580 px like the Notes list and scrolls inside, each week header pinned (`sticky`, `#f9fafa`). Empty: "No meetings
   with {first} yet." With eight tabs the tab padding drops to 12 px.
 - **Latest call** (the user's mock): on top of the Transcript tab's well, above the scrolling list (which keeps its
