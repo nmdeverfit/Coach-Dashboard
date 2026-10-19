@@ -295,6 +295,8 @@ export interface Meeting {
 /** The meeting popup's Summary tab: an overview (as the AI Assessment reads), what was discussed, the coach's to-dos. */
 export interface MeetingSummary {
   overview: { headline: string; bullets: string[] };
+  /** Up to three short takeaways, for the Transcript tab's Latest call card. */
+  highlights: string[];
   discuss: string[];
   followUp: string[];
 }

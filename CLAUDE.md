@@ -131,7 +131,8 @@ one column. It publishes to its own artifact (title "Check-in Dashboard v2 ·
   highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
   `meeting.summary`: a Call Summary card (`AiCard` in `AiAssessment.tsx`), Discuss and Your Follow Up, written by
   `callSummary` in `data/transcripts.ts` from the sections the call got all the way through, so it never names a
-  point the transcript cut off). Booking (Spec 4 BL2's `booking` tab) shows only for a
+  point the transcript cut off). On top of the list, `LatestCall` shows the newest meeting: overview, "Discuss" with
+  the summary's `highlights` (up to three short takeaways), View full summary and Transcript. Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read

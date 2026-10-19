@@ -56,10 +56,21 @@ function SummaryList({ title, items }: { title: string; items: string[] }) {
  * Up. Transcript: the lines, with a search box pinned on top; matches are highlighted as you type and ↑ / ↓ (or
  * Enter / Shift+Enter) step through them, the current one in a stronger tint and scrolled into view.
  */
-export function TranscriptDialog({ client, meeting, onClose }: { client: Client; meeting: Meeting; onClose: () => void }) {
+export function TranscriptDialog({
+  client,
+  meeting,
+  initialTab,
+  onClose,
+}: {
+  client: Client;
+  meeting: Meeting;
+  /** Opens on this tab; by default Summary when the call has one. */
+  initialTab?: 'summary' | 'transcript';
+  onClose: () => void;
+}) {
   const { showToast } = useStore();
   const summary = meeting.summary;
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>(summary ? 'summary' : 'transcript');
+  const [tab, setTab] = useState<(typeof TABS)[number]['key']>(initialTab ?? (summary ? 'summary' : 'transcript'));
   const [query, setQuery] = useState('');
   const [current, setCurrent] = useState(0);
   const body = useRef<HTMLDivElement>(null);
