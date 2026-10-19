@@ -37,8 +37,11 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   50 % in greyscale, text `ink-secondary`, a "Dismissed" tag hugging its words with the same ~10 px side padding (`px-2.5`, no fixed width) on `bg-surface-secondary` (12 px close
   stroke + 12 px semibold `ink-secondary`) and Restore (14 px rotate icon + 12 px semibold ink). History's list opens on a note, 12 px
   `ink-secondary`, `px-3 pb-2.5`: "Moments older than 30 days are cleared automatically." + Clear all (12 px semibold
-  ink, underlined, brand on hover; only when History has rows), which asks in the `ConfirmDialog`. Empty: "You’re all
-  caught up." / "Nothing here yet." 13 px semibold + a 12 px `ink-secondary` line, centred.
+  ink, underlined, brand on hover; only when History has rows), which asks in the `ConfirmDialog`. Empty (Figma `5809:544623`): `EmptyArt` (160 × 140 drawing of a window, two client cards and a
+  blue check) then one 13 px `ink-secondary` line, centred, `gap-5`, `py-10`. The line follows the view and category
+  tab: "All caught up! No {client moments / milestones / birthdays / anniversaries} need you right now." in Need
+  attention; "No history yet. Moments you message or dismiss show up here." / "No {birthdays} in History yet." in
+  History (the frame's own line was for style only, the user's call).
   Upcoming bookings is a session list (the user's call, on both branches): one row per booked session, soonest
   first, rows `py-2.5`, `gap-1.5` between lines. Line 1: 14 px `Swatch` in the type's colour + session name 14 px
   semibold ink. Line 2 (12 px, left-aligned with line 1): date • time `ink-secondary` ("Today • 6:30 - 7:30pm",

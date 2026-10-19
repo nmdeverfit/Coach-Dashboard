@@ -1,0 +1,18 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="130.557" height="94.8457" viewBox="0 0 130.557 94.8457" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="Group">
+<g id="Vector">
+<use xlink:href="#stroke0_0_15" fill="url(#paint0_linear_0_15)"/>
+<mask id="stroke1_0_15" fill="white">
+<use xlink:href="#stroke0_0_15"/>
+</mask>
+<path d="M0 6.05398V15.2791V88.7918C0 92.107 2.72292 94.8457 6.01909 94.8457H124.538C127.834 94.8457 130.557 92.107 130.557 88.7918V15.2791V6.34227C130.557 2.73871 127.691 0 124.251 0H6.01909L0 6.05398Z" stroke-width="2.41262" stroke="#D5DDEA" stroke-opacity="0.3" mask="url(#stroke1_0_15)"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_15" x1="65.2359" y1="-2.19387" x2="65.2359" y2="95.8682" gradientUnits="userSpaceOnUse">
+<stop offset="0.45" stop-color="#FDFEFF"/>
+<stop offset="0.9964" stop-color="#F2F6FF" stop-opacity="0.5"/>
+</linearGradient>
+<path id="stroke0_0_15" d="M0 6.05398V15.2791V88.7918C0 92.107 2.72292 94.8457 6.01909 94.8457H124.538C127.834 94.8457 130.557 92.107 130.557 88.7918V15.2791V6.34227C130.557 2.73871 127.691 0 124.251 0H6.01909L0 6.05398Z"/>
+</defs>
+</svg>

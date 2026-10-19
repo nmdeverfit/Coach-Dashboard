@@ -6,6 +6,13 @@ import thumbsUp from '../assets/figma/emoji-thumbs-up.png';
 import chatBubbles from '../assets/figma/icon-chat-bubbles.svg';
 import checkOne from '../assets/figma/icon-check-one-brand.svg';
 import closeStroke from '../assets/figma/icon-close-stroke.svg';
+import emptyBar from '../assets/figma/empty-hl-bar.svg';
+import emptyCheck from '../assets/figma/empty-hl-check.svg';
+import emptyDot3 from '../assets/figma/empty-hl-dot-3.svg';
+import emptyDot from '../assets/figma/empty-hl-dot.svg';
+import emptyUserLg from '../assets/figma/empty-hl-user-lg.svg';
+import emptyUserSm from '../assets/figma/empty-hl-user-sm.svg';
+import emptyWindow from '../assets/figma/empty-hl-window.svg';
 import confetti from '../assets/figma/icon-confetti.svg';
 import iconPencilAi from '../assets/figma/icon-pencil-ai.svg';
 import { highlights } from '../data/mock';
@@ -189,6 +196,49 @@ function HistoryRow({ h, completed, last }: { h: Highlight; completed: boolean; 
   );
 }
 
+/** The empty list's line: its words follow the view and the category tab, its style the frame's (Figma 5809:544623). */
+const NOUN: Record<Tab, string> = { all: 'client moments', milestone: 'milestones', birthday: 'birthdays', anniversary: 'anniversaries' };
+const emptyLine = (view: View, tab: Tab) =>
+  view === 'attention'
+    ? `All caught up! No ${NOUN[tab]} need you right now.`
+    : tab === 'all'
+      ? 'No history yet. Moments you message or dismiss show up here.'
+      : `No ${NOUN[tab]} in History yet.`;
+
+/** The empty state's drawing (Figma 5809:544623 "Add Code"): a window, two client cards and a check, 160 × 140. */
+function EmptyArt() {
+  return (
+    <div aria-hidden className="relative h-[140px] w-[160px] shrink-0 overflow-hidden bg-white">
+      <div className="absolute left-1/2 top-[calc(50%-0.18px)] h-[101.64px] w-[160px] -translate-x-1/2 -translate-y-1/2">
+        <img src={emptyWindow} alt="" className="absolute left-[19.14px] top-[6.79px] block h-[94.846px] w-[130.557px] max-w-none" />
+        <div className="absolute left-[19.14px] top-[6.79px] h-[12.396px] w-[130.557px]">
+          <div className="absolute inset-[-4.87%_-0.46%]">
+            <img src={emptyBar} alt="" className="block size-full max-w-none" />
+          </div>
+        </div>
+        <img src={emptyDot} alt="" className="absolute left-[24.87px] top-[11.26px] block h-[4.036px] w-[4.013px] max-w-none" />
+        <img src={emptyDot} alt="" className="absolute left-[30.6px] top-[11.26px] block h-[4.036px] w-[4.013px] max-w-none" />
+        <img src={emptyDot3} alt="" className="absolute left-[36.48px] top-[11.26px] block h-[4.036px] w-[4.013px] max-w-none" />
+        <div className="absolute left-0 top-[30.5px] flex items-center justify-center gap-[4.722px] rounded-[8.987px] border-[0.885px] border-[#f1f0ff] bg-white px-[7.238px] py-[5.991px] drop-shadow-[0_3.619px_10.857px_rgba(33,81,154,0.12)]">
+          <img src={emptyUserLg} alt="" className="block size-[23.609px] max-w-none" />
+          <div className="flex w-[83.473px] flex-col items-start gap-[4.722px]">
+            <div className="h-[6.487px] w-[31.416px] rounded-[3.539px] bg-[#e3ecff]" />
+            <div className="h-[6.487px] w-full rounded-[3.539px] bg-[#e3ecff]" />
+          </div>
+        </div>
+        <div className="absolute left-[54.28px] top-[71.51px] flex items-center gap-[2.941px] rounded-[5.145px] border-[0.551px] border-[#f1f0ff] bg-white px-[4.599px] py-[3.619px] opacity-80 drop-shadow-[0_3.619px_10.857px_rgba(33,81,154,0.12)]">
+          <img src={emptyUserSm} alt="" className="block size-[14.707px] max-w-none" />
+          <div className="flex w-[57.922px] flex-col items-start gap-[2.941px]">
+            <div className="h-[4.041px] w-[19.57px] rounded-[2.205px] bg-[#e3ecff]" />
+            <div className="h-[4.041px] w-full rounded-[2.205px] bg-[#e3ecff]" />
+          </div>
+        </div>
+        <img src={emptyCheck} alt="" className="absolute left-[135.87px] top-0 block size-[24.126px] max-w-none" />
+      </div>
+    </div>
+  );
+}
+
 const VIEWS: { key: View; label: string }[] = [
   { key: 'attention', label: 'Need attention' },
   { key: 'history', label: 'History' },
@@ -280,11 +330,9 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
               </li>
             )}
             {items.length === 0 && (
-              <li className="flex flex-1 flex-col items-center justify-center gap-1 px-6 text-center">
-                <p className="text-[13px] font-semibold leading-[1.5] text-ink">{view === 'attention' ? 'You’re all caught up.' : 'Nothing here yet.'}</p>
-                <p className="text-[12px] leading-[1.5] text-ink-secondary">
-                  {view === 'attention' ? 'Highlights you message or dismiss move to History.' : 'Highlights you message or dismiss show up here.'}
-                </p>
+              <li className="flex shrink-0 flex-col items-center gap-5 px-2 py-10">
+                <EmptyArt />
+                <p className="max-w-[380px] text-center text-[13px] leading-normal text-ink-secondary">{emptyLine(view, tab)}</p>
               </li>
             )}
             {view === 'history' &&
