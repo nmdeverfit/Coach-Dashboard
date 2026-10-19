@@ -138,7 +138,7 @@ Open Sans everywhere (weights 400, 500, 600, 700 loaded; Inter Bold for the gree
 | File chip icon | `FileTypeIcon` (tile tinted by extension) | `FileTypeIcon.tsx` |
 | Popup (forms, viewers) | `Modal` (500 px, rounded 16, × on the corner, 20 px title, footer right-aligned) | `Modal.tsx` |
 | Transcript tab, Add a meeting, transcript viewer | `TranscriptTab`, `AddMeetingDialog`, `TranscriptDialog` | `drawer/` |
-| Feedback | `Toast` via `showToast` (ink pill, bottom centre) | `Toast.tsx` |
+| Feedback | `Toast` via `showToast` (Figma `4805:185601`: `#151619`, rounded 5, `p-5`, 13 px semibold white, 12 px ✕ `gap-[90px]` after the text, text wraps at 360 px; fixed top-right, 16 px from the top and right, above every panel and popup, slides in 240 ms, 3 s or ✕) | `Toast.tsx` |
 | Status | `StatusChip` (21 px pill) | `StatusChip.tsx` |
 | Avatar | `Avatar` (photo or initials) | `Avatar.tsx` |
 | Quick actions (AI draft · message · ✓ · more) | `ClientActions` (`where="panel"` one-way ✓, `"list"` toggles) | `ClientActions.tsx` |
@@ -226,6 +226,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 - The drawer's reason line is never truncated: it flows inline after the status chip and dot, and wraps under the
   chip (13 px, 21 px line height).
 - The client name is a blue link only on the drawer title, never on Check-in, never on rows.
+- A finished action confirms with a toast in the past tense: "To-do has been completed" / "To-do has been reopened",
+  "To-do has been dismissed", "{First} marked as reviewed", "Message sent to {First}" (Olly or Inbox), "Context saved
+  for {First}", "Meeting added", "Cards updated", the highlight toasts.
 - Actions without a built destination show a toast that says where they would go ("… opens in a new tab").
 - **Booking tab** (Figma `5689:514998`): same shell as the list (metric row, tabs, search; no Status dropdown).
   Columns Client 280 · Activity 460 (shrinks to 360 first) · Session credits (fills, at least 420) · Action 100.

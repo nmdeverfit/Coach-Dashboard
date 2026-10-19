@@ -51,6 +51,8 @@ interface State {
   /** The client list's open tab; a group card's "View all" lands on its own. */
   dashboardTab: DashboardTab;
   toast: string | null;
+  /** Bumped on every toast, so a new message replays the slide-in. */
+  toastSeq: number;
   /** The to-do whose panel is open. */
   selectedTodoId: string | null;
   /** The client whose detail panel is open (from a group card). Only one panel is open at a time. */
@@ -172,6 +174,7 @@ const initialState: State = {
   weekOffset: 0,
   dashboardTab: 'all',
   toast: null,
+  toastSeq: 0,
   selectedTodoId: null,
   selectedClientId: null,
   selectedClientTab: null,
@@ -264,7 +267,7 @@ function reducer(state: State, action: Action): State {
     case 'setDashboardTab':
       return { ...state, dashboardTab: action.tab };
     case 'toast':
-      return { ...state, toast: action.message };
+      return { ...state, toast: action.message, toastSeq: action.message ? state.toastSeq + 1 : state.toastSeq };
     case 'select': {
       const clientId = action.id ? state.todos.find((t) => t.id === action.id)?.clientId ?? null : null;
       return {
@@ -427,6 +430,7 @@ interface Store {
   openCustomize: (tab: CustomizeTab | null) => void;
   toggleCollapsed: (key: CardKey) => void;
   showToast: (message: string) => void;
+  hideToast: () => void;
   selectTodo: (id: string | null) => void;
   /** Opens the client detail page, optionally on a given tab. */
   selectClient: (id: string | null, tab?: ClientTabKey) => void;
@@ -479,7 +483,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       suggested,
       previous,
       openSuggestedCount: suggested.filter((t) => t.state === 'open').length,
-      toggleComplete: (id) => dispatch({ type: 'toggleComplete', id }),
+      toggleComplete: (id) => {
+        const done = state.todos.find((t) => t.id === id)?.state === 'completed';
+        dispatch({ type: 'toggleComplete', id });
+        showToast(done ? 'To-do has been reopened' : 'To-do has been completed');
+      },
       dismiss: (id) => {
         dispatch({ type: 'dismiss', id });
         showToast('To-do has been dismissed');
@@ -507,6 +515,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'toggleCollapsed', key });
       },
       showToast,
+      hideToast: () => {
+        window.clearTimeout(toastTimer.current);
+        dispatch({ type: 'toast', message: null });
+      },
       selectTodo: (id) => dispatch({ type: 'select', id }),
       selectClient: (id, tab) => dispatch({ type: 'selectClient', id, tab }),
       reviewClient: (clientId) => {
@@ -530,7 +542,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setSideTab: (tab) => dispatch({ type: 'sideTab', tab }),
       closeSideTab: (tab) => dispatch({ type: 'closeSideTab', tab }),
       closeSide: () => dispatch({ type: 'closeSide' }),
-      sendMessage: (clientId, text, highlightId) => dispatch({ type: 'sendMessage', clientId, text, highlightId }),
+      sendMessage: (clientId, text, highlightId) => {
+        dispatch({ type: 'sendMessage', clientId, text, highlightId });
+        showToast(`Message sent to ${getClient(clientId).firstName}`);
+      },
       dismissHighlight: (id) => dispatch({ type: 'dismissHighlight', id }),
       restoreHighlight: (id) => dispatch({ type: 'restoreHighlight', id }),
       clearHighlightHistory: () => dispatch({ type: 'clearHighlightHistory' }),
@@ -544,7 +559,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       completeFromPanel: (id) => {
         dispatch({ type: 'completeFromPanel', id });
-        showToast('To-do completed');
+        showToast('To-do has been completed');
       },
     };
   }, [state, showToast]);
