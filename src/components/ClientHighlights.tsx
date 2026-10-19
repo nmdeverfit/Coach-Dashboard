@@ -146,14 +146,15 @@ function OutcomeTag({ completed }: { completed: boolean }) {
 }
 
 /**
- * When a milestone was reached, said as the end of its sentence (the user's call): "yesterday", "3 days ago" within the
- * week, else "on Aug 21". Read against the brief's morning (`DEMO_TODAY`). Birthdays and anniversaries already say when.
+ * When a milestone was reached, at the row's right edge in 12 px `ink-muted` (the user's call): "Today", "1d ago" to
+ * "6d ago" within the week, else "Aug 21". Read against the brief's morning (`DEMO_TODAY`). Birthdays and
+ * anniversaries already say when in their sentence. The hover bar covers it while it shows.
  */
 function When({ h }: { h: Highlight }) {
   if (!h.achievedOn) return null;
   const ago = daysBetween(h.achievedOn, DEMO_TODAY);
-  const when = ago === 0 ? 'today' : ago === 1 ? 'yesterday' : ago < 7 ? `${ago} days ago` : `on ${formatMonthDay(parseDay(h.achievedOn))}`;
-  return <> {when}</>;
+  const when = ago === 0 ? 'Today' : ago < 7 ? `${ago}d ago` : formatMonthDay(parseDay(h.achievedOn));
+  return <span className="shrink-0 whitespace-nowrap text-[12px] leading-[1.5] text-ink-muted">{when}</span>;
 }
 
 /** Avatar with its category badge (milestones blue, birthdays and anniversaries orange). */
@@ -181,8 +182,8 @@ function HistoryRow({ h, completed, last }: { h: Highlight; completed: boolean; 
         <Who h={h} muted={!completed} />
         <p className={`min-w-0 flex-1 text-[13px] leading-[1.5] ${completed ? 'text-ink' : 'text-ink-secondary'}`}>
           <span className="font-semibold">{h.clientName}</span> {h.text}
-          <When h={h} />
         </p>
+        <When h={h} />
       </div>
       <div className="flex items-center gap-3 pr-[18px]">
         <OutcomeTag completed={completed} />
@@ -361,8 +362,8 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
                   <Who h={h} />
                   <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-ink">
                     <span className="font-semibold">{h.clientName}</span> {h.text}
-                    <When h={h} />
                   </p>
+                  <When h={h} />
                   <HighlightActions
                     h={h}
                     reacted={reacted.includes(h.id)}
