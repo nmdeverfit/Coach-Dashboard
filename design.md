@@ -227,8 +227,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   chip (13 px, 21 px line height).
 - The client name is a blue link only on the drawer title, never on Check-in, never on rows.
 - A finished action confirms with a toast in the past tense: "To-do has been completed" / "To-do has been reopened",
-  "To-do has been dismissed", "{First} marked as reviewed", "Message sent to {First}" (Olly or Inbox), "Context saved
-  for {First}", "Meeting added", "Cards updated", the highlight toasts.
+  "To-do has been dismissed", "{First} marked as reviewed", "Context saved
+  for {First}", "Meeting added", "Cards updated", the highlight toasts. Sending a message has none (Olly and the Inbox show it).
 - Actions without a built destination show a toast that says where they would go ("… opens in a new tab").
 - **Booking tab** (Figma `5689:514998`): same shell as the list (metric row, tabs, search; no Status dropdown).
   Columns Client 280 · Activity 460 (shrinks to 360 first) · Session credits (fills, at least 420) · Action 100.
