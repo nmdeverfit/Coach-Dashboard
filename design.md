@@ -224,6 +224,13 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   (13 px semibold, brand on hover) shows at the right; a click anywhere on the row opens the transcript. The well is
   capped at 580 px like the Notes list and scrolls inside, each week header pinned (`sticky`, `#f9fafa`). Empty: "No meetings
   with {first} yet." With eight tabs the tab padding drops to 12 px.
+- **Meeting popup tabs** (the user's brief, no frame): under the subtitle, the panel's `TabBar` with Summary |
+  Transcript, pinned with the search on Transcript; the body is at least 640 px so both tabs keep one height.
+  Summary (default for recorded calls): a "Call Summary" card drawn exactly as the AI Assessment (`AiCard`: sparkle +
+  gradient label, quote line, 14 px semibold overview + 14 px `ink-tertiary` bullets) without its bottom row, then
+  "Discuss" and "Your Follow Up" (15 px semibold ink headings, 13 px `#484848` bullets `gap-1.5`, a leading "Topic:"
+  in semibold ink). Meetings the coach added have no summary: Transcript opens first and Summary reads "No summary for
+  this meeting yet…".
 - **Transcript popup** (View transcript, no frame): 600 px `Modal`, title = meeting title, subtitle 13 px
   `ink-tertiary`: 20 px avatar + client name (semibold ink) · 4 px `#d9d9d9` dot · "Thu, Aug 27, 2026 · 5:30 PM ·
   Microsoft Teams". The Notes search field (38 px, `#dbdce3`, brand

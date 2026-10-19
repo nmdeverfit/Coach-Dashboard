@@ -20,12 +20,12 @@ interface Props {
 
 const LINK = 'font-semibold text-ink-tertiary underline hover:text-brand';
 
-function Label() {
+function Label({ title = 'AI Assessment' }: { title?: string }) {
   return (
     <div className="flex items-center gap-2">
       <img src={iconSparkle} alt="" width={16} height={16} />
       <h3 className="bg-clip-text text-[14px] font-semibold leading-[1.5] text-transparent" style={{ backgroundImage: AI_GRADIENT }}>
-        AI Assessment
+        {title}
       </h3>
     </div>
   );
@@ -205,5 +205,18 @@ export function AiAssessment({ client, assessment, onTellMeMore }: Props) {
           scroller.parentElement,
         )}
     </>
+  );
+}
+
+/**
+ * The AI Assessment card's look with another title and no bottom row (no Add context, no Tell me more): the meeting
+ * popup's Call Summary.
+ */
+export function AiCard({ title, assessment }: { title: string; assessment: Assessment }) {
+  return (
+    <section className="flex flex-col gap-3 rounded-lg border border-ai-line bg-white p-4 shadow-ai-card">
+      <Label title={title} />
+      <Quote assessment={assessment} />
+    </section>
   );
 }

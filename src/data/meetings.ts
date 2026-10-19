@@ -2,7 +2,7 @@ import { addDays } from '../lib/checkin';
 import { weekAsOf } from '../lib/week';
 import { DEMO_TODAY, clients } from './mock';
 import { random } from './profiles';
-import { transcriptLines } from './transcripts';
+import { callSummary, transcriptLines } from './transcripts';
 import type { Client, Meeting } from './types';
 
 /**
@@ -51,6 +51,7 @@ function generate(client: Client): Meeting[] {
         timeZone: 'UTC-7',
         link: pick(LINKS),
         transcript: { kind: 'lines', lines: transcriptLines(client.firstName, client.status, name, minutes, rnd) },
+        summary: callSummary(client.firstName, client.status, name, minutes),
       });
     }
   }
