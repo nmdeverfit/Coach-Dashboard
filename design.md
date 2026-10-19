@@ -43,7 +43,7 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   attention; "No history yet. Moments you message or dismiss show up here." / "No {birthdays} in History yet." in
   History (the frame's own line was for style only, the user's call).
   Every highlight row shows when the moment happened (`on`) at its right edge, outside the sentence (the user's
-  call): 12 px `ink-muted`, "Today", "Tomorrow" (a birthday still to come), "1d ago" … "6d ago", else "Aug 21"; the
+  call): 11 px `ink-muted`, "Today", "Tomorrow" (a birthday still to come), "1d ago" … "6d ago", else "Aug 21"; the
   hover bar covers it.
   Upcoming bookings is a session list (the user's call, on both branches): one row per booked session, soonest
   first, rows `py-2.5`, `gap-1.5` between lines. Line 1: 14 px `Swatch` in the type's colour + session name 14 px
