@@ -35,7 +35,9 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   `bg-[rgba(227,236,255,0.8)]`, rounded 8, `px-6 py-2`, 12 px check-one + 12 px semibold brand) and Open chat (chat
   bubbles 18 px + 12 px semibold ink, `gap-1`), `gap-3`, `pr-[18px]`. Dismissed (no frame): white row, avatar at
   50 % in greyscale, text `ink-secondary`, a "Dismissed" tag hugging its words with the same ~10 px side padding (`px-2.5`, no fixed width) on `bg-surface-secondary` (12 px close
-  stroke + 12 px semibold `ink-secondary`) and Restore (14 px rotate icon + 12 px semibold ink). Empty: "You’re all
+  stroke + 12 px semibold `ink-secondary`) and Restore (14 px rotate icon + 12 px semibold ink). History's list opens on a note, 12 px
+  `ink-secondary`, `px-3 pb-2.5`: "Moments older than 30 days are cleared automatically." + Clear all (12 px semibold
+  ink, underlined, brand on hover; only when History has rows), which asks in the `ConfirmDialog`. Empty: "You’re all
   caught up." / "Nothing here yet." 13 px semibold + a 12 px `ink-secondary` line, centred.
   Upcoming bookings is a session list (the user's call, on both branches): one row per booked session, soonest
   first, rows `py-2.5`, `gap-1.5` between lines. Line 1: 14 px `Swatch` in the type's colour + session name 14 px

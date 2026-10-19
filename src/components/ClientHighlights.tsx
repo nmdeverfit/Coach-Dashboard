@@ -12,6 +12,7 @@ import { highlights } from '../data/mock';
 import type { Highlight, HighlightCategory } from '../data/types';
 import { useStore } from '../state/store';
 import { Avatar } from './Avatar';
+import { ConfirmDialog } from './ConfirmDialog';
 import { CountChip } from './CountChip';
 import { Tooltip } from './Tooltip';
 
@@ -200,13 +201,14 @@ const VIEWS: { key: View; label: string }[] = [
  * the list.
  */
 export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
-  const { state, showToast, dismissHighlight } = useStore();
+  const { state, showToast, dismissHighlight, clearHighlightHistory } = useStore();
+  const [confirmClear, setConfirmClear] = useState(false);
   const [view, setView] = useState<View>('attention');
   const [tab, setTab] = useState<Tab>('all');
   const [reacted, setReacted] = useState<string[]>([]);
   const log = state.highlightLog;
   const attention = highlights.filter((h) => !log[h.id]);
-  const history = highlights.filter((h) => log[h.id]).sort((a, b) => log[b.id].seq - log[a.id].seq);
+  const history = highlights.filter((h) => log[h.id] && !log[h.id].cleared).sort((a, b) => log[b.id].seq - log[a.id].seq);
   const pool = view === 'attention' ? attention : history;
   const items = tab === 'all' ? pool : pool.filter((h) => h.category === tab);
   const countFor = (t: Tab) => (t === 'all' ? pool.length : pool.filter((h) => h.category === t).length);
@@ -266,6 +268,17 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
           </div>
           {/* Stacked under the tabs (narrow), flex-1 would let the list grow to every row, so it keeps a fixed height. */}
           <ul className={`scroll-thin flex min-w-0 flex-col overflow-y-auto pt-2.5 ${narrow ? 'shrink-0' : 'flex-1'}`} style={{ height: LIST_HEIGHT }}>
+            {/* History opens on the retention note; Clear all empties every category, after a confirm. */}
+            {view === 'history' && (
+              <li className="shrink-0 px-3 pb-2.5 text-[12px] leading-[1.5] text-ink-secondary">
+                Moments older than 30 days are cleared automatically.{' '}
+                {history.length > 0 && (
+                  <button type="button" onClick={() => setConfirmClear(true)} className="font-semibold text-ink underline hover:text-brand">
+                    Clear all
+                  </button>
+                )}
+              </li>
+            )}
             {items.length === 0 && (
               <li className="flex flex-1 flex-col items-center justify-center gap-1 px-6 text-center">
                 <p className="text-[13px] font-semibold leading-[1.5] text-ink">{view === 'attention' ? 'You’re all caught up.' : 'Nothing here yet.'}</p>
@@ -307,6 +320,19 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
           </ul>
         </div>
       </div>
+      {confirmClear && (
+        <ConfirmDialog
+          title="Clear all history?"
+          body={`This removes ${history.length === 1 ? 'the 1 highlight' : `all ${history.length} highlights`} in History, messaged and dismissed. They won’t come back.`}
+          confirmLabel="Clear all"
+          onConfirm={() => {
+            clearHighlightHistory();
+            setConfirmClear(false);
+            showToast('History cleared');
+          }}
+          onCancel={() => setConfirmClear(false)}
+        />
+      )}
     </section>
   );
 }

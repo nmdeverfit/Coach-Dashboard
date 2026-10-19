@@ -35,6 +35,8 @@ export interface SidePanelState {
 export interface HighlightOutcome {
   status: 'completed' | 'dismissed';
   seq: number;
+  /** Clear all in History: gone from both views for good. */
+  cleared?: boolean;
 }
 export interface SentMessage {
   text: string;
@@ -160,6 +162,7 @@ type Action =
   | { type: 'sendMessage'; clientId: string; text: string; highlightId?: string }
   | { type: 'dismissHighlight'; id: string }
   | { type: 'restoreHighlight'; id: string }
+  | { type: 'clearHighlightHistory' }
   | { type: 'addMeeting'; clientId: string; meeting: Meeting }
   | { type: 'setAiContext'; clientId: string; context: AiContext | null };
 
@@ -316,6 +319,8 @@ function reducer(state: State, action: Action): State {
     }
     case 'dismissHighlight':
       return { ...state, highlightLog: logHighlight(state.highlightLog, action.id, 'dismissed') };
+    case 'clearHighlightHistory':
+      return { ...state, highlightLog: Object.fromEntries(Object.entries(state.highlightLog).map(([id, o]) => [id, { ...o, cleared: true }])) };
     case 'restoreHighlight': {
       const { [action.id]: _gone, ...rest } = state.highlightLog;
       return { ...state, highlightLog: rest };
@@ -446,6 +451,8 @@ interface Store {
   dismissHighlight: (id: string) => void;
   /** Takes a dismissed highlight out of History, back to Need attention. */
   restoreHighlight: (id: string) => void;
+  /** Empties History; cleared highlights do not come back to Need attention. */
+  clearHighlightHistory: () => void;
   addMeeting: (clientId: string, meeting: Meeting) => void;
   /** Saves (or, with null, clears) the coach's context for a client's AI Assessment. */
   setAiContext: (clientId: string, context: AiContext | null) => void;
@@ -526,6 +533,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       sendMessage: (clientId, text, highlightId) => dispatch({ type: 'sendMessage', clientId, text, highlightId }),
       dismissHighlight: (id) => dispatch({ type: 'dismissHighlight', id }),
       restoreHighlight: (id) => dispatch({ type: 'restoreHighlight', id }),
+      clearHighlightHistory: () => dispatch({ type: 'clearHighlightHistory' }),
       setAiContext: (clientId, context) => {
         dispatch({ type: 'setAiContext', clientId, context });
         showToast(context ? `Context saved for ${getClient(clientId).firstName}` : 'Context cleared');
