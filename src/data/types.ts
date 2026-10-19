@@ -288,6 +288,15 @@ export interface Meeting {
   timeZone: string;
   link?: string;
   transcript: Transcript;
+  /** What the call covered, from the same sections as its transcript; unset for meetings the coach adds. */
+  summary?: MeetingSummary;
+}
+
+/** The meeting popup's Summary tab: an overview (as the AI Assessment reads), what was discussed, the coach's to-dos. */
+export interface MeetingSummary {
+  overview: { headline: string; bullets: string[] };
+  discuss: string[];
+  followUp: string[];
 }
 
 /** How closely the coach works with a client, from Add context (the AI Assessment's questionnaire). */

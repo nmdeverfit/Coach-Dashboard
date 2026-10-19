@@ -1,4 +1,4 @@
-import type { ClientStatus, TranscriptLine } from './types';
+import type { ClientStatus, MeetingSummary, TranscriptLine } from './types';
 
 /**
  * Stand-in wording for the demo's meeting transcripts, long enough to read like a real call: about two lines a
@@ -198,14 +198,39 @@ const WRAP_UP: Section = [
   ['c', 'Talk soon, have a good week.'],
 ];
 
+const moodOf = (status: ClientStatus): Mood => (status === 'no_activities' ? 'needs_attention' : status);
+
 /** Lines per minute of call, so length follows duration. */
 const LINES_PER_MINUTE = 2;
 
+type Topic = 'opener' | 'recap' | 'training' | 'nutrition' | 'recovery' | 'habits' | 'schedule' | 'goals' | 'mindset' | 'plan' | 'questions';
+
 /** The sections a call takes in turn; a nutrition catch-up puts food first. */
-function order(title: string, mood: Mood): Section[] {
-  const middle = [TRAINING, NUTRITION, RECOVERY, HABITS, SCHEDULE, GOALS, MINDSET];
+function order(title: string, mood: Mood): [Topic, Section][] {
+  const middle: [Topic, Section][] = [
+    ['training', TRAINING],
+    ['nutrition', NUTRITION],
+    ['recovery', RECOVERY],
+    ['habits', HABITS],
+    ['schedule', SCHEDULE],
+    ['goals', GOALS],
+    ['mindset', MINDSET],
+  ];
   if (title === 'Nutrition catch-up') middle.unshift(middle.splice(1, 1)[0]);
-  return [OPENER, RECAP[mood], ...middle, plan(mood), QUESTIONS];
+  return [['opener', OPENER], ['recap', RECAP[mood]], ...middle, ['plan', plan(mood)], ['questions', QUESTIONS]];
+}
+
+/** How many lines of each section a call of `minutes` reaches before the wrap-up. */
+function reached(title: string, mood: Mood, minutes: number): [Topic, Section, number][] {
+  let left = Math.max(12, Math.round(minutes * LINES_PER_MINUTE)) - WRAP_UP.length;
+  const out: [Topic, Section, number][] = [];
+  for (const [topic, section] of order(title, mood)) {
+    if (left <= 0) break;
+    const n = Math.min(section.length, left);
+    out.push([topic, section, n]);
+    left -= n;
+  }
+  return out;
 }
 
 /** "04:12", or "1:04:12" past the hour. */
@@ -222,13 +247,7 @@ function stamp(seconds: number) {
  * each line's time spread across the call (`rnd` adds a little jitter so the gaps aren't regular).
  */
 export function transcriptLines(first: string, status: ClientStatus, title: string, minutes: number, rnd: () => number): TranscriptLine[] {
-  const mood: Mood = status === 'no_activities' ? 'needs_attention' : status;
-  const target = Math.max(12, Math.round(minutes * LINES_PER_MINUTE)) - WRAP_UP.length;
-  const picked: [Speaker, string][] = [];
-  for (const section of order(title, mood)) {
-    if (picked.length >= target) break;
-    picked.push(...section.slice(0, target - picked.length));
-  }
+  const picked = reached(title, moodOf(status), minutes).flatMap(([, section, n]) => section.slice(0, n));
   const lines = [...picked, ...WRAP_UP];
   const step = (minutes * 60 - 20) / lines.length;
   return lines.map(([who, text], i) => ({
@@ -241,4 +260,103 @@ export function transcriptLines(first: string, status: ClientStatus, title: stri
 /** The same call as plain text ("Long (04:12): …" lines), for a sample file to upload. */
 export function transcriptText(coach: string, first: string, lines: TranscriptLine[]) {
   return lines.map((l) => `${l.from === 'coach' ? coach : first} (${l.at}): ${l.text}`).join('\n\n');
+}
+
+// ---------------------------------------------------------------- Summary
+
+/**
+ * What each section of a call comes to, in the coach's words for the Summary tab: what was discussed and settled,
+ * a short "agreed" phrase for the overview, and the coach's own follow-ups (what the coach said they would do).
+ * Written from the section's lines, so the summary never says more than the transcript does.
+ */
+const TOPICS: Record<Exclude<Topic, 'opener' | 'recap' | 'plan'>, { name: string; discuss: string; agreed?: string; followUp?: string }> = {
+  training: {
+    name: 'training',
+    discuss: 'Training: upper body days feel good, leg days are tough and the last set is sometimes skipped. Lighter weight beats a skipped set, and on short days the warm-up and first two exercises are enough.',
+    agreed: 'lighter weights over skipped sets',
+  },
+  nutrition: {
+    name: 'food',
+    discuss: 'Food: breakfast and lunch are easy, dinner falls apart on busy days. A photo is enough for dinners that aren’t logged, and the one change is a protein breakfast (yogurt on weekdays, eggs at weekends).',
+    agreed: 'a protein breakfast on weekdays',
+    followUp: 'Look for dinner photos on days {first} doesn’t log.',
+  },
+  recovery: {
+    name: 'sleep and stress',
+    discuss: 'Sleep and stress: bedtimes slip because of the phone, and stress leans high this week. The phone stays out of the bedroom on weeknights for a week, and the training load stays where it is.',
+    agreed: 'the phone out of the bedroom on weeknights',
+    followUp: 'Ask how mornings feel after a week with the phone out of the bedroom.',
+  },
+  habits: {
+    name: 'habits',
+    discuss: 'Habits: water is easy now; the evening walk happens about half the time. The walk becomes ten minutes, plus two minutes of stretching after sessions.',
+    agreed: 'a ten-minute evening walk',
+  },
+  schedule: {
+    name: 'schedule',
+    discuss: 'Schedule: earlier starts on Tuesday and Thursday free up those evenings, and a three-day work trip is coming the week after next.',
+    agreed: 'longer sessions on Tuesday and Thursday evenings',
+    followUp: 'Add a travel version of the program (bodyweight and dumbbells, 25 minutes) before {first}’s trip.',
+  },
+  goals: {
+    name: 'goals',
+    discuss: 'Goals: {first} feels stronger, with more energy on days after good sleep. New goal for the next block: a full push-up.',
+    agreed: 'a push-up goal for the next block',
+    followUp: 'Build push-up progressions into the upper body days.',
+  },
+  mindset: {
+    name: 'mindset',
+    discuss: 'Mindset: {first} no longer feels a week has to be perfect; consistent is enough. A monthly look at progress photos helps on harder days.',
+  },
+  questions: {
+    name: 'questions',
+    discuss: 'Questions: missed sessions aren’t made up unless {first} feels fresh, and messages between calls are welcome.',
+    followUp: 'Answer messages between calls and adjust the plan as needed.',
+  },
+};
+
+const RECAP_DISCUSS: Record<Mood, string> = {
+  on_track: 'Recap: {first} got every session in and logging has become a habit; planning the week on Sunday night is what makes it stick.',
+  needs_attention: 'Recap: the first week went fine, then busy evenings cost a couple of sessions and dinner logs. Evenings are the weak spot, not the plan.',
+  at_risk: 'Recap: work and home have been intense and the app fell off. Two short sessions a week is realistic for now.',
+};
+
+const HEADLINE: Record<Mood, string> = {
+  on_track: 'A positive call: {first} is keeping up with the plan, and you settled small changes for the next block.',
+  needs_attention: 'A mixed couple of weeks for {first}: busy evenings cost sessions and dinner logs, so you kept the plan and made the evenings easier.',
+  at_risk: 'A hard stretch for {first}: work and home pushed training aside, and you agreed to restart small.',
+};
+
+const list = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
+/**
+ * The Summary tab of a generated call. Only sections the call got all the way through count, so the summary never
+ * names a point the transcript cut off before (a 45-minute call stops partway into goals, before the push-up).
+ */
+export function callSummary(first: string, status: ClientStatus, title: string, minutes: number): MeetingSummary {
+  const mood = moodOf(status);
+  const name = (s: string) => s.replace(/\{first\}/g, first);
+  const covered = reached(title, mood, minutes)
+    .filter(([, section, n]) => n === section.length)
+    .map(([topic]) => topic);
+  const topics = covered.filter((t): t is keyof typeof TOPICS => t in TOPICS).map((t) => TOPICS[t]);
+
+  const discuss = [...(covered.includes('recap') ? [RECAP_DISCUSS[mood]] : []), ...topics.map((t) => t.discuss)];
+  if (covered.includes('plan')) {
+    discuss.push(
+      mood === 'at_risk'
+        ? 'Plan: two short sessions a week on Tuesday and Thursday evenings, the travel version when away.'
+        : 'Plan: longer sessions on Tuesday and Thursday evenings, short ones on the other days, the travel version when away.',
+    );
+  }
+  // Every call ends on the wrap-up, where the coach promises the updated plan tonight.
+  const followUp = [...topics.flatMap((t) => (t.followUp ? [t.followUp] : [])), 'Send the updated plan tonight and check back on it at the next call.'];
+  const agreed = topics.flatMap((t) => (t.agreed ? [t.agreed] : [])).slice(0, 3);
+
+  const bullets = [
+    `Covered ${list(topics.map((t) => t.name).filter((n) => n !== 'questions'))}.`,
+    ...(agreed.length ? [`Agreed on ${list(agreed)}.`] : []),
+    `${followUp.length} follow-up${followUp.length === 1 ? '' : 's'} for you, listed below.`,
+  ];
+  return { overview: { headline: name(HEADLINE[mood]), bullets: bullets.map(name) }, discuss: discuss.map(name), followUp: followUp.map(name) };
 }

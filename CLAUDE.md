@@ -120,7 +120,10 @@ the same change.
   the date can be any day up to today, the meeting must start before 06:00 today, files .txt / .docx / .srt /
   .pdf up to 10 MB, .txt and .srt are read for the preview) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
   artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; no frame: client avatar + name · date · start · platform, speaker names in bold, a search box pinned on top that
-  highlights matches and steps through them with ↑ / ↓ / Enter). Booking (Spec 4 BL2's `booking` tab) shows only for a
+  highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
+  `meeting.summary`: a Call Summary card (`AiCard` in `AiAssessment.tsx`), Discuss and Your Follow Up, written by
+  `callSummary` in `data/transcripts.ts` from the sections the call got all the way through, so it never names a
+  point the transcript cut off). Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
@@ -253,7 +256,9 @@ the same change.
   time and date, as drawn. The transcript search has no frame. The tab
   lists every meeting whatever the week selector shows, like the rest of the client detail page.
   The frame's rows are placeholders (one title
-  four times, all on day 3); View transcript has no frame and opens a popup with the lines. Time zone choices
+  four times, all on day 3); View transcript has no frame and opens a popup with the lines. The Summary tab (the
+  user's brief, no frame) is stand-in wording per call section; in the product it would be AI-written from the
+  transcript, which the brief puts in Phase 2 (Loom). Meetings the coach adds get no summary. Time zone choices
   (UTC-7, -5, +0, +7) are the demo's.
 - Add context (trialled at the user's request, not in the brief or Spec 4): the context is only stored and shown;
   the assessment, Tell me more and drafts do not change with it (it would apply from the next daily generation).
