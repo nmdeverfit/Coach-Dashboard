@@ -146,14 +146,13 @@ function OutcomeTag({ completed }: { completed: boolean }) {
 }
 
 /**
- * When a milestone was reached, at the row's right edge in 12 px `ink-muted` (the user's call): "Today", "1d ago" to
- * "6d ago" within the week, else "Aug 21". Read against the brief's morning (`DEMO_TODAY`). Birthdays and
- * anniversaries already say when in their sentence. The hover bar covers it while it shows.
+ * When the moment happened, at the row's right edge in 12 px `ink-muted` (the user's call), on every highlight:
+ * "Today", "1d ago" to "6d ago" within the week, else "Aug 21"; a birthday still to come reads "Tomorrow". Read against
+ * the brief's morning (`DEMO_TODAY`). The hover bar covers it while it shows.
  */
 function When({ h }: { h: Highlight }) {
-  if (!h.achievedOn) return null;
-  const ago = daysBetween(h.achievedOn, DEMO_TODAY);
-  const when = ago === 0 ? 'Today' : ago < 7 ? `${ago}d ago` : formatMonthDay(parseDay(h.achievedOn));
+  const ago = daysBetween(h.on, DEMO_TODAY);
+  const when = ago === 0 ? 'Today' : ago === -1 ? 'Tomorrow' : ago > 0 && ago < 7 ? `${ago}d ago` : formatMonthDay(parseDay(h.on));
   return <span className="shrink-0 whitespace-nowrap text-[12px] leading-[1.5] text-ink-muted">{when}</span>;
 }
 
