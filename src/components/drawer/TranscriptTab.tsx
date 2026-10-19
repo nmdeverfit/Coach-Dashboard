@@ -14,7 +14,7 @@ import { TranscriptDialog } from './TranscriptDialog';
 
 /**
  * One meeting (Figma 5731:517688): date tile, title, then start time and date · platform. On hover (or keyboard
- * focus) the row lifts onto a white card with a light shadow, a few px wider than the list, and shows View transcript
+ * focus) the row lifts onto a white card with a light shadow, a few px wider than the list, and shows View summary
  * in brand blue.
  * A click anywhere on the row opens the transcript too.
  */
@@ -57,7 +57,8 @@ function MeetingRow({ meeting, onView }: { meeting: Meeting; onView: () => void 
         }}
         className="relative shrink-0 whitespace-nowrap pr-1 text-[13px] font-semibold leading-5 text-ink opacity-0 focus:opacity-100 group-hover/meeting:text-brand group-hover/meeting:opacity-100"
       >
-        View transcript
+        {/* The popup opens on Summary for a recorded call; a meeting the coach added has only its transcript. */}
+        {meeting.summary ? 'View summary' : 'View transcript'}
       </button>
     </li>
   );

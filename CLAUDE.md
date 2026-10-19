@@ -122,7 +122,7 @@ one column. It publishes to its own artifact (title "Check-in Dashboard v2 ·
   first tab = focus) is shared by the Check-in panel and the client detail page. Transcript (Figma `5731:517688`)
   shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
   every meeting, newest first, under a header per week; rows of date tile · title · "5:30 PM - Aug 27" · platform,
-  lifting onto a white card with View transcript in brand on hover; the list is capped at 580 px like Notes and
+  lifting onto a white card with View summary in brand on hover (View transcript for a meeting the coach added); the list is capped at 580 px like Notes and
   scrolls inside, week headers pinned), `AddMeetingDialog` (`5726:141326` Upload file, `5729:516037` Paste text; Duration and a
   read-only End time are built but hidden for now, `SHOW_DURATION`; title, time and a transcript are required and checked on submit,
   the date can be any day up to today, the meeting must start before 06:00 today, files .txt / .docx / .srt /
