@@ -79,12 +79,14 @@ the same change.
   person's photo. The coach avatar stays the Figma export.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
-  `groups.ts` (group card metadata), `ClientHighlights` (20 highlights; the list is fixed at the height of 10
-  one-line rows and scrolls past that; on hover a row shows `HighlightActions`, Figma `5795:175100`: React 👍 (hidden for now, `SHOW_REACTION`) ·
-  Draft with AI (Olly with `highlightDraft` in `lib/olly.ts`: a congratulation, birthday wish or anniversary note
-  from the highlight's sentence) · Send message · Dismiss (leaves the list and its counts, session only). Once the
-  coach has messaged that client this session (`state.sent`, from Olly or the Inbox), the row adds `SentLine`,
-  Figma `4341:459184`: "Message sent" tag + Open chat, which opens the Inbox column. Nine
+  `groups.ts` (group card metadata), `ClientHighlights` (20 highlights in two views, the user's call: Need attention | History, each with the
+  category tabs; the list is fixed at the height of 10 one-line rows and scrolls past that. A Need attention row
+  shows `HighlightActions` on hover, Figma `5795:175100`: React 👍 (hidden for now, `SHOW_REACTION`) · Draft with
+  AI (Olly with `highlightDraft` in `lib/olly.ts`: a congratulation, birthday wish or anniversary note from the
+  highlight's sentence) · Send message · Dismiss. A message sent from that highlight's Olly or Inbox
+  (`side.highlightId`) completes it; completed and dismissed ones move to History (`highlightLog` in the store,
+  session only, newest first). `HistoryRow`: completed = Figma `4341:459184` ("Message sent" + Open chat);
+  dismissed = greyed, "Dismissed" + Restore (back to Need attention). The header count is Need attention's. Nine
   highlight people are not dashboard clients: `highlightOnlyClients` / `findPerson` in `mock.ts` give them a
   profile and a thread without counting them anywhere), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`),
   `ClientListParts` (row shell, client cell, section header shared by both tables), `ClientActions` (the
@@ -286,9 +288,10 @@ the same change.
 - Client highlight actions (Figma `5795:175100`): the brief puts "Reactions on client highlights" in Phase 2, but the
   row's 👍 is drawn. The demo built it (toggles, toasts "Reaction sent to {first}") and hides it for now
   (`SHOW_REACTION`, the user's call).
-  Dismiss on a highlight has no spec; the demo drops the row for the session. The frame's Send message button is
-  28 px beside three 32 px ones; the demo makes all four 32 px. "Message sent" follows the client, not the highlight:
-  any message to that client this session marks all their highlights (Kevin Williams has two).
+  The frame's Send message button is 28 px beside three 32 px ones; the demo makes all four 32 px. Need attention |
+  History, dismiss, Restore and the dismissed row's look have no frame or spec (the user's call; Dismiss is the
+  demo's). Only a message sent from the highlight's own Draft with AI or Send message completes it; messages to
+  that client from elsewhere do not.
 - Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief
   says "A completed row stays in place, de-emphasised". With more than seven suggestions a completed row can sink
   under "Show N more".

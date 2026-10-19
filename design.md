@@ -23,15 +23,20 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 - One layout, **1440 × 900**, web only. Below 1280 px the shell scrolls sideways; no responsive ladder.
 - Shell: main sidebar · header (2 rows) · body split in two equal columns (Today's Brief | right rail).
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
-  height of 10 one-line rows (560 px) and scrolls inside. A hovered highlight row turns `bg-surface-secondary` and
-  shows its actions (Figma `5795:175100`) over its right end: a white bar, rounded 8, `p-1`,
-  `drop-shadow 0 4px 10px rgba(0,0,0,0.06)`, `right-1`, centred; 32 px buttons rounded 10 (👍 emoji 20 px, hidden for now ·
-  Draft with AI with `.ai-btn`, pencil-ai 18 px, the Olly gradient and white icon on hover · chat bubbles 18 px ·
-  close stroke 18 px), each with the dark tooltip above (below on the first row, which the list would clip). A
-  reacted 👍 sits on `bg-brand/10`. After a message to that client (Figma `4341:459184`) the row stays
-  `bg-[rgba(244,246,251,0.8)]` and adds a second line (`gap-3`): a "Message sent" tag (116 px,
+  height of 10 one-line rows (560 px) and scrolls inside. The white card opens on two view tabs, Need attention (N)
+  | History (N), underlined like the panel's `TabBar` (13 px semibold, brand + 2 px brand line when active,
+  `border-b border-line`, `px-4`), then the category tabs and list as before; the header chip counts Need attention.
+  A hovered Need attention row turns `bg-surface-secondary` and shows its actions (Figma `5795:175100`) over its
+  right end: a white bar, rounded 8, `p-1`, `drop-shadow 0 4px 10px rgba(0,0,0,0.06)`, `right-1`, centred; 32 px
+  buttons rounded 10 (👍 emoji 20 px, hidden for now · Draft with AI with `.ai-btn`, pencil-ai 18 px, the Olly
+  gradient and white icon on hover · chat bubbles 18 px · close stroke 18 px), each with the dark tooltip above (below
+  on the first row, which the list would clip). A reacted 👍 sits on `bg-brand/10`. History rows have two lines
+  (`gap-3`). Completed (Figma `4341:459184`): row `bg-[rgba(244,246,251,0.8)]`, then a "Message sent" tag (116 px,
   `bg-[rgba(227,236,255,0.8)]`, rounded 8, `px-6 py-2`, 12 px check-one + 12 px semibold brand) and Open chat (chat
-  bubbles 18 px + 12 px semibold ink, `gap-1`), `gap-3`, `pr-[18px]`; the hover bar then sits level with line 1.
+  bubbles 18 px + 12 px semibold ink, `gap-1`), `gap-3`, `pr-[18px]`. Dismissed (no frame): white row, avatar at
+  50 % in greyscale, text `ink-secondary`, a "Dismissed" tag of the same size on `bg-surface-secondary` (12 px close
+  stroke + 12 px semibold `ink-secondary`) and Restore (14 px rotate icon + 12 px semibold ink). Empty: "You’re all
+  caught up." / "Nothing here yet." 13 px semibold + a 12 px `ink-secondary` line, centred.
   Upcoming bookings is a session list (the user's call, on both branches): one row per booked session, soonest
   first, rows `py-2.5`, `gap-1.5` between lines. Line 1: 14 px `Swatch` in the type's colour + session name 14 px
   semibold ink. Line 2 (12 px, left-aligned with line 1): date • time `ink-secondary` ("Today • 6:30 - 7:30pm",

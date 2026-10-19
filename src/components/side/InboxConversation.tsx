@@ -25,7 +25,7 @@ export function InboxConversation({ clientId }: { clientId: string }) {
 
   const submit = () => {
     if (!text.trim()) return;
-    sendMessage(clientId, text.trim());
+    sendMessage(clientId, text.trim(), state.side?.clientId === clientId ? state.side.highlightId : undefined);
     setText('');
   };
 

@@ -1,3 +1,4 @@
+import { RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import anniversaryBadge from '../assets/figma/badge-anniversary.png';
 import milestoneBadge from '../assets/figma/badge-milestone.svg';
@@ -15,6 +16,7 @@ import { CountChip } from './CountChip';
 import { Tooltip } from './Tooltip';
 
 type Tab = 'all' | HighlightCategory;
+type View = 'attention' | 'history';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -25,7 +27,7 @@ const TABS: { key: Tab; label: string }[] = [
 
 /**
  * The list is as tall as 10 one-line highlights (10 × 55 px rows + 10 px top padding). More scroll inside it;
- * fewer leave white space below, so switching tabs never moves the layout.
+ * fewer leave white space below, so switching tabs or views never moves the layout.
  */
 const LIST_HEIGHT = 10 * 55 + 10;
 
@@ -54,31 +56,15 @@ const SHOW_REACTION = false;
 const ACTION = 'group/tip relative flex size-8 items-center justify-center rounded-[10px] bg-white hover:bg-surface-secondary';
 
 /**
- * The actions a highlight row shows on hover (Figma 5795:175100): React 👍 (hidden, `SHOW_REACTION`) · Draft with AI ·
- * Send message · Dismiss,
- * in a white bar over the row's right end. Draft with AI and Send message open the middle column at the right edge,
- * as from a client-list row; the draft is about the highlight (`highlightDraft`). `tipBelow`: the first row's
- * tooltips hang under the bar, since the list clips the space above it.
+ * The actions a Need attention row shows on hover (Figma 5795:175100): React 👍 (hidden, `SHOW_REACTION`) · Draft with
+ * AI · Send message · Dismiss, in a white bar over the row's right end. Draft with AI and Send message open the middle
+ * column at the right edge, as from a client-list row, scoped to the highlight: a message sent from either completes
+ * it. `tipBelow`: the first row's tooltips hang under the bar, since the list clips the space above it.
  */
-function HighlightActions({
-  h,
-  reacted,
-  tipBelow,
-  sent,
-  onReact,
-  onDismiss,
-}: {
-  h: Highlight;
-  reacted: boolean;
-  tipBelow: boolean;
-  sent: boolean;
-  onReact: () => void;
-  onDismiss: () => void;
-}) {
+function HighlightActions({ h, reacted, tipBelow, onReact, onDismiss }: { h: Highlight; reacted: boolean; tipBelow: boolean; onReact: () => void; onDismiss: () => void }) {
   const { openOlly, openInbox } = useStore();
   return (
-    // On a two-line (sent) row the bar stays level with the first line, clear of Open chat.
-    <div className={`absolute right-1 hidden items-center ${sent ? 'top-1' : 'top-1/2 -translate-y-1/2'} rounded-lg bg-white p-1 drop-shadow-[0_4px_10px_rgba(0,0,0,0.06)] group-focus-within/row:flex group-hover/row:flex`}>
+    <div className="absolute right-1 top-1/2 hidden -translate-y-1/2 items-center rounded-lg bg-white p-1 drop-shadow-[0_4px_10px_rgba(0,0,0,0.06)] group-focus-within/row:flex group-hover/row:flex">
       {SHOW_REACTION && (
         <button type="button" aria-label={reacted ? 'Remove reaction' : 'React'} aria-pressed={reacted} onClick={onReact} className={`${ACTION} ${reacted ? 'bg-brand/10 hover:bg-brand/15' : ''}`}>
           <img src={thumbsUp} alt="" width={20} height={20} />
@@ -97,7 +83,7 @@ function HighlightActions({
         </button>
         <Tooltip label="Draft with AI" below={tipBelow} />
       </span>
-      <button type="button" aria-label="Send message" onClick={() => openInbox(h.clientId)} className={ACTION}>
+      <button type="button" aria-label="Send message" onClick={() => openInbox(h.clientId, h.id)} className={ACTION}>
         <ChatIcon />
         <Tooltip label="Send message" below={tipBelow} />
       </button>
@@ -122,15 +108,15 @@ function ChatIcon() {
   );
 }
 
-/**
- * Under a highlight once the coach has messaged that client this session (Figma 4341:459184): a "Message sent" tag
- * and Open chat, which opens the Inbox column.
- */
-function SentLine({ clientId }: { clientId: string }) {
-  const { openInbox } = useStore();
+/** A History row's 116 px status tag: blue "Message sent" (Figma 4341:459184) or grey "Dismissed" (the demo's). */
+function OutcomeTag({ completed }: { completed: boolean }) {
   return (
-    <div className="flex items-center gap-3 pr-[18px]">
-      <span className="flex w-[116px] items-center justify-center gap-1.5 self-stretch rounded-lg bg-[rgba(227,236,255,0.8)] px-6 py-2">
+    <span
+      className={`flex w-[116px] shrink-0 items-center justify-center gap-1.5 self-stretch rounded-lg px-6 py-2 ${
+        completed ? 'bg-[rgba(227,236,255,0.8)]' : 'bg-surface-secondary'
+      }`}
+    >
+      {completed ? (
         <span className="relative size-3 shrink-0 overflow-hidden">
           <span className="absolute inset-[8.82%_8.83%_8.83%_8.81%]">
             <span className="absolute inset-[-6.67%]">
@@ -138,101 +124,186 @@ function SentLine({ clientId }: { clientId: string }) {
             </span>
           </span>
         </span>
-        <span className="whitespace-nowrap text-[12px] font-semibold leading-[1.5] text-brand">Message sent</span>
+      ) : (
+        <img src={closeStroke} alt="" width={12} height={12} />
+      )}
+      <span className={`whitespace-nowrap text-[12px] font-semibold leading-[1.5] ${completed ? 'text-brand' : 'text-ink-secondary'}`}>
+        {completed ? 'Message sent' : 'Dismissed'}
       </span>
-      <button type="button" onClick={() => openInbox(clientId)} className="flex items-center gap-1 text-[12px] font-semibold leading-[1.5] text-ink hover:underline">
-        <ChatIcon />
-        Open chat
-      </button>
-    </div>
+    </span>
   );
 }
 
-/** The v1 Catch-up tab, moved into the right rail. `narrow` (a third of the page): the tabs sit in a row above the list. */
+/** Avatar with its category badge (milestones blue, birthdays and anniversaries orange). */
+function Who({ h, muted = false }: { h: Highlight; muted?: boolean }) {
+  return (
+    <span className={`flex shrink-0 items-end ${muted ? 'opacity-50 grayscale' : ''}`}>
+      <span className="-mr-4">
+        <Avatar name={h.clientName} src={h.image} size={32} />
+      </span>
+      <CatchUpBadge category={h.category} />
+    </span>
+  );
+}
+
+/**
+ * A History row: the highlight, then its outcome. Completed (messaged): Figma 4341:459184's light row with "Message
+ * sent" and Open chat. Dismissed (no frame): greyed avatar and text, a grey "Dismissed" tag and Restore, which puts it
+ * back in Need attention.
+ */
+function HistoryRow({ h, completed, last }: { h: Highlight; completed: boolean; last: boolean }) {
+  const { openInbox, restoreHighlight, showToast } = useStore();
+  return (
+    <li className={`flex shrink-0 flex-col gap-3 pb-3 pl-3 pr-2 pt-2.5 ${completed ? 'bg-[rgba(244,246,251,0.8)]' : ''} ${last ? '' : 'border-b border-line'}`}>
+      <div className="flex min-w-0 items-center gap-4">
+        <Who h={h} muted={!completed} />
+        <p className={`min-w-0 flex-1 text-[13px] leading-[1.5] ${completed ? 'text-ink' : 'text-ink-secondary'}`}>
+          <span className="font-semibold">{h.clientName}</span> {h.text}
+        </p>
+      </div>
+      <div className="flex items-center gap-3 pr-[18px]">
+        <OutcomeTag completed={completed} />
+        {completed ? (
+          <button type="button" onClick={() => openInbox(h.clientId, h.id)} className="flex items-center gap-1 text-[12px] font-semibold leading-[1.5] text-ink hover:underline">
+            <ChatIcon />
+            Open chat
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              restoreHighlight(h.id);
+              showToast('Highlight moved back to Need attention');
+            }}
+            className="flex items-center gap-1 text-[12px] font-semibold leading-[1.5] text-ink hover:underline"
+          >
+            <RotateCcw size={14} className="text-ink-secondary" aria-hidden />
+            Restore
+          </button>
+        )}
+      </div>
+    </li>
+  );
+}
+
+const VIEWS: { key: View; label: string }[] = [
+  { key: 'attention', label: 'Need attention' },
+  { key: 'history', label: 'History' },
+];
+
+/**
+ * The v1 Catch-up tab, moved into the right rail, in two views (the user's call): Need attention (highlights not yet
+ * acted on) and History (messaged = completed, or dismissed; newest first). Both keep the category tabs. Outcomes live
+ * in the store (`highlightLog`, session only). `narrow` (a third of the page): the category tabs sit in a row above
+ * the list.
+ */
 export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
-  const { state, showToast } = useStore();
+  const { state, showToast, dismissHighlight } = useStore();
+  const [view, setView] = useState<View>('attention');
   const [tab, setTab] = useState<Tab>('all');
-  // Session only: a dismissed highlight leaves the list (and its counts); a reaction marks the 👍.
-  const [dismissed, setDismissed] = useState<string[]>([]);
   const [reacted, setReacted] = useState<string[]>([]);
-  const shown = highlights.filter((h) => !dismissed.includes(h.id));
-  const items = tab === 'all' ? shown : shown.filter((h) => h.category === tab);
-  const countFor = (t: Tab) => (t === 'all' ? shown.length : shown.filter((h) => h.category === t).length);
+  const log = state.highlightLog;
+  const attention = highlights.filter((h) => !log[h.id]);
+  const history = highlights.filter((h) => log[h.id]).sort((a, b) => log[b.id].seq - log[a.id].seq);
+  const pool = view === 'attention' ? attention : history;
+  const items = tab === 'all' ? pool : pool.filter((h) => h.category === tab);
+  const countFor = (t: Tab) => (t === 'all' ? pool.length : pool.filter((h) => h.category === t).length);
 
   return (
     <section className="flex flex-col gap-3 p-5">
       <div className="flex items-center gap-2 pt-3">
         <img src={confetti} alt="" width={20} height={20} />
         <h3 className="text-[14px] font-bold leading-[1.5] text-ink">Client highlights</h3>
-        <CountChip value={shown.length} />
+        <CountChip value={attention.length} />
       </div>
-      <div className={`flex ${narrow ? 'flex-col' : 'items-start'} gap-2.5 rounded-lg bg-white px-2.5 pb-2.5 pt-2`}>
-        <div
-          role="tablist"
-          aria-orientation={narrow ? 'horizontal' : 'vertical'}
-          className={narrow ? 'scroll-none flex gap-1 overflow-x-auto pt-1' : 'flex w-[191px] shrink-0 flex-col gap-1 pt-2.5'}
-        >
-          {TABS.map((t) => {
-            const active = t.key === tab;
+      <div className="flex flex-col rounded-lg bg-white">
+        <div role="tablist" aria-label="Highlights" className="flex items-center border-b border-line px-2.5">
+          {VIEWS.map((v) => {
+            const on = v.key === view;
+            const n = v.key === 'attention' ? attention.length : history.length;
             return (
               <button
-                key={t.key}
+                key={v.key}
                 type="button"
                 role="tab"
-                aria-selected={active}
-                onClick={() => setTab(t.key)}
-                className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-[4px] p-2 text-left text-[13px] font-semibold ${
-                  active ? 'bg-brand/[0.08] text-brand' : 'text-ink-secondary hover:bg-surface-secondary hover:text-ink'
+                aria-selected={on}
+                onClick={() => setView(v.key)}
+                className={`-mb-px whitespace-nowrap border-b-2 px-4 pb-2.5 pt-3 text-[13px] font-semibold leading-normal ${
+                  on ? 'border-brand text-brand' : 'border-transparent text-ink-secondary hover:text-ink'
                 }`}
               >
-                {t.label} ({countFor(t.key)})
+                {v.label} ({n})
               </button>
             );
           })}
         </div>
-        {/* Stacked under the tabs (narrow), flex-1 would let the list grow to every row, so it keeps a fixed height. */}
-        <ul className={`scroll-thin flex min-w-0 flex-col overflow-y-auto pt-2.5 ${narrow ? 'shrink-0' : 'flex-1'}`} style={{ height: LIST_HEIGHT }}>
-          {items.map((h, i) => {
-            // Any message to this client this session, from Olly or the Inbox, marks the highlight as answered.
-            const sent = Boolean(state.sent[h.clientId]?.length);
-            return (
-              <li
-                key={h.id}
-                className={`group/row relative flex min-h-[55px] shrink-0 pb-3 pl-3 pr-2 pt-2.5 hover:bg-surface-secondary ${
-                  sent ? 'flex-col gap-3 bg-[rgba(244,246,251,0.8)]' : 'items-center'
-                } ${i < items.length - 1 ? 'border-b border-line' : ''}`}
-              >
-                <div className="flex min-w-0 items-center gap-4">
-                  <span className="flex shrink-0 items-end">
-                    <span className="-mr-4">
-                      <Avatar name={h.clientName} src={h.image} size={32} />
-                    </span>
-                    <CatchUpBadge category={h.category} />
-                  </span>
+        <div className={`flex ${narrow ? 'flex-col' : 'items-start'} gap-2.5 px-2.5 pb-2.5 pt-2`}>
+          <div
+            role="tablist"
+            aria-label="Categories"
+            aria-orientation={narrow ? 'horizontal' : 'vertical'}
+            className={narrow ? 'scroll-none flex gap-1 overflow-x-auto pt-1' : 'flex w-[191px] shrink-0 flex-col gap-1 pt-2.5'}
+          >
+            {TABS.map((t) => {
+              const active = t.key === tab;
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setTab(t.key)}
+                  className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-[4px] p-2 text-left text-[13px] font-semibold ${
+                    active ? 'bg-brand/[0.08] text-brand' : 'text-ink-secondary hover:bg-surface-secondary hover:text-ink'
+                  }`}
+                >
+                  {t.label} ({countFor(t.key)})
+                </button>
+              );
+            })}
+          </div>
+          {/* Stacked under the tabs (narrow), flex-1 would let the list grow to every row, so it keeps a fixed height. */}
+          <ul className={`scroll-thin flex min-w-0 flex-col overflow-y-auto pt-2.5 ${narrow ? 'shrink-0' : 'flex-1'}`} style={{ height: LIST_HEIGHT }}>
+            {items.length === 0 && (
+              <li className="flex flex-1 flex-col items-center justify-center gap-1 px-6 text-center">
+                <p className="text-[13px] font-semibold leading-[1.5] text-ink">{view === 'attention' ? 'You’re all caught up.' : 'Nothing here yet.'}</p>
+                <p className="text-[12px] leading-[1.5] text-ink-secondary">
+                  {view === 'attention' ? 'Highlights you message or dismiss move to History.' : 'Highlights you message or dismiss show up here.'}
+                </p>
+              </li>
+            )}
+            {view === 'history' &&
+              items.map((h, i) => <HistoryRow key={h.id} h={h} completed={log[h.id].status === 'completed'} last={i === items.length - 1} />)}
+            {view === 'attention' &&
+              items.map((h, i) => (
+                <li
+                  key={h.id}
+                  className={`group/row relative flex min-h-[55px] shrink-0 items-center gap-4 pb-3 pl-3 pr-2 pt-2.5 hover:bg-surface-secondary ${
+                    i < items.length - 1 ? 'border-b border-line' : ''
+                  }`}
+                >
+                  <Who h={h} />
                   <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-ink">
                     <span className="font-semibold">{h.clientName}</span> {h.text}
                   </p>
-                </div>
-                {sent && <SentLine clientId={h.clientId} />}
-                <HighlightActions
-                  h={h}
-                  reacted={reacted.includes(h.id)}
-                  tipBelow={i === 0}
-                  sent={sent}
-                  onReact={() => {
-                    const on = !reacted.includes(h.id);
-                    setReacted((r) => (on ? [...r, h.id] : r.filter((id) => id !== h.id)));
-                    if (on) showToast(`Reaction sent to ${h.clientName.split(' ')[0]}`);
-                  }}
-                  onDismiss={() => {
-                    setDismissed((d) => [...d, h.id]);
-                    showToast('Highlight dismissed');
-                  }}
-                />
-              </li>
-            );
-          })}
-        </ul>
+                  <HighlightActions
+                    h={h}
+                    reacted={reacted.includes(h.id)}
+                    tipBelow={i === 0}
+                    onReact={() => {
+                      const on = !reacted.includes(h.id);
+                      setReacted((r) => (on ? [...r, h.id] : r.filter((id) => id !== h.id)));
+                      if (on) showToast(`Reaction sent to ${h.clientName.split(' ')[0]}`);
+                    }}
+                    onDismiss={() => {
+                      dismissHighlight(h.id);
+                      showToast('Highlight dismissed. Find it in History.');
+                    }}
+                  />
+                </li>
+              ))}
+          </ul>
+        </div>
       </div>
     </section>
   );
