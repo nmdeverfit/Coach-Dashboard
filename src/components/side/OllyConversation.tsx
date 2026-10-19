@@ -261,7 +261,7 @@ export function OllyConversation({ clientId, request }: { clientId: string; requ
     setTurns((t) => [...t, { ...turn, id: t.length }]);
   };
   const send = () => {
-    sendMessage(client.id, text.trim());
+    sendMessage(client.id, text.trim(), request.highlightId);
     push({ user: 'Send', task: sendTask(client), result: 'sent' });
   };
   // Phase 1 answers only from the stored status, so a follow-up gets the same record (AC2.3, OQ5).

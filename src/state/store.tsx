@@ -28,6 +28,13 @@ export interface SidePanelState {
   inbox: boolean;
   olly: OllyRequest | null;
   active: SideTab;
+  /** Opened from a Client highlight: sending from either tab completes that highlight. */
+  highlightId?: string;
+}
+/** What became of a Client highlight this session; `seq` orders History, newest first. */
+export interface HighlightOutcome {
+  status: 'completed' | 'dismissed';
+  seq: number;
 }
 export interface SentMessage {
   text: string;
@@ -56,6 +63,8 @@ interface State {
   side: SidePanelState | null;
   /** Messages the coach sent in this session, by client. Sending never completes a to-do (AC2.2). */
   sent: Record<string, SentMessage[]>;
+  /** Client highlights the coach messaged (completed) or dismissed, by highlight id. The rest need attention. */
+  highlightLog: Record<string, HighlightOutcome>;
   /** Answer to "Does '{status}' look right for {first_name}?" per client. */
   feedback: Record<string, FeedbackState>;
   /** Meetings the coach added on the Transcript tab in this session, by client. */
@@ -144,11 +153,13 @@ type Action =
   | { type: 'completeFromPanel'; id: string }
   | { type: 'feedback'; clientId: string; value: FeedbackState }
   | { type: 'openOlly'; clientId: string; request: Omit<OllyRequest, 'seq'> }
-  | { type: 'openInbox'; clientId: string }
+  | { type: 'openInbox'; clientId: string; highlightId?: string }
   | { type: 'sideTab'; tab: SideTab }
   | { type: 'closeSideTab'; tab: SideTab }
   | { type: 'closeSide' }
-  | { type: 'sendMessage'; clientId: string; text: string }
+  | { type: 'sendMessage'; clientId: string; text: string; highlightId?: string }
+  | { type: 'dismissHighlight'; id: string }
+  | { type: 'restoreHighlight'; id: string }
   | { type: 'addMeeting'; clientId: string; meeting: Meeting }
   | { type: 'setAiContext'; clientId: string; context: AiContext | null };
 
@@ -165,6 +176,7 @@ const initialState: State = {
   pastReviewed: {},
   side: null,
   sent: {},
+  highlightLog: {},
   feedback: {},
   meetings: {},
   aiContext: {},
@@ -272,8 +284,15 @@ function reducer(state: State, action: Action): State {
       const prev = state.side?.clientId === action.clientId ? state.side : null;
       const side: SidePanelState =
         action.type === 'openOlly'
-          ? { clientId: action.clientId, inbox: prev?.inbox ?? false, olly: { ...action.request, seq: (prev?.olly?.seq ?? 0) + 1 }, active: 'olly' }
-          : { clientId: action.clientId, inbox: true, olly: prev?.olly ?? null, active: 'inbox' };
+          ? {
+              clientId: action.clientId,
+              inbox: prev?.inbox ?? false,
+              olly: { ...action.request, seq: (prev?.olly?.seq ?? 0) + 1 },
+              active: 'olly',
+              // Only Draft with AI from a highlight scopes it; Olly from anywhere else does not.
+              highlightId: action.request.highlightId,
+            }
+          : { clientId: action.clientId, inbox: true, olly: prev?.olly ?? null, active: 'inbox', highlightId: action.highlightId ?? prev?.highlightId };
       // Beside the client's open panel it docks to it. From a list row it opens on its own, at the right edge, and
       // does not open the client detail page (the user's call); another client's panel closes.
       const shown = state.selectedTodoId ? todoClient(state) : state.selectedClientId;
@@ -289,8 +308,18 @@ function reducer(state: State, action: Action): State {
     }
     case 'closeSide':
       return { ...state, side: null };
-    case 'sendMessage':
-      return { ...state, sent: { ...state.sent, [action.clientId]: [...(state.sent[action.clientId] ?? []), { text: action.text, at: `${DEMO_TODAY}T06:00` }] } };
+    case 'sendMessage': {
+      const sent = { ...state.sent, [action.clientId]: [...(state.sent[action.clientId] ?? []), { text: action.text, at: `${DEMO_TODAY}T06:00` }] };
+      // A message sent from a highlight's Draft with AI or Send message completes it (moves it to History).
+      const done = action.highlightId && state.highlightLog[action.highlightId]?.status !== 'completed';
+      return done ? { ...state, sent, highlightLog: logHighlight(state.highlightLog, action.highlightId!, 'completed') } : { ...state, sent };
+    }
+    case 'dismissHighlight':
+      return { ...state, highlightLog: logHighlight(state.highlightLog, action.id, 'dismissed') };
+    case 'restoreHighlight': {
+      const { [action.id]: _gone, ...rest } = state.highlightLog;
+      return { ...state, highlightLog: rest };
+    }
     case 'setAiContext': {
       const { [action.clientId]: _old, ...rest } = state.aiContext;
       return { ...state, aiContext: action.context ? { ...rest, [action.clientId]: action.context } : rest };
@@ -352,6 +381,11 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+const logHighlight = (log: Record<string, HighlightOutcome>, id: string, status: HighlightOutcome['status']) => ({
+  ...log,
+  [id]: { status, seq: Math.max(0, ...Object.values(log).map((o) => o.seq)) + 1 },
+});
+
 // Highlight-only people resolve too, for the middle column (Draft with AI, Send message from a highlight).
 export const getClient = (id: string): Client => {
   const client = findPerson(id);
@@ -404,11 +438,14 @@ interface Store {
   /** Tell me more or Draft with AI, beside the panel. */
   openOlly: (clientId: string, request: Omit<OllyRequest, 'seq'>) => void;
   /** Send message: the inbox with this client, beside the panel. */
-  openInbox: (clientId: string) => void;
+  openInbox: (clientId: string, highlightId?: string) => void;
   setSideTab: (tab: SideTab) => void;
   closeSideTab: (tab: SideTab) => void;
   closeSide: () => void;
-  sendMessage: (clientId: string, text: string) => void;
+  sendMessage: (clientId: string, text: string, highlightId?: string) => void;
+  dismissHighlight: (id: string) => void;
+  /** Takes a dismissed highlight out of History, back to Need attention. */
+  restoreHighlight: (id: string) => void;
   addMeeting: (clientId: string, meeting: Meeting) => void;
   /** Saves (or, with null, clears) the coach's context for a client's AI Assessment. */
   setAiContext: (clientId: string, context: AiContext | null) => void;
@@ -482,11 +519,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       setFeedback: (clientId, value) => dispatch({ type: 'feedback', clientId, value }),
       openOlly: (clientId, request) => dispatch({ type: 'openOlly', clientId, request }),
-      openInbox: (clientId) => dispatch({ type: 'openInbox', clientId }),
+      openInbox: (clientId, highlightId) => dispatch({ type: 'openInbox', clientId, highlightId }),
       setSideTab: (tab) => dispatch({ type: 'sideTab', tab }),
       closeSideTab: (tab) => dispatch({ type: 'closeSideTab', tab }),
       closeSide: () => dispatch({ type: 'closeSide' }),
-      sendMessage: (clientId, text) => dispatch({ type: 'sendMessage', clientId, text }),
+      sendMessage: (clientId, text, highlightId) => dispatch({ type: 'sendMessage', clientId, text, highlightId }),
+      dismissHighlight: (id) => dispatch({ type: 'dismissHighlight', id }),
+      restoreHighlight: (id) => dispatch({ type: 'restoreHighlight', id }),
       setAiContext: (clientId, context) => {
         dispatch({ type: 'setAiContext', clientId, context });
         showToast(context ? `Context saved for ${getClient(clientId).firstName}` : 'Context cleared');
