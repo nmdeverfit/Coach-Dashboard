@@ -24,8 +24,6 @@ interface Item {
   title: string;
   description: string;
   icon: ReactNode;
-  /** Where else the group shows, from the other tab's draft; only library rows say it. */
-  alsoOn?: string;
 }
 
 /** The 3 px brand line drawn in the gap where a dragged card will land (the user's reference). */
@@ -76,10 +74,7 @@ function Row({
         <img src={iconDrag} alt="" width={16} height={16} className="shrink-0" />
         <span className="flex min-w-0 flex-1 items-center gap-2">
           {item.icon}
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-[14px] font-semibold leading-[1.5] tracking-[-0.28px] text-ink">{item.title}</span>
-            {!shown && item.alsoOn && <span className="text-[11px] leading-[1.4] text-ink-muted">Also on {item.alsoOn}</span>}
-          </span>
+          <span className="min-w-0 flex-1 truncate text-[14px] font-semibold leading-[1.5] tracking-[-0.28px] text-ink">{item.title}</span>
         </span>
         <button
           type="button"
@@ -107,9 +102,9 @@ function gapAt(list: HTMLElement, y: number) {
 
 /**
  * Customize cards (Figma 5749:521640; both tabs drawn the same): one popup for the rail's group cards and the client
- * list's metric cards, from one library of groups. Each tab has its own order and limit; a library row says when the
- * group already shows on the other surface. It opens on the tab of the view it was opened from (Dashboard Settings ›
- * Customize, or a group card's ⋯). Dragging, a brand line marks the closest gap the card will drop into. Nothing
+ * list's metric cards, from one library of groups. Each tab has its own order and limit. It opens on the tab of the view it was opened from (Dashboard Settings ›
+ * Customize, or a group card's ⋯). Dragging, a brand line marks the closest gap the card will drop into; a shown card
+ * dragged over the library lights the library up (dashed brand border, brand tint), since dropping it there removes it. Nothing
  * changes until Save; Cancel or × throws both drafts away; Reset to default resets the open tab.
  */
 export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
@@ -120,6 +115,8 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
   const [drag, setDrag] = useState<Drag>(null);
   // The gap in the shown list the dragged card would drop into.
   const [gap, setGap] = useState<number | null>(null);
+  // A shown card dragged over the library: the library lights up, since letting go there removes it.
+  const [overLibrary, setOverLibrary] = useState(false);
   const close = () => openCustomize(null);
 
   const isBrief = tab === 'brief';
@@ -131,7 +128,7 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
   const item = (key: Key): Item => {
     if (isBrief) {
       const g = ALL_GROUPS[key as CardKey];
-      return { key, title: g.title, description: g.description, icon: <GroupIcon group={g} />, alsoOn: dash.includes(key as MetricKey) ? 'Dashboard' : undefined };
+      return { key, title: g.title, description: g.description, icon: <GroupIcon group={g} /> };
     }
     const m = METRICS[key as MetricKey];
     return {
@@ -139,7 +136,6 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
       title: m.label,
       description: m.description,
       icon: <Glyph src={m.icon.src} size={20} inset={m.icon.inset} bleed={m.icon.bleed} />,
-      alsoOn: brief.includes(key as CardKey) ? 'Today’s Brief' : undefined,
     };
   };
   // One set of nine cards on both tabs, in one order.
@@ -157,6 +153,7 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
   const endDrag = () => {
     setDrag(null);
     setGap(null);
+    setOverLibrary(false);
   };
   // A card's own gaps (just above or below it) would not move it, so they draw no line.
   const from = drag?.from === 'shown' ? shownKeys.indexOf(drag.key) : -1;
@@ -290,16 +287,38 @@ export function CustomizeCards({ initialTab }: { initialTab: CustomizeTab }) {
               if (drag?.from !== 'shown' || !canRemove) return;
               e.preventDefault();
               setGap(null);
+              setOverLibrary(true);
+            }}
+            onDragEnter={(e) => {
+              if (drag?.from !== 'shown' || !canRemove) return;
+              e.preventDefault();
+              setGap(null);
+              setOverLibrary(true);
+            }}
+            onDragLeave={(e) => {
+              // Chromium leaves relatedTarget empty on drag events, so test the pointer against the column instead.
+              const box = e.currentTarget.getBoundingClientRect();
+              const inside = e.clientX > box.left && e.clientX < box.right && e.clientY > box.top && e.clientY < box.bottom;
+              if (!inside) setOverLibrary(false);
             }}
             onDrop={(e) => {
               e.preventDefault();
               if (drag?.from === 'shown') remove(drag.key);
               endDrag();
             }}
-            className="flex w-[275px] shrink-0 flex-col gap-2 self-stretch rounded-lg pb-px pt-2.5"
+            className="relative isolate flex w-[275px] shrink-0 flex-col gap-2 self-stretch rounded-lg pb-px pt-2.5"
           >
-            <p className="flex items-center gap-1 text-[13px] leading-[1.5] tracking-[-0.26px] text-ink-tertiary">
-              {full ? (
+            {/* The highlight bleeds 8 px past the column, so the rows inside keep their place. */}
+            <span
+              aria-hidden
+              className={`pointer-events-none absolute -inset-2 -z-10 rounded-xl border-2 border-dashed transition-colors duration-150 ${
+                overLibrary ? 'border-brand bg-brand/5' : 'border-transparent'
+              }`}
+            />
+            <p className={`flex items-center gap-1 text-[13px] leading-[1.5] tracking-[-0.26px] ${overLibrary ? 'font-semibold text-brand' : 'text-ink-tertiary'}`}>
+              {overLibrary && drag ? (
+                `Release to remove ${item(drag.key).title}`
+              ) : full ? (
                 `Up to ${max} ${noun}s. Remove one to add another.`
               ) : (
                 <>

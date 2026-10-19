@@ -47,7 +47,7 @@ function clientAt(c: Client, offset: number): Client {
 }
 
 /**
- * The sessions on the Upcoming bookings card (three-part layout): one row per session, soonest first, from the same
+ * The sessions on the Upcoming bookings card: one row per session, soonest first, from the same
  * bookings and rules as the card's clients, so every client on the card has a row and the Booking tab agrees.
  * The current week lists every booked session from today on; a past week, the sessions in that Monday's window.
  */

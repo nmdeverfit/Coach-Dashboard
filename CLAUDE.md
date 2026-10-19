@@ -14,10 +14,7 @@ Brief takes two and the right rail one (`grid-cols-3`, `col-span-2`, each column
 rail the group cards stack in one column, each list capped at 186 px (three clients and half of the fourth), and
 Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail.
 Customize cards (see the Structure entry) is shared with the main branch; here the narrow rail stacks the cards in
-one column. Here the Upcoming bookings card lists sessions, not clients (the user's call): one row per booked
-session, soonest first (`sessionsInWeek` in `lib/week.ts`, same bookings and window as the card's clients): line 1
-the type colour swatch · session name, line 2 "Today" or "Sep 1" • time span · a 16 px avatar · client name;
-the count is the sessions'. A row opens its client on the Booking tab. It publishes to its own artifact (title "Check-in Dashboard v2 ·
+one column. The Upcoming bookings session list is shared with the main branch too (see `sessions.ts`). It publishes to its own artifact (title "Check-in Dashboard v2 ·
 3 columns"); the main branch's artifact is unchanged.
 
 ## Project
@@ -54,8 +51,11 @@ the count is the sessions'. A row opens its client on the Booking tab. It publis
   headline minus "Current", `activityLine` from `Client.lastWeekStatus` and the message thread's timing, never its
   text, `lastActive` from every log, `hasFormToReview`).
 - `src/data/sessions.ts`: 1:1 bookings and session credits by client (Malcom's are his Prepare panel's, Wendy's
-  credits her Unblock panel's). The Upcoming bookings card's labels (`Client.nextSession`) and the Booking tab
-  (`bookingRow` in `lib/dashboard.ts`, credit figures from `buildUnblockView`) are computed from it.
+  credits her Unblock panel's). The Upcoming bookings card and the Booking tab
+  (`bookingRow` in `lib/dashboard.ts`, credit figures from `buildUnblockView`) are computed from it. The card lists
+  sessions, not clients (`sessionsInWeek` in `lib/week.ts`, same bookings and window as `Client.nextSession`): line 1
+  type swatch · session name, line 2 "Today" or "Sep 1" • time span · a 16 px avatar · client name; the count is
+  the sessions'; a row opens its client on the Booking tab.
 - `src/lib/week.ts`: the week selector. A week's figures are read as of its Monday 06:00 (`weekAsOf`), so a past week
   reuses every builder with an earlier "today". `clientsInWeek` gives that week's status (last week =
   `lastWeekStatus`, older weeks back-filled with the current status), program countdown and next session;
@@ -158,8 +158,9 @@ the count is the sessions'. A row opens its client on the Booking tab. It publis
   Settings (`5749:521870`, `SettingsMenu` in `Header`; the item reads "Customize group cards" on the brief,
   "Customize metrics" on the list) or a group card's ⋯ menu (`CardMenu` in `CategoryGroup`: Collapse / Expand,
   Remove group, Customize cards…). Shown cards on the left (drag or Alt + ↑ / ↓, ⊖, a count "4/6"), the library on
-  the right (⊕ or drag in; "Also on Dashboard" / "Also on Today's Brief" from the other tab's draft). Dragging leaves
-  a grey slot and draws a brand line in the closest gap (`gapAt`). Any card can go as long as one stays. Both tabs
+  the right (⊕ or drag in; no "Also on …" line, the user's call). Dragging leaves a grey slot and draws a brand line
+  in the closest gap (`gapAt`); a shown card dragged over the library lights it up (`overLibrary`), since dropping
+  it there removes it. Any card can go as long as one stays. Both tabs
   offer the same nine cards (`METRIC_ORDER`: the brief's four + `EXTRA_GROUPS` Form to review, On track, Review
   completed, No activities, Paused; members from `cardMembers` in `lib/groups.ts`, Paused is empty in the demo) and
   the same limit, `MAX_CARDS` = 8 (the user's call). Defaults stay the brief's four and the list's seven. Save and Continue saves both; Cancel / × / Esc drop both; Reset resets the open tab.
@@ -282,6 +283,8 @@ the count is the sessions'. A row opens its client on the Booking tab. It publis
   the brief (AC5; the client list's tabs still have it). The user dropped the lock that kept them. No activities and
   Paused can be group cards, which the brief rules out ("no group card"). Session credits was dropped as a card at
   the user's request. "Save and Continue" is the design's copy ("Save" was suggested).
+- Upcoming bookings lists sessions (the user's call): the brief's cards show "four clients", and its count counts
+  sessions, so a client with three bookings fills three rows. AC5 still holds (sessions ≥ clients ≥ Prepare to-dos).
 - Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief
   says "A completed row stays in place, de-emphasised". With more than seven suggestions a completed row can sink
   under "Show N more".

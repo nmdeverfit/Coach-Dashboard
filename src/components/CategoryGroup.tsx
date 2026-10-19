@@ -103,7 +103,7 @@ export function CategoryGroup({
   // Cards follow the week selector: a past week shows that Monday's groups.
   const members = cardMembers(group.key, state.weekOffset, { todos: state.todos, reviewed: reviewedNow });
   const collapsed = state.rail.collapsed.includes(group.key);
-  // Upcoming bookings lists sessions, not clients (the user's call for the three-part layout): its count is theirs.
+  // Upcoming bookings lists sessions, not clients (the user's call, tried on the three-part layout first): its count is theirs.
   const sessions = group.key === 'upcoming_bookings' ? sessionsInWeek(state.weekOffset) : undefined;
   const today = weekAsOf(state.weekOffset);
 
