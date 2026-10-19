@@ -30,7 +30,7 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
   height of 10 one-line rows (560 px) and scrolls inside. The white card opens on two view tabs, Need attention (N)
   | History (N), underlined like the panel's `TabBar` (13 px semibold, brand + 2 px brand line when active,
-  `border-b border-line`, `px-4`), then the category tabs and list as before; the header chip counts Need attention.
+  `border-b border-line`; the two split the width evenly, labels centred), then the category tabs and list as before; the header chip counts Need attention.
   A hovered Need attention row turns `bg-surface-secondary` and shows its actions (Figma `5795:175100`) over its
   right end: a white bar, rounded 8, `p-1`, `drop-shadow 0 4px 10px rgba(0,0,0,0.06)`, `right-1`, centred; 32 px
   buttons rounded 10 (👍 emoji 20 px, hidden for now · Draft with AI with `.ai-btn`, pencil-ai 18 px, the Olly
@@ -39,7 +39,7 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   (`gap-3`). Completed (Figma `4341:459184`): row `bg-[rgba(244,246,251,0.8)]`, then a "Message sent" tag (116 px,
   `bg-[rgba(227,236,255,0.8)]`, rounded 8, `px-6 py-2`, 12 px check-one + 12 px semibold brand) and Open chat (chat
   bubbles 18 px + 12 px semibold ink, `gap-1`), `gap-3`, `pr-[18px]`. Dismissed (no frame): white row, avatar at
-  50 % in greyscale, text `ink-secondary`, a "Dismissed" tag of the same size on `bg-surface-secondary` (12 px close
+  50 % in greyscale, text `ink-secondary`, a "Dismissed" tag hugging its words with the same ~10 px side padding (`px-2.5`, no fixed width) on `bg-surface-secondary` (12 px close
   stroke + 12 px semibold `ink-secondary`) and Restore (14 px rotate icon + 12 px semibold ink). Empty: "You’re all
   caught up." / "Nothing here yet." 13 px semibold + a 12 px `ink-secondary` line, centred.
   Upcoming bookings is a session list (the user's call, on both branches): one row per booked session, soonest
