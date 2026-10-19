@@ -59,6 +59,8 @@ export interface Highlight {
   clientName: string;
   /** The rest of the sentence after the client's name. */
   text: string;
+  /** Milestones: the day the client reached it (the sentence then says when). */
+  achievedOn?: string;
   image?: string;
 }
 
