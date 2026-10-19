@@ -221,7 +221,7 @@ export function TranscriptDialog({
           </div>
         )}
         {tab === 'transcript' && (
-          <div className={`px-5 pb-[30px] ${lines ? 'pt-2' : 'pt-5'}`}>
+          <div className={`px-[30px] pb-[30px] ${lines ? 'pt-2' : 'pt-5'}`}>
             {t.kind === 'file' && (
               <div className="mb-4 flex items-center gap-3 rounded-lg border border-[#e0e0e0] p-3">
                 <FileTypeIcon name={t.name} />

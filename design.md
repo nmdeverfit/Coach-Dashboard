@@ -241,7 +241,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   (`-0.32px`), 13 px / 1.5 ink bullets (`ms-[19.5px]`, no gap), a leading "Topic:" in bold. The frame's footer
   (Cancel · Add meeting) is left out: it is the Add a meeting form's and has no job in a viewer. Meetings the coach
   added have no summary: Transcript opens first and Summary reads "No summary for this meeting yet…".
-- **Transcript tab of the popup**: the Notes search field (38 px, `#dbdce3`, brand
+- **Transcript tab of the popup**: the lines sit at `px-[30px]`, so speaker names line up with the title and avatar
+  (the user's call); the Notes search field (38 px, `#dbdce3`, brand
   on focus) is pinned on top of the scrolling body, focused on open; with a query it shows "2 of 8" (12 px
   `ink-secondary`) and ↑ / ↓ buttons (24 px, the chevron icon). Matches `#fff1b8`, the current one `#ffd666`,
   scrolled to the centre. Lines: speaker 13 px bold + time 12 px `ink-muted`, text 13 px `#484848`, `gap-4`. In
