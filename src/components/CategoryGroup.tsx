@@ -144,25 +144,31 @@ export function CategoryGroup({
             {(sessions ?? members).length === 0 && (
               <li className="px-1 py-3 text-[13px] leading-[1.5] text-ink-muted">{sessions ? 'No sessions booked right now.' : 'No clients here right now.'}</li>
             )}
-            {/* A session row: type colour · session name · date and time. It opens its client on the Booking tab. */}
+            {/* A session row: avatar · client name, then type colour · session name; date and time on the line below.
+                It opens its client on the Booking tab. */}
             {sessions?.map(({ client, booking }) => (
               <li key={`${client.id}:${booking.date}:${booking.start}`}>
                 <button
                   type="button"
                   data-client-row
-                  aria-label={`${booking.type.name} with ${client.name}`}
                   aria-current={state.selectedClientId === client.id ? 'true' : undefined}
                   onClick={() => selectClient(client.id, 'booking')}
-                  className={`flex min-h-[53px] w-full items-center justify-between gap-2 border-b border-line/80 px-1 py-3 text-left hover:bg-surface-secondary/60 ${
+                  className={`flex w-full items-center gap-2 border-b border-line/80 px-1 py-2.5 text-left hover:bg-surface-secondary/60 ${
                     state.selectedClientId === client.id ? 'bg-surface-secondary' : ''
                   }`}
                 >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <Swatch color={booking.type.color} />
-                    <span className="truncate text-[13px] font-semibold leading-[1.5] text-ink">{booking.type.name}</span>
-                  </span>
-                  <span className="whitespace-nowrap text-[12px] text-ink-secondary tabular-nums">
-                    {booking.date === today ? 'Today' : weekdayLabel(booking.date)} • {timeSpan(booking)}
+                  <Avatar name={client.name} src={client.avatar} />
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="truncate text-[13px] font-semibold leading-[1.5] text-ink">{client.name}</span>
+                      <span className="flex shrink-0 items-center gap-1.5 text-[12px] font-semibold leading-[1.5] text-ink">
+                        <Swatch color={booking.type.color} />
+                        {booking.type.name}
+                      </span>
+                    </span>
+                    <span className="whitespace-nowrap text-[12px] leading-[1.5] text-ink-secondary tabular-nums">
+                      {booking.date === today ? 'Today' : weekdayLabel(booking.date)} • {timeSpan(booking)}
+                    </span>
                   </span>
                 </button>
               </li>
