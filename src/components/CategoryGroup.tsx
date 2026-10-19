@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import chevronSmall from '../assets/figma/icon-chevron-right-small.svg';
 import dotTiny from '../assets/figma/dot-tiny.svg';
 import iconMore from '../assets/figma/icon-more.svg';
-import { weekdayLabel } from '../lib/checkin';
+import { formatMonthDay, parseDay } from '../lib/dates';
 import { cardMembers } from '../lib/groups';
 import { timeSpan } from '../lib/todos';
 import { sessionsInWeek, weekAsOf } from '../lib/week';
@@ -162,11 +162,11 @@ export function CategoryGroup({
                     <Swatch color={booking.type.color} />
                     <span className="truncate text-[13px] font-semibold leading-[1.5] text-ink">{booking.type.name}</span>
                   </span>
-                  <span className="flex min-w-0 items-center gap-1.5 pl-[22px] text-[12px] leading-[1.5]">
-                    <span className="truncate font-semibold text-ink">{client.name}</span>
+                  <span className="flex min-w-0 items-center gap-1.5 text-[12px] leading-[1.5]">
+                    <span className="truncate text-ink">{client.name}</span>
                     <img src={dotTiny} alt="" width={2} height={2} className="shrink-0" />
                     <span className="whitespace-nowrap text-ink-secondary tabular-nums">
-                      {booking.date === today ? 'Today' : weekdayLabel(booking.date)} • {timeSpan(booking)}
+                      {booking.date === today ? 'Today' : formatMonthDay(parseDay(booking.date))} • {timeSpan(booking)}
                     </span>
                   </span>
                 </button>
