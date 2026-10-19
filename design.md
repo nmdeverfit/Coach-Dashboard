@@ -28,7 +28,10 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   `drop-shadow 0 4px 10px rgba(0,0,0,0.06)`, `right-1`, centred; 32 px buttons rounded 10 (👍 emoji 20 px, hidden for now ·
   Draft with AI with `.ai-btn`, pencil-ai 18 px, the Olly gradient and white icon on hover · chat bubbles 18 px ·
   close stroke 18 px), each with the dark tooltip above (below on the first row, which the list would clip). A
-  reacted 👍 sits on `bg-brand/10`.
+  reacted 👍 sits on `bg-brand/10`. After a message to that client (Figma `4341:459184`) the row stays
+  `bg-[rgba(244,246,251,0.8)]` and adds a second line (`gap-3`): a "Message sent" tag (116 px,
+  `bg-[rgba(227,236,255,0.8)]`, rounded 8, `px-6 py-2`, 12 px check-one + 12 px semibold brand) and Open chat (chat
+  bubbles 18 px + 12 px semibold ink, `gap-1`), `gap-3`, `pr-[18px]`; the hover bar then sits level with line 1.
   Upcoming bookings is a session list (the user's call, on both branches): one row per booked session, soonest
   first, rows `py-2.5`, `gap-1.5` between lines. Line 1: 14 px `Swatch` in the type's colour + session name 14 px
   semibold ink. Line 2 (12 px, left-aligned with line 1): date • time `ink-secondary` ("Today • 6:30 - 7:30pm",

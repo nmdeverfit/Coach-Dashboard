@@ -82,7 +82,9 @@ the same change.
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights; the list is fixed at the height of 10
   one-line rows and scrolls past that; on hover a row shows `HighlightActions`, Figma `5795:175100`: React 👍 (hidden for now, `SHOW_REACTION`) ·
   Draft with AI (Olly with `highlightDraft` in `lib/olly.ts`: a congratulation, birthday wish or anniversary note
-  from the highlight's sentence) · Send message · Dismiss (leaves the list and its counts, session only). Nine
+  from the highlight's sentence) · Send message · Dismiss (leaves the list and its counts, session only). Once the
+  coach has messaged that client this session (`state.sent`, from Olly or the Inbox), the row adds `SentLine`,
+  Figma `4341:459184`: "Message sent" tag + Open chat, which opens the Inbox column. Nine
   highlight people are not dashboard clients: `highlightOnlyClients` / `findPerson` in `mock.ts` give them a
   profile and a thread without counting them anywhere), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`),
   `ClientListParts` (row shell, client cell, section header shared by both tables), `ClientActions` (the
@@ -285,7 +287,8 @@ the same change.
   row's 👍 is drawn. The demo built it (toggles, toasts "Reaction sent to {first}") and hides it for now
   (`SHOW_REACTION`, the user's call).
   Dismiss on a highlight has no spec; the demo drops the row for the session. The frame's Send message button is
-  28 px beside three 32 px ones; the demo makes all four 32 px.
+  28 px beside three 32 px ones; the demo makes all four 32 px. "Message sent" follows the client, not the highlight:
+  any message to that client this session marks all their highlights (Kevin Williams has two).
 - Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief
   says "A completed row stays in place, de-emphasised". With more than seven suggestions a completed row can sink
   under "Show N more".
