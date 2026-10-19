@@ -9,7 +9,7 @@ import { Sidebar } from './components/Sidebar';
 import { SidePanel } from './components/side/SidePanel';
 import { TodayBrief } from './components/TodayBrief';
 import { Toast } from './components/Toast';
-import { useStore } from './state/store';
+import { sideIsSidebar, useStore } from './state/store';
 
 const SLIDE_MS = 420;
 
@@ -36,7 +36,9 @@ export default function App() {
   const { state } = useStore();
   return (
     <div className="h-full overflow-x-auto">
-      <div className="flex h-full min-w-[1280px]">
+      {/* While the middle column is a sidebar (opened from a Client highlight) the page gives it 360 px on the right
+          and the brief reflows into the rest. */}
+      <div className={`flex h-full min-w-[1280px] transition-[padding] duration-300 ${sideIsSidebar(state) ? 'pr-[360px]' : ''}`}>
         <Sidebar />
         <main className="flex min-w-0 flex-1 flex-col">
           <Header />
