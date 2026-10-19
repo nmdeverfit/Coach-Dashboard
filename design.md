@@ -40,10 +40,12 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   reorder)" 13 px, count "4/6" at the right) and the library (275 px, hint "Click ⊕ or drag to left column to add
   card / metric", or "Up to 8 cards. Remove one to add another." when full; both tabs list the same nine cards). Rows as drawn: white, `border-line`,
   rounded 8, `py-3 pl-2 pr-3`, drag dots 16 + icon 20 + name 14 px semibold, ⊖ / ⊕ 16 px at the right on every row
-  (no locks; both tabs look the same); library rows add "Also on Dashboard" 11 px `ink-muted` under the name.
+  (no locks, no "Also on …" line; both tabs look the same).
   Dragging (the user's reference): the browser's drag image is the card, its slot stays as an empty
   `bg-surface-secondary` box, and a 3 px brand line sits in the gap closest to the pointer (none in the card's own
-  two gaps, where nothing would move). Footer: "Reset to default"
+  two gaps, where nothing would move). A shown card dragged over the library (still held) lights it up: a 2 px
+  dashed brand border, rounded 12, 8 px outside the column, `bg-brand/5` behind the rows, and the hint turns brand
+  semibold "Release to remove {card}". Footer: "Reset to default"
   (13 px semibold underlined) · Cancel (44 px, rounded 5) · Save and Continue (44 px brand). Toast "Cards updated".
   **Dashboard Settings** (`5749:521870`): open = `bg-brand/10`, `border-black/15`, brand text and gear; the menu
   hangs 4 px under it, right-aligned, 252 px, white, rounded 4, `0 0 2px #b0bac8, 0 4px 16px rgba(37,40,48,0.1)`,

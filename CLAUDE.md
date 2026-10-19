@@ -150,8 +150,9 @@ the same change.
   Settings (`5749:521870`, `SettingsMenu` in `Header`; the item reads "Customize group cards" on the brief,
   "Customize metrics" on the list) or a group card's ⋯ menu (`CardMenu` in `CategoryGroup`: Collapse / Expand,
   Remove group, Customize cards…). Shown cards on the left (drag or Alt + ↑ / ↓, ⊖, a count "4/6"), the library on
-  the right (⊕ or drag in; "Also on Dashboard" / "Also on Today's Brief" from the other tab's draft). Dragging leaves
-  a grey slot and draws a brand line in the closest gap (`gapAt`). Any card can go as long as one stays. Both tabs
+  the right (⊕ or drag in; no "Also on …" line, the user's call). Dragging leaves a grey slot and draws a brand line
+  in the closest gap (`gapAt`); a shown card dragged over the library lights it up (`overLibrary`), since dropping
+  it there removes it. Any card can go as long as one stays. Both tabs
   offer the same nine cards (`METRIC_ORDER`: the brief's four + `EXTRA_GROUPS` Form to review, On track, Review
   completed, No activities, Paused; members from `cardMembers` in `lib/groups.ts`, Paused is empty in the demo) and
   the same limit, `MAX_CARDS` = 8 (the user's call). Defaults stay the brief's four and the list's seven. Save and Continue saves both; Cancel / × / Esc drop both; Reset resets the open tab.
