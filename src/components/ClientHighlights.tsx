@@ -15,7 +15,8 @@ import emptyUserSm from '../assets/figma/empty-hl-user-sm.svg';
 import emptyWindow from '../assets/figma/empty-hl-window.svg';
 import confetti from '../assets/figma/icon-confetti.svg';
 import iconPencilAi from '../assets/figma/icon-pencil-ai.svg';
-import { highlights } from '../data/mock';
+import { DEMO_TODAY, highlights } from '../data/mock';
+import { daysBetween, formatMonthDay, parseDay } from '../lib/dates';
 import type { Highlight, HighlightCategory } from '../data/types';
 import { useStore } from '../state/store';
 import { Avatar } from './Avatar';
@@ -144,6 +145,23 @@ function OutcomeTag({ completed }: { completed: boolean }) {
   );
 }
 
+/**
+ * When a milestone was reached, at the end of its sentence in `ink-secondary`: "yesterday", "3 days ago" within the
+ * week, else "Aug 21". Read against the brief's morning (`DEMO_TODAY`). Birthdays and anniversaries already say when.
+ */
+function When({ h }: { h: Highlight }) {
+  if (!h.achievedOn) return null;
+  const ago = daysBetween(h.achievedOn, DEMO_TODAY);
+  const when = ago === 0 ? 'today' : ago === 1 ? 'yesterday' : ago < 7 ? `${ago} days ago` : formatMonthDay(parseDay(h.achievedOn));
+  // The time wraps as one piece, never "5 days" / "ago".
+  return (
+    <>
+      {' '}
+      <span className="whitespace-nowrap text-ink-secondary">· {when}</span>
+    </>
+  );
+}
+
 /** Avatar with its category badge (milestones blue, birthdays and anniversaries orange). */
 function Who({ h, muted = false }: { h: Highlight; muted?: boolean }) {
   return (
@@ -169,6 +187,7 @@ function HistoryRow({ h, completed, last }: { h: Highlight; completed: boolean; 
         <Who h={h} muted={!completed} />
         <p className={`min-w-0 flex-1 text-[13px] leading-[1.5] ${completed ? 'text-ink' : 'text-ink-secondary'}`}>
           <span className="font-semibold">{h.clientName}</span> {h.text}
+          <When h={h} />
         </p>
       </div>
       <div className="flex items-center gap-3 pr-[18px]">
@@ -348,6 +367,7 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
                   <Who h={h} />
                   <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-ink">
                     <span className="font-semibold">{h.clientName}</span> {h.text}
+                    <When h={h} />
                   </p>
                   <HighlightActions
                     h={h}

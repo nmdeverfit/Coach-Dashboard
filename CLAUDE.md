@@ -87,7 +87,7 @@ the same change.
   (`side.highlightId`) completes it; completed and dismissed ones move to History (`highlightLog` in the store,
   session only, newest first). `HistoryRow`: completed = Figma `4341:459184` ("Message sent" + Open chat);
   dismissed = greyed, "Dismissed" + Restore (back to Need attention). History opens on "Moments older than 30 days are cleared
-  automatically." + Clear all (confirm dialog; `clearHighlightHistory` marks them `cleared`, gone from both views). Empty lists show `EmptyArt` + a line per view and category (`emptyLine`, Figma `5809:544623`). The header count is Need attention's. Nine
+  automatically." + Clear all (confirm dialog; `clearHighlightHistory` marks them `cleared`, gone from both views). Milestones carry `achievedOn` and their sentence ends "· yesterday" / "· 3 days ago" / "· Aug 21" (`When`). Empty lists show `EmptyArt` + a line per view and category (`emptyLine`, Figma `5809:544623`). The header count is Need attention's. Nine
   highlight people are not dashboard clients: `highlightOnlyClients` / `findPerson` in `mock.ts` give them a
   profile and a thread without counting them anywhere), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`),
   `ClientListParts` (row shell, client cell, section header shared by both tables), `ClientActions` (the
@@ -292,7 +292,8 @@ the same change.
   (`SHOW_REACTION`, the user's call).
   The frame's Send message button is 28 px beside three 32 px ones; the demo makes all four 32 px. Need attention |
   History, dismiss, Restore and the dismissed row's look have no frame or spec (the user's call; Dismiss is the
-  demo's). The 30-day auto-clear is copy only: the demo's highlights carry no dates. Only a message sent from the highlight's own Draft with AI or Send message completes it; messages to
+  demo's). The 30-day auto-clear is copy only: only milestones carry a date (`achievedOn`, invented; nothing in the logs backs
+  them), and nothing ages out. Only a message sent from the highlight's own Draft with AI or Send message completes it; messages to
   that client from elsewhere do not.
 - Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief
   says "A completed row stays in place, de-emphasised". With more than seven suggestions a completed row can sink

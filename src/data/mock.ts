@@ -156,12 +156,13 @@ export const todos: Todo[] = todoSeeds.map((t) => {
   return { ...t, reason: detail ? rowReasonFor(detail, firstNameOf(t.clientId), DEMO_TODAY) : t.reason! };
 });
 
-const hl = (id: string, category: Highlight['category'], clientName: string, text: string): Highlight => ({
+const hl = (id: string, category: Highlight['category'], clientName: string, text: string, achievedOn?: string): Highlight => ({
   id,
   category,
   clientId: slugOf(clientName),
   clientName,
   text,
+  achievedOn,
   image: avatar(slugOf(clientName)),
 });
 
@@ -170,17 +171,17 @@ export const highlights: Highlight[] = [
   hl('daniel-lee', 'anniversary', 'Daniel Lee', 'just reached his 1-year coaching anniversary'),
   hl('kevin-williams', 'anniversary', 'Kevin Williams', 'logged his 50th workout'),
   hl('anna-taylor', 'anniversary', 'Anna Taylor', 'just reached her 1-year coaching anniversary'),
-  hl('rachel-kim', 'milestone', 'Rachel Kim', 'hit her goal - target weight 65 kg'),
-  hl('kevin-williams-2', 'milestone', 'Kevin Williams', 'logged his 50th workout'),
-  hl('ryan-miller', 'milestone', 'Ryan Miller', 'finished 30-Day Fat Loss Challenge'),
-  hl('michael-brown', 'milestone', 'Michael Brown', 'kept his streak 12 weeks in a row'),
+  hl('rachel-kim', 'milestone', 'Rachel Kim', 'hit her goal - target weight 65 kg', '2026-08-30'),
+  hl('kevin-williams-2', 'milestone', 'Kevin Williams', 'logged his 50th workout', '2026-08-29'),
+  hl('ryan-miller', 'milestone', 'Ryan Miller', 'finished 30-Day Fat Loss Challenge', '2026-08-28'),
+  hl('michael-brown', 'milestone', 'Michael Brown', 'kept his streak 12 weeks in a row', '2026-08-30'),
   hl('erika-harris', 'birthday', 'Erika Harris', 'turns 29 today.'),
   hl('mia-young', 'birthday', 'Mia Young', 'turned 23 three days ago.'),
   // Ten more, about clients already on the dashboard so each keeps the same photo everywhere.
-  hl('ethan-smith', 'milestone', 'Ethan Smith', 'logged his 100th workout'),
-  hl('penelope-brooks', 'milestone', 'Penelope Brooks', 'set a new deadlift PR of 120 kg'),
-  hl('andrew-scott', 'milestone', 'Andrew Scott', 'finished the 12-week Strength Foundations program'),
-  hl('layla-mitchell', 'milestone', 'Layla Mitchell', 'logged her meals 30 days in a row'),
+  hl('ethan-smith', 'milestone', 'Ethan Smith', 'logged his 100th workout', '2026-08-27'),
+  hl('penelope-brooks', 'milestone', 'Penelope Brooks', 'set a new deadlift PR of 120 kg', '2026-08-26'),
+  hl('andrew-scott', 'milestone', 'Andrew Scott', 'finished the 12-week Strength Foundations program', '2026-08-21'),
+  hl('layla-mitchell', 'milestone', 'Layla Mitchell', 'logged her meals 30 days in a row', '2026-08-30'),
   hl('gabriella-clark', 'birthday', 'Gabriella Clark', 'turns 34 today.'),
   hl('elijah-wright', 'birthday', 'Elijah Wright', 'turns 41 tomorrow.'),
   hl('evelyn-moore', 'birthday', 'Evelyn Moore', 'turned 27 yesterday.'),
