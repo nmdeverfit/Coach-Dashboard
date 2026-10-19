@@ -165,7 +165,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 ## 7. States and interaction
 
 - **To-do row** (`TodoRow`, Figma `3925:6908`): Default · Hover (white, `shadow-row`) · Selected (4 px brand left
-  border) · Completed (opacity 60%, line-through, filled check). Past rows show the age at the right.
+  border) · Completed (opacity 60%, line-through, filled check). Past rows show the age at the right. A ticked row
+  shows its tick in place for 450 ms, then drops to the bottom of its section while the others close up (each row
+  eases from its old place, 380 ms, `cubic-bezier(0.22,1,0.36,1)`; off under reduced motion). Unticking puts it back
+  in its ranked place. The user's call; the brief keeps a completed row in place.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Title block: name 18 px bold, "Status:" + chip, then four 32 px icon buttons (Draft
   with AI uses `ai-btn`; its tooltip hangs off a wrapper because `ai-btn` clips). Opened from a group-card row or
