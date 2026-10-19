@@ -47,10 +47,14 @@ function CatchUpBadge({ category }: { category: HighlightCategory }) {
   );
 }
 
+/** The 👍 reaction is hidden for now (the user's call; the brief puts reactions in Phase 2). */
+const SHOW_REACTION = false;
+
 const ACTION = 'group/tip relative flex size-8 items-center justify-center rounded-[10px] bg-white hover:bg-surface-secondary';
 
 /**
- * The actions a highlight row shows on hover (Figma 5795:175100): React 👍 · Draft with AI · Send message · Dismiss,
+ * The actions a highlight row shows on hover (Figma 5795:175100): React 👍 (hidden, `SHOW_REACTION`) · Draft with AI ·
+ * Send message · Dismiss,
  * in a white bar over the row's right end. Draft with AI and Send message open the middle column at the right edge,
  * as from a client-list row; the draft is about the highlight (`highlightDraft`). `tipBelow`: the first row's
  * tooltips hang under the bar, since the list clips the space above it.
@@ -59,10 +63,12 @@ function HighlightActions({ h, reacted, tipBelow, onReact, onDismiss }: { h: Hig
   const { openOlly, openInbox } = useStore();
   return (
     <div className="absolute right-1 top-1/2 hidden -translate-y-1/2 items-center rounded-lg bg-white p-1 drop-shadow-[0_4px_10px_rgba(0,0,0,0.06)] group-focus-within/row:flex group-hover/row:flex">
-      <button type="button" aria-label={reacted ? 'Remove reaction' : 'React'} aria-pressed={reacted} onClick={onReact} className={`${ACTION} ${reacted ? 'bg-brand/10 hover:bg-brand/15' : ''}`}>
-        <img src={thumbsUp} alt="" width={20} height={20} />
-        <Tooltip label={reacted ? 'Remove reaction' : 'React'} below={tipBelow} />
-      </button>
+      {SHOW_REACTION && (
+        <button type="button" aria-label={reacted ? 'Remove reaction' : 'React'} aria-pressed={reacted} onClick={onReact} className={`${ACTION} ${reacted ? 'bg-brand/10 hover:bg-brand/15' : ''}`}>
+          <img src={thumbsUp} alt="" width={20} height={20} />
+          <Tooltip label={reacted ? 'Remove reaction' : 'React'} below={tipBelow} />
+        </button>
+      )}
       {/* The AI button clips its own light sweep, so its tooltip hangs off a wrapper. */}
       <span className="group/tip relative">
         <button

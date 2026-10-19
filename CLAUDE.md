@@ -80,7 +80,7 @@ the same change.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights; the list is fixed at the height of 10
-  one-line rows and scrolls past that; on hover a row shows `HighlightActions`, Figma `5795:175100`: React 👍 ·
+  one-line rows and scrolls past that; on hover a row shows `HighlightActions`, Figma `5795:175100`: React 👍 (hidden for now, `SHOW_REACTION`) ·
   Draft with AI (Olly with `highlightDraft` in `lib/olly.ts`: a congratulation, birthday wish or anniversary note
   from the highlight's sentence) · Send message · Dismiss (leaves the list and its counts, session only). Nine
   highlight people are not dashboard clients: `highlightOnlyClients` / `findPerson` in `mock.ts` give them a
@@ -282,7 +282,8 @@ the same change.
 - Upcoming bookings lists sessions (the user's call): the brief's cards show "four clients", and its count counts
   sessions, so a client with three bookings fills three rows. AC5 still holds (sessions ≥ clients ≥ Prepare to-dos).
 - Client highlight actions (Figma `5795:175100`): the brief puts "Reactions on client highlights" in Phase 2, but the
-  row's 👍 is drawn, so the demo has it (toggles, toasts "Reaction sent to {first}"; nothing reaches the client).
+  row's 👍 is drawn. The demo built it (toggles, toasts "Reaction sent to {first}") and hides it for now
+  (`SHOW_REACTION`, the user's call).
   Dismiss on a highlight has no spec; the demo drops the row for the session. The frame's Send message button is
   28 px beside three 32 px ones; the demo makes all four 32 px.
 - Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief

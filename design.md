@@ -25,7 +25,7 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
   height of 10 one-line rows (560 px) and scrolls inside. A hovered highlight row turns `bg-surface-secondary` and
   shows its actions (Figma `5795:175100`) over its right end: a white bar, rounded 8, `p-1`,
-  `drop-shadow 0 4px 10px rgba(0,0,0,0.06)`, `right-1`, centred; four 32 px buttons rounded 10 (👍 emoji 20 px ·
+  `drop-shadow 0 4px 10px rgba(0,0,0,0.06)`, `right-1`, centred; 32 px buttons rounded 10 (👍 emoji 20 px, hidden for now ·
   Draft with AI with `.ai-btn`, pencil-ai 18 px, the Olly gradient and white icon on hover · chat bubbles 18 px ·
   close stroke 18 px), each with the dark tooltip above (below on the first row, which the list would clip). A
   reacted 👍 sits on `bg-brand/10`.
