@@ -1,6 +1,7 @@
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import chevronSmall from '../assets/figma/icon-chevron-right-small.svg';
+import dotTiny from '../assets/figma/dot-tiny.svg';
 import iconMore from '../assets/figma/icon-more.svg';
 import { weekdayLabel } from '../lib/checkin';
 import { cardMembers } from '../lib/groups';
@@ -144,8 +145,8 @@ export function CategoryGroup({
             {(sessions ?? members).length === 0 && (
               <li className="px-1 py-3 text-[13px] leading-[1.5] text-ink-muted">{sessions ? 'No sessions booked right now.' : 'No clients here right now.'}</li>
             )}
-            {/* A session row: avatar · client name, then type colour · session name; date and time on the line below.
-                It opens its client on the Booking tab. */}
+            {/* A session row: type colour · session name, then a 24 px avatar · client name · date and time on the line
+                below. It opens its client on the Booking tab. */}
             {sessions?.map(({ client, booking }) => (
               <li key={`${client.id}:${booking.date}:${booking.start}`}>
                 <button
@@ -153,20 +154,19 @@ export function CategoryGroup({
                   data-client-row
                   aria-current={state.selectedClientId === client.id ? 'true' : undefined}
                   onClick={() => selectClient(client.id, 'booking')}
-                  className={`flex w-full items-center gap-2 border-b border-line/80 px-1 py-2.5 text-left hover:bg-surface-secondary/60 ${
+                  className={`flex w-full flex-col gap-1.5 border-b border-line/80 px-1 py-2.5 text-left hover:bg-surface-secondary/60 ${
                     state.selectedClientId === client.id ? 'bg-surface-secondary' : ''
                   }`}
                 >
-                  <Avatar name={client.name} src={client.avatar} />
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="truncate text-[13px] font-semibold leading-[1.5] text-ink">{client.name}</span>
-                      <span className="flex shrink-0 items-center gap-1.5 text-[12px] font-semibold leading-[1.5] text-ink">
-                        <Swatch color={booking.type.color} />
-                        {booking.type.name}
-                      </span>
-                    </span>
-                    <span className="whitespace-nowrap text-[12px] leading-[1.5] text-ink-secondary tabular-nums">
+                  <span className="flex items-center gap-2">
+                    <Swatch color={booking.type.color} />
+                    <span className="truncate text-[13px] font-semibold leading-[1.5] text-ink">{booking.type.name}</span>
+                  </span>
+                  <span className="flex min-w-0 items-center gap-1.5 text-[12px] leading-[1.5]">
+                    <Avatar name={client.name} src={client.avatar} size={24} />
+                    <span className="truncate font-semibold text-ink">{client.name}</span>
+                    <img src={dotTiny} alt="" width={2} height={2} className="shrink-0" />
+                    <span className="whitespace-nowrap text-ink-secondary tabular-nums">
                       {booking.date === today ? 'Today' : weekdayLabel(booking.date)} • {timeSpan(booking)}
                     </span>
                   </span>
