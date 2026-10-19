@@ -27,6 +27,9 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   rows and half of the fourth, so the scroll shows) and the highlights'
   category tabs become a row of chips above the list (scrolls sideways if needed).
   Customize cards: as on the main branch (below), the stacked cards included.
+  Upcoming bookings here is a session list: 53 px rows, 14 px swatch (`Swatch`, the session type's colour) + session
+  name 13 px semibold ink on the left, date • time 12 px `ink-secondary` on the right ("Today • 6:30 - 7:30pm",
+  "Tue, Sep 1 • 8:00 - 9:00am"); empty state "No sessions booked right now."; the count chip counts sessions.
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
   height of 10 one-line rows (560 px) and scrolls inside.
 - **Customize cards** (Figma `5749:521640` + a tab, a trial on both branches; on the main layout extra cards keep the 2 × 2

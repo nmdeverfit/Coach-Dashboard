@@ -14,7 +14,10 @@ Brief takes two and the right rail one (`grid-cols-3`, `col-span-2`, each column
 rail the group cards stack in one column, each list capped at 186 px (three clients and half of the fourth), and
 Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail.
 Customize cards (see the Structure entry) is shared with the main branch; here the narrow rail stacks the cards in
-one column. It publishes to its own artifact (title "Check-in Dashboard v2 ·
+one column. Here the Upcoming bookings card lists sessions, not clients (the user's call): one row per booked
+session, soonest first (`sessionsInWeek` in `lib/week.ts`, same bookings and window as the card's clients), each a
+type colour swatch · session name · "Today" or "Tue, Sep 1" • time span, and the count is the sessions'. A row opens
+its client on the Booking tab. The row does not name the client (open with the user). It publishes to its own artifact (title "Check-in Dashboard v2 ·
 3 columns"); the main branch's artifact is unchanged.
 
 ## Project
