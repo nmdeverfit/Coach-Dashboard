@@ -42,8 +42,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   tab: "All caught up! No {client moments / milestones / birthdays / anniversaries} need you right now." in Need
   attention; "No history yet. Moments you message or dismiss show up here." / "No {birthdays} in History yet." in
   History (the frame's own line was for style only, the user's call).
-  Milestone sentences end with when the client reached it (`achievedOn`, the user's call): " · yesterday",
-  " · 3 days ago" within the week, else " · Aug 21", in `ink-secondary`, kept on one line when the sentence wraps.
+  Milestone sentences end with when the client reached it, in the same sentence and style (`achievedOn`, the user's
+  call): "… 65 kg yesterday", "… 3 days ago" within the week, else "… on Aug 21".
   Upcoming bookings is a session list (the user's call, on both branches): one row per booked session, soonest
   first, rows `py-2.5`, `gap-1.5` between lines. Line 1: 14 px `Swatch` in the type's colour + session name 14 px
   semibold ink. Line 2 (12 px, left-aligned with line 1): date • time `ink-secondary` ("Today • 6:30 - 7:30pm",

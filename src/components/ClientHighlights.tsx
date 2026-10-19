@@ -146,20 +146,14 @@ function OutcomeTag({ completed }: { completed: boolean }) {
 }
 
 /**
- * When a milestone was reached, at the end of its sentence in `ink-secondary`: "yesterday", "3 days ago" within the
- * week, else "Aug 21". Read against the brief's morning (`DEMO_TODAY`). Birthdays and anniversaries already say when.
+ * When a milestone was reached, said as the end of its sentence (the user's call): "yesterday", "3 days ago" within the
+ * week, else "on Aug 21". Read against the brief's morning (`DEMO_TODAY`). Birthdays and anniversaries already say when.
  */
 function When({ h }: { h: Highlight }) {
   if (!h.achievedOn) return null;
   const ago = daysBetween(h.achievedOn, DEMO_TODAY);
-  const when = ago === 0 ? 'today' : ago === 1 ? 'yesterday' : ago < 7 ? `${ago} days ago` : formatMonthDay(parseDay(h.achievedOn));
-  // The time wraps as one piece, never "5 days" / "ago".
-  return (
-    <>
-      {' '}
-      <span className="whitespace-nowrap text-ink-secondary">· {when}</span>
-    </>
-  );
+  const when = ago === 0 ? 'today' : ago === 1 ? 'yesterday' : ago < 7 ? `${ago} days ago` : `on ${formatMonthDay(parseDay(h.achievedOn))}`;
+  return <> {when}</>;
 }
 
 /** Avatar with its category badge (milestones blue, birthdays and anniversaries orange). */
