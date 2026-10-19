@@ -108,12 +108,14 @@ function ChatIcon() {
   );
 }
 
-/** A History row's 116 px status tag: blue "Message sent" (Figma 4341:459184) or grey "Dismissed" (the demo's). */
+/** A History row's status tag: blue "Message sent" (Figma 4341:459184) or grey "Dismissed" (the demo's). */
 function OutcomeTag({ completed }: { completed: boolean }) {
   return (
     <span
-      className={`flex w-[116px] shrink-0 items-center justify-center gap-1.5 self-stretch rounded-lg px-6 py-2 ${
-        completed ? 'bg-[rgba(227,236,255,0.8)]' : 'bg-surface-secondary'
+      // "Message sent" is drawn 116 px wide, its words leaving about 10 px each side; "Dismissed" hugs its words with the
+      // same 10 px, so the shorter tag does not look padded out.
+      className={`flex shrink-0 items-center justify-center gap-1.5 self-stretch rounded-lg py-2 ${
+        completed ? 'w-[116px] bg-[rgba(227,236,255,0.8)] px-6' : 'bg-surface-secondary px-2.5'
       }`}
     >
       {completed ? (
@@ -217,6 +219,7 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
         <CountChip value={attention.length} />
       </div>
       <div className="flex flex-col rounded-lg bg-white">
+        {/* The two views split the width evenly, labels centred. */}
         <div role="tablist" aria-label="Highlights" className="flex items-center border-b border-line px-2.5">
           {VIEWS.map((v) => {
             const on = v.key === view;
@@ -228,7 +231,7 @@ export function ClientHighlights({ narrow = false }: { narrow?: boolean }) {
                 role="tab"
                 aria-selected={on}
                 onClick={() => setView(v.key)}
-                className={`-mb-px whitespace-nowrap border-b-2 px-4 pb-2.5 pt-3 text-[13px] font-semibold leading-normal ${
+                className={`-mb-px flex-1 whitespace-nowrap border-b-2 px-4 pb-2.5 pt-3 text-center text-[13px] font-semibold leading-normal ${
                   on ? 'border-brand text-brand' : 'border-transparent text-ink-secondary hover:text-ink'
                 }`}
               >
