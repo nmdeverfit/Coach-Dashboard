@@ -1,10 +1,12 @@
 import type { FoodEntry, MealKey, NutritionLog, SessionType, TodoDetail, TrainingDay } from './types';
+import { dayWorkouts } from './workouts';
 
 /** Nothing assigned that day (no calendar entry at all). */
 const NA = '-';
 
 /**
- * Lays a weekly plan (Mon → Sun) onto real dates; each entry is [workout, sections, completed], null for a rest day,
+ * Lays a weekly plan (Mon → Sun) onto real dates; each entry is [first workout, workouts assigned, completed], null
+ * for a rest day,
  * or NA for a day with nothing assigned.
  */
 function trainingWeeks(firstMonday: string, weeks: ([string, number, number] | null | typeof NA)[][]): Record<string, TrainingDay> {
@@ -14,7 +16,7 @@ function trainingWeeks(firstMonday: string, weeks: ([string, number, number] | n
     week.forEach((entry, d) => {
       if (entry === NA) return;
       const date = new Date(start + (w * 7 + d) * 86_400_000).toISOString().slice(0, 10);
-      days[date] = entry ? { kind: 'workout', name: entry[0], sections: entry[1], completed: entry[2] } : { kind: 'rest' };
+      days[date] = entry ? { kind: 'workout', workouts: dayWorkouts(entry[0], entry[1], entry[2]) } : { kind: 'rest' };
     }),
   );
   return days;

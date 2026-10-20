@@ -47,7 +47,7 @@ export function buildClientAssessment(client: Client, profile: ClientProfile, to
   const trainingFact =
     t.adherence2w === null
       ? 'No workouts scheduled in the last 2 weeks.'
-      : `Completed ${t.adherence2w}% of scheduled sections over the last 2 weeks${
+      : `Completed ${t.adherence2w}% of assigned workouts over the last 2 weeks${
           t.lastWorkoutDaysAgo === null ? '' : `; last workout ${t.lastWorkoutDaysAgo === 1 ? 'yesterday' : `${t.lastWorkoutDaysAgo} days ago`}`
         }.`;
   const overdue = formRows(profile, today).find((r) => r.status === 'overdue');
@@ -72,7 +72,7 @@ export function buildClientAssessment(client: Client, profile: ClientProfile, to
       : {
           before: 'Current',
           signal: 'training',
-          after: t.adherence2w === null ? `signals ${tone}: no workouts scheduled.` : `signals ${tone}: ${t.adherence2w}% of scheduled sections done in 2 weeks.`,
+          after: t.adherence2w === null ? `signals ${tone}: no workouts scheduled.` : `signals ${tone}: ${t.adherence2w}% of assigned workouts done in 2 weeks.`,
         };
 
   const facts = profile.focus === 'nutrition' ? [nutritionFact, trainingFact] : [trainingFact, nutritionFact];
@@ -117,9 +117,12 @@ export function buildTasks(profile: ClientProfile, today: string): { rows: TaskR
         return { name: 'Log meals daily', when, status };
       }
       case 'workouts': {
-        const workouts = week.map((date) => profile.training.days[date]).filter((x) => x?.kind === 'workout');
+        const workouts = week.flatMap((date) => {
+          const day = profile.training.days[date];
+          return day?.kind === 'workout' ? day.workouts : [];
+        });
         if (!workouts.length) return null;
-        const complete = workouts.filter((w) => w.kind === 'workout' && w.completed >= w.sections).length;
+        const complete = workouts.filter((w) => w.done).length;
         const status: TaskStatus =
           complete === workouts.length ? { label: 'Done', tone: 'done' } : { label: `${complete} of ${workouts.length}`, tone: complete ? 'short' : 'none' };
         return { name: `Complete ${workouts.length} workouts`, when, status };

@@ -215,8 +215,8 @@ export function buildBuildView(d: BuildDetail, firstName: string, today: string)
   const bullets: string[] = [];
   if (d.context.programRequestedOn) bullets.push(`Asked for a new program in a message on ${weekdayDate(d.context.programRequestedOn)}.`);
   const last = training.lastWorkout;
-  if (last) bullets.push(`Last workout on ${weekdayDate(last.date)}, ${last.name}: ${last.completed} of ${last.sections} sections done.`);
-  if (training.adherence2w !== null) bullets.push(`Completed ${training.adherence2w}% of scheduled sections over the last 2 weeks.`);
+  if (last) bullets.push(`Last workout on ${weekdayDate(last.date)}: ${last.workouts.filter((w) => w.done).length} of ${last.workouts.length} workouts done.`);
+  if (training.adherence2w !== null) bullets.push(`Completed ${training.adherence2w}% of assigned workouts over the last 2 weeks.`);
 
   return {
     rowReason,

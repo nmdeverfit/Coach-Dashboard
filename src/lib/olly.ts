@@ -15,7 +15,7 @@ import type {
 import { WEEKDAYS, addDays, summarizeNutrition, type Assessment } from './checkin';
 import { formatDayMonth, parseDay } from './dates';
 import { buildAcknowledgeView, buildPrepareView, buildUnblockView, plural, time12 } from './todos';
-import { sectionCounts, summarizeTraining } from './training';
+import { summarizeTraining, workoutCounts } from './training';
 
 /**
  * Olly in the middle column: Tell me more (Olly BI) and Draft with AI (Olly Voice), plus the inbox thread the
@@ -48,8 +48,8 @@ export interface OllyAnswer {
 }
 
 /**
- * Days with meals logged in the 7 days before today, or sections done in the 14, whichever signal leads. The units
- * are the assessment's own ("meals logged on 2 days of 7", "48% of scheduled sections"), so the two never disagree.
+ * Days with meals logged in the 7 days before today, or workouts done in the 14, whichever signal leads. The units
+ * are the assessment's own ("meals logged on 2 days of 7", "48% of assigned workouts"), so the two never disagree.
  */
 function chartFor(client: Client, today: string): OllyChart | null {
   const profile = getProfile(client.id);
@@ -65,7 +65,7 @@ function chartFor(client: Client, today: string): OllyChart | null {
       caption: `${daysLogged}/7 days · ${window.label}`,
     };
   }
-  const { done, planned } = sectionCounts(profile.training, addDays(today, -14), addDays(today, -1));
+  const { done, planned } = workoutCounts(profile.training, addDays(today, -14), addDays(today, -1));
   if (!planned) return null;
   return {
     title: 'Session Completion',
@@ -74,7 +74,7 @@ function chartFor(client: Client, today: string): OllyChart | null {
       { label: 'Missed', value: planned - done },
     ],
     headline: `${Math.round((done / planned) * 100)}% completed`,
-    caption: `${done}/${planned} scheduled sections · last 2 weeks`,
+    caption: `${done}/${planned} assigned workouts · last 2 weeks`,
   };
 }
 
@@ -105,7 +105,7 @@ export function tellTask(client: Client, today: string): OllyTaskSpec {
     title: `Reading ${client.firstName}’s status…`,
     steps: [
       `Read the stored status for ${dayMonth(today)}`,
-      nutrition ? `Check meals logged, ${window}` : 'Check sections done, last 2 weeks',
+      nutrition ? `Check meals logged, ${window}` : 'Check workouts done, last 2 weeks',
       nutrition ? 'Chart the days logged' : 'Chart session completion',
     ],
     doneLabel: 'Checked 3 sources',
@@ -246,8 +246,8 @@ function checkinText(client: Client, today: string): string {
   }
   const t = summarizeTraining(profile.training, today);
   if (t.adherence2w === null) return `Hi ${first}, checking in on how the week went. Anything you’d like to plan together for the next one?`;
-  if (onTrack) return `Hi ${first}, ${t.adherence2w}% of your scheduled sections done over the last two weeks. Great work. Anything you’d like to change for the week ahead?`;
-  return `Hi ${first}, you’ve completed ${t.adherence2w}% of scheduled sections over the last two weeks. Is anything getting in the way that I can help plan around?`;
+  if (onTrack) return `Hi ${first}, ${t.adherence2w}% of your assigned workouts done over the last two weeks. Great work. Anything you’d like to change for the week ahead?`;
+  return `Hi ${first}, you’ve completed ${t.adherence2w}% of your assigned workouts over the last two weeks. Is anything getting in the way that I can help plan around?`;
 }
 
 // ---------------------------------------------------------------- Inbox thread

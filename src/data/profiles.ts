@@ -1,6 +1,7 @@
 import { addDays } from '../lib/checkin';
 import { dayAt, todoDetails } from './details';
 import { DEMO_TODAY, findPerson, generatedStatus } from './mock';
+import { dayWorkouts } from './workouts';
 import type {
   AcknowledgeDetail,
   AssignedForm,
@@ -43,7 +44,7 @@ export function random(seed: string) {
   };
 }
 
-/** How each status behaves: share of days with food logged, calories as a share of target, sections completed. */
+/** How each status behaves: share of days with food logged, calories as a share of target, workouts completed. */
 const BEHAVIOUR: Record<ClientStatus, { log: number; kcal: [number, number]; train: number; habit: number }> = {
   on_track: { log: 0.92, kcal: [0.95, 1.04], train: 0.93, habit: 0.85 },
   needs_attention: { log: 0.55, kcal: [0.78, 0.92], train: 0.68, habit: 0.5 },
@@ -103,10 +104,10 @@ function generateTraining(client: Client, rnd: () => number, b: (typeof BEHAVIOU
       days[date] = { kind: 'rest' };
       return;
     }
-    const sections = 3 + Math.floor(rnd() * 2);
+    const count = 3 + Math.floor(rnd() * 2);
     let completed = 0;
-    if (date < DEMO_TODAY) for (let s = 0; s < sections; s++) completed += rnd() < b.train ? 1 : 0;
-    days[date] = { kind: 'workout', name: WORKOUTS[slot % WORKOUTS.length], sections, completed };
+    if (date < DEMO_TODAY) for (let s = 0; s < count; s++) completed += rnd() < b.train ? 1 : 0;
+    days[date] = { kind: 'workout', workouts: dayWorkouts(WORKOUTS[slot % WORKOUTS.length], count, completed) };
   });
   return { days, program: { name: PROGRAMS[Math.floor(rnd() * PROGRAMS.length)], startsOn, weeks } };
 }
@@ -218,7 +219,7 @@ function generate(client: Client): ClientProfile {
 function silenceSince(profile: ClientProfile, since: string): ClientProfile {
   const days = Object.fromEntries(
     Object.entries(profile.training.days).map(([date, day]) =>
-      date >= since && day.kind === 'workout' ? [date, { ...day, completed: 0 }] : [date, day],
+      date >= since && day.kind === 'workout' ? [date, { ...day, workouts: day.workouts.map((w) => ({ ...w, done: false })) }] : [date, day],
     ),
   );
   const food = Object.fromEntries(Object.entries(profile.nutrition.days).filter(([date]) => date < since));

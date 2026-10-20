@@ -97,7 +97,13 @@ export interface NutritionLog {
 export type TrainingDay =
   | { kind: 'rest' }
   | { kind: 'paused' }
-  | { kind: 'workout'; name: string; sections: number; completed: number };
+  | { kind: 'workout'; workouts: Workout[] };
+
+/** One workout assigned on a day, and whether the client completed it. */
+export interface Workout {
+  name: string;
+  done: boolean;
+}
 
 /** Raw training data for a client. Adherence, last workout and the program card are all computed from it. */
 export interface TrainingLog {
