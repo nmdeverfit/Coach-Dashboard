@@ -10,6 +10,7 @@ import { sessionsInWeek, weekAsOf } from '../lib/week';
 import { useStore } from '../state/store';
 import { Avatar } from './Avatar';
 import { CountChip } from './CountChip';
+import { GroupSessionRow } from './GroupSession';
 import { Swatch } from './drawer/SessionsBodies';
 import type { GroupMeta } from './groups';
 
@@ -146,8 +147,12 @@ export function CategoryGroup({
               <li className="px-1 py-3 text-[13px] leading-[1.5] text-ink-muted">{sessions ? 'No sessions booked right now.' : 'No clients here right now.'}</li>
             )}
             {/* A session row: type colour · session name, then date and time · a 16 px avatar · client name on the line
-                below. It opens its client on the Booking tab. */}
-            {sessions?.map(({ client, booking }) => (
+                below. It opens its client on the Booking tab. A group session shows its roster instead (GroupSessionRow). */}
+            {sessions?.map(({ client, booking, group: session }) => session ? (
+              <li key={session.id}>
+                <GroupSessionRow session={session} today={today} />
+              </li>
+            ) : (
               <li key={`${client.id}:${booking.date}:${booking.start}`}>
                 <button
                   type="button"

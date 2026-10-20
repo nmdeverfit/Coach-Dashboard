@@ -47,7 +47,11 @@ the same change.
   (`bookingRow` in `lib/dashboard.ts`, credit figures from `buildUnblockView`) are computed from it. The card lists
   sessions, not clients (`sessionsInWeek` in `lib/week.ts`, same bookings and window as `Client.nextSession`): line 1
   type swatch · session name, line 2 "Today" or "Sep 1" • time span · a 16 px avatar · client name; the count is
-  the sessions'; a row opens its client on the Booking tab.
+  the sessions'; a row opens its client on the Booking tab. `groupSessions` (Small group HIIT, every Tuesday 5:30 PM,
+  17 of 23 enrolled, 1 canceled, all dashboard clients) adds one row per week in the same window (`CardSession` in
+  `lib/week.ts`), shown by `GroupSessionRow` (`components/GroupSession.tsx`: avatar stack + a "17 clients" link
+  whose hover lists the roster); a click opens `SessionDrawer` (`drawer/SessionDetails.tsx`, Figma `5825:544656`,
+  `selectedSessionId` / `selectSession` in the store, one panel at a time).
 - `src/lib/week.ts`: the week selector. A week's figures are read as of its Monday 06:00 (`weekAsOf`), so a past week
   reuses every builder with an earlier "today". `clientsInWeek` gives that week's status (last week =
   `lastWeekStatus`, older weeks back-filled with the current status), program countdown and next session;
@@ -292,6 +296,11 @@ the same change.
   the user's request. "Save and Continue" is the design's copy ("Save" was suggested).
 - Upcoming bookings lists sessions (the user's call): the brief's cards show "four clients", and its count counts
   sessions, so a client with three bookings fills three rows. AC5 still holds (sessions ≥ clients ≥ Prepare to-dos).
+- Group sessions (the user's call, Figma `5825:544656`): Phase 1 bookings and Prepare are 1:1 only. The HIIT class
+  sits on the Upcoming bookings card (its count counts it) but adds no client to the card's members, raises no
+  Prepare to-do and is not on its clients' Booking tab or `nextSession`. The frame's description ("In this 1-on-1
+  strength session…") reads as a copy slip for a group class; the demo writes its own. The frame is a 540 px side
+  panel, so "popup" is drawn as one. View calendar only toasts.
 - Client highlight actions (Figma `5795:175100`): the brief puts "Reactions on client highlights" in Phase 2, but the
   row's 👍 is drawn. The demo built it (toggles, toasts "Reaction sent to {first}") and hides it for now
   (`SHOW_REACTION`, the user's call).

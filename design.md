@@ -50,6 +50,16 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   semibold ink. Line 2 (12 px, left-aligned with line 1): date • time `ink-secondary` ("Today • 6:30 - 7:30pm",
   "Sep 1 • 8:00 - 9:00am", no weekday), a 2 px dot, 16 px avatar, client name medium (500) ink. Empty state "No
   sessions booked right now."; the count chip counts sessions. A row opens its client on the Booking tab.
+  A group session (Small group HIIT, the user's call) keeps line 1 and the date • time; after the dot comes a stack
+  of the first three clients' 16 px avatars (`-ml-1`, white ring) and a link button "17 clients" (12 px semibold
+  `brand`, underline on hover). Hovering or focusing it shows the roster: a 240 px white popover (border `line`,
+  rounded 8, shadow `0 4px 16px rgba(0,0,0,0.12)`), "ENROLLED · 17" 11 px caps, then 20 px avatar + name rows,
+  scrolling past ~8; below the link, or above when it does not fit. A click on the row opens **Session details**
+  (Figma `5825:544656`): a 540 px panel from the right with the drawer shadow, "SESSION DETAILS" + ×; swatch
+  16.8 px + name 18 px bold `#1a1a1a`; "Tue, Sep 1 · 5:30 - 6:30pm (60min)" 14 px; View calendar (outline, 32 px,
+  toasts); info lines with 16 px icons (location + directions with a grey bar, credits per spot, description,
+  Trainer: You with the coach avatar); a top border, then pill tabs Enrolled 17/23 | Canceled 1 (active = `#1a1a1a`
+  border) and 28 px avatar + 14 px name rows, which open that client on the Booking tab.
 - **Customize cards** (Figma `5749:521640` + a tab, a trial on both branches; extra cards keep the 2 × 2 grid, so six
   make three rows): each card's header ends in a chevron (collapse
   toggle) and a 28 px ⋯ button (`icon-more`) opening a 190 px menu (white, `#e0e0e0` border, rounded 8, shadow

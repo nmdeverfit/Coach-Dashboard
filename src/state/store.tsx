@@ -57,6 +57,8 @@ interface State {
   selectedTodoId: string | null;
   /** The client whose detail panel is open (from a group card). Only one panel is open at a time. */
   selectedClientId: string | null;
+  /** A group session's details panel (Upcoming bookings), by occurrence id. One panel at a time. */
+  selectedSessionId: string | null;
   /** The tab the client detail page opens on, when the coach came from a list that implies one (the Booking tab). */
   selectedClientTab: ClientTabKey | null;
   /** Clients reviewed this week. A Check-in review is one action on both views (brief, S3 BL5). */
@@ -150,6 +152,7 @@ type Action =
   | { type: 'toast'; message: string | null }
   | { type: 'select'; id: string | null }
   | { type: 'selectClient'; id: string | null; tab?: ClientTabKey }
+  | { type: 'selectSession'; id: string | null }
   | { type: 'reviewClient'; clientId: string }
   | { type: 'toggleReview'; clientId: string; offset: number }
   | { type: 'setDashboardTab'; tab: DashboardTab }
@@ -177,6 +180,7 @@ const initialState: State = {
   toastSeq: 0,
   selectedTodoId: null,
   selectedClientId: null,
+  selectedSessionId: null,
   selectedClientTab: null,
   reviewed: {},
   pastReviewed: {},
@@ -255,18 +259,20 @@ function reducer(state: State, action: Action): State {
         dashboardTab: action.view === 'dashboard' && state.view !== 'dashboard' ? 'all' : state.dashboardTab,
         selectedTodoId: action.view === 'brief' ? state.selectedTodoId : null,
         selectedClientId: action.view === 'brief' ? state.selectedClientId : null,
+        selectedSessionId: action.view === 'brief' ? state.selectedSessionId : null,
         side: action.view === 'brief' ? state.side : null,
       };
     case 'shiftWeek': {
       const weekOffset = Math.max(MIN_WEEK_OFFSET, Math.min(0, state.weekOffset + action.by));
       // To-dos exist on the current week only, so their panel closes when the coach looks back.
       const closing = weekOffset !== 0 && state.selectedTodoId !== null;
-      return { ...state, weekOffset, selectedTodoId: closing ? null : state.selectedTodoId, side: closing ? null : state.side };
+      // A group session's panel shows one week's occurrence, so it closes too.
+      return { ...state, weekOffset, selectedTodoId: closing ? null : state.selectedTodoId, selectedSessionId: null, side: closing ? null : state.side };
     }
     case 'resetWeek':
       return { ...state, weekOffset: 0 };
     case 'openGroup':
-      return { ...state, view: 'dashboard', dashboardTab: action.group ? ALL_GROUPS[action.group].tab : 'all', selectedClientId: null, selectedTodoId: null, side: null };
+      return { ...state, view: 'dashboard', dashboardTab: action.group ? ALL_GROUPS[action.group].tab : 'all', selectedClientId: null, selectedTodoId: null, selectedSessionId: null, side: null };
     case 'setRail':
       return { ...state, rail: action.rail };
     case 'setMetrics':
@@ -288,6 +294,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         selectedTodoId: action.id,
         selectedClientId: action.id ? null : state.selectedClientId,
+        selectedSessionId: action.id ? null : state.selectedSessionId,
         side: keepSide(state.side, action.id ? clientId : state.selectedClientId),
       };
     }
@@ -297,8 +304,13 @@ function reducer(state: State, action: Action): State {
         selectedClientId: action.id,
         selectedClientTab: action.tab ?? null,
         selectedTodoId: action.id ? null : state.selectedTodoId,
+        selectedSessionId: action.id ? null : state.selectedSessionId,
         side: keepSide(state.side, action.id ?? (state.selectedTodoId ? todoClient(state) : null)),
       };
+    case 'selectSession':
+      return action.id
+        ? { ...state, selectedSessionId: action.id, selectedClientId: null, selectedTodoId: null, side: null }
+        : { ...state, selectedSessionId: null };
     case 'openOlly':
     case 'openInbox': {
       const prev = state.side?.clientId === action.clientId ? state.side : null;
@@ -448,6 +460,8 @@ interface Store {
   selectTodo: (id: string | null) => void;
   /** Opens the client detail page, optionally on a given tab. */
   selectClient: (id: string | null, tab?: ClientTabKey) => void;
+  /** Opens a group session's details panel; null closes it. */
+  selectSession: (id: string | null) => void;
   /** Mark as reviewed from the client detail page. */
   reviewClient: (clientId: string) => void;
   /** The client list's ✓: marks the client reviewed, or takes the review back. */
@@ -535,6 +549,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       selectTodo: (id) => dispatch({ type: 'select', id }),
       selectClient: (id, tab) => dispatch({ type: 'selectClient', id, tab }),
+      selectSession: (id) => dispatch({ type: 'selectSession', id }),
       reviewClient: (clientId) => {
         dispatch({ type: 'reviewClient', clientId });
         showToast(`${getClient(clientId).firstName} marked as reviewed`);

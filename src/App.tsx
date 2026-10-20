@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { DashboardView } from './components/DashboardView';
 import { CustomizeCards } from './components/CustomizeCards';
 import { ClientDrawer } from './components/drawer/ClientDetails';
+import { SessionDrawer } from './components/drawer/SessionDetails';
 import { TodoDrawer } from './components/drawer/TodoDrawer';
 import { Header } from './components/Header';
 import { RightRail } from './components/RightRail';
@@ -70,6 +71,7 @@ export default function App() {
       </div>
       <TodoDrawer />
       <ClientDrawer />
+      <SessionDrawer />
       <SidePanel />
       {state.customize && <CustomizeCards initialTab={state.customize} />}
       <Toast />
