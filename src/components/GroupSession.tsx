@@ -39,6 +39,13 @@ function RosterLink({ people }: { people: Client[] }) {
     hideTimer.current = window.setTimeout(() => setPos(null), 120);
   };
   useEffect(() => () => window.clearTimeout(hideTimer.current), []);
+  // It is fixed to the page, so a scroll anywhere (the card's list, the rail) would leave it behind: it hides instead.
+  useEffect(() => {
+    if (!pos) return;
+    const onScroll = (e: Event) => !(e.target as Element).closest?.('[data-keep-open]') && setPos(null);
+    window.addEventListener('scroll', onScroll, true);
+    return () => window.removeEventListener('scroll', onScroll, true);
+  }, [pos]);
 
   return (
     <>
