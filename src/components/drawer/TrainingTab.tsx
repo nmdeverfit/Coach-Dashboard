@@ -14,20 +14,20 @@ import { CardHeader } from './NutritionTab';
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 /** Session-log cell styles from Figma node 5645:520935. */
-const CELL: Record<SessionState, { box: string; label: string; text: string; tone: string }> = {
-  completed: { box: 'border-brand bg-brand', label: 'Completed', text: 'text-white', tone: 'text-[#e3ecff]' },
-  partial: { box: 'border-[#e3eaff] bg-brand/[0.12]', label: 'Partial', text: 'text-brand', tone: 'text-[#4a4d56]' },
-  missed: { box: 'border-[#feeff2] bg-[#f2617d]/10', label: 'Missed', text: 'text-[#f03358]', tone: '' },
-  rest: { box: 'border-[#f2f2f2] bg-black/5', label: 'Rest', text: 'text-ink-tertiary', tone: '' },
-  today: { box: 'border-line bg-white', label: 'Today', text: 'text-ink-tertiary', tone: '' },
-  upcoming: { box: 'border-dashed border-ink-muted/40 bg-white', label: 'Upcoming', text: 'text-ink-muted', tone: '' },
-  paused: { box: 'border-[#f6f6f6] bg-[#f2f2f2]', label: 'Paused', text: 'text-ink-muted', tone: '' },
+const CELL: Record<SessionState, { box: string; ring: string; label: string; text: string; tone: string }> = {
+  completed: { box: 'border-brand bg-brand', ring: 'ring-brand/35', label: 'Completed', text: 'text-white', tone: 'text-[#e3ecff]' },
+  partial: { box: 'border-[#e3eaff] bg-brand/[0.12]', ring: 'ring-brand/20', label: 'Partial', text: 'text-brand', tone: 'text-[#4a4d56]' },
+  missed: { box: 'border-[#feeff2] bg-[#f2617d]/10', ring: 'ring-[#f2617d]/20', label: 'Missed', text: 'text-[#f03358]', tone: '' },
+  rest: { box: 'border-[#f2f2f2] bg-black/5', ring: 'ring-black/[0.08]', label: 'Rest', text: 'text-ink-tertiary', tone: '' },
+  today: { box: 'border-line bg-white', ring: 'ring-brand/15', label: 'Today', text: 'text-ink-tertiary', tone: '' },
+  upcoming: { box: 'border-dashed border-ink-muted/40 bg-white', ring: 'ring-black/[0.08]', label: 'Upcoming', text: 'text-ink-muted', tone: '' },
+  paused: { box: 'border-[#f6f6f6] bg-[#f2f2f2]', ring: 'ring-black/[0.08]', label: 'Paused', text: 'text-ink-muted', tone: '' },
 };
 
 const pad = (d: string) => String(parseDay(d).getUTCDate()).padStart(2, '0');
 
 /** A date with no calendar entry: nothing was assigned (Build's "Not assigned" grey, Figma 5647:133017). */
-const UNASSIGNED = { box: 'border-line bg-[#eaeef1]', label: 'Not assigned', text: 'text-ink-secondary', tone: '' };
+const UNASSIGNED = { box: 'border-line bg-[#eaeef1]', ring: 'ring-black/[0.08]', label: 'Not assigned', text: 'text-ink-secondary', tone: '' };
 
 function Cell({ cell, today }: { cell: SessionCell; today: string }) {
   const s = cell.assigned ? CELL[cell.state] : UNASSIGNED;
@@ -36,12 +36,8 @@ function Cell({ cell, today }: { cell: SessionCell; today: string }) {
   return (
     <div
       tabIndex={cell.day ? 0 : undefined}
-      className={`group/cell relative flex h-[76px] min-w-0 flex-col gap-3 rounded-lg border px-1.5 pb-2.5 pt-1.5 outline-none ${s.box} ${
-        // A day with workouts lifts on hover or focus, under its tooltip (the user's call; no frame).
-        cell.day
-          ? 'transition-[transform,box-shadow] duration-150 ease-out hover:z-10 hover:-translate-y-0.5 hover:shadow-[0_6px_14px_rgba(32,35,83,0.14)] focus-visible:z-10 focus-visible:-translate-y-0.5 focus-visible:shadow-[0_6px_14px_rgba(32,35,83,0.14)] motion-reduce:transform-none motion-reduce:transition-none'
-          : ''
-      }`}
+      // Hover or focus draws a light 3 px stroke in the cell's own tint round it (the user's reference; no frame).
+      className={`group/cell relative flex h-[76px] min-w-0 flex-col gap-3 rounded-lg border px-1.5 pb-2.5 pt-1.5 outline-none transition-shadow duration-150 hover:z-10 hover:ring-[3px] focus-visible:z-10 focus-visible:ring-[3px] ${s.box} ${s.ring}`}
     >
       {cell.state === 'paused' && (
         <img src={pausedPattern} alt="" className="pointer-events-none absolute inset-0 size-full rounded-lg object-cover opacity-40" />

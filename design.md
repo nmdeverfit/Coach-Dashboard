@@ -240,7 +240,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   user's call). Today is the day after the summary window.
 - **Session log cells** (Training tab): 76 px tall, `pt-1.5 pb-2.5`. Date row (20 px) then the state label, which
   sits 39 px from the top on every state; the "3/3" count (workouts done / assigned) hangs below the label.
-  A day with workouts lifts 2 px with a soft shadow (`0 6px 14px rgba(32,35,83,0.14)`, 150 ms) on hover or focus.
+  Hover or focus draws a light 3 px stroke round any cell in its own tint (`ring`: Completed brand/35, Partial
+  brand/20, Missed `#f2617d`/20, Today brand/15, the rest black/8; 150 ms), no lift or shadow (the user's call).
   Hover (Figma `4899:687161`): white card, rounded 8, `px-3 pt-2 pb-2.5`, shadow `0 4px 24px rgba(0,0,0,0.12)`,
   a 10 × 5 arrow under it; "Mon, Aug 24" 11 px `ink-tertiary`; "Completed" / "Partial" / "Missed" 12 px semibold
   ink + "(5/5 workouts)" regular; then one row per workout: 14 px ✓ (`#059669`) or × (`#f03358`) + the name 12 px
