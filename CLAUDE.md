@@ -166,7 +166,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
   green, Issue Credits sits beside the balance and credit rows start collapsed (the panels keep theirs in the
-  footer). Opening a client from the list's Booking tab lands on this tab (`selectClient(id, 'booking')`).
+  footer). Opening a client from the list's Booking tab or an Upcoming bookings row lands on this tab (`selectClient(id, 'booking')`)
+  and, once the panel has slid in, scrolls the tabs up under the pinned assessment so the Sessions card shows.
   On the client detail page only (`withTabActions`), a tab can carry its own buttons under its cards
   (`TabActions`): Training's Deep analysis (AI button, tooltip "AI analyzes client's training progress") opens Olly
   in `mode: 'training'` (`trainingAnalysis` / `trainingTask` in `lib/olly.ts`: 4 weeks of the log, week by week,
