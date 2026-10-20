@@ -10,6 +10,7 @@ import { buildClientAssessment } from '../../lib/client';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
 import { ClientActions, MORE_ACTIONS_TOAST } from '../ClientActions';
+import { reducedMotion } from '../ClientListParts';
 import { StatusChip } from '../StatusChip';
 import { Tooltip } from '../Tooltip';
 import { AiAssessment } from './AiAssessment';
@@ -17,6 +18,11 @@ import { ClientTabs, type ClientTabKey } from './ClientTabs';
 import { DrawerAside, useCloseOnOutside, useDrawerPresence } from './DrawerShell';
 import { DraftWithAiButton, FooterButton, SendMessageButton } from './PanelParts';
 import { StatusFeedback } from './StatusFeedback';
+
+/** The panel's slide-in (`animate-drawer-in`, 280 ms) finishes before the scroll to a tab starts. */
+const SLIDE_IN_MS = 300;
+/** Room under the header for the pinned assessment, which covers the top of the scroller once it has scrolled past. */
+const PINNED_CARD_ROOM = 124;
 
 /** Avatar, name, status and the four quick actions of the client detail page (Figma 5671:141948). */
 function ClientTitle({ client, actions }: { client: Client; actions: RefObject<HTMLDivElement> }) {
@@ -103,6 +109,21 @@ export function ClientDetailsPanel({
   const assessment = buildClientAssessment(client, profile, DEMO_TODAY);
   const actions = useRef<HTMLDivElement>(null);
   const footer = useScrolledPast(actions);
+  const scroller = useRef<HTMLDivElement>(null);
+
+  // Opened on a tab (an Upcoming bookings row or the list's Booking tab opens Booking): once the panel has slid in,
+  // scroll the tabs up to just under the pinned assessment, so the tab's first card (Sessions) is in view.
+  useEffect(() => {
+    if (!initialTab) return;
+    const timer = window.setTimeout(() => {
+      const root = scroller.current;
+      const tabs = root?.querySelector<HTMLElement>('[role="tablist"][aria-label="Client data"]');
+      if (!root || !tabs) return;
+      const top = tabs.getBoundingClientRect().top - root.getBoundingClientRect().top + root.scrollTop;
+      root.scrollTo({ top: Math.max(0, top - PINNED_CARD_ROOM), behavior: reducedMotion() ? 'auto' : 'smooth' });
+    }, SLIDE_IN_MS);
+    return () => window.clearTimeout(timer);
+  }, [client.id, initialTab]);
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
@@ -119,7 +140,7 @@ export function ClientDetailsPanel({
           <img src={iconClose} alt="" className="absolute left-1/2 top-1/2 size-6 max-w-none -translate-x-1/2 -translate-y-1/2" />
         </button>
       </header>
-      <div key={client.id} data-panel-scroll className="flex-1 overflow-y-auto">
+      <div key={client.id} ref={scroller} data-panel-scroll className="flex-1 overflow-y-auto">
         <ClientTitle client={client} actions={actions} />
         <div className="flex flex-col gap-2 px-[30px] pb-[30px]">
           <AiAssessment
