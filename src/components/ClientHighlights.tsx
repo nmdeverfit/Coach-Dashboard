@@ -332,10 +332,14 @@ export function ClientHighlights({ narrow: narrowRail = false }: { narrow?: bool
             })}
           </div>
           {/* Stacked under the tabs (narrow), flex-1 would let the list grow to every row, so it keeps a fixed height. */}
-          <ul className={`scroll-thin flex min-w-0 flex-col overflow-y-auto pt-2.5 ${narrow ? 'shrink-0' : 'flex-1'}`} style={{ height: LIST_HEIGHT }}>
-            {/* History opens on the retention note; Clear all empties every category, after a confirm. */}
+          <ul
+            className={`scroll-thin flex min-w-0 flex-col overflow-y-auto ${narrow && view === 'history' ? '' : 'pt-2.5'} ${narrow ? 'shrink-0' : 'flex-1'}`}
+            style={{ height: LIST_HEIGHT }}
+          >
+            {/* History opens on the retention note; Clear all empties every category, after a confirm. Stacked under
+                the category tabs, it starts right under them, flush with the first tab's left edge (the user's call). */}
             {view === 'history' && (
-              <li className="shrink-0 px-3 pb-2.5 text-[12px] leading-[1.5] text-ink-secondary">
+              <li className={`shrink-0 pb-2.5 text-[12px] leading-[1.5] text-ink-secondary ${narrow ? '' : 'px-3'}`}>
                 Moments older than 30 days are cleared automatically.{' '}
                 {history.length > 0 && (
                   <button type="button" onClick={() => setConfirmClear(true)} className="font-semibold text-ink underline hover:text-brand">
