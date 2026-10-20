@@ -62,7 +62,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   `brand`, underline on hover). Hovering or focusing it shows the roster: a 240 px white popover (border `line`,
   rounded 8, shadow `0 4px 16px rgba(0,0,0,0.12)`), "ENROLLED · 17" 11 px caps, then 20 px avatar + name rows,
   scrolling past ~8; below the link, or above when it does not fit. A click on the row opens **Session details**
-  (Figma `5825:544656`): a 540 px panel from the right with the drawer shadow, "SESSION DETAILS" + ×; swatch
+  (Figma `5825:544656`): a 540 px panel from the right with the drawer shadow, "SESSION DETAILS" + ×; body
+  sections 20 px left and right, the same as the title block's top (the user's call); swatch
   16.8 px + name 18 px bold `#1a1a1a`; "Tue, Sep 1 · 5:30 - 6:30pm (60min)" 14 px; View calendar (outline, 32 px,
   toasts); info lines with 16 px icons (location + directions with a grey bar, credits per spot, description,
   Trainer: You with the coach avatar); a top border, then pill tabs Enrolled 17/23 | Canceled 1 (active = `#1a1a1a`
