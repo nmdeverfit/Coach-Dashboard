@@ -75,7 +75,7 @@ function SessionBody({ session, onClose }: { session: GroupSession; onClose: () 
         </button>
       </header>
       <div key={session.id} className="scroll-thin flex-1 overflow-y-auto">
-        <div className="flex items-start gap-2.5 px-[30px] py-5">
+        <div className="flex items-start gap-2.5 p-5">
           <div className="flex min-w-0 flex-1 flex-col gap-1 border-b border-[#f2f2f2] pb-4">
             <div className="flex items-center gap-3">
               <span className="flex h-6 w-[19.2px] shrink-0 items-center justify-center">
@@ -105,7 +105,7 @@ function SessionBody({ session, onClose }: { session: GroupSession; onClose: () 
           </button>
         </div>
 
-        <div className="flex flex-col gap-2 px-[30px] pb-5 pl-[38px] text-[14px] leading-[22px] text-ink">
+        <div className="flex flex-col gap-2 px-5 pb-5 pl-7 text-[14px] leading-[22px] text-ink">
           <InfoLine icon={<Icon src={iconLocation} inset="inset-[8.33%_12.5%]" bleed="inset-[-4.88%_-5.42%_-5.33%_-5.42%]" />}>
             <div className="flex flex-col gap-0.5">
               <p>
@@ -136,7 +136,7 @@ function SessionBody({ session, onClose }: { session: GroupSession; onClose: () 
           </InfoLine>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-line px-[30px] pb-2 pt-5">
+        <div className="flex flex-col gap-4 border-t border-line px-5 pb-2 pt-5">
           <div role="tablist" className="flex items-center gap-1 pl-1">
             <RosterTab label="Enrolled" count={`${enrolled.length}/${session.capacity}`} active={tab === 'enrolled'} onClick={() => setTab('enrolled')} />
             <RosterTab label="Canceled" count={String(canceled.length)} active={tab === 'canceled'} onClick={() => setTab('canceled')} />
