@@ -330,7 +330,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   demo's). The 30-day auto-clear is copy only: the highlights' dates (`on`) are invented to match their sentences;
   nothing in the logs backs them, and nothing ages out. Only a message sent from the highlight's own Draft with AI or Send message completes it; messages to
   that client from elsewhere do not.
-- Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief
+- Completed to-dos slide left and fade out, then drop to the bottom of their section and fade in there (the user's
+  call; `useDoneLast` / `useSlideRows` in `TodayBrief`). The brief
   says "A completed row stays in place, de-emphasised". With more than seven suggestions a completed row can sink
   under "Show N more".
 - Change Client Status (Figma `5829:551881` / `551995` / `552126`, the user's call): Not quite under the assessment
