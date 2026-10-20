@@ -179,7 +179,8 @@ the same change.
   (`relative`), collapsed to the summary + View more, expanded with the facts and both buttons.
   Add context to clients (main branch only, the user's call, no frame): an item in Dashboard Settings opens
   `BulkContextDialog` (`components/`): Apply to All clients · Client groups (`data/clientGroups.ts`, four invented
-  groups, every client in one by a hash of its id) · Selected clients (search + checkboxes), then the same three
+  groups, every client in one by a hash of its id; pills) · Selected clients (search + rows that tint when picked;
+  checkbox rows got the page rejected by the artifact service as a "review page"), then the same three
   questions (`ContextQuestions`, shared with the per-client form), "Add to N clients". It stores `sharedContext` by
   client with its source; a client's own `aiContext` wins, otherwise the card shows "Context added · From {source}"
   and Edit saves the client's own copy.

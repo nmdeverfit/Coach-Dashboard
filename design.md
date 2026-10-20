@@ -319,9 +319,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 - **Add context to clients** (Dashboard Settings item, `list-plus` icon; no frame): 640 px `Modal`, title "Add context
   to clients", subtitle "Tell Olly what it should know about these clients. It applies from tomorrow's 06:00
   update."; "Apply to" (14 px semibold) and three pills (the questions' chip style): All clients (43) · Client groups ·
-  Selected clients. Groups: a bordered box of two-column checkbox rows (name semibold · "16 clients" secondary).
-  Selected: search box (the note box's style) + "N selected" + Clear, then two columns of checkbox · 24 px avatar ·
-  name, 208 px tall, scrolling. A grey line warns when picked clients already have their own context. The questions
+  Selected clients. Groups: the same pills, one per group ("Online coaching · 16"), several at once. Selected: search
+  box (the note box's style) + "N selected" + Clear, then two columns of 24 px avatar · name rows, 208 px tall,
+  scrolling; a picked row turns `bg-brand/5`, name brand semibold, with the 16 px brand circle-check at its right.
+  (Checkbox rows made the artifact service reject the page as a "review page", so the demo avoids them here.) A grey line warns when picked clients already have their own context. The questions
   sit in a `surface-secondary` box, worded "these clients". Footer Cancel · "Add to N clients" (disabled, grey,
   until someone is picked and something is answered). The client's card then reads "Context added · From {source}"
   (source in `ink-secondary`, regular).

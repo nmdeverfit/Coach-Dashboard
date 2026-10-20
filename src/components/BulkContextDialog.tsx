@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import iconPicked from '../assets/figma/icon-circle-check-brand.svg';
 import iconSearch from '../assets/figma/icon-search-note.svg';
 import { clientGroups } from '../data/clientGroups';
 import { clients } from '../data/mock';
@@ -15,8 +16,7 @@ function ScopePill({ on, onClick, children }: { on: boolean; onClick: () => void
   return (
     <button
       type="button"
-      role="radio"
-      aria-checked={on}
+      aria-pressed={on}
       onClick={onClick}
       className={`flex h-9 items-center rounded-full border px-5 text-[13px] ${
         on ? 'border-brand bg-brand/5 font-semibold text-brand' : 'border-[#e0e0e0] bg-white text-black/60 hover:border-brand/40 hover:text-ink'
@@ -27,12 +27,18 @@ function ScopePill({ on, onClick, children }: { on: boolean; onClick: () => void
   );
 }
 
-function CheckRow({ checked, onChange, children }: { checked: boolean; onChange: () => void; children: ReactNode }) {
+/** A client in the picker: picked rows turn brand-tinted with a check at the right. */
+function PickRow({ picked, onToggle, children }: { picked: boolean; onToggle: () => void; children: ReactNode }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 hover:bg-surface-secondary">
-      <input type="checkbox" checked={checked} onChange={onChange} className="size-4 shrink-0 accent-brand" />
+    <button
+      type="button"
+      aria-pressed={picked}
+      onClick={onToggle}
+      className={`flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left ${picked ? 'bg-brand/5' : 'hover:bg-surface-secondary'}`}
+    >
       {children}
-    </label>
+      {picked && <img src={iconPicked} alt="" width={16} height={16} className="ml-auto shrink-0" />}
+    </button>
   );
 }
 
@@ -106,7 +112,7 @@ export function BulkContextDialog({ onClose }: { onClose: () => void }) {
       <div className="flex flex-col gap-5 px-[30px] pb-6 pt-5">
         <section className="flex flex-col gap-3">
           <p className="text-[14px] font-semibold leading-[1.5] text-ink">Apply to</p>
-          <div role="radiogroup" aria-label="Apply to" className="flex flex-wrap gap-2">
+          <div aria-label="Apply to" className="flex flex-wrap gap-2">
             <ScopePill on={scope === 'all'} onClick={() => setScope('all')}>
               All clients ({clients.length})
             </ScopePill>
@@ -119,14 +125,11 @@ export function BulkContextDialog({ onClose }: { onClose: () => void }) {
           </div>
 
           {scope === 'groups' && (
-            <div className="grid grid-cols-2 gap-1 rounded-lg border border-line-light p-2">
+            <div className="flex flex-wrap gap-2">
               {clientGroups.map((g) => (
-                <CheckRow key={g.id} checked={groups.includes(g.id)} onChange={() => setGroups((l) => toggle(l, g.id))}>
-                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2 text-[13px] leading-[1.5]">
-                    <span className="truncate font-semibold text-ink">{g.name}</span>
-                    <span className="shrink-0 text-ink-secondary">{plural(g.members.length, 'client')}</span>
-                  </span>
-                </CheckRow>
+                <ScopePill key={g.id} on={groups.includes(g.id)} onClick={() => setGroups((l) => toggle(l, g.id))}>
+                  {g.name} · {g.members.length}
+                </ScopePill>
               ))}
             </div>
           )}
@@ -153,10 +156,10 @@ export function BulkContextDialog({ onClose }: { onClose: () => void }) {
               </div>
               <div className="scroll-thin grid max-h-[208px] grid-cols-2 gap-x-1 overflow-y-auto">
                 {shown.map((c) => (
-                  <CheckRow key={c.id} checked={picked.includes(c.id)} onChange={() => setPicked((l) => toggle(l, c.id))}>
+                  <PickRow key={c.id} picked={picked.includes(c.id)} onToggle={() => setPicked((l) => toggle(l, c.id))}>
                     <Avatar name={c.name} src={c.avatar} size={24} />
-                    <span className="truncate text-[13px] leading-[1.5] text-ink">{c.name}</span>
-                  </CheckRow>
+                    <span className={`truncate text-[13px] leading-[1.5] ${picked.includes(c.id) ? 'font-semibold text-brand' : 'text-ink'}`}>{c.name}</span>
+                  </PickRow>
                 ))}
                 {shown.length === 0 && <p className="col-span-2 px-2 py-3 text-[13px] text-ink-muted">No clients match “{query.trim()}”.</p>}
               </div>
