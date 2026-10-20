@@ -318,8 +318,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   32 px send (grey until there is text).
   From a Client highlight on the brief the column is a sidebar (the user's call): the page shell gets `pr-[360px]`
   (300 ms padding transition) so the brief and rail reflow into the rest, the column drops its overlay shadow for
-  `border-l border-line` and a faint `-4px 0 16px rgba(0,0,0,0.04)`, Client highlights put their category tabs in a
-  row above the list, and a click on the page no longer closes it (× or Esc do).
+  `border-l border-line` and a faint `-4px 0 16px rgba(0,0,0,0.04)`, the group cards leave the 2 × 2 grid for one
+  column (`flex flex-col gap-4`, lists capped at 186 px as in the three-part layout), Client highlights put their
+  category tabs in a row above the list, and a click on the page no longer closes it (× or Esc do).
 - **Olly working states** (the user's screen recording; `OllyTask`): after each prompt, "Sending this to the right
   place…" (three pulsing dots in Olly gradient colours + a shimmer sweeping the 13 px semibold text, 0.9 s), then
   the task title over its steps, each a blue spinner that turns into a ✓ (0.75 s each), then one line with a filled
