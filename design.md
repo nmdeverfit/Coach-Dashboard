@@ -309,9 +309,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `ink-secondary`, struck) and "Reason: …" ("Reason:" `ink-secondary`); hovering the row's status dot shows a white
   rounded-12 card above it: "Status changed:" 13 px semibold `ink-secondary`, then `StatusChip` → `StatusChip`.
 - **Tab buttons** (client detail page, the user's call): a row right-aligned under the tab's last card; 30 px like
-  the header's Dashboard Settings, rounded 4, `border-black/15`, white, 12 px semibold ink, `px-[13px]`: a step
+  the header's Dashboard Settings, rounded 4, `border-black/15`, white, 12 px semibold ink, `px-5`: a step
   below the quick actions and the footer buttons. Training: Deep analysis with the 14 px AI sparkle and `.ai-btn`, dark tooltip
-  above, right-aligned (`Tooltip end`). Nutrition: Adjust meal plan, plain (hover `surface-secondary`).
+  above, right-aligned (`Tooltip end`). Nutrition: Adjust meal plan, plain (hover `surface-secondary`), with Figma `5835:570011`'s
+  task-edit icon at 16 px and 60 % opacity (`icon-meal-plan-edit`).
 - **Popup** (`Modal`, Figma `5726:511926`): backdrop `black/50` fades in, the card rises in (220 ms). 500 px, white,
   rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
   fields, footer `px-[30px] py-5` + top border. The × is the design's 18 px black disc centred on the top-right

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
+import iconMealPlan from '../../assets/figma/icon-meal-plan-edit.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import type { Client, ClientProfile } from '../../data/types';
 import { summarizeNutrition } from '../../lib/checkin';
@@ -66,7 +67,7 @@ export function ClientTabs({
 
 /** A tab's button: 30 px like the header's Dashboard Settings, a step below the page's quick actions and footer. */
 const TAB_BTN =
-  'flex h-[30px] items-center gap-1.5 rounded-[4px] border border-black/15 bg-white px-[13px] text-[12px] font-semibold leading-none text-ink';
+  'flex h-[30px] items-center gap-1.5 rounded-[4px] border border-black/15 bg-white px-5 text-[12px] font-semibold leading-none text-ink';
 
 /**
  * Buttons that belong to one tab, right-aligned under its cards. Training: Deep analysis, an AI button opening Olly
@@ -91,6 +92,14 @@ function TabActions({ tab, client }: { tab: ClientTabKey; client: Client }) {
     return (
       <div className="flex w-full justify-end">
         <button type="button" onClick={() => showToast(`${client.firstName}’s meal plan opens in Meal Plans`)} className={`${TAB_BTN} hover:bg-surface-secondary`}>
+          {/* Figma 5835:570011 (hugeicons task-edit-02), at 60% opacity as drawn, in its inset/bleed wrappers. */}
+          <span className="relative size-4 shrink-0 opacity-60" aria-hidden>
+            <span className="absolute inset-[12.5%_16.25%]">
+              <span className="absolute inset-[-3.75%_-4.17%]">
+                <img src={iconMealPlan} alt="" className="block size-full max-w-none" />
+              </span>
+            </span>
+          </span>
           Adjust meal plan
         </button>
       </div>
