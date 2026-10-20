@@ -50,6 +50,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   semibold ink. Line 2 (12 px, left-aligned with line 1): date • time `ink-secondary` ("Today • 6:30 - 7:30pm",
   "Sep 1 • 8:00 - 9:00am", no weekday), a 2 px dot, 16 px avatar, client name medium (500) ink. Empty state "No
   sessions booked right now."; the count chip counts sessions. A row opens its client on the Booking tab.
+  Its description reads "Sessions booked for the next few days, 1:1 and group." (the user's call: the rows are
+  sessions, not clients).
   A group session (Small group HIIT, the user's call) keeps line 1 and the date • time; after the dot comes a stack
   of the first three clients' 16 px avatars (`-ml-1`, white ring) and a link button "17 clients" (12 px semibold
   `brand`, underline on hover). Hovering or focusing it shows the roster: a 240 px white popover (border `line`,

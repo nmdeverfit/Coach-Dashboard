@@ -61,7 +61,7 @@ export const GROUPS: (GroupMeta & { key: GroupKey })[] = [
     key: 'upcoming_bookings',
     tab: 'booking',
     title: 'Upcoming bookings',
-    description: 'Clients with a session in the next few days.',
+    description: 'Sessions booked for the next few days, 1:1 and group.',
     icon: upcomingBookingsIcon,
     iconInset: 'inset-[8.32%_12.5%]',
     iconBleed: 'inset-[-3.75%_-4.17%]',
