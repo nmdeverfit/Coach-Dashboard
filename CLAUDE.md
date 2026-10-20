@@ -167,7 +167,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
   green, Issue Credits sits beside the balance and credit rows start collapsed (the panels keep theirs in the
   footer). Opening a client from the list's Booking tab lands on this tab (`selectClient(id, 'booking')`).
-  On the client detail page only (`withTabActions`), a tab can carry its own small buttons above its cards
+  On the client detail page only (`withTabActions`), a tab can carry its own buttons under its cards
   (`TabActions`): Training's Deep analysis (AI button, tooltip "AI analyzes client's training progress") opens Olly
   in `mode: 'training'` (`trainingAnalysis` / `trainingTask` in `lib/olly.ts`: 4 weeks of the log, week by week,
   the most-missed workout, program week, a Weekly Completion bar chart; follow-ups get the same read); Nutrition's

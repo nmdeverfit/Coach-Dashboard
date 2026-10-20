@@ -58,18 +58,18 @@ export function ClientTabs({
   return (
     <DataArea>
       <TabBar tabs={tabs} active={tab} onChange={setTab} />
-      {withTabActions && <TabActions tab={tab} client={client} />}
       <ClientTabContent tab={tab} client={client} profile={profile} />
+      {withTabActions && <TabActions tab={tab} client={client} />}
     </DataArea>
   );
 }
 
-/** A tab's small 28 px button, a step below the page's quick actions and footer buttons. */
+/** A tab's button: 30 px like the header's Dashboard Settings, a step below the page's quick actions and footer. */
 const TAB_BTN =
-  'flex h-7 items-center gap-1.5 rounded-[4px] border border-black/15 bg-white px-2.5 text-[12px] font-semibold leading-none text-ink';
+  'flex h-[30px] items-center gap-1.5 rounded-[4px] border border-black/15 bg-white px-[13px] text-[12px] font-semibold leading-none text-ink';
 
 /**
- * Buttons that belong to one tab, right-aligned above its cards. Training: Deep analysis, an AI button opening Olly
+ * Buttons that belong to one tab, right-aligned under its cards. Training: Deep analysis, an AI button opening Olly
  * on the training log; Nutrition: Adjust meal plan, which leaves for the client's meal plan.
  */
 function TabActions({ tab, client }: { tab: ClientTabKey; client: Client }) {
