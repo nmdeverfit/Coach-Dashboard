@@ -1,9 +1,14 @@
 import legendPaused from '../../assets/figma/legend-paused.png';
 import trendLines from '../../assets/figma/chart-trend-lines.svg';
 import pausedPattern from '../../assets/figma/training-paused.png';
-import type { TrainingLog } from '../../data/types';
+import arrowDown from '../../assets/figma/tooltip-arrow-down.svg';
+import iconDone from '../../assets/figma/icon-workout-done.svg';
+import iconMissed from '../../assets/figma/icon-workout-missed.svg';
+import type { TrainingDay, TrainingLog } from '../../data/types';
 import { formatMonthDay, parseDay } from '../../lib/dates';
-import { summarizeTraining, type SessionCell, type SessionState, type TrainingSummary } from '../../lib/training';
+import { doneOf, summarizeTraining, type SessionCell, type SessionState, type TrainingSummary } from '../../lib/training';
+
+type WorkoutDay = Extract<TrainingDay, { kind: 'workout' }>;
 import { CardHeader } from './NutritionTab';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -28,7 +33,6 @@ function Cell({ cell, today }: { cell: SessionCell; today: string }) {
   const s = cell.assigned ? CELL[cell.state] : UNASSIGNED;
   const isToday = cell.date === today;
   const showCount = (cell.state === 'completed' || cell.state === 'partial') && cell.day;
-  const date = parseDay(cell.date);
   return (
     <div
       tabIndex={cell.day ? 0 : undefined}
@@ -49,29 +53,52 @@ function Cell({ cell, today }: { cell: SessionCell; today: string }) {
         <span className={`text-[11px] font-semibold leading-none tracking-[-0.22px] ${s.text}`}>{s.label}</span>
         {showCount && (
           <span className={`text-[10px] leading-none tracking-[-0.2px] ${s.tone}`}>
-            {cell.day!.completed}/{cell.day!.sections}
+            {doneOf(cell.day!)}/{cell.day!.workouts.length}
           </span>
         )}
       </div>
-      {cell.day && (
-        <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1 hidden -translate-x-1/2 flex-col items-center drop-shadow-[0_4px_24px_rgba(0,0,0,0.12)] group-hover/cell:flex group-focus/cell:flex">
-          <div className="flex flex-col gap-1 whitespace-nowrap rounded-lg bg-white px-2 pb-2.5 pt-2 text-left">
-            <span className="text-[13px] font-semibold leading-[1.5] tracking-[-0.26px] text-ink">
-              {cell.day.name}
-              <span className="font-normal text-ink-tertiary">
-                {' '}
-                · {WEEKDAYS[(date.getUTCDay() + 6) % 7]}, {formatMonthDay(date)}
-              </span>
-            </span>
-            <span className="text-[13px] leading-[1.4] text-ink-tertiary">
-              {cell.state === 'today' || cell.state === 'upcoming'
-                ? `${cell.day.sections} sections scheduled`
-                : `${cell.day.completed} of ${cell.day.sections} sections completed`}
-            </span>
-          </div>
-          <span className="-mt-1 size-2.5 rotate-45 bg-white" />
+      {cell.day && <DayTooltip cell={cell} day={cell.day} />}
+    </div>
+  );
+}
+
+/**
+ * A training day's hover (Figma 4899:687161): the date, the day's state with done / assigned workouts, then each
+ * workout with ✓ (done) or × (not done). Today and upcoming days list theirs with no mark yet.
+ */
+function DayTooltip({ cell, day }: { cell: SessionCell; day: WorkoutDay }) {
+  const date = parseDay(cell.date);
+  const ahead = cell.state === 'today' || cell.state === 'upcoming';
+  const label = ahead ? 'Assigned' : CELL[cell.state].label;
+  const n = day.workouts.length;
+  return (
+    <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1 hidden -translate-x-1/2 flex-col items-center drop-shadow-[0_4px_24px_rgba(0,0,0,0.12)] group-hover/cell:flex group-focus/cell:flex">
+      <div className="flex flex-col gap-1.5 rounded-lg bg-white px-3 pb-2.5 pt-2 text-left">
+        <div className="flex flex-col pb-0.5">
+          <span className="text-[11px] leading-[1.5] text-ink-tertiary">
+            {WEEKDAYS[(date.getUTCDay() + 6) % 7]}, {formatMonthDay(date)}
+          </span>
+          <span className="min-w-[120px] whitespace-nowrap text-[12px] font-semibold leading-[1.5] tracking-[-0.24px] text-ink">
+            {label}{' '}
+            <span className="font-normal">({ahead ? `${n} workout${n === 1 ? '' : 's'}` : `${doneOf(day)}/${n} workouts`})</span>
+          </span>
         </div>
-      )}
+        <ul className="flex flex-col gap-1">
+          {day.workouts.map((w, i) => (
+            <li key={i} className="flex items-center gap-0.5">
+              {ahead ? (
+                <span className="flex size-3.5 shrink-0 items-center justify-center">
+                  <span className="size-1 rounded-full bg-ink-muted" />
+                </span>
+              ) : (
+                <img src={w.done ? iconDone : iconMissed} alt={w.done ? 'Done' : 'Not done'} width={14} height={14} className="shrink-0" />
+              )}
+              <span className="w-[180px] text-[12px] leading-[1.4] text-ink-tertiary">{w.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <img src={arrowDown} alt="" width={10} height={5} className="-mt-px" />
     </div>
   );
 }

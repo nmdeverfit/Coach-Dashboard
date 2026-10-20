@@ -127,8 +127,10 @@ the same change.
   shows "~~From~~ → To" + "Reason:" in the Activity column and a "Status changed:" hover on the row's dot), `AssessedBodies` (`BuildBody`, whose
   Training tab is Check-in's `TrainingTab`, per the user; `RemindBody` with the Form Status table). In the session
   log a date with no calendar entry reads "Not assigned" (grey `#eaeef1`, from the Build frame) and adds a legend item.
-- `src/lib/training.ts`: computes every Training figure from `TrainingLog` (days with sections done / scheduled, and
-  the program's start and length). Adherence = completed ÷ scheduled sections on finished days. The program end also
+- `src/lib/training.ts`: computes every Training figure from `TrainingLog` (each training day lists its assigned
+  workouts, each done or not, names from `dayWorkouts` in `data/workouts.ts`; plus the program's start and length).
+  Adherence = completed ÷ assigned workouts on finished days. A session-log cell's hover (Figma `4899:687161`) gives
+  the date, the state with "(3/4 workouts)" and each workout with ✓ or ×. The program end also
   feeds Clint's `programEndsInDays`, so the Program ending card and the panel agree.
 - `src/components/drawer/ClientDetails.tsx`: the client detail page (Figma `5671:141948`): CLIENT DETAILS title,
   avatar + name + "Status:" chip, four quick actions (Draft with AI, Send message, Mark as reviewed, More), assessment +
@@ -254,7 +256,7 @@ the same change.
 - Task & Habit: the frame titles the card "Task This Week", but the demo's today is Monday 06:00 when nothing this
   week is due, so the cards read last week ("Tasks last week", range on hover). The tasks card's link reads "View
   tasks" (the frame's "View program" looks like a copy slip). Streaks read "5-day streak" / "0-day streak" in
-  sentence case. A workout counts toward "Complete N workouts" only when every section is done.
+  sentence case. "Complete N workouts" counts every workout assigned that week and the ones done.
 - Client details: the drawer covers the right rail, as every panel does, so another client opens after closing it.
   Generated clients' numbers are consistent but invented; only to-do clients carry hand-written data.
 - Client list (Dashboard tab, `5676:145292`): the frame draws an eighth metric card, Paused, cut off at 1440; the

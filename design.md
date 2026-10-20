@@ -226,7 +226,11 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   20 px `brand-subtle` (#e3ecff) circle. Nothing else in the column changes, and the legend has no Today item (the
   user's call). Today is the day after the summary window.
 - **Session log cells** (Training tab): 76 px tall, `pt-1.5 pb-2.5`. Date row (20 px) then the state label, which
-  sits 39 px from the top on every state; the "3/3" count hangs below the label.
+  sits 39 px from the top on every state; the "3/3" count (workouts done / assigned) hangs below the label.
+  Hover (Figma `4899:687161`): white card, rounded 8, `px-3 pt-2 pb-2.5`, shadow `0 4px 24px rgba(0,0,0,0.12)`,
+  a 10 × 5 arrow under it; "Mon, Aug 24" 11 px `ink-tertiary`; "Completed" / "Partial" / "Missed" 12 px semibold
+  ink + "(5/5 workouts)" regular; then one row per workout: 14 px ✓ (`#059669`) or × (`#f03358`) + the name 12 px
+  `ink-tertiary`, 180 px wide. Today and upcoming days read "Assigned (3 workouts)" with a grey dot per workout.
 - **Habit day circles** (28 px): done = green tint + check, missed (daily habits) = `#fef2f2` + red ×, not ticked on
   a weekly habit = white with "–". Labels 9 px uppercase in the matching colour.
 - **No data:** charts never hide. With nothing logged, Nutrition keeps the ring (empty track, "–" in the centre),

@@ -129,7 +129,7 @@ export function lastActive(profile: ClientProfile, today: string): string {
       .filter(([, meals]) => Object.values(meals ?? {}).some((foods) => foods && foods.length))
       .map(([date]) => date),
     ...Object.entries(profile.training.days)
-      .filter(([, day]) => day.kind === 'workout' && day.completed > 0)
+      .filter(([, day]) => day.kind === 'workout' && day.workouts.some((w) => w.done))
       .map(([date]) => date),
     ...profile.habits.flatMap((h) => h.doneOn),
     ...profile.forms.flatMap((f) => (f.lastSubmittedOn ? [f.lastSubmittedOn] : [])),

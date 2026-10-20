@@ -20,10 +20,10 @@ export interface TrainingSummary {
   /** Last week and this week, Monday first. */
   weeks: SessionCell[][];
   rangeLabel: string;
-  /** Days since the most recent workout with any section done, or null when there is none. */
+  /** Days since the most recent training day with any workout done, or null when there is none. */
   lastWorkoutDaysAgo: number | null;
   lastWorkout: (Extract<TrainingDay, { kind: 'workout' }> & { date: string }) | null;
-  /** Share of scheduled sections completed in the 14 days before today. */
+  /** Share of assigned workouts completed in the 14 days before today. */
   adherence2w: number | null;
   /** The four finished weeks before this one, oldest first. */
   trend: { label: string; pct: number | null }[];
@@ -31,32 +31,38 @@ export interface TrainingSummary {
   program: { name: string; week: number; weeks: number; endsOn: string; endsInDays: number; nextProgram?: string };
 }
 
+type WorkoutDay = Extract<TrainingDay, { kind: 'workout' }>;
+
+/** Workouts done and assigned on a training day. */
+export const doneOf = (day: WorkoutDay) => day.workouts.filter((w) => w.done).length;
+
 function cellState(day: TrainingDay | undefined, date: string, today: string): SessionState {
   if (!day || day.kind === 'rest') return 'rest';
   if (day.kind === 'paused') return 'paused';
   if (date === today) return 'today';
   if (date > today) return 'upcoming';
-  if (day.completed >= day.sections) return 'completed';
-  return day.completed === 0 ? 'missed' : 'partial';
+  const done = doneOf(day);
+  if (done >= day.workouts.length) return 'completed';
+  return done === 0 ? 'missed' : 'partial';
 }
 
-/** Sections completed and scheduled on workout days in [start, end]. */
-export function sectionCounts(log: TrainingLog, start: string, end: string) {
+/** Workouts completed and assigned on training days in [start, end]. */
+export function workoutCounts(log: TrainingLog, start: string, end: string) {
   let done = 0;
   let planned = 0;
   for (let d = start; d <= end; d = addDays(d, 1)) {
     const day = log.days[d];
     if (day?.kind === 'workout') {
-      done += day.completed;
-      planned += day.sections;
+      done += doneOf(day);
+      planned += day.workouts.length;
     }
   }
   return { done, planned };
 }
 
-/** Completed sections over scheduled sections for finished days in [start, end]. */
+/** Completed workouts over assigned workouts for finished days in [start, end]. */
 function adherence(log: TrainingLog, start: string, end: string) {
-  const { done, planned } = sectionCounts(log, start, end);
+  const { done, planned } = workoutCounts(log, start, end);
   return planned ? Math.round((done / planned) * 100) : null;
 }
 
@@ -76,7 +82,7 @@ export function summarizeTraining(log: TrainingLog, today: string): TrainingSumm
     .reverse();
   const last = past.find((d) => {
     const day = log.days[d];
-    return day.kind === 'workout' && day.completed > 0;
+    return day.kind === 'workout' && doneOf(day) > 0;
   });
 
   const trendStarts = [4, 3, 2, 1].map((n) => addDays(thisMonday, -7 * n));
