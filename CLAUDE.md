@@ -107,7 +107,7 @@ the same change.
   client detail page (the user's call), and closes on ×, Esc or a click outside; opening that client's row then
   docks it beside the panel. Opened from a Client highlight on the brief it is a sidebar instead
   (`sideIsSidebar` in the store, the user's call): the shell pads 360 px on the right so Today's Brief and the rail
-  reflow beside it, the group cards stack in one column (`RightRail`), Client highlights switch to their stacked-tabs
+  reflow beside it (the rail narrows to 360 px, the AI panel's width; the brief takes the rest), the group cards stack in one column (`RightRail`), Client highlights switch to their stacked-tabs
   layout, and only × or Esc close it. Sending never completes
   a to-do (AC2.2).
 - `src/components/drawer/`: `TodoDrawer` (720px drawer, slides in from the right), `AiAssessment`, `StatusFeedback`,

@@ -317,7 +317,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   + client tag, editable draft (13 px semibold), 30 px brand Send. Composer: 140 px white card, Ctrl key hint, mic,
   32 px send (grey until there is text).
   From a Client highlight on the brief the column is a sidebar (the user's call): the page shell gets `pr-[360px]`
-  (300 ms padding transition) so the brief and rail reflow into the rest, the column drops its overlay shadow for
+  (300 ms padding transition) so the brief and rail reflow into the rest: the rail column narrows to 360 px, the
+  AI panel's width (`grid-cols-[minmax(0,1fr)_360px]`), and the brief takes what is left, the column drops its overlay shadow for
   `border-l border-line` and a faint `-4px 0 16px rgba(0,0,0,0.04)`, the group cards leave the 2 × 2 grid for one
   column (`flex flex-col gap-4`, lists capped at 186 px as in the three-part layout), Client highlights put their
   category tabs in a row above the list, and a click on the page no longer closes it (× or Esc do).

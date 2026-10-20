@@ -47,7 +47,9 @@ export default function App() {
           <div className="relative flex-1 overflow-hidden">
             <ViewLayer active={state.view === 'brief'} offset="-100%">
               {state.weekOffset === 0 ? (
-                <div className="grid min-h-full grid-cols-2">
+                // With the highlights' sidebar open the rail narrows to the AI panel's 360 px and the brief takes the rest
+                // (the user's call).
+                <div className={`grid min-h-full ${sideIsSidebar(state) ? 'grid-cols-[minmax(0,1fr)_360px]' : 'grid-cols-2'}`}>
                   <div className="relative z-[1] bg-white shadow-column">
                     <TodayBrief />
                   </div>
