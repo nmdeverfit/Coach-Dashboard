@@ -186,8 +186,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - Customize cards (trial, Figma `5749:521640` with a Today's Brief tab added, the user's call; also on branch
   `claude/layout-3-columns`): `CustomizeCards` is one popup for the rail's group cards and the client list's metric
   cards, tabs Today's Brief | Dashboard, both drawn the same. It opens on the tab of the view it comes from: Dashboard
-  Settings (`5749:521870`, `SettingsMenu` in `Header`; the item reads "Customize group cards" on the brief,
-  "Customize metrics" on the list) or a group card's ⋯ menu (`CardMenu` in `CategoryGroup`: Collapse / Expand,
+  Settings (`5749:521870`, `SettingsMenu` in `Header`; the item reads "Customize cards" on both views, the
+  popup's title, the user's call) or a group card's ⋯ menu (`CardMenu` in `CategoryGroup`: Collapse / Expand,
   Remove group, Customize cards…). Shown cards on the left (drag or Alt + ↑ / ↓, ⊖, a count "4/6"), the library on
   the right (⊕ or drag in; no "Also on …" line, the user's call). Dragging leaves a grey slot and draws a brand line
   in the closest gap (`gapAt`); a shown card dragged over the library lights it up (`overLibrary`), since dropping
