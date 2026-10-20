@@ -166,7 +166,12 @@ one column. The Upcoming bookings session list is shared with the main branch to
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
   green, Issue Credits sits beside the balance and credit rows start collapsed (the panels keep theirs in the
-  footer). Opening a client from the list's Booking tab lands on this tab (`selectClient(id, 'booking')`). `TaskHabitTab` (`5671:141271`), `CurrentProgramCard` in
+  footer). Opening a client from the list's Booking tab lands on this tab (`selectClient(id, 'booking')`).
+  On the client detail page only (`withTabActions`), a tab can carry its own small buttons above its cards
+  (`TabActions`): Training's Deep analysis (AI button, tooltip "AI analyzes client's training progress") opens Olly
+  in `mode: 'training'` (`trainingAnalysis` / `trainingTask` in `lib/olly.ts`: 4 weeks of the log, week by week,
+  the most-missed workout, program week, a Weekly Completion bar chart; follow-ups get the same read); Nutrition's
+  Adjust meal plan toasts (the meal plan page is not in the demo). `TaskHabitTab` (`5671:141271`), `CurrentProgramCard` in
   `TrainingTab.tsx` (`5671:141541`), `NotesTab` (`5671:141582`, search, day groups, sort toggle), `FormStatus`.
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
   reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
@@ -335,6 +340,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   reason box is free text, which AC9.5 rules out for the feedback control (it is the modal's, as drawn); it is
   optional. The design's option reads "Need attention"; the demo keeps "Needs attention". No activities is not
   offered (deterministic). Past weeks keep their statuses, as the note says.
+- Deep analysis (the user's call, no frame): Phase 1's Olly answers only from the stored status, and the brief puts
+  Olly reading program data in Phase 2; Deep analysis reads the training log and the program's week directly. It
+  describes, never prescribes. Adjust meal plan has no page to land on, so it toasts.
 - The vertical row expand (rows open the client detail
   drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
   are not built yet.

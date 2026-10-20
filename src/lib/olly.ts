@@ -13,7 +13,7 @@ import type {
   UnblockDetail,
 } from '../data/types';
 import { WEEKDAYS, addDays, summarizeNutrition, type Assessment } from './checkin';
-import { formatDayMonth, parseDay } from './dates';
+import { formatDayMonth, formatMonthDay, parseDay } from './dates';
 import { buildAcknowledgeView, buildPrepareView, buildUnblockView, plural, time12 } from './todos';
 import { summarizeTraining, workoutCounts } from './training';
 
@@ -86,6 +86,79 @@ export function tellAnswer(client: Client, assessment: Assessment, today: string
     chart: chartFor(client, today),
   };
 }
+
+// ---------------------------------------------------------------- Deep analysis (Training tab)
+
+export const trainingPrompt = (client: Client) => `Analyze ${client.firstName}’s training progress over the last 4 weeks`;
+
+export interface TrainingAnalysis {
+  bullets: string[];
+  context: string;
+  /** The four finished weeks before this one, oldest first: workouts done of assigned. */
+  weeks: { label: string; pct: number | null; done: number; planned: number }[];
+  /** Workouts assigned across the four weeks; no chart without any. */
+  planned: number;
+}
+
+/**
+ * Deep analysis reads the training log itself, week by week: adherence, its direction, the workout missed most and
+ * where the program stands. Every figure is the Training tab's (same builders, AC4); it describes, never prescribes.
+ */
+export function trainingAnalysis(client: Client, today: string): TrainingAnalysis {
+  const log = getProfile(client.id).training;
+  const t = summarizeTraining(log, today);
+  const monday = addDays(today, -((parseDay(today).getUTCDay() + 6) % 7));
+  const starts = [4, 3, 2, 1].map((n) => addDays(monday, -7 * n));
+  const weeks = starts.map((start) => {
+    const { done, planned } = workoutCounts(log, start, addDays(start, 6));
+    return { label: formatMonthDay(parseDay(start)), pct: planned ? Math.round((done / planned) * 100) : null, done, planned };
+  });
+  const done = weeks.reduce((n, w) => n + w.done, 0);
+  const planned = weeks.reduce((n, w) => n + w.planned, 0);
+  const first = starts[0];
+  const last = addDays(monday, -1);
+
+  const bullets: string[] = [];
+  if (!planned) bullets.push(`No workouts were assigned between ${dayMonth(first)} and ${dayMonth(last)}.`);
+  else {
+    // Weeks with nothing assigned (before the program started) are left out of the read, and said so.
+    const shown = weeks.filter((w) => w.pct !== null);
+    const span = shown.length === 4 ? 'over the last 4 weeks' : `in the ${shown.length === 1 ? 'week' : `${shown.length} weeks`} with workouts assigned`;
+    bullets.push(`Completed ${done} of ${planned} assigned workouts ${span} (${Math.round((done / planned) * 100)}%).`);
+    if (shown.length > 1) {
+      const delta = shown[shown.length - 1].pct! - shown[0].pct!;
+      const path = shown.map((w) => `${w.pct}%`).join(' → ');
+      bullets.push(`Week by week: ${path}, ${delta === 0 ? 'level' : `${delta > 0 ? 'up' : 'down'} ${Math.abs(delta)} points`} across those weeks.`);
+    }
+    // The workout left undone most often in those weeks.
+    const missed = new Map<string, { missed: number; total: number }>();
+    for (let d = first; d <= last; d = addDays(d, 1)) {
+      const day = log.days[d];
+      if (day?.kind !== 'workout') continue;
+      for (const w of day.workouts) {
+        const m = missed.get(w.name) ?? { missed: 0, total: 0 };
+        missed.set(w.name, { missed: m.missed + (w.done ? 0 : 1), total: m.total + 1 });
+      }
+    }
+    const top = [...missed.entries()].sort((a, b) => b[1].missed - a[1].missed || b[1].total - a[1].total)[0];
+    if (top && top[1].missed > 0) bullets.push(`Missed most: ${top[0]}, ${top[1].missed} of ${top[1].total} not done.`);
+  }
+  const lastWorkout =
+    t.lastWorkoutDaysAgo === null ? 'No workout done yet' : `Last workout ${t.lastWorkoutDaysAgo === 1 ? 'yesterday' : `${t.lastWorkoutDaysAgo} days ago`}`;
+  const program =
+    t.program.endsInDays < 0
+      ? `${t.program.name} ended ${dayMonth(t.program.endsOn)}`
+      : `week ${t.program.week} of ${t.program.weeks} of ${t.program.name}, which ends ${dayMonth(t.program.endsOn)}`;
+  bullets.push(`${lastWorkout}; ${program}.`);
+
+  return { bullets, context: `This reads from ${client.firstName}’s training log, ${dayMonth(first)} to ${dayMonth(last)}.`, weeks, planned };
+}
+
+export const trainingTask = (client: Client): OllyTaskSpec => ({
+  title: `Analyzing ${client.firstName}’s training…`,
+  steps: ['Read the training log, last 4 weeks', 'Compare the weeks and the workouts', 'Chart weekly completion'],
+  doneLabel: 'Checked 4 weeks',
+});
 
 // ---------------------------------------------------------------- Working steps
 

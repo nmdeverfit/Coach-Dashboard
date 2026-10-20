@@ -14,7 +14,8 @@ export type View = 'brief' | 'dashboard';
 /** The middle column beside the panel (Spec 4 AC2.2, AC2.3): Olly and the inbox, tabbed when both are open. */
 export type SideTab = 'inbox' | 'olly';
 export interface OllyRequest {
-  mode: 'tell' | 'draft';
+  /** Tell me more, Draft with AI, or Deep analysis from the Training tab of the client detail page. */
+  mode: 'tell' | 'draft' | 'training';
   /** Tell me more: the assessment on screen, which the answer repeats (one payload, AC4). */
   assessment?: Assessment;
   /** Draft with AI: the to-do whose context scopes the draft. */

@@ -130,7 +130,7 @@ export function ClientDetailsPanel({
           />
           <StatusFeedback client={client} />
         </div>
-        <ClientTabs client={client} profile={profile} initialTab={initialTab} withTranscript />
+        <ClientTabs client={client} profile={profile} initialTab={initialTab} withTranscript withTabActions />
       </div>
       {footer && <ClientFooter client={client} />}
     </div>
