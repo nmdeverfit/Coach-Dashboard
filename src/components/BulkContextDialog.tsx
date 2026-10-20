@@ -42,6 +42,52 @@ function PickRow({ picked, onToggle, children }: { picked: boolean; onToggle: ()
   );
 }
 
+/** Client groups and Selected clients share one picker: a search box, "N selected" + Clear, then two columns of rows. */
+function PickerBox({
+  query,
+  onQuery,
+  placeholder,
+  count,
+  onClear,
+  empty,
+  children,
+}: {
+  query: string;
+  onQuery: (q: string) => void;
+  placeholder: string;
+  count: number;
+  onClear: () => void;
+  empty: string | null;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-line-light p-2">
+      <div className="flex items-center gap-2">
+        <label className="flex h-9 flex-1 items-center gap-2 rounded-[5px] border border-[#d4d7d9] bg-[#fafbfc] px-2.5 focus-within:border-brand">
+          <img src={iconSearch} alt="" width={16} height={16} />
+          <input
+            value={query}
+            onChange={(e) => onQuery(e.target.value)}
+            placeholder={placeholder}
+            aria-label={placeholder}
+            className="min-w-0 flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-muted"
+          />
+        </label>
+        <span className="shrink-0 px-1 text-[12px] font-semibold text-ink-secondary">{count} selected</span>
+        {count > 0 && (
+          <button type="button" onClick={onClear} className="shrink-0 text-[12px] font-semibold text-ink underline hover:text-brand">
+            Clear
+          </button>
+        )}
+      </div>
+      <div className="scroll-thin grid max-h-[208px] grid-cols-2 gap-x-1 overflow-y-auto">
+        {children}
+        {empty && <p className="col-span-2 px-2 py-3 text-[13px] text-ink-muted">{empty}</p>}
+      </div>
+    </div>
+  );
+}
+
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /**
@@ -55,6 +101,7 @@ export function BulkContextDialog({ onClose }: { onClose: () => void }) {
   const [groups, setGroups] = useState<string[]>([]);
   const [picked, setPicked] = useState<string[]>([]);
   const [query, setQuery] = useState('');
+  const [groupQuery, setGroupQuery] = useState('');
   const [ctx, setCtx] = useState<AiContext>(EMPTY_CONTEXT);
   const set = (patch: Partial<AiContext>) => setCtx((c) => ({ ...c, ...patch }));
 
@@ -66,6 +113,8 @@ export function BulkContextDialog({ onClose }: { onClose: () => void }) {
   const withOwn = targets.filter((id) => state.aiContext[id]).length;
   const q = query.trim().toLowerCase();
   const shown = clients.filter((c) => !q || c.name.toLowerCase().includes(q));
+  const gq = groupQuery.trim().toLowerCase();
+  const shownGroups = clientGroups.filter((g) => !gq || g.name.toLowerCase().includes(gq));
 
   const source =
     scope === 'all'
@@ -125,45 +174,42 @@ export function BulkContextDialog({ onClose }: { onClose: () => void }) {
           </div>
 
           {scope === 'groups' && (
-            <div className="flex flex-wrap gap-2">
-              {clientGroups.map((g) => (
-                <ScopePill key={g.id} on={groups.includes(g.id)} onClick={() => setGroups((l) => toggle(l, g.id))}>
-                  {g.name} · {g.members.length}
-                </ScopePill>
-              ))}
-            </div>
+            <PickerBox
+              query={groupQuery}
+              onQuery={setGroupQuery}
+              placeholder="Search groups"
+              count={groups.length}
+              onClear={() => setGroups([])}
+              empty={shownGroups.length === 0 ? `No groups match “${groupQuery.trim()}”.` : null}
+            >
+              {shownGroups.map((g) => {
+                const on = groups.includes(g.id);
+                return (
+                  <PickRow key={g.id} picked={on} onToggle={() => setGroups((l) => toggle(l, g.id))}>
+                    <span className={`min-w-0 flex-1 truncate text-[13px] leading-[1.5] ${on ? 'font-semibold text-brand' : 'text-ink'}`}>{g.name}</span>
+                    <span className="shrink-0 text-[12px] leading-[1.5] text-ink-secondary">{plural(g.members.length, 'client')}</span>
+                  </PickRow>
+                );
+              })}
+            </PickerBox>
           )}
 
           {scope === 'clients' && (
-            <div className="flex flex-col gap-2 rounded-lg border border-line-light p-2">
-              <div className="flex items-center gap-2">
-                <label className="flex h-9 flex-1 items-center gap-2 rounded-[5px] border border-[#d4d7d9] bg-[#fafbfc] px-2.5 focus-within:border-brand">
-                  <img src={iconSearch} alt="" width={16} height={16} />
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search clients"
-                    aria-label="Search clients"
-                    className="min-w-0 flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-muted"
-                  />
-                </label>
-                <span className="shrink-0 px-1 text-[12px] font-semibold text-ink-secondary">{picked.length} selected</span>
-                {picked.length > 0 && (
-                  <button type="button" onClick={() => setPicked([])} className="shrink-0 text-[12px] font-semibold text-ink underline hover:text-brand">
-                    Clear
-                  </button>
-                )}
-              </div>
-              <div className="scroll-thin grid max-h-[208px] grid-cols-2 gap-x-1 overflow-y-auto">
-                {shown.map((c) => (
-                  <PickRow key={c.id} picked={picked.includes(c.id)} onToggle={() => setPicked((l) => toggle(l, c.id))}>
-                    <Avatar name={c.name} src={c.avatar} size={24} />
-                    <span className={`truncate text-[13px] leading-[1.5] ${picked.includes(c.id) ? 'font-semibold text-brand' : 'text-ink'}`}>{c.name}</span>
-                  </PickRow>
-                ))}
-                {shown.length === 0 && <p className="col-span-2 px-2 py-3 text-[13px] text-ink-muted">No clients match “{query.trim()}”.</p>}
-              </div>
-            </div>
+            <PickerBox
+              query={query}
+              onQuery={setQuery}
+              placeholder="Search clients"
+              count={picked.length}
+              onClear={() => setPicked([])}
+              empty={shown.length === 0 ? `No clients match “${query.trim()}”.` : null}
+            >
+              {shown.map((c) => (
+                <PickRow key={c.id} picked={picked.includes(c.id)} onToggle={() => setPicked((l) => toggle(l, c.id))}>
+                  <Avatar name={c.name} src={c.avatar} size={24} />
+                  <span className={`truncate text-[13px] leading-[1.5] ${picked.includes(c.id) ? 'font-semibold text-brand' : 'text-ink'}`}>{c.name}</span>
+                </PickRow>
+              ))}
+            </PickerBox>
           )}
 
           {withOwn > 0 && (
