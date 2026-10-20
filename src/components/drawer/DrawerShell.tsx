@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 const CLOSE_MS = 220;
 
 /** Clicks on these never close a panel: the panels themselves, the middle column beside them and the rows that open them. */
-const KEEP_OPEN = '[data-todo-drawer], [data-todo-row], [data-client-row], [data-side-panel]';
+const KEEP_OPEN = '[data-todo-drawer], [data-todo-row], [data-client-row], [data-side-panel], [data-keep-open]';
 
 /**
  * Keeps the last selected id on screen while the panel slides out, so closing animates instead of vanishing.
@@ -48,13 +48,13 @@ export function useCloseOnOutside(open: boolean, close: () => void, outside = tr
   }, [open, close, outside]);
 }
 
-/** The 720 px panel that slides in from the right over the right rail. */
-export function DrawerAside({ label, closing, children }: { label: string; closing: boolean; children: ReactNode }) {
+/** The 720 px panel that slides in from the right over the right rail (540 px for a group session's details). */
+export function DrawerAside({ label, closing, narrow = false, children }: { label: string; closing: boolean; narrow?: boolean; children: ReactNode }) {
   return (
     <aside
       data-todo-drawer
       aria-label={label}
-      className={`fixed inset-y-0 right-0 z-40 flex w-[720px] flex-col bg-white shadow-drawer ${closing ? 'animate-drawer-out' : 'animate-drawer-in'}`}
+      className={`fixed inset-y-0 right-0 z-40 flex ${narrow ? 'w-[540px]' : 'w-[720px]'} flex-col bg-white shadow-drawer ${closing ? 'animate-drawer-out' : 'animate-drawer-in'}`}
     >
       {children}
     </aside>
