@@ -36,7 +36,12 @@ function Cell({ cell, today }: { cell: SessionCell; today: string }) {
   return (
     <div
       tabIndex={cell.day ? 0 : undefined}
-      className={`group/cell relative flex h-[76px] min-w-0 flex-col gap-3 rounded-lg border px-1.5 pb-2.5 pt-1.5 outline-none ${s.box}`}
+      className={`group/cell relative flex h-[76px] min-w-0 flex-col gap-3 rounded-lg border px-1.5 pb-2.5 pt-1.5 outline-none ${s.box} ${
+        // A day with workouts lifts on hover or focus, under its tooltip (the user's call; no frame).
+        cell.day
+          ? 'transition-[transform,box-shadow] duration-150 ease-out hover:z-10 hover:-translate-y-0.5 hover:shadow-[0_6px_14px_rgba(32,35,83,0.14)] focus-visible:z-10 focus-visible:-translate-y-0.5 focus-visible:shadow-[0_6px_14px_rgba(32,35,83,0.14)] motion-reduce:transform-none motion-reduce:transition-none'
+          : ''
+      }`}
     >
       {cell.state === 'paused' && (
         <img src={pausedPattern} alt="" className="pointer-events-none absolute inset-0 size-full rounded-lg object-cover opacity-40" />
@@ -80,7 +85,7 @@ function DayTooltip({ cell, day }: { cell: SessionCell; day: WorkoutDay }) {
           </span>
           <span className="min-w-[120px] whitespace-nowrap text-[12px] font-semibold leading-[1.5] tracking-[-0.24px] text-ink">
             {label}{' '}
-            <span className="font-normal">({ahead ? `${n} workout${n === 1 ? '' : 's'}` : `${doneOf(day)}/${n} workouts`})</span>
+            <span className="font-normal">({ahead ? `${n} workout${n === 1 ? '' : 's'}` : `${doneOf(day)}/${n} workout${n === 1 ? '' : 's'}`})</span>
           </span>
         </div>
         <ul className="flex flex-col gap-1">

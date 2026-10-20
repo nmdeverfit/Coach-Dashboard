@@ -16,7 +16,7 @@ function trainingWeeks(firstMonday: string, weeks: ([string, number, number] | n
     week.forEach((entry, d) => {
       if (entry === NA) return;
       const date = new Date(start + (w * 7 + d) * 86_400_000).toISOString().slice(0, 10);
-      days[date] = entry ? { kind: 'workout', workouts: dayWorkouts(entry[0], entry[1], entry[2]) } : { kind: 'rest' };
+      days[date] = entry ? { kind: 'workout', workouts: dayWorkouts(entry[0], entry[1], entry[2], date) } : { kind: 'rest' };
     }),
   );
   return days;
