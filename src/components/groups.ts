@@ -33,7 +33,7 @@ export const GROUPS: (GroupMeta & { key: GroupKey })[] = [
     key: 'at_risk',
     tab: 'at_risk',
     title: 'At risk',
-    description: 'Clients who have been slipping for a while. Worth reaching out this week.',
+    description: 'Clients who have been slipping for a while. Worth reaching out.',
     icon: atRiskIcon,
     iconInset: 'inset-[8.33%_8.33%_8.34%_8.34%]',
     iconBleed: 'inset-[-4.41%]',
