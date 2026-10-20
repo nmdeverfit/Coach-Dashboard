@@ -17,6 +17,29 @@ body {
 }
 
 @layer components {
+  /* A note's text (the note popups, Figma 5850:570056): 14 px at 1.75, lists indented 21 px, 10 px between sections. */
+  .note-body {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #202353;
+    overflow-wrap: anywhere;
+  }
+  .note-body ul {
+    list-style: disc;
+  }
+  .note-body ol {
+    list-style: decimal;
+  }
+  .note-body li {
+    margin-inline-start: 21px;
+  }
+  .note-body ul + p,
+  .note-body ol + p {
+    margin-top: 10px;
+  }
+  .note-body b {
+    font-weight: 700;
+  }
   /* Thin scrollbar that only shows while hovering the list, as drawn on the group cards. */
   /* Scrolls sideways with no visible bar (the client list's tab row). */
   .scroll-none {

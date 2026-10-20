@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { DEMO_TODAY, clients, findPerson, generatedStatus, setEffectiveStatus, todos as seedTodos } from '../data/mock';
-import type { AiContext, CardKey, Client, ClientStatus, FeedbackState, GroupKey, Meeting, MetricKey, StatusChange, Todo } from '../data/types';
+import type { AiContext, CardKey, Client, ClientNote, ClientStatus, FeedbackState, GroupKey, Meeting, MetricKey, StatusChange, Todo } from '../data/types';
 import { ALL_GROUPS, DEFAULT_ORDER } from '../components/groups';
 import { STATUS_LABEL } from '../components/StatusChip';
 import { DEFAULT_METRICS, METRICS } from '../components/metrics';
@@ -79,6 +79,8 @@ interface State {
   statusChanges: Record<string, StatusChange>;
   /** Meetings the coach added on the Transcript tab in this session, by client. */
   meetings: Record<string, Meeting[]>;
+  /** A client's notes once the coach has added, edited or deleted one in this session; else the profile's. */
+  notes: Record<string, ClientNote[]>;
   /** What the coach told Olly about each client through Add context on the AI Assessment. */
   aiContext: Record<string, AiContext>;
   /** The rail's group cards, as the coach customized them (Customize cards, a trial). */
@@ -174,6 +176,7 @@ type Action =
   | { type: 'restoreHighlight'; id: string }
   | { type: 'clearHighlightHistory' }
   | { type: 'addMeeting'; clientId: string; meeting: Meeting }
+  | { type: 'setNotes'; clientId: string; notes: ClientNote[] }
   | { type: 'setAiContext'; clientId: string; context: AiContext | null };
 
 const initialState: State = {
@@ -195,6 +198,7 @@ const initialState: State = {
   feedback: {},
   statusChanges: {},
   meetings: {},
+  notes: {},
   aiContext: {},
   rail: loadRail(),
   metrics: loadMetrics(),
@@ -366,6 +370,8 @@ function reducer(state: State, action: Action): State {
     }
     case 'addMeeting':
       return { ...state, meetings: { ...state.meetings, [action.clientId]: [action.meeting, ...(state.meetings[action.clientId] ?? [])] } };
+    case 'setNotes':
+      return { ...state, notes: { ...state.notes, [action.clientId]: action.notes } };
     case 'reviewClient':
       // A review from the client detail page completes the client's Check-in to-dos too; the panel stays open.
       return {
@@ -502,6 +508,8 @@ interface Store {
   /** Empties History; cleared highlights do not come back to Need attention. */
   clearHighlightHistory: () => void;
   addMeeting: (clientId: string, meeting: Meeting) => void;
+  /** Replaces the client's notes (after an add, edit or delete) and confirms it with `toast`. */
+  setNotes: (clientId: string, notes: ClientNote[], toast: string) => void;
   /** Saves (or, with null, clears) the coach's context for a client's AI Assessment. */
   setAiContext: (clientId: string, context: AiContext | null) => void;
 }
@@ -607,6 +615,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addMeeting: (clientId, meeting) => {
         dispatch({ type: 'addMeeting', clientId, meeting });
         showToast('Meeting added');
+      },
+      setNotes: (clientId, notes, toast) => {
+        dispatch({ type: 'setNotes', clientId, notes });
+        showToast(toast);
       },
       completeFromPanel: (id) => {
         dispatch({ type: 'completeFromPanel', id });

@@ -6,12 +6,19 @@ import type { Client, ClientNote } from '../../data/types';
 import { groupNotes } from '../../lib/client';
 import { formatMonthDay, parseDay } from '../../lib/dates';
 import { useStore } from '../../state/store';
+import { NoteDialog } from './NoteDialog';
 
-/** Notes tab (Figma 5671:141582): search, day groups, sort by created date. */
-export function NotesTab({ client, notes }: { client: Client; notes: ClientNote[] }) {
-  const { showToast } = useStore();
+/**
+ * Notes tab (Figma 5671:141582): search (titles and text), day groups, sort by created date. A note opens Note details;
+ * New note opens the editor (`NoteDialog`). The coach's changes replace the profile's notes for the session.
+ */
+export function NotesTab({ client, notes: profileNotes }: { client: Client; notes: ClientNote[] }) {
+  const { state } = useStore();
+  const notes = state.notes[client.id] ?? profileNotes;
   const [query, setQuery] = useState('');
   const [newestFirst, setNewestFirst] = useState(true);
+  // The open popup: a note's id, 'new' for the editor, or null.
+  const [open, setOpen] = useState<string | null>(null);
   const groups = groupNotes(notes, newestFirst, query);
 
   return (
@@ -20,7 +27,7 @@ export function NotesTab({ client, notes }: { client: Client; notes: ClientNote[
         <h4 className="text-[15px] font-semibold leading-[18px] text-ink">Notes ({notes.length})</h4>
         <button
           type="button"
-          onClick={() => showToast(`A new note for ${client.firstName} opens here`)}
+          onClick={() => setOpen('new')}
           className="flex items-center gap-1 text-[14px] font-semibold leading-[18px] text-brand hover:underline"
         >
           <img src={iconPlus} alt="" width={16} height={16} />
@@ -66,10 +73,10 @@ export function NotesTab({ client, notes }: { client: Client; notes: ClientNote[
                 </div>
                 <ul className="flex flex-col">
                   {g.notes.map((n) => (
-                    <li key={n.at + n.title}>
+                    <li key={n.id}>
                       <button
                         type="button"
-                        onClick={() => showToast(`“${n.title}” opens in ${client.firstName}’s notes`)}
+                        onClick={() => setOpen(n.id)}
                         className="flex w-full flex-col items-start gap-1 rounded-lg border-b border-ink/10 px-3 py-2 text-left hover:border-transparent hover:bg-[#e1e1ea]/60"
                       >
                         <span className="text-[14px] font-semibold leading-[1.5] text-ink">{n.title}</span>
@@ -83,6 +90,7 @@ export function NotesTab({ client, notes }: { client: Client; notes: ClientNote[
           </div>
         )}
       </div>
+      {open && <NoteDialog key={open} client={client} notes={notes} noteId={open === 'new' ? null : open} onClose={() => setOpen(null)} />}
     </div>
   );
 }

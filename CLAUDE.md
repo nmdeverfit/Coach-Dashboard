@@ -108,7 +108,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   finished action shows one), `Avatar`, `CountChip`,
   `Tooltip` (the design's dark tooltip; used on the row and panel Dismiss icons and on the row checkbox and
   the panel's ✓, "Complete this task", while the to-do is open), `Modal` (the design's 500 px popup, rendered
-  into `<body>`; Esc closes it, and the panel behind ignores Esc and clicks while any `aria-modal` is up).
+  into `<body>`; Esc closes it and stops there, unless a `ConfirmDialog` is over it, and the panel behind ignores Esc
+  and clicks while any `aria-modal` is up).
 - `src/components/side/`: the middle column, 360 px, fixed left of the 720 px panel (Figma Olly `5699:137932`,
   Draft `5124:499989`, Inbox `5699:137775`, both tabbed `5699:138912`). `SidePanel` (header or tabs),
   `OllyConversation` (turns of prompt → `OllyTask` working state → result: Tell me more answer, Draft card →
@@ -175,7 +176,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
   in `mode: 'training'` (`trainingAnalysis` / `trainingTask` in `lib/olly.ts`: 4 weeks of the log, week by week,
   the most-missed workout, program week, a Weekly Completion bar chart; follow-ups get the same read); Nutrition's
   Adjust meal plan toasts (the meal plan page is not in the demo). `TaskHabitTab` (`5671:141271`), `CurrentProgramCard` in
-  `TrainingTab.tsx` (`5671:141541`), `NotesTab` (`5671:141582`, search, day groups, sort toggle), `FormStatus`.
+  `TrainingTab.tsx` (`5671:141541`), `NotesTab` (`5671:141582`, search over titles and text, day groups, sort toggle; a note opens `NoteDialog`:
+  Note details `5850:570056` with Delete (confirm) and Edit, or the editor `5850:570122` for New note and Edit,
+  Bold · Italic · two lists, stored as cleaned HTML (`cleanNoteHtml` in `lib/notes.ts`); the coach's notes replace the
+  profile's in `notes` in the store, `setNotes`, session only), `FormStatus`.
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
   reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
   close on ×, Esc or click outside.
@@ -312,6 +316,11 @@ one column. The Upcoming bookings session list is shared with the main branch to
   Coaching style per client is close to what the brief puts out: coach-facing signal settings (Phase 3),
   low-touch / on-demand workflows and tone personalisation (Out). The design's "Jordan" is the client's first name;
   the Low touch and Self-guided hints are the demo's wording (only High touch's is drawn).
+- Notes (Figma `5850:570056` details, `5850:570122` Add note, the user's request): the notes' text is the demo's
+  (`data/notes.ts`, by title, no figures from the logs), about half were edited later the same day (their own seed,
+  so the rest of each profile is unchanged). A note added or edited in the demo is stamped Aug 31, 6:00 AM, like a
+  sent message. Delete's confirmation, the tooltips, the edit flow and the toolbar's on state have no frame. Nothing
+  reads the notes (the brief has the classifier read them; the demo's assessments stay as generated).
 - Customize cards goes past Phase 1 on both surfaces: the metric row is fixed (Customize Metrics is Phase 3), the rail
   has "no fifth card", and removing one of the brief's four cards takes away that to-do type's full-list surface on
   the brief (AC5; the client list's tabs still have it). The user dropped the lock that kept them. No activities and
