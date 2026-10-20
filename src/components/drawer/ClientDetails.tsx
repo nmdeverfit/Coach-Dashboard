@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import iconCircleCheck from '../../assets/figma/icon-circle-check-fill.svg';
 import iconMore from '../../assets/figma/icon-more.svg';
 import iconClose from '../../assets/figma/icon-close.svg';
+import iconChevronLeft from '../../assets/figma/icon-chevron-left.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { Client } from '../../data/types';
@@ -107,10 +108,8 @@ export function ClientDetailsPanel({
     <div className="relative flex min-h-0 flex-1 flex-col">
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-5 pb-2.5 pt-[15px]">
         {onBack ? (
-          <button type="button" onClick={onBack} className="flex items-center gap-2 text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:text-ink">
-            <span aria-hidden className="text-[16px] leading-none">
-              ‹
-            </span>
+          <button type="button" onClick={onBack} className="-ml-1.5 flex items-center gap-0.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:text-ink">
+            <img src={iconChevronLeft} alt="" width={24} height={24} />
             CLIENT DETAILS
           </button>
         ) : (

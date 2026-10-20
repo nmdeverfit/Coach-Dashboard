@@ -205,7 +205,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   eases from its old place, 380 ms, `cubic-bezier(0.22,1,0.36,1)`; off under reduced motion). Unticking puts it back
   in its ranked place. The user's call; the brief keeps a completed row in place.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
-  ✓ / Dismiss. Title block: name 18 px bold, "Status:" + chip, then four 32 px icon buttons (Draft
+  ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
+  `ink-secondary`). Title block: name 18 px bold, "Status:" + chip, then four 32 px icon buttons (Draft
   with AI uses `ai-btn`; its tooltip hangs off a wrapper because `ai-btn` clips). Opened from a group-card row or
   the drawer's name link (‹ back). No footer while the icons show; once they scroll up out of view the same four
   actions rise in as the to-do panel's footer (no frame, the user's call; 220 ms slide up), right-aligned: "Mark as reviewed" (primary,
@@ -302,9 +303,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   improve the status."; the list's Activity column reads "~~At risk~~ → **Needs attention**" (old in
   `ink-secondary`, struck) and "Reason: …" ("Reason:" `ink-secondary`); hovering the row's status dot shows a white
   rounded-12 card above it: "Status changed:" 13 px semibold `ink-secondary`, then `StatusChip` → `StatusChip`.
-- **Tab buttons** (client detail page, the user's call): a row right-aligned between the tab bar and the tab's
-  cards; 28 px, rounded 4, `border-black/15`, white, 12 px semibold ink, `px-2.5`: a step below the 32 px quick
-  actions and the footer buttons. Training: Deep analysis with the 14 px AI sparkle and `.ai-btn`, dark tooltip
+- **Tab buttons** (client detail page, the user's call): a row right-aligned under the tab's last card; 30 px like
+  the header's Dashboard Settings, rounded 4, `border-black/15`, white, 12 px semibold ink, `px-[13px]`: a step
+  below the quick actions and the footer buttons. Training: Deep analysis with the 14 px AI sparkle and `.ai-btn`, dark tooltip
   above, right-aligned (`Tooltip end`). Nutrition: Adjust meal plan, plain (hover `surface-secondary`).
 - **Popup** (`Modal`, Figma `5726:511926`): backdrop `black/50` fades in, the card rises in (220 ms). 500 px, white,
   rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
