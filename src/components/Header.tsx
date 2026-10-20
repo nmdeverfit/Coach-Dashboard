@@ -112,7 +112,8 @@ function OutlineButton({ icon, label, onClick }: { icon: string; label: string; 
 /**
  * Dashboard Settings and its menu (Figma 5749:521870): Home screen settings · About Client status & data · Customize
  * · Switch back to old dashboard. Customize opens Customize cards on the tab of the view on screen, so it reads
- * "Customize group cards" on the brief and "Customize metrics" on the client list. The other three only toast.
+ * "Customize cards" on both views, the popup's own title (the user's call); it opens on the tab of the view it comes
+ * from. The other three only toast.
  */
 function SettingsMenu() {
   const { state, showToast, openCustomize } = useStore();
@@ -134,7 +135,7 @@ function SettingsMenu() {
   const items = [
     { icon: iconSettingsHome, label: 'Home screen settings', run: () => showToast('Home screen settings open here') },
     { icon: iconSettingsStatus, label: 'About Client status & data', run: () => showToast('About Client status & data opens here') },
-    { icon: iconSettingsWidget, label: brief ? 'Customize group cards' : 'Customize metrics', run: () => openCustomize(brief ? 'brief' : 'dashboard') },
+    { icon: iconSettingsWidget, label: 'Customize cards', run: () => openCustomize(brief ? 'brief' : 'dashboard') },
     { icon: iconSettingsUndo, label: 'Switch back to old dashboard', run: () => showToast('Switch back to the old dashboard happens here') },
   ];
   return (

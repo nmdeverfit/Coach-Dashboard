@@ -67,6 +67,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   toggle) and a 28 px ⋯ button (`icon-more`) opening a 190 px menu (white, `#e0e0e0` border, rounded 8, shadow
   `0 8px 24px rgba(0,0,0,0.12)`; Remove in `danger`; last item "Customize cards…"). Collapsed card = header only,
   `py-3`, with View all at the right (text only, no arrow); in the two-column (past week) grid it spans both columns.
+  Dashboard Settings' item reads "Customize cards" on both views (the user's call), so the menu item, the ⋯ menu
+  and the popup share one name.
   The popup is the shared `Modal` at 800 px, title "Customize cards", then the header's view toggle (32 px, 13 px) as
   tabs Today's Brief | Dashboard, then two columns: shown (449 px, `bg-surface-secondary`, rounded 8, `p-4`, tall
   enough for eight rows so tabs never change the height; heading 12 px semibold uppercase `ink-tertiary` + "(Drag to
