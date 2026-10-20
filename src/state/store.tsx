@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
-import { DEMO_TODAY, clients, findPerson, todos as seedTodos } from '../data/mock';
-import type { AiContext, CardKey, Client, FeedbackState, GroupKey, Meeting, MetricKey, Todo } from '../data/types';
+import { DEMO_TODAY, clients, findPerson, generatedStatus, setEffectiveStatus, todos as seedTodos } from '../data/mock';
+import type { AiContext, CardKey, Client, ClientStatus, FeedbackState, GroupKey, Meeting, MetricKey, StatusChange, Todo } from '../data/types';
 import { ALL_GROUPS, DEFAULT_ORDER } from '../components/groups';
+import { STATUS_LABEL } from '../components/StatusChip';
 import { DEFAULT_METRICS, METRICS } from '../components/metrics';
 import type { Assessment } from '../lib/checkin';
 import type { ClientTabKey } from '../components/drawer/ClientTabs';
@@ -73,6 +74,8 @@ interface State {
   highlightLog: Record<string, HighlightOutcome>;
   /** Answer to "Does '{status}' look right for {first_name}?" per client. */
   feedback: Record<string, FeedbackState>;
+  /** Statuses the coach changed this week, by client. The client's `status` already reads the new one (AC3). */
+  statusChanges: Record<string, StatusChange>;
   /** Meetings the coach added on the Transcript tab in this session, by client. */
   meetings: Record<string, Meeting[]>;
   /** What the coach told Olly about each client through Add context on the AI Assessment. */
@@ -159,6 +162,7 @@ type Action =
   | { type: 'markReviewed'; clientId: string }
   | { type: 'completeFromPanel'; id: string }
   | { type: 'feedback'; clientId: string; value: FeedbackState }
+  | { type: 'changeStatus'; clientId: string; change: StatusChange | null }
   | { type: 'openOlly'; clientId: string; request: Omit<OllyRequest, 'seq'> }
   | { type: 'openInbox'; clientId: string; highlightId?: string }
   | { type: 'sideTab'; tab: SideTab }
@@ -188,6 +192,7 @@ const initialState: State = {
   sent: {},
   highlightLog: {},
   feedback: {},
+  statusChanges: {},
   meetings: {},
   aiContext: {},
   rail: loadRail(),
@@ -412,6 +417,14 @@ function reducer(state: State, action: Action): State {
       };
     case 'feedback':
       return { ...state, feedback: { ...state.feedback, [action.clientId]: action.value } };
+    case 'changeStatus': {
+      const { [action.clientId]: _, ...rest } = state.statusChanges;
+      return {
+        ...state,
+        statusChanges: action.change ? { ...rest, [action.clientId]: action.change } : rest,
+        feedback: { ...state.feedback, [action.clientId]: 'not_quite' },
+      };
+    }
   }
 }
 
@@ -472,6 +485,8 @@ interface Store {
   markReviewed: (clientId: string) => void;
   completeFromPanel: (id: string) => void;
   setFeedback: (clientId: string, value: FeedbackState) => void;
+  /** Update Status in Change Client Status: the new status everywhere this week, with the coach's reason. */
+  changeStatus: (clientId: string, to: ClientStatus, reason: string) => void;
   /** Tell me more or Draft with AI, beside the panel. */
   openOlly: (clientId: string, request: Omit<OllyRequest, 'seq'>) => void;
   /** Send message: the inbox with this client, beside the panel. */
@@ -566,6 +581,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         showToast(`${getClient(clientId).firstName} marked as reviewed`);
       },
       setFeedback: (clientId, value) => dispatch({ type: 'feedback', clientId, value }),
+      changeStatus: (clientId, to, reason) => {
+        const client = getClient(clientId);
+        const from = generatedStatus(client);
+        // The client object is the one every surface reads, so the change shows on cards, list and panels at once.
+        setEffectiveStatus(clientId, to);
+        dispatch({ type: 'changeStatus', clientId, change: to === from ? null : { from, to, reason: reason.trim() } });
+        showToast(`${client.firstName}'s status changed to ${STATUS_LABEL[to]}`);
+      },
       openOlly: (clientId, request) => dispatch({ type: 'openOlly', clientId, request }),
       openInbox: (clientId, highlightId) => dispatch({ type: 'openInbox', clientId, highlightId }),
       setSideTab: (tab) => dispatch({ type: 'sideTab', tab }),

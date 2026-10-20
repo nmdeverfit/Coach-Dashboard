@@ -216,6 +216,13 @@ export type TodoDetail = CheckinDetail | RespondDetail | UnblockDetail | Prepare
 
 export type FeedbackState = 'yes' | 'not_quite' | 'hidden';
 
+/** A coach's change of a client's status this week (Not quite → Change Client Status): from the generated one. */
+export interface StatusChange {
+  from: ClientStatus;
+  to: ClientStatus;
+  reason: string;
+}
+
 /**
  * A task on the client's calendar. Three are derived from other data so they cannot disagree with it (AC4): logging
  * meals (from the food log), the week's workouts (from the training log) and the weekly check-in form (from the

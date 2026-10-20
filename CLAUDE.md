@@ -129,7 +129,11 @@ one column. The Upcoming bookings session list is shared with the main branch to
   `NutritionTab` (inline-SVG calorie ring + macros, Meal Log with cell tooltips; one shared meal-label column for both
   weeks; with nothing logged it shows the same cards in their empty state, per the user), `TrainingTab` (Session log: last week + this week in 7 states, Last workout, 2-week adherence, 4-week trend
   columns; `ProgramCard`), `PanelParts` (`TabBar`, `DataArea`, footer buttons), `RespondBody` (form Q&A),
-  `SessionsBodies` (`UnblockBody` credits card, `PrepareBody` Sessions card), `AssessedBodies` (`BuildBody`, whose
+  `SessionsBodies` (`UnblockBody` credits card, `PrepareBody` Sessions card), `ChangeStatusDialog` (Not quite in
+  `StatusFeedback` opens it: current status, a New status select of the other classified statuses, an optional
+  reason; Update Status calls the store's `changeStatus`, which sets the client's effective status through
+  `setEffectiveStatus` in `mock.ts` and records `statusChanges` (from = `generatedStatus`, the 06:00 one); the list
+  shows "~~From~~ → To" + "Reason:" in the Activity column and a "Status changed:" hover on the row's dot), `AssessedBodies` (`BuildBody`, whose
   Training tab is Check-in's `TrainingTab`, per the user; `RemindBody` with the Form Status table). In the session
   log a date with no calendar entry reads "Not assigned" (grey `#eaeef1`, from the Build frame) and adds a legend item.
 - `src/lib/training.ts`: computes every Training figure from `TrainingLog` (days with sections done / scheduled, and
@@ -321,7 +325,15 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - Completed to-dos drop to the bottom of their section (the user's call; `useDoneLast` in `TodayBrief`). The brief
   says "A completed row stays in place, de-emphasised". With more than seven suggestions a completed row can sink
   under "Show N more".
-- The Change status modal, the vertical row expand (rows open the client detail
+- Change Client Status (Figma `5829:551881` / `551995` / `552126`, the user's call): Not quite under the assessment
+  (Check-in panel and client detail page) opens it instead of v1.13's modal, which the demo does not have. The new
+  status is the client's status for this week everywhere (cards, list, chips, tabs: AC3); the assessment, status
+  line, profile and today's to-dos stay as the 06:00 generation made them (`generatedStatus`), so an at-risk
+  assessment can sit under a Needs attention chip, and a Check-in to-do stays for a client moved to On track. The
+  reason box is free text, which AC9.5 rules out for the feedback control (it is the modal's, as drawn); it is
+  optional. The design's option reads "Need attention"; the demo keeps "Needs attention". No activities is not
+  offered (deterministic). Past weeks keep their statuses, as the note says.
+- The vertical row expand (rows open the client detail
   drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
   are not built yet.
 

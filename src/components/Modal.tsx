@@ -16,6 +16,7 @@ export function Modal({
   closeOnBackdrop = false,
   footer,
   headerBorder = true,
+  footerBorder = true,
   children,
 }: {
   title: string;
@@ -27,6 +28,8 @@ export function Modal({
   footer?: ReactNode;
   /** Off when the body starts with its own bordered bar (the meeting popup's tabs). */
   headerBorder?: boolean;
+  /** Off for a short form whose buttons sit right under it (Change Client Status). */
+  footerBorder?: boolean;
   children: ReactNode;
 }) {
   const titleId = useId();
@@ -63,7 +66,7 @@ export function Modal({
           {subtitle && <div className="mt-1 text-[13px] leading-[1.5] text-ink-tertiary">{subtitle}</div>}
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
-        {footer && <footer className="flex shrink-0 justify-end gap-2 border-t border-line px-[30px] py-5">{footer}</footer>}
+        {footer && <footer className={`flex shrink-0 justify-end gap-2 px-[30px] ${footerBorder ? 'border-t border-line py-5' : 'pb-6 pt-4'}`}>{footer}</footer>}
       </div>
     </div>,
     document.body,

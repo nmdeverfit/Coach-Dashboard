@@ -1,7 +1,10 @@
-import { useEffect, useRef, type HTMLAttributes } from 'react';
+import { useEffect, useRef, useState, type HTMLAttributes } from 'react';
+import { createPortal } from 'react-dom';
 import iconExpand from '../assets/figma/icon-row-expanded.svg';
 import type { Client, ClientStatus } from '../data/types';
+import { useStore } from '../state/store';
 import { Avatar } from './Avatar';
+import { StatusChip } from './StatusChip';
 
 /** Pieces shared by the client list's tables (Need Review / Review Completed and the Booking tab). */
 
@@ -36,12 +39,48 @@ export function rowProps(client: Client, selected: boolean, open: (id: string) =
   };
 }
 
+/**
+ * The row's status dot. After the coach changed the status this week, hovering it shows "Status changed:" with the
+ * generated status → the new one, drawn into <body> above the dot so the list's scroll never clips it.
+ */
+function StatusDot({ client }: { client: Client }) {
+  const { state } = useStore();
+  const change = state.weekOffset === 0 ? state.statusChanges[client.id] : undefined;
+  const dot = useRef<HTMLSpanElement>(null);
+  const [at, setAt] = useState<{ left: number; bottom: number } | null>(null);
+  const cls = `size-2 shrink-0 rounded-full ${DOT[client.status]}`;
+  if (!change) return <span className={cls} />;
+  const show = () => {
+    const r = dot.current?.getBoundingClientRect();
+    if (r) setAt({ left: Math.max(8, r.left - 24), bottom: window.innerHeight - r.top + 8 });
+  };
+  return (
+    <span ref={dot} onMouseEnter={show} onMouseLeave={() => setAt(null)} className="-m-1.5 flex shrink-0 cursor-default p-1.5">
+      <span className={cls} />
+      {at &&
+        createPortal(
+          <div
+            role="tooltip"
+            style={{ left: at.left, bottom: at.bottom }}
+            className="pointer-events-none fixed z-[60] flex flex-col gap-1.5 rounded-xl border border-line bg-white px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.1)]"
+          >
+            <span className="text-[13px] font-semibold leading-[1.5] text-ink-secondary">Status changed:</span>
+            <span className="flex items-center gap-1.5 text-[13px] text-ink">
+              <StatusChip status={change.from} />→<StatusChip status={change.to} />
+            </span>
+          </div>,
+          document.body,
+        )}
+    </span>
+  );
+}
+
 /** Status dot, 40 px avatar, name, and "Program ends Nd" when the program ends within the week. */
 export function ClientCell({ client, className }: { client: Client; className: string }) {
   const ends = client.programEndsInDays;
   return (
     <div className={`${className} flex items-center gap-3 p-3`}>
-      <span className={`size-2 shrink-0 rounded-full ${DOT[client.status]}`} />
+      <StatusDot client={client} />
       <Avatar name={client.name} src={client.avatar} size={40} />
       <span className="flex min-w-0 flex-col gap-0.5">
         <span className="truncate text-[14px] font-bold leading-[1.5] text-ink">{client.name}</span>

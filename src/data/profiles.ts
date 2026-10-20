@@ -1,6 +1,6 @@
 import { addDays } from '../lib/checkin';
 import { dayAt, todoDetails } from './details';
-import { DEMO_TODAY, findPerson } from './mock';
+import { DEMO_TODAY, findPerson, generatedStatus } from './mock';
 import type {
   AcknowledgeDetail,
   AssignedForm,
@@ -198,18 +198,19 @@ function weekTasks(rnd: () => number, b: (typeof BEHAVIOUR)[ClientStatus]): Clie
 
 function generate(client: Client): ClientProfile {
   const rnd = random(client.id);
-  const b = BEHAVIOUR[client.status];
+  const status = generatedStatus(client);
+  const b = BEHAVIOUR[status];
   const nutrition = generateNutrition(rnd, b);
   const training = generateTraining(client, rnd, b);
   return {
     focus: b.log < b.train ? 'nutrition' : 'training',
     nutrition,
     training,
-    forms: [weeklyForm(client.status)],
+    forms: [weeklyForm(status)],
     tasks: weekTasks(rnd, b),
     habits: generateHabits(rnd, b),
     notes: generateNotes(rnd),
-    messages: generateMessages(client.status, rnd),
+    messages: generateMessages(status, rnd),
   };
 }
 

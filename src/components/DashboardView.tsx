@@ -8,7 +8,7 @@ import iconPlusView from '../assets/figma/icon-plus-view.svg';
 import iconSearch from '../assets/figma/icon-search-note.svg';
 import { clients } from '../data/mock';
 import { getProfile } from '../data/profiles';
-import type { Client, MetricKey } from '../data/types';
+import type { Client, MetricKey, StatusChange } from '../data/types';
 import { cardMembers } from '../lib/groups';
 import { activityLine, byUrgency, hasFormToReview, inTab, lastActive, statusLine, type ActivityLine, type DashboardTab } from '../lib/dashboard';
 import { clientsInWeek, weekAsOf } from '../lib/week';
@@ -20,7 +20,7 @@ import { ClientCell, HEAD, reducedMotion, rowProps, SectionHeader } from './Clie
 import { AI_GRADIENT } from './drawer/AiAssessment';
 import { Glyph } from './Glyph';
 import { METRICS } from './metrics';
-import { StatusChip } from './StatusChip';
+import { STATUS_LABEL, StatusChip } from './StatusChip';
 
 /**
  * The client-list view (Figma 5676:145292): the metric row (the brief's seven unless the coach customized it), the tabs, search and filters, and the client
@@ -315,6 +315,8 @@ function ClientRow({ row, arriving, onMoved }: { row: Row; arriving: boolean; on
   const COL = useCols();
   const { client } = row;
   const selected = state.selectedClientId === client.id;
+  // A status the coach changed this week shows in the Activity column instead of the activity line.
+  const change = state.weekOffset === 0 ? state.statusChanges[client.id] : undefined;
   const ref = useRef<HTMLDivElement>(null);
   const leaving = useRef(false);
 
@@ -368,11 +370,30 @@ function ClientRow({ row, arriving, onMoved }: { row: Row; arriving: boolean; on
         <StatusChip status={client.status} />
         <p className="text-[13px] leading-[1.5] text-ink">{row.status}</p>
       </div>
-      <div className={`${COL.activity} px-4 py-3`}>{row.activity && <Activity client={client} line={row.activity} />}</div>
+      <div className={`${COL.activity} px-4 py-3`}>
+        {change ? <StatusChangeLine change={change} /> : row.activity && <Activity client={client} line={row.activity} />}
+      </div>
       <div className={`${COL.last} px-4 py-3 text-[13px] leading-[1.5] text-ink/60`}>{row.lastActive}</div>
       <div className={`${COL.action} flex justify-center px-3 py-2`}>
         <ClientActions client={client} where="list" onToggleReview={moveOut} />
       </div>
+    </div>
+  );
+}
+
+/** The coach's change this week, in place of the activity line: "~~At risk~~ → Needs attention", then the reason. */
+function StatusChangeLine({ change }: { change: StatusChange }) {
+  return (
+    <div className="flex flex-col items-start gap-1 text-[13px] leading-[1.5] text-ink">
+      <p>
+        <span className="text-ink-secondary line-through">{STATUS_LABEL[change.from]}</span> →{' '}
+        <span className="font-semibold">{STATUS_LABEL[change.to]}</span>
+      </p>
+      {change.reason && (
+        <p>
+          <span className="text-ink-secondary">Reason:</span> {change.reason}
+        </p>
+      )}
     </div>
   );
 }
