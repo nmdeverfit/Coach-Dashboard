@@ -177,6 +177,12 @@ the same change.
   client detail page. `AiAssessment` also pins a copy under the panel header once scrolled past (Figma
   `5747:520276` / `520431` / `520587`): it finds the nearest `[data-panel-scroll]` and draws into its parent
   (`relative`), collapsed to the summary + View more, expanded with the facts and both buttons.
+  Add context to clients (main branch only, the user's call, no frame): an item in Dashboard Settings opens
+  `BulkContextDialog` (`components/`): Apply to All clients · Client groups (`data/clientGroups.ts`, four invented
+  groups, every client in one by a hash of its id) · Selected clients (search + checkboxes), then the same three
+  questions (`ContextQuestions`, shared with the per-client form), "Add to N clients". It stores `sharedContext` by
+  client with its source; a client's own `aiContext` wins, otherwise the card shows "Context added · From {source}"
+  and Edit saves the client's own copy.
 - Customize cards (trial, Figma `5749:521640` with a Today's Brief tab added, the user's call; also on branch
   `claude/layout-3-columns`): `CustomizeCards` is one popup for the rail's group cards and the client list's metric
   cards, tabs Today's Brief | Dashboard, both drawn the same. It opens on the tab of the view it comes from: Dashboard
@@ -338,6 +344,10 @@ the same change.
 - Deep analysis (the user's call, no frame): Phase 1's Olly answers only from the stored status, and the brief puts
   Olly reading program data in Phase 2; Deep analysis reads the training log and the program's week directly. It
   describes, never prescribes. Adjust meal plan has no page to land on, so it toasts.
+- Add context to clients (main branch only, the user's call): the same reach as per-client Add context and further:
+  context for all clients or client groups is close to per-workspace tone personalisation and group coaching
+  workflows (both Out) and coach-facing signal settings (Phase 3). Client groups are the demo's four; the client
+  list's Group filter still only toasts. Nothing reads the context.
 - The vertical row expand (rows open the client detail
   drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
   are not built yet.

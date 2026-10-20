@@ -316,6 +316,15 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   below the quick actions and the footer buttons. Training: Deep analysis with the 14 px AI sparkle and `.ai-btn`, dark tooltip
   above, right-aligned (`Tooltip end`). Nutrition: Adjust meal plan, plain (hover `surface-secondary`), with Figma `5835:570011`'s
   task-edit icon at 16 px and 60 % opacity (`icon-meal-plan-edit`).
+- **Add context to clients** (Dashboard Settings item, `list-plus` icon; no frame): 640 px `Modal`, title "Add context
+  to clients", subtitle "Tell Olly what it should know about these clients. It applies from tomorrow's 06:00
+  update."; "Apply to" (14 px semibold) and three pills (the questions' chip style): All clients (43) · Client groups ·
+  Selected clients. Groups: a bordered box of two-column checkbox rows (name semibold · "16 clients" secondary).
+  Selected: search box (the note box's style) + "N selected" + Clear, then two columns of checkbox · 24 px avatar ·
+  name, 208 px tall, scrolling. A grey line warns when picked clients already have their own context. The questions
+  sit in a `surface-secondary` box, worded "these clients". Footer Cancel · "Add to N clients" (disabled, grey,
+  until someone is picked and something is answered). The client's card then reads "Context added · From {source}"
+  (source in `ink-secondary`, regular).
 - **Popup** (`Modal`, Figma `5726:511926`): backdrop `black/50` fades in, the card rises in (220 ms). 500 px, white,
   rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
   fields, footer `px-[30px] py-5` + top border. The × is the design's 18 px black disc centred on the top-right

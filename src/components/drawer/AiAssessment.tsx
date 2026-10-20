@@ -128,7 +128,10 @@ export function AiAssessment({ client, assessment, onTellMeMore }: Props) {
   const [expanded, setExpanded] = useState(false);
   const card = useRef<HTMLElement>(null);
   const { pinned, scroller } = usePinned(card);
-  const saved = state.aiContext[client.id];
+  // The client's own context comes first; else what Dashboard Settings added for a group of clients.
+  const own = state.aiContext[client.id];
+  const shared = own ? undefined : state.sharedContext[client.id];
+  const saved = own ?? shared?.context;
 
   useEffect(() => {
     if (!pinned) setExpanded(false);
@@ -147,7 +150,7 @@ export function AiAssessment({ client, assessment, onTellMeMore }: Props) {
       {editing ? (
         <span />
       ) : saved ? (
-        <ContextAddedChip summary={contextSummary(saved)} onEdit={() => edit(fromPin)} />
+        <ContextAddedChip summary={contextSummary(saved)} source={shared?.source} onEdit={() => edit(fromPin)} />
       ) : (
         <AddContextButton firstName={client.firstName} onClick={() => edit(fromPin)} />
       )}

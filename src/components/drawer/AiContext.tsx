@@ -41,13 +41,17 @@ export function AddContextButton({ firstName, onClick }: { firstName: string; on
   );
 }
 
-/** After saving: a brand-tinted chip, "✓ Context added | Edit". */
-export function ContextAddedChip({ summary, onEdit }: { summary: string; onEdit: () => void }) {
+/**
+ * After saving: a brand-tinted chip, "✓ Context added | Edit". Context added for many clients at once (Dashboard
+ * Settings) names where it came from: "Context added · From Online coaching".
+ */
+export function ContextAddedChip({ summary, source, onEdit }: { summary: string; source?: string; onEdit: () => void }) {
   return (
     <div title={summary} className="flex h-9 items-center gap-3 rounded-[4px] bg-brand/5 px-3">
       <span className="flex items-center gap-1.5 text-[12px] font-semibold leading-[1.5] text-ink">
         <img src={iconCheck} alt="" width={16} height={16} />
         Context added
+        {source && <span className="font-normal text-ink-secondary">· From {source}</span>}
       </span>
       <span aria-hidden className="h-4 w-px bg-line-light" />
       <button type="button" onClick={onEdit} className="text-[12px] font-semibold leading-[1.5] text-ink-secondary underline hover:text-ink">
@@ -115,7 +119,75 @@ function Question({ n, title, aside, last, children }: { n: number; title: strin
   );
 }
 
-const EMPTY = (): AiContext => ({ untracked: [], untrackedNote: '', nextWeeks: 2, nextNote: '', savedOn: DEMO_TODAY });
+export const EMPTY_CONTEXT = (): AiContext => ({ untracked: [], untrackedNote: '', nextWeeks: 2, nextNote: '', savedOn: DEMO_TODAY });
+
+export const isEmptyContext = (ctx: AiContext) => !ctx.style && ctx.untracked.length === 0 && !ctx.untrackedNote.trim() && !ctx.nextNote.trim();
+
+/** The answers as saved: notes trimmed, dated today. */
+export const finishContext = (ctx: AiContext): AiContext => ({ ...ctx, untrackedNote: ctx.untrackedNote.trim(), nextNote: ctx.nextNote.trim(), savedOn: DEMO_TODAY });
+
+/**
+ * The three questions, shared by one client's form and Dashboard Settings' Add context to clients. `who` names the
+ * client ("Ali") or the group ("these clients"), so each question reads right.
+ */
+export function ContextQuestions({ ctx, set, who }: { ctx: AiContext; set: (patch: Partial<AiContext>) => void; who: { one: boolean; name: string } }) {
+  const style = STYLES.find((s) => s.key === ctx.style);
+  return (
+    <>
+      <Question n={1} title={`How do you coach ${who.name}?`}>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap gap-2">
+            {STYLES.map((s) => (
+              <Chip key={s.key} on={ctx.style === s.key} onClick={() => set({ style: ctx.style === s.key ? undefined : s.key })}>
+                {s.label}
+              </Chip>
+            ))}
+          </div>
+          {style && <p className="text-[13px] leading-[1.5] text-ink-tertiary">{style.hint}</p>}
+        </div>
+      </Question>
+      <Question n={2} title={who.one ? `What doesn't ${who.name} track?` : `What don't ${who.name} track?`}>
+        <div className="flex flex-wrap gap-2">
+          {UNTRACKED.map((u) => {
+            const on = ctx.untracked.includes(u.key);
+            return (
+              <Chip key={u.key} on={on} onClick={() => set({ untracked: on ? ctx.untracked.filter((k) => k !== u.key) : [...ctx.untracked, u.key] })}>
+                {u.label}
+              </Chip>
+            );
+          })}
+        </div>
+        <NoteBox value={ctx.untrackedNote} label="Additional note" placeholder="Additional note for context..." onChange={(v) => set({ untrackedNote: v })} />
+      </Question>
+      <Question
+        n={3}
+        title="Note for the next"
+        last
+        aside={
+          <span className="relative flex h-8 items-center gap-2.5 rounded-[5px] border border-[#d4d7d9] bg-[#fafbfc] px-3 text-[13px] font-semibold text-ink focus-within:border-brand">
+            {weeks(ctx.nextWeeks)}
+            <img src={iconChevron} alt="" width={16} height={16} />
+            {/* A native select under the design's field; selects open fine inside the artifact's iframe. */}
+            <select
+              aria-label="Note applies for"
+              value={ctx.nextWeeks}
+              onChange={(e) => set({ nextWeeks: Number(e.target.value) })}
+              className="absolute inset-0 cursor-pointer opacity-0"
+            >
+              {WEEKS.map((w) => (
+                <option key={w} value={w}>
+                  {weeks(w)}
+                </option>
+              ))}
+            </select>
+          </span>
+        }
+      >
+        <NoteBox value={ctx.nextNote} label="Note for the next weeks" placeholder="Moving house, expect less logging..." onChange={(v) => set({ nextNote: v })} />
+      </Question>
+    </>
+  );
+}
 
 /**
  * The questionnaire, inside the AI Assessment card. Save keeps the answers (clearing every answer removes the
@@ -132,11 +204,9 @@ export function ContextForm({
   onSave: (ctx: AiContext | null) => void;
   onCancel: () => void;
 }) {
-  const [ctx, setCtx] = useState<AiContext>(() => initial ?? EMPTY());
+  const [ctx, setCtx] = useState<AiContext>(() => initial ?? EMPTY_CONTEXT());
   const set = (patch: Partial<AiContext>) => setCtx((c) => ({ ...c, ...patch }));
-  const first = client.firstName;
-  const style = STYLES.find((s) => s.key === ctx.style);
-  const empty = !ctx.style && ctx.untracked.length === 0 && !ctx.untrackedNote.trim() && !ctx.nextNote.trim();
+  const empty = isEmptyContext(ctx);
 
   return (
     <section aria-label="Add context for AI Assessment" className="flex animate-fade-in flex-col gap-3 rounded-lg border border-line-light bg-surface-secondary">
@@ -149,13 +219,7 @@ export function ContextForm({
           <button
             type="button"
             disabled={empty && !initial}
-            onClick={() =>
-              onSave(
-                empty
-                  ? null
-                  : { ...ctx, untrackedNote: ctx.untrackedNote.trim(), nextNote: ctx.nextNote.trim(), savedOn: DEMO_TODAY },
-              )
-            }
+            onClick={() => onSave(empty ? null : finishContext(ctx))}
             className="h-8 w-[88px] rounded-lg border border-black/10 bg-brand text-[13px] font-semibold tracking-[-0.26px] text-white hover:bg-brand/90 disabled:opacity-40"
           >
             Save
@@ -163,57 +227,7 @@ export function ContextForm({
         </div>
       </div>
       <div className="flex flex-col gap-3 px-4 pb-4">
-        <Question n={1} title={`How do you coach ${first}?`}>
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-wrap gap-2">
-              {STYLES.map((s) => (
-                <Chip key={s.key} on={ctx.style === s.key} onClick={() => set({ style: ctx.style === s.key ? undefined : s.key })}>
-                  {s.label}
-                </Chip>
-              ))}
-            </div>
-            {style && <p className="text-[13px] leading-[1.5] text-ink-tertiary">{style.hint}</p>}
-          </div>
-        </Question>
-        <Question n={2} title={`What doesn't ${first} track?`}>
-          <div className="flex flex-wrap gap-2">
-            {UNTRACKED.map((u) => {
-              const on = ctx.untracked.includes(u.key);
-              return (
-                <Chip key={u.key} on={on} onClick={() => set({ untracked: on ? ctx.untracked.filter((k) => k !== u.key) : [...ctx.untracked, u.key] })}>
-                  {u.label}
-                </Chip>
-              );
-            })}
-          </div>
-          <NoteBox value={ctx.untrackedNote} label="Additional note" placeholder="Additional note for context..." onChange={(v) => set({ untrackedNote: v })} />
-        </Question>
-        <Question
-          n={3}
-          title="Note for the next"
-          last
-          aside={
-            <span className="relative flex h-8 items-center gap-2.5 rounded-[5px] border border-[#d4d7d9] bg-[#fafbfc] px-3 text-[13px] font-semibold text-ink focus-within:border-brand">
-              {weeks(ctx.nextWeeks)}
-              <img src={iconChevron} alt="" width={16} height={16} />
-              {/* A native select under the design's field; selects open fine inside the artifact's iframe. */}
-              <select
-                aria-label="Note applies for"
-                value={ctx.nextWeeks}
-                onChange={(e) => set({ nextWeeks: Number(e.target.value) })}
-                className="absolute inset-0 cursor-pointer opacity-0"
-              >
-                {WEEKS.map((w) => (
-                  <option key={w} value={w}>
-                    {weeks(w)}
-                  </option>
-                ))}
-              </select>
-            </span>
-          }
-        >
-          <NoteBox value={ctx.nextNote} label="Note for the next weeks" placeholder="Moving house, expect less logging..." onChange={(v) => set({ nextNote: v })} />
-        </Question>
+        <ContextQuestions ctx={ctx} set={set} who={{ one: true, name: client.firstName }} />
       </div>
     </section>
   );

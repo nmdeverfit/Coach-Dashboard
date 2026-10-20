@@ -81,6 +81,11 @@ interface State {
   meetings: Record<string, Meeting[]>;
   /** What the coach told Olly about each client through Add context on the AI Assessment. */
   aiContext: Record<string, AiContext>;
+  /**
+   * Context added for many clients at once (Dashboard Settings › Add context to clients), by client, with where it
+   * came from. A client's own context (`aiContext`) is used first.
+   */
+  sharedContext: Record<string, { context: AiContext; source: string }>;
   /** The rail's group cards, as the coach customized them (Customize cards, a trial). */
   rail: RailLayout;
   /** The client list's metric cards, in order (Customize cards, a trial). */
@@ -174,7 +179,8 @@ type Action =
   | { type: 'restoreHighlight'; id: string }
   | { type: 'clearHighlightHistory' }
   | { type: 'addMeeting'; clientId: string; meeting: Meeting }
-  | { type: 'setAiContext'; clientId: string; context: AiContext | null };
+  | { type: 'setAiContext'; clientId: string; context: AiContext | null }
+  | { type: 'addSharedContext'; clientIds: string[]; context: AiContext; source: string };
 
 const initialState: State = {
   todos: seedTodos,
@@ -196,6 +202,7 @@ const initialState: State = {
   statusChanges: {},
   meetings: {},
   aiContext: {},
+  sharedContext: {},
   rail: loadRail(),
   metrics: loadMetrics(),
   customize: null,
@@ -360,6 +367,11 @@ function reducer(state: State, action: Action): State {
       const { [action.id]: _gone, ...rest } = state.highlightLog;
       return { ...state, highlightLog: rest };
     }
+    case 'addSharedContext': {
+      const sharedContext = { ...state.sharedContext };
+      for (const id of action.clientIds) sharedContext[id] = { context: action.context, source: action.source };
+      return { ...state, sharedContext };
+    }
     case 'setAiContext': {
       const { [action.clientId]: _old, ...rest } = state.aiContext;
       return { ...state, aiContext: action.context ? { ...rest, [action.clientId]: action.context } : rest };
@@ -504,6 +516,8 @@ interface Store {
   addMeeting: (clientId: string, meeting: Meeting) => void;
   /** Saves (or, with null, clears) the coach's context for a client's AI Assessment. */
   setAiContext: (clientId: string, context: AiContext | null) => void;
+  /** Add context to clients: the same answers for every client given, labelled with where they came from. */
+  addSharedContext: (clientIds: string[], context: AiContext, source: string) => void;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -603,6 +617,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setAiContext: (clientId, context) => {
         dispatch({ type: 'setAiContext', clientId, context });
         showToast(context ? `Context saved for ${getClient(clientId).firstName}` : 'Context cleared');
+      },
+      addSharedContext: (clientIds, context, source) => {
+        dispatch({ type: 'addSharedContext', clientIds, context, source });
+        showToast(`Context added to ${clientIds.length} client${clientIds.length === 1 ? '' : 's'}`);
       },
       addMeeting: (clientId, meeting) => {
         dispatch({ type: 'addMeeting', clientId, meeting });

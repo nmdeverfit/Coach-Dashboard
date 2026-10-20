@@ -5,6 +5,7 @@ import iconChevronDisabled from '../assets/figma/icon-chevron-right.svg';
 import iconRocket from '../assets/figma/icon-rocket.svg';
 import iconSearch from '../assets/figma/icon-search.svg';
 import iconSettingsBrand from '../assets/figma/icon-settings-brand.svg';
+import iconListPlus from '../assets/figma/icon-list-plus.svg';
 import iconSettingsHome from '../assets/figma/icon-settings-home.svg';
 import iconSettingsStatus from '../assets/figma/icon-settings-status.svg';
 import iconSettingsUndo from '../assets/figma/icon-settings-undo.svg';
@@ -19,6 +20,7 @@ import { weekLabel } from '../lib/dates';
 import { MIN_WEEK_OFFSET, weekRange } from '../lib/week';
 import { useEffect, useRef, useState } from 'react';
 import { useStore, type View } from '../state/store';
+import { BulkContextDialog } from './BulkContextDialog';
 
 const VIEWS: { key: View; label: string }[] = [
   { key: 'brief', label: 'Today’s Brief' },
@@ -113,11 +115,12 @@ function OutlineButton({ icon, label, onClick }: { icon: string; label: string; 
  * Dashboard Settings and its menu (Figma 5749:521870): Home screen settings · About Client status & data · Customize
  * · Switch back to old dashboard. Customize opens Customize cards on the tab of the view on screen, so it reads
  * "Customize cards" on both views, the popup's own title (the user's call); it opens on the tab of the view it comes
- * from. The other three only toast.
+ * from. Add context to clients (the user's call) opens `BulkContextDialog`. The other three only toast.
  */
 function SettingsMenu() {
   const { state, showToast, openCustomize } = useStore();
   const [open, setOpen] = useState(false);
+  const [bulkContext, setBulkContext] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -136,6 +139,7 @@ function SettingsMenu() {
     { icon: iconSettingsHome, label: 'Home screen settings', run: () => showToast('Home screen settings open here') },
     { icon: iconSettingsStatus, label: 'About Client status & data', run: () => showToast('About Client status & data opens here') },
     { icon: iconSettingsWidget, label: 'Customize cards', run: () => openCustomize(brief ? 'brief' : 'dashboard') },
+    { icon: iconListPlus, label: 'Add context to clients', run: () => setBulkContext(true) },
     { icon: iconSettingsUndo, label: 'Switch back to old dashboard', run: () => showToast('Switch back to the old dashboard happens here') },
   ];
   return (
@@ -175,6 +179,7 @@ function SettingsMenu() {
           </div>
         </div>
       )}
+      {bulkContext && <BulkContextDialog onClose={() => setBulkContext(false)} />}
     </div>
   );
 }
