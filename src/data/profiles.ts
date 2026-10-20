@@ -107,7 +107,7 @@ function generateTraining(client: Client, rnd: () => number, b: (typeof BEHAVIOU
     const count = 3 + Math.floor(rnd() * 2);
     let completed = 0;
     if (date < DEMO_TODAY) for (let s = 0; s < count; s++) completed += rnd() < b.train ? 1 : 0;
-    days[date] = { kind: 'workout', workouts: dayWorkouts(WORKOUTS[slot % WORKOUTS.length], count, completed) };
+    days[date] = { kind: 'workout', workouts: dayWorkouts(WORKOUTS[slot % WORKOUTS.length], count, completed, `${client.id}:${date}`) };
   });
   return { days, program: { name: PROGRAMS[Math.floor(rnd() * PROGRAMS.length)], startsOn, weeks } };
 }

@@ -137,8 +137,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   Training tab is Check-in's `TrainingTab`, per the user; `RemindBody` with the Form Status table). In the session
   log a date with no calendar entry reads "Not assigned" (grey `#eaeef1`, from the Build frame) and adds a legend item.
 - `src/lib/training.ts`: computes every Training figure from `TrainingLog` (each training day lists its assigned
-  workouts, each done or not, at most `MAX_WORKOUTS_PER_DAY` = 2 (the user's call: `dayWorkouts` in `data/workouts.ts`
-  scales a longer plan down keeping its state, and names them); plus the program's start and length).
+  workouts, each done or not, at most `MAX_WORKOUTS_PER_DAY` = 2, most days one (about 1 in 5 has two, 1 in 2 of partly done days; the user's
+  call: `dayWorkouts` in `data/workouts.ts`, seeded per day, scales a longer plan down keeping whether anything was
+  done, and names them); plus the program's start and length).
   Adherence = completed ÷ assigned workouts on finished days. A session-log cell's hover (Figma `4899:687161`) gives
   the date, the state with "(3/4 workouts)" and each workout with ✓ or ×. The program end also
   feeds Clint's `programEndsInDays`, so the Program ending card and the panel agree.
