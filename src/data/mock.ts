@@ -2,7 +2,7 @@ import { buildPrepareView, rowReasonFor } from '../lib/todos';
 import { getSessions } from './sessions';
 import { summarizeTraining } from '../lib/training';
 import { todoDetails } from './details';
-import type { CheckinDetail, Client, Highlight, Todo } from './types';
+import type { CheckinDetail, Client, ClientStatus, Highlight, Todo } from './types';
 
 /** Demo "today": the design's brief is dated Monday Aug 31. */
 export const DEMO_TODAY = '2026-08-31';
@@ -208,3 +208,17 @@ export const highlightOnlyClients: Client[] = [
 /** Any person the coach can open a conversation with: a dashboard client or a highlight-only one. */
 export const findPerson = (id: string): Client | undefined =>
   clients.find((c) => c.id === id) ?? highlightOnlyClients.find((c) => c.id === id);
+
+/**
+ * The status the 06:00 generation gave each client. A coach's change (Not quite → Change Client Status) sets
+ * `client.status`, the effective status every surface reads (AC3: cards, list, detail page, panels); what was
+ * generated from the AI's status (profiles, assessments, past weeks' back-fill) keeps reading this one.
+ */
+const GENERATED = new Map(clients.map((c) => [c.id, c.status]));
+export const generatedStatus = (c: Client): ClientStatus => GENERATED.get(c.id) ?? c.status;
+
+/** Sets a client's effective status for the current week (the store's `changeStatus` calls this). */
+export function setEffectiveStatus(id: string, status: ClientStatus) {
+  const client = clients.find((c) => c.id === id);
+  if (client) client.status = status;
+}

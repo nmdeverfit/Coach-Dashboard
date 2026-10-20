@@ -288,6 +288,16 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `ink-secondary`) and ↑ / ↓ buttons (24 px, the chevron icon). Matches `#fff1b8`, the current one `#ffd666`,
   scrolled to the centre. Lines: speaker 13 px bold + time 12 px `ink-muted`, text 13 px `#484848`, `gap-4`. In
   pasted or uploaded text, a line opening with the coach's or client's name ("Long (04:12):") has the name in bold.
+- **Change Client Status** (Figma `5829:551881` / `551995` / `552126`, `ChangeStatusDialog`): 480 px `Modal`, no
+  rules, subtitle 20 px avatar + name 12 px; labels 12 px semibold `#1a1a1a`; Current status pill (border
+  `line-light`, rounded 4, 6 px status dot); New status select 40 px, `#fafbfc`, rounded 5, `line-light` border
+  (brand while open), menu under it (border `#dadfea`, rounded 4, rows `px-3 py-2.5` 12 px, hover/selected
+  `surface-secondary` + brand semibold); Reason textarea 108 px, border `#e0e0e0`, rounded 8, 14 px; the note 12 px
+  `ink-tertiary`; Cancel (white, `#e0e0e0`, 30 px) · Update Status (brand; disabled `#eeedec` + `ink-muted` until a
+  status is picked). After it: the feedback strip reads "Status changed to '{status}'. We'll use your correction to
+  improve the status."; the list's Activity column reads "~~At risk~~ → **Needs attention**" (old in
+  `ink-secondary`, struck) and "Reason: …" ("Reason:" `ink-secondary`); hovering the row's status dot shows a white
+  rounded-12 card above it: "Status changed:" 13 px semibold `ink-secondary`, then `StatusChip` → `StatusChip`.
 - **Popup** (`Modal`, Figma `5726:511926`): backdrop `black/50` fades in, the card rises in (220 ms). 500 px, white,
   rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
   fields, footer `px-[30px] py-5` + top border. The × is the design's 18 px black disc centred on the top-right

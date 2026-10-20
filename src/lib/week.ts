@@ -1,4 +1,4 @@
-import { DEMO_TODAY, clients } from '../data/mock';
+import { DEMO_TODAY, clients, generatedStatus } from '../data/mock';
 import { getProfile } from '../data/profiles';
 import { getSessions, groupSessions, type GroupSession } from '../data/sessions';
 import type { Booking, Client, ClientStatus, GroupKey } from '../data/types';
@@ -22,8 +22,11 @@ export function weekRange(offset: number) {
   return a.getUTCMonth() === b.getUTCMonth() ? `${formatMonthDay(a)} – ${b.getUTCDate()}` : `${formatMonthDay(a)} – ${formatMonthDay(b)}`;
 }
 
-/** Last week's status is stored where it changed (`lastWeekStatus`); older weeks are back-filled with the current one. */
-const statusInWeek = (c: Client, offset: number): ClientStatus => (offset === -1 ? (c.lastWeekStatus ?? c.status) : c.status);
+/**
+ * Last week's status is stored where it changed (`lastWeekStatus`); older weeks are back-filled with the current one,
+ * as generated: a coach's change applies to the current week only.
+ */
+const statusInWeek = (c: Client, offset: number): ClientStatus => (offset === -1 ? (c.lastWeekStatus ?? generatedStatus(c)) : generatedStatus(c));
 
 /** Sessions on the Upcoming bookings card: within this many days of the morning. */
 const BOOKING_WINDOW_DAYS = 3;

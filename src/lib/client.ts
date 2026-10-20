@@ -1,6 +1,6 @@
 import type { CheckinDetail, Client, ClientNote, ClientProfile, ClientTask, Habit } from '../data/types';
 import { todoDetails } from '../data/details';
-import { DEMO_TODAY } from '../data/mock';
+import { DEMO_TODAY, generatedStatus } from '../data/mock';
 import { WEEKDAYS, addDays, buildCheckinView, summarizeNutrition, type Assessment } from './checkin';
 import { formatDayMonth, formatMonthDay, parseDay } from './dates';
 import type { FormStatusRow } from './todos';
@@ -34,9 +34,11 @@ export function buildClientAssessment(client: Client, profile: ClientProfile, to
 
   const n = summarizeNutrition(profile.nutrition, today);
   const t = summarizeTraining(profile.training, today);
-  const tone = client.status === 'at_risk' ? 'are poor' : client.status === 'needs_attention' ? 'are slipping' : 'are steady';
+  // The assessment is the 06:00 generation's: a coach's status change does not rewrite it.
+  const status = generatedStatus(client);
+  const tone = status === 'at_risk' ? 'are poor' : status === 'needs_attention' ? 'are slipping' : 'are steady';
   // A shortfall only belongs in the summary when the status is a concern.
-  const showGap = client.status === 'at_risk' || client.status === 'needs_attention';
+  const showGap = status === 'at_risk' || status === 'needs_attention';
 
   const nutritionFact =
     n.daysLogged === 0
