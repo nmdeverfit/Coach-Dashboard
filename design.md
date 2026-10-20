@@ -109,7 +109,7 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 | `brand` | `#184eff` | Primary buttons, active tab, links, client-name link |
 | `checked` | `#0071fd` | Completed check, "Submitted" |
 | `ai-line` | `#fc6969` | **AI Assessment card stroke, on every to-do type** (never tinted by status) |
-| `status-*-bg/fg` | see config | Status chips only (At risk, Needs attention, On track, No activities) |
+| `status-*-bg/fg` | see config | Status chips only (At risk, Needs attention, On track, No activities). Needs attention = `#ffebb0` / `#71381d` (Figma `4617:126745`) |
 | `meal-*`, `macro-*` | see config | Meal Log cells, macro bars |
 
 Rules: no raw hex in components when a token exists. Add a token (with a comment naming the Figma variable or

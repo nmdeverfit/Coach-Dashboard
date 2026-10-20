@@ -37,8 +37,8 @@ export default {
           'risk-fg': '#7b2339',
           'risk-line': '#fc6969',
           'risk-dot': '#f03358',
-          'attention-bg': '#ffe9d9',
-          'attention-fg': '#8a3b0b',
+          'attention-bg': '#ffebb0', // Figma 4617:126745
+          'attention-fg': '#71381d',
           'attention-line': '#ffa36b',
           'attention-dot': '#f59e0b',
           'track-bg': '#dcf5e7',
