@@ -205,8 +205,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 
 - **To-do row** (`TodoRow`, Figma `3925:6908`): Default · Hover (white, `shadow-row`) · Selected (4 px brand left
   border) · Completed (opacity 60%, line-through, filled check). Past rows show the age at the right. A ticked row
-  shows its tick in place for 450 ms, then drops to the bottom of its section while the others close up (each row
-  eases from its old place, 380 ms, `cubic-bezier(0.22,1,0.36,1)`; off under reduced motion). Unticking puts it back
+  shows its tick for 150 ms, slides 24 % left and fades out (320 ms, ease-in), then drops to the bottom of its
+  section while the others close up (each row eases from its old place, 380 ms, `cubic-bezier(0.22,1,0.36,1)`) and
+  fades in there from 24 px right (320 ms). Under reduced motion it shows the tick for 450 ms and moves without
+  animation. Unticking puts it back
   in its ranked place. The user's call; the brief keeps a completed row in place.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,

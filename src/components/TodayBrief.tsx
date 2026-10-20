@@ -48,50 +48,112 @@ function SectionTitle({ title, count }: { title: string; count: number }) {
   );
 }
 
+/** Motion for a ticked row (the user's call): the tick shows, the row slides left and fades, then reappears last. */
+const TICK_MS = 150;
+const LEAVE_MS = 320;
+const ARRIVE_MS = 320;
+const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+/** With reduced motion there is no slide: a ticked row shows its tick in place, then drops to the bottom. */
+const SINK_DELAY_MS = 450;
+
+interface RowMotion {
+  /** Rows that have just been moved to the bottom: they fade in there instead of sliding down. */
+  arriving: Set<string>;
+  /** The slide-out of a ticked row, held on its last frame until the row has moved. */
+  leaving: Map<string, Animation>;
+}
+
 /**
- * Slides rows to their new places when a list reorders (a ticked row dropping to the bottom, the rest closing up):
- * each row is measured against the list before and after, then eased from its old offset (FLIP).
+ * Completed rows drop to the bottom of their section and the open ones close up (the user's call; the brief keeps a
+ * completed row in place). A ticked row first slides left and fades out, then the list reorders and it fades in at
+ * the bottom; rows completed before the page opened start there. The sort is stable, so each group keeps its rank,
+ * and an unticked row goes straight back to its place.
  */
-function useSlideRows(list: RefObject<HTMLUListElement>, order: string) {
+function useDoneLast(todos: Todo[], list: RefObject<HTMLUListElement>): { rows: Todo[]; motion: RowMotion } {
+  const done = todos.filter((t) => t.state === 'completed').map((t) => t.id);
+  const [sunk, setSunk] = useState(() => new Set(done));
+  const sunkNow = useRef(sunk);
+  sunkNow.current = sunk;
+  const motion = useRef<RowMotion>({ arriving: new Set(), leaving: new Map() }).current;
+  const key = done.join();
+  useEffect(() => {
+    const now = new Set(key ? key.split(',') : []);
+    const fresh = [...now].filter((id) => !sunkNow.current.has(id));
+    // Unticked rows come back at once; newly ticked ones leave, then sink.
+    setSunk((s) => new Set([...s].filter((id) => now.has(id))));
+    const still = reducedMotion();
+    const timers = [
+      window.setTimeout(() => {
+        if (still) return;
+        fresh.forEach((id) => {
+          const row = list.current?.querySelector<HTMLElement>(`[data-todo-id="${id}"]`);
+          if (!row) return;
+          motion.leaving.set(
+            id,
+            row.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(-24%)', opacity: 0 }], {
+              duration: LEAVE_MS,
+              easing: 'ease-in',
+              fill: 'forwards',
+            }),
+          );
+        });
+      }, TICK_MS),
+      window.setTimeout(
+        () => {
+          fresh.forEach((id) => motion.arriving.add(id));
+          setSunk(now);
+        },
+        still ? SINK_DELAY_MS : TICK_MS + LEAVE_MS,
+      ),
+    ];
+    return () => {
+      timers.forEach((t) => window.clearTimeout(t));
+      // Cut short (ticked again, or unticked): any row still faded out comes back.
+      fresh.forEach((id) => {
+        if (motion.arriving.has(id)) return;
+        motion.leaving.get(id)?.cancel();
+        motion.leaving.delete(id);
+      });
+    };
+  }, [key, list, motion]);
+  return { rows: [...todos].sort((a, b) => Number(sunk.has(a.id)) - Number(sunk.has(b.id))), motion };
+}
+
+/**
+ * Slides rows to their new places when a list reorders (the rest closing up after a ticked row leaves): each row is
+ * measured against the list before and after, then eased from its old offset (FLIP). A row that has just been moved
+ * to the bottom fades in from the right there instead.
+ */
+function useSlideRows(list: RefObject<HTMLUListElement>, order: string, motion: RowMotion) {
   const last = useRef(new Map<string, number>());
   useLayoutEffect(() => {
     const now = new Map<string, number>();
     list.current?.querySelectorAll<HTMLElement>('[data-todo-id]').forEach((row) => {
       const id = row.dataset.todoId!;
       now.set(id, row.offsetTop);
+      if (motion.arriving.has(id)) {
+        motion.leaving.get(id)?.cancel();
+        motion.leaving.delete(id);
+        if (!reducedMotion())
+          row.animate([{ transform: 'translateX(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: ARRIVE_MS, easing: EASE });
+        return;
+      }
       const before = last.current.get(id);
       if (before !== undefined && before !== row.offsetTop && !reducedMotion()) {
         row.animate([{ transform: `translateY(${before - row.offsetTop}px)` }, { transform: 'none' }], {
           duration: 380,
-          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          easing: EASE,
         });
       }
     });
+    // A row that sank past "Show N more" is not drawn; its slide-out goes with it.
+    motion.arriving.forEach((id) => {
+      motion.leaving.get(id)?.cancel();
+      motion.leaving.delete(id);
+    });
+    motion.arriving.clear();
     last.current = now;
-  }, [list, order]);
-}
-
-/** How long a ticked row shows its tick in place before it drops to the bottom. */
-const SINK_DELAY_MS = 450;
-
-/**
- * Completed rows drop to the bottom of their section and the open ones close up (the user's call; the brief keeps a
- * completed row in place). A row sinks a beat after it is ticked, so the tick is seen first; rows completed before
- * the page opened start at the bottom. The sort is stable, so each group keeps its rank, and an unticked row goes
- * straight back to its place.
- */
-function useDoneLast(todos: Todo[]): Todo[] {
-  const done = todos.filter((t) => t.state === 'completed').map((t) => t.id);
-  const [sunk, setSunk] = useState(() => new Set(done));
-  const key = done.join();
-  useEffect(() => {
-    const now = new Set(key ? key.split(',') : []);
-    // Unticked rows come back at once; newly ticked ones sink after the pause.
-    setSunk((s) => new Set([...s].filter((id) => now.has(id))));
-    const timer = window.setTimeout(() => setSunk(now), SINK_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [key]);
-  return [...todos].sort((a, b) => Number(sunk.has(a.id)) - Number(sunk.has(b.id)));
+  }, [list, order, motion]);
 }
 
 type PendingDismiss = { kind: 'one'; todo: Todo } | { kind: 'all'; count: number };
@@ -99,17 +161,17 @@ type PendingDismiss = { kind: 'one'; todo: Todo } | { kind: 'all'; count: number
 export function TodayBrief() {
   const store = useStore();
   const { state, openSuggestedCount, toggleComplete, dismiss, dismissAllPrevious, selectTodo } = store;
-  const suggested = useDoneLast(store.suggested);
-  const previous = useDoneLast(store.previous);
+  const suggestedList = useRef<HTMLUListElement>(null);
+  const previousList = useRef<HTMLUListElement>(null);
+  const { rows: suggested, motion: suggestedMotion } = useDoneLast(store.suggested, suggestedList);
+  const { rows: previous, motion: previousMotion } = useDoneLast(store.previous, previousList);
   const [expanded, setExpanded] = useState(false);
   const [pending, setPending] = useState<PendingDismiss | null>(null);
 
   const visibleSuggested = expanded ? suggested : suggested.slice(0, INITIAL_ROWS);
   const hiddenCount = suggested.length - visibleSuggested.length;
-  const suggestedList = useRef<HTMLUListElement>(null);
-  const previousList = useRef<HTMLUListElement>(null);
-  useSlideRows(suggestedList, visibleSuggested.map((t) => t.id).join());
-  useSlideRows(previousList, previous.map((t) => t.id).join());
+  useSlideRows(suggestedList, visibleSuggested.map((t) => t.id).join(), suggestedMotion);
+  useSlideRows(previousList, previous.map((t) => t.id).join(), previousMotion);
 
   const confirmDismiss = () => {
     if (!pending) return;
