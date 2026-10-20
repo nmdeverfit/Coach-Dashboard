@@ -127,6 +127,23 @@ export function BulkContextDialog({ onClose }: { onClose: () => void }) {
           })();
 
   const toggle = (list: string[], id: string) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
+  // The rows of the open picker: client groups (name · size) or clients (photo · name).
+  const options: { id: string; name: string; on: boolean; toggle: () => void; lead?: ReactNode; note?: string }[] =
+    scope === 'groups'
+      ? shownGroups.map((g) => ({
+          id: g.id,
+          name: g.name,
+          on: groups.includes(g.id),
+          toggle: () => setGroups((l) => toggle(l, g.id)),
+          note: plural(g.members.length, 'client'),
+        }))
+      : shown.map((c) => ({
+          id: c.id,
+          name: c.name,
+          on: picked.includes(c.id),
+          toggle: () => setPicked((l) => toggle(l, c.id)),
+          lead: <Avatar name={c.name} src={c.avatar} size={24} />,
+        }));
   const ready = targets.length > 0 && !isEmptyContext(ctx);
 
   return (
@@ -173,40 +190,20 @@ export function BulkContextDialog({ onClose }: { onClose: () => void }) {
             </ScopePill>
           </div>
 
-          {scope === 'groups' && (
+          {scope !== 'all' && (
             <PickerBox
-              query={groupQuery}
-              onQuery={setGroupQuery}
-              placeholder="Search groups"
-              count={groups.length}
-              onClear={() => setGroups([])}
-              empty={shownGroups.length === 0 ? `No groups match “${groupQuery.trim()}”.` : null}
+              query={scope === 'groups' ? groupQuery : query}
+              onQuery={scope === 'groups' ? setGroupQuery : setQuery}
+              placeholder={scope === 'groups' ? 'Search groups' : 'Search clients'}
+              count={scope === 'groups' ? groups.length : picked.length}
+              onClear={() => (scope === 'groups' ? setGroups([]) : setPicked([]))}
+              empty={options.length === 0 ? `No ${scope === 'groups' ? 'groups' : 'clients'} match “${(scope === 'groups' ? groupQuery : query).trim()}”.` : null}
             >
-              {shownGroups.map((g) => {
-                const on = groups.includes(g.id);
-                return (
-                  <PickRow key={g.id} picked={on} onToggle={() => setGroups((l) => toggle(l, g.id))}>
-                    <span className={`min-w-0 flex-1 truncate text-[13px] leading-[1.5] ${on ? 'font-semibold text-brand' : 'text-ink'}`}>{g.name}</span>
-                    <span className="shrink-0 text-[12px] leading-[1.5] text-ink-secondary">{plural(g.members.length, 'client')}</span>
-                  </PickRow>
-                );
-              })}
-            </PickerBox>
-          )}
-
-          {scope === 'clients' && (
-            <PickerBox
-              query={query}
-              onQuery={setQuery}
-              placeholder="Search clients"
-              count={picked.length}
-              onClear={() => setPicked([])}
-              empty={shown.length === 0 ? `No clients match “${query.trim()}”.` : null}
-            >
-              {shown.map((c) => (
-                <PickRow key={c.id} picked={picked.includes(c.id)} onToggle={() => setPicked((l) => toggle(l, c.id))}>
-                  <Avatar name={c.name} src={c.avatar} size={24} />
-                  <span className={`truncate text-[13px] leading-[1.5] ${picked.includes(c.id) ? 'font-semibold text-brand' : 'text-ink'}`}>{c.name}</span>
+              {options.map((o) => (
+                <PickRow key={o.id} picked={o.on} onToggle={o.toggle}>
+                  {o.lead}
+                  <span className={`min-w-0 flex-1 truncate text-[13px] leading-[1.5] ${o.on ? 'font-semibold text-brand' : 'text-ink'}`}>{o.name}</span>
+                  {o.note && <span className="shrink-0 text-[12px] leading-[1.5] text-ink-secondary">{o.note}</span>}
                 </PickRow>
               ))}
             </PickerBox>
