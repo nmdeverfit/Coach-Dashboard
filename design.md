@@ -36,7 +36,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   bubbles 18 px + 12 px semibold ink, `gap-1`), `gap-3`, `pr-[18px]`. Dismissed (no frame): white row, avatar at
   50 % in greyscale, text `ink-secondary`, a "Dismissed" tag hugging its words with the same ~10 px side padding (`px-2.5`, no fixed width) on `bg-surface-secondary` (12 px close
   stroke + 12 px semibold `ink-secondary`) and Restore (14 px rotate icon + 12 px semibold ink). History's list opens on a note, 12 px
-  `ink-secondary`, `px-3 pb-2.5`: "Moments older than 30 days are cleared automatically." + Clear all (12 px semibold
+  `ink-secondary`, `px-3 pb-2.5` (with the category tabs stacked above, `pb-2.5` only and no list top padding, so it
+  starts right under the tabs, flush with the first tab's left edge): "Moments older than 30 days are cleared automatically." + Clear all (12 px semibold
   ink, underlined, brand on hover; only when History has rows), which asks in the `ConfirmDialog`. Empty (Figma `5809:544623`): `EmptyArt` (160 × 140 drawing of a window, two client cards and a
   blue check) then one 13 px `ink-secondary` line, centred, `gap-5`, `py-10`. The line follows the view and category
   tab: "All caught up! No {client moments / milestones / birthdays / anniversaries} need you right now." in Need
