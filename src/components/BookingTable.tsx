@@ -8,7 +8,7 @@ import { getSessions } from '../data/sessions';
 import type { Client } from '../data/types';
 import { bookingRow, type BookingRow } from '../lib/dashboard';
 import { ISSUE_CREDITS_TOAST, reminderToast } from '../lib/todos';
-import { useStore } from '../state/store';
+import { sideIsSidebar, useStore } from '../state/store';
 import { ClientCell, HEAD, rowProps, SectionHeader } from './ClientListParts';
 import { DraftReminderButton, IssueCreditsButton, LowCreditsBadge, Swatch } from './drawer/SessionsBodies';
 import { Glyph } from './Glyph';
@@ -21,7 +21,13 @@ import { Tooltip } from './Tooltip';
  */
 
 /** Activity gives up width before Session credits does; nothing inside a cell breaks mid-phrase (see `useStackedColumns`). */
-const COL = { client: 'w-[280px] shrink-0', activity: 'min-w-[360px] flex-[0_1_460px]', credits: 'min-w-[420px] flex-1', action: 'w-[100px] shrink-0' };
+const WIDE_COLS = { client: 'w-[280px] shrink-0', activity: 'min-w-[360px] flex-[0_1_460px]', credits: 'min-w-[420px] flex-1', action: 'w-[100px] shrink-0' };
+/** With the sidebar open (`sideIsSidebar`): a narrower Client column, and Activity and Session credits share the rest. */
+const COMPACT_COLS = { client: 'w-[220px] shrink-0', activity: 'min-w-0 flex-1', credits: 'min-w-0 flex-1', action: 'w-[100px] shrink-0' };
+function useCols() {
+  const { state } = useStore();
+  return sideIsSidebar(state) ? COMPACT_COLS : WIDE_COLS;
+}
 /** Client Sessions' greys, as drawn in the frame. */
 const LABEL = 'text-[13px] font-semibold leading-[18px] tracking-[0.13px] text-[#4d4d4d]';
 
@@ -76,7 +82,9 @@ export function BookingTable({ query }: { query: string }) {
       return x.date.localeCompare(y.date) || x.start.localeCompare(y.start);
     });
   const none = rows.filter((r) => !r.row.next);
-  const stacked = useStackedColumns(root, [query, open.upcoming, open.none]);
+  const COL = useCols();
+  // Re-measured when the columns change width, so a line that no longer fits stacks.
+  const stacked = useStackedColumns(root, [query, open.upcoming, open.none, COL]);
 
   return (
     <div ref={root} className="flex flex-col gap-2">
@@ -112,6 +120,7 @@ export function BookingTable({ query }: { query: string }) {
 
 function BookingClientRow({ client, row, stacked }: { client: Client; row: BookingRow; stacked: Stacked }) {
   const { state, selectClient, showToast, openInbox } = useStore();
+  const COL = useCols();
   const stop = (fn: () => void) => (e: React.MouseEvent) => {
     e.stopPropagation();
     fn();

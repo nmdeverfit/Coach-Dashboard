@@ -105,8 +105,10 @@ the same change.
   `openInbox`, `closeSideTab`, `sendMessage`. The column docks left of the client's open panel and closes with it
   or when another client opens. From a list row (no panel open) it opens on its own at the right edge, without the
   client detail page (the user's call), and closes on ×, Esc or a click outside; opening that client's row then
-  docks it beside the panel. Opened from a Client highlight on the brief it is a sidebar instead
-  (`sideIsSidebar` in the store, the user's call): the shell pads 360 px on the right so Today's Brief and the rail
+  docks it beside the panel. Opened from a Client highlight on the brief, or from the client list (Dashboard view, list and Booking
+  rows), it is a sidebar instead (`sideIsSidebar` in the store, the user's call); on the list both tables switch to
+  compact columns (`COMPACT_COLS`: Client 220 px, Status / Activity or Activity / Session credits share the rest).
+  On the brief: the shell pads 360 px on the right so Today's Brief and the rail
   reflow beside it (the rail narrows to 360 px, the AI panel's width; the brief takes the rest), the group cards stack in one column (`RightRail`), Client highlights switch to their stacked-tabs
   layout, and only × or Esc close it. Sending never completes
   a to-do (AC2.2).

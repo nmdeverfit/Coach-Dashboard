@@ -316,7 +316,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   card with a 180 px donut (`#0e9cff` / `#ff7657`). Draft card: 2 px pink → blue gradient stroke, "Message to"
   + client tag, editable draft (13 px semibold), 30 px brand Send. Composer: 140 px white card, Ctrl key hint, mic,
   32 px send (grey until there is text).
-  From a Client highlight on the brief the column is a sidebar (the user's call): the page shell gets `pr-[360px]`
+  From a Client highlight on the brief, or from a client-list row (Dashboard view), the column is a sidebar (the
+  user's call). On the list the tables take compact columns (Client 220 px, Last active 108 px, Status and Activity
+  share the rest; Booking: Activity and Session credits share it) and the metric labels truncate. On the brief the page shell gets `pr-[360px]`
   (300 ms padding transition) so the brief and rail reflow into the rest: the rail column narrows to 360 px, the
   AI panel's width (`grid-cols-[minmax(0,1fr)_360px]`), and the brief takes what is left, the column drops its overlay shadow for
   `border-l border-line` and a faint `-4px 0 16px rgba(0,0,0,0.04)`, the group cards leave the 2 × 2 grid for one

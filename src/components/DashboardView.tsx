@@ -12,7 +12,7 @@ import type { Client, MetricKey } from '../data/types';
 import { cardMembers } from '../lib/groups';
 import { activityLine, byUrgency, hasFormToReview, inTab, lastActive, statusLine, type ActivityLine, type DashboardTab } from '../lib/dashboard';
 import { clientsInWeek, weekAsOf } from '../lib/week';
-import { useStore } from '../state/store';
+import { sideIsSidebar, useStore } from '../state/store';
 import { AiPill } from './AiPill';
 import { BookingTable } from './BookingTable';
 import { ClientActions } from './ClientActions';
@@ -257,9 +257,16 @@ function SearchAndFilters({ query, onQuery, booking }: { query: string; onQuery:
 }
 
 /** Column widths from the frame: Client 280 · Status (fills) · Activity 440 · Last active 111 · Action 164. */
-const COL = { client: 'w-[280px] shrink-0', status: 'min-w-0 flex-1', activity: 'w-[440px] shrink-0', last: 'w-[111px] shrink-0', action: 'w-[164px] shrink-0' };
+const WIDE_COLS = { client: 'w-[280px] shrink-0', status: 'min-w-0 flex-1', activity: 'w-[440px] shrink-0', last: 'w-[111px] shrink-0', action: 'w-[164px] shrink-0' };
+/** With the sidebar open (`sideIsSidebar`) the table loses 360 px: Client and Last active narrow, Status and Activity share the rest. */
+const COMPACT_COLS = { client: 'w-[220px] shrink-0', status: 'min-w-0 flex-1', activity: 'min-w-0 flex-1', last: 'w-[108px] shrink-0', action: 'w-[164px] shrink-0' };
+function useCols() {
+  const { state } = useStore();
+  return sideIsSidebar(state) ? COMPACT_COLS : WIDE_COLS;
+}
 
 function TableHeader() {
+  const COL = useCols();
   return (
     <div className="sticky top-0 z-10 flex h-10 items-center rounded-t-lg border-b border-line bg-white">
       <div className={`${COL.client} py-2.5 pl-4 pr-3 ${HEAD}`}>Client</div>
@@ -305,6 +312,7 @@ const EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
 function ClientRow({ row, arriving, onMoved }: { row: Row; arriving: boolean; onMoved: (clientId: string) => void }) {
   const { state, selectClient, toggleReview } = useStore();
+  const COL = useCols();
   const { client } = row;
   const selected = state.selectedClientId === client.id;
   const ref = useRef<HTMLDivElement>(null);

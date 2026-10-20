@@ -196,11 +196,15 @@ const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
 const todoClient = (state: State) => state.todos.find((t) => t.id === state.selectedTodoId)?.clientId ?? null;
 
 /**
- * Opened from a Client highlight on the brief, with no client panel beside it, the middle column is a sidebar (the
- * user's call): it takes 360 px of the page, which reflows beside it, instead of floating over it.
+ * Opened from a Client highlight on the brief, or from a row on the client list (Dashboard view), with no client panel
+ * beside it, the middle column is a sidebar (the user's call): it takes 360 px of the page, which reflows beside it,
+ * instead of floating over it.
  */
 export const sideIsSidebar = (state: State) => {
-  if (!state.side?.highlightId || state.view !== 'brief') return false;
+  if (!state.side) return false;
+  const fromList = state.view === 'dashboard';
+  const fromHighlight = state.view === 'brief' && Boolean(state.side.highlightId);
+  if (!fromList && !fromHighlight) return false;
   const panel = state.selectedTodoId ? todoClient(state) : state.selectedClientId;
   return panel !== state.side.clientId;
 };
