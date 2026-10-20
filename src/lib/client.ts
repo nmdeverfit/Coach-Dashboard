@@ -3,6 +3,7 @@ import { todoDetails } from '../data/details';
 import { DEMO_TODAY, generatedStatus } from '../data/mock';
 import { WEEKDAYS, addDays, buildCheckinView, summarizeNutrition, type Assessment } from './checkin';
 import { formatDayMonth, formatMonthDay, parseDay } from './dates';
+import { noteStamp, noteText } from './notes';
 import type { FormStatusRow } from './todos';
 import { summarizeTraining } from './training';
 
@@ -194,13 +195,13 @@ export interface NoteGroup {
 /** Notes grouped by day; `newestFirst` orders both the groups and the notes in them. */
 export function groupNotes(notes: ClientNote[], newestFirst: boolean, query = ''): NoteGroup[] {
   const q = query.trim().toLowerCase();
-  const sorted = notes
-    .filter((n) => !q || n.title.toLowerCase().includes(q))
+  const sorted = [...notes]
+    .filter((n) => !q || n.title.toLowerCase().includes(q) || noteText(n.body).toLowerCase().includes(q))
     .sort((a, b) => (newestFirst ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at)));
   const groups: NoteGroup[] = [];
   for (const n of sorted) {
     const date = n.at.slice(0, 10);
-    const label = `${formatMonthDay(parseDay(date))} - ${clock12(n.at.slice(11, 16))}`;
+    const label = noteStamp(n.at);
     const last = groups[groups.length - 1];
     if (last?.date === date) last.notes.push({ ...n, label });
     else groups.push({ date, notes: [{ ...n, label }] });

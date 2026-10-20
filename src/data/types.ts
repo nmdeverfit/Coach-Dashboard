@@ -250,9 +250,15 @@ export interface Habit {
 }
 
 export interface ClientNote {
+  /** Unique within the client's notes. */
+  id: string;
   title: string;
   /** Local date and time, "YYYY-MM-DDTHH:MM". */
   at: string;
+  /** Last edit, same format; absent when the note was never edited. */
+  editedAt?: string;
+  /** The note's text as the editor writes it: p, b, i, ul, ol and li only (`cleanNoteHtml` in lib/notes.ts). */
+  body: string;
 }
 
 /**

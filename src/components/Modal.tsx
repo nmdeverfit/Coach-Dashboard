@@ -17,6 +17,8 @@ export function Modal({
   footer,
   headerBorder = true,
   footerBorder = true,
+  header,
+  radius = 16,
   children,
 }: {
   title: string;
@@ -30,11 +32,21 @@ export function Modal({
   headerBorder?: boolean;
   /** Off for a short form whose buttons sit right under it (Change Client Status). */
   footerBorder?: boolean;
+  /** Replaces the title row (the note popups draw their own); `title` then only names the dialog. */
+  header?: ReactNode;
+  /** Corner radius: 16 as on most popups, 12 on the note popups. */
+  radius?: number;
   children: ReactNode;
 }) {
   const titleId = useId();
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    // A confirmation opened over it (Delete note) takes that Esc for itself. Otherwise the popup does, and no later
+    // listener (the panel behind) sees it after the popup has gone.
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || document.querySelector('[role="alertdialog"]')) return;
+      e.stopImmediatePropagation();
+      onClose();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
@@ -47,9 +59,10 @@ export function Modal({
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
-        className="relative flex max-h-full animate-pop-in flex-col rounded-2xl bg-white shadow-[0_-8px_40px_rgba(0,0,0,0.05),0_8px_70px_rgba(0,0,0,0.2)]"
-        style={{ width }}
+        aria-labelledby={header ? undefined : titleId}
+        aria-label={header ? title : undefined}
+        className="relative flex max-h-full animate-pop-in flex-col bg-white shadow-[0_-8px_40px_rgba(0,0,0,0.05),0_8px_70px_rgba(0,0,0,0.2)]"
+        style={{ width, borderRadius: radius }}
       >
         <button
           type="button"
@@ -59,12 +72,14 @@ export function Modal({
         >
           <img src={iconClose} alt="" width={18} height={18} className="block" />
         </button>
-        <header className={`shrink-0 px-[30px] py-5 ${headerBorder ? 'border-b border-line' : ''}`}>
-          <h2 id={titleId} className="text-[20px] font-semibold leading-[1.5] text-ink">
-            {title}
-          </h2>
-          {subtitle && <div className="mt-1 text-[13px] leading-[1.5] text-ink-tertiary">{subtitle}</div>}
-        </header>
+        {header ?? (
+          <header className={`shrink-0 px-[30px] py-5 ${headerBorder ? 'border-b border-line' : ''}`}>
+            <h2 id={titleId} className="text-[20px] font-semibold leading-[1.5] text-ink">
+              {title}
+            </h2>
+            {subtitle && <div className="mt-1 text-[13px] leading-[1.5] text-ink-tertiary">{subtitle}</div>}
+          </header>
+        )}
         <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
         {footer && <footer className={`flex shrink-0 justify-end gap-2 px-[30px] ${footerBorder ? 'border-t border-line py-5' : 'pb-6 pt-4'}`}>{footer}</footer>}
       </div>

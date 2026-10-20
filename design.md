@@ -148,6 +148,7 @@ Open Sans everywhere (weights 400, 500, 600, 700 loaded; Inter Bold for the gree
 | Task & Habit | `TaskHabitTab` (tasks card, habits card with 7 day circles) | `drawer/TaskHabitTab.tsx` |
 | Program Ending | `CurrentProgramCard` (180 px labels, end date with year) | `drawer/TrainingTab.tsx` |
 | Notes | `NotesTab` (search, day groups, sort, New note; every note has a bottom line, title 14 px, date 11 px; list capped at 580 px) | `drawer/NotesTab.tsx` |
+| Note popups | `NoteDialog` (Note details, Add / Edit note with `NoteEditor`); note text styles `.note-body` in `index.css` | `drawer/NoteDialog.tsx` |
 | Form | `FormStatus` (Form Status table) | `drawer/AssessedBodies.tsx` |
 | Client detail page | `ClientDetailsPanel`, `ClientDrawer` | `drawer/ClientDetails.tsx` |
 | Panel shell | `DrawerAside`, `useDrawerPresence`, `useCloseOnOutside` | `drawer/DrawerShell.tsx` |
@@ -302,6 +303,22 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `ink-secondary`) and ↑ / ↓ buttons (24 px, the chevron icon). Matches `#fff1b8`, the current one `#ffd666`,
   scrolled to the centre. Lines: speaker 13 px bold + time 12 px `ink-muted`, text 13 px `#484848`, `gap-4`. In
   pasted or uploaded text, a line opening with the coach's or client's name ("Long (04:12):") has the name in bold.
+- **Note details** (Figma `5850:570056`, `NoteDialog`): a click on a note in the Notes tab. 600 px `Modal`, rounded
+  12, with its own header (`header` prop): `px-8 pt-8 pb-3`, bottom border `black/8`; title 19 px semibold
+  `#1a1a1a` (`-0.57px`); at its right, `gap-5`, Delete (16 px, 60 % until hovered) and Edit (16 px, 60 % black,
+  brand on hover as drawn), each with the dark tooltip ("Delete note", "Edit note"); under it `py-2 gap-1.5`, a 16 px
+  clock at 50 % + "Created: Aug 21 - 6:40 PM" and, once edited, "Last Edited: …" (12 px `ink-tertiary`). Body
+  440 px high, `px-8 py-5`, scrolls inside: `.note-body` 14 px / 1.75 ink, bold section heads, lists indented
+  21 px, 10 px between a list and the next paragraph. Then the frame's empty 32 px action strip. Delete asks first
+  (`ConfirmDialog`, "Delete this note?") and toasts "Note deleted"; Esc there only cancels the confirmation.
+- **Add note** (Figma `5850:570122`): the same popup; the title is an input whose placeholder is "New Note {n}" at
+  50 % (the title if left empty), one "Created:" line. Body 440 px, `px-3 pt-3 pb-5`: a toolbar `p-2 gap-3`,
+  rounded 8, `#f6f6f6` fading out to the right (99°, 27 % → 51 %), with Bold · Italic · Numbered list · Bulleted
+  list (26 px buttons, 20 px icons; hover `black/5`, on `black/8`), then the writing area `px-5`, placeholder
+  "Type your note for {first}..." (14 px `ink-secondary`), focused on open. Footer `px-8 pt-4 pb-6`, `gap-[5px]`:
+  Cancel (66 × 30, `#e0e0e0` border, `#4d4d4d`) · Save (107 × 30, brand, 50 % until there is text). Save toasts
+  "Note added"; Edit in Note details opens the same editor filled in (Cancel goes back to the details, Save toasts
+  "Note saved" and shows "Last Edited"). Pasted text comes in plain.
 - **Change Client Status** (Figma `5829:551881` / `551995` / `552126`, `ChangeStatusDialog`): 480 px `Modal`, no
   rules, subtitle 20 px avatar + name 12 px; labels 12 px semibold `#1a1a1a`; Current status pill (border
   `line-light`, rounded 4, 6 px status dot); New status select 40 px, `#fafbfc`, rounded 5, `line-light` border

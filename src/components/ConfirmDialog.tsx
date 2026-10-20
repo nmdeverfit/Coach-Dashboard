@@ -14,7 +14,12 @@ export function ConfirmDialog({ title, body, confirmLabel, onConfirm, onCancel }
 
   useEffect(() => {
     confirmRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCancel();
+    // Its Esc goes no further: not to a popup or panel behind it, which would see it once the dialog has gone.
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.stopImmediatePropagation();
+      onCancel();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onCancel]);

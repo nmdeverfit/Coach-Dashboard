@@ -1,6 +1,7 @@
 import { addDays } from '../lib/checkin';
 import { dayAt, todoDetails } from './details';
 import { DEMO_TODAY, findPerson, generatedStatus } from './mock';
+import { noteBody } from './notes';
 import { dayWorkouts } from './workouts';
 import type {
   AcknowledgeDetail,
@@ -135,15 +136,34 @@ function generateHabits(rnd: () => number, b: (typeof BEHAVIOUR)[ClientStatus]):
   });
 }
 
-function generateNotes(rnd: () => number): ClientNote[] {
+const hhmm = (hour: number, minute: number) => `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
+/**
+ * About half the notes were edited later the same day. That roll has its own seed, so the rest of the profile (drawn
+ * from `rnd` after the notes) stays as it was before notes had edit times.
+ */
+function withNoteDetails(clientId: string, notes: Omit<ClientNote, 'id' | 'body'>[]): ClientNote[] {
+  const edits = random(`${clientId}:notes`);
+  return notes.map((n, i) => {
+    const hour = Number(n.at.slice(11, 13));
+    const later = edits() < 0.5 && hour < 22 ? 1 + Math.floor(edits() * (22 - hour)) : 0;
+    const editedAt = later ? `${n.at.slice(0, 10)}T${hhmm(hour + later, [5, 15, 25, 45][Math.floor(edits() * 4)])}` : undefined;
+    return { ...n, id: `n${i + 1}`, body: noteBody(n.title), ...(editedAt && { editedAt }) };
+  });
+}
+
+function generateNotes(clientId: string, rnd: () => number): ClientNote[] {
   const count = 3 + Math.floor(rnd() * 5);
   const titles = [...NOTE_TITLES].sort(() => rnd() - 0.5).slice(0, count);
-  return titles.map((title) => {
-    const day = addDays(DEMO_TODAY, -1 - Math.floor(rnd() * 40));
-    const hour = 7 + Math.floor(rnd() * 12);
-    const minute = [0, 10, 25, 40, 55][Math.floor(rnd() * 5)];
-    return { title, at: `${day}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}` };
-  });
+  return withNoteDetails(
+    clientId,
+    titles.map((title) => {
+      const day = addDays(DEMO_TODAY, -1 - Math.floor(rnd() * 40));
+      const hour = 7 + Math.floor(rnd() * 12);
+      const minute = [0, 10, 25, 40, 55][Math.floor(rnd() * 5)];
+      return { title, at: `${day}T${hhmm(hour, minute)}` };
+    }),
+  );
 }
 
 const stamp = (daysAgo: number, hour: number, minute = 0) =>
@@ -210,7 +230,7 @@ function generate(client: Client): ClientProfile {
     forms: [weeklyForm(status)],
     tasks: weekTasks(rnd, b),
     habits: generateHabits(rnd, b),
-    notes: generateNotes(rnd),
+    notes: generateNotes(client.id, rnd),
     messages: generateMessages(status, rnd),
   };
 }
@@ -249,12 +269,12 @@ function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
         nutrition: t3.nutrition,
         training: t3.training,
         forms: [{ name: 'Weekly Check-in', lastSubmittedOn: '2026-08-23', reviewed: true, overdueSince: t3.context.checkinFormDueOn }],
-        notes: [
+        notes: withNoteDetails(client.id, [
           { title: 'Travelling for work until mid-September', at: '2026-08-21T18:25' },
           { title: 'Hotel gym only: dumbbells up to 25 kg', at: '2026-08-21T18:40' },
           { title: 'Prefers short check-in messages', at: '2026-08-10T09:15' },
           { title: 'Goal: cut to 82 kg by October', at: '2026-07-13T10:00' },
-        ],
+        ]),
       };
     case 'glen-johnson':
       return { ...base, focus: 'training', training: t4.training };
