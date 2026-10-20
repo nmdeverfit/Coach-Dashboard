@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import type { Client, ClientProfile } from '../../data/types';
 import { summarizeNutrition } from '../../lib/checkin';
@@ -6,6 +7,7 @@ import { formRows } from '../../lib/client';
 import { getSessions } from '../../data/sessions';
 import { ISSUE_CREDITS_TOAST, buildPrepareView, buildUnblockView, reminderToast } from '../../lib/todos';
 import { useStore } from '../../state/store';
+import { Tooltip } from '../Tooltip';
 import { FormStatus } from './AssessedBodies';
 import { NotesTab } from './NotesTab';
 import { NutritionTab } from './NutritionTab';
@@ -42,20 +44,58 @@ export function ClientTabs({
   profile,
   initialTab,
   withTranscript,
+  withTabActions,
 }: {
   client: Client;
   profile: ClientProfile;
   initialTab?: ClientTabKey | null;
   withTranscript?: boolean;
+  /** The client detail page's per-tab buttons (Training: Deep analysis; Nutrition: Adjust meal plan). */
+  withTabActions?: boolean;
 }) {
   const tabs = CLIENT_TABS.filter((t) => (t.key !== 'booking' || getSessions(client.id)) && (t.key !== 'transcript' || withTranscript));
   const [tab, setTab] = useState<ClientTabKey>(() => (initialTab && tabs.some((t) => t.key === initialTab) ? initialTab : profile.focus));
   return (
     <DataArea>
       <TabBar tabs={tabs} active={tab} onChange={setTab} />
+      {withTabActions && <TabActions tab={tab} client={client} />}
       <ClientTabContent tab={tab} client={client} profile={profile} />
     </DataArea>
   );
+}
+
+/** A tab's small 28 px button, a step below the page's quick actions and footer buttons. */
+const TAB_BTN =
+  'flex h-7 items-center gap-1.5 rounded-[4px] border border-black/15 bg-white px-2.5 text-[12px] font-semibold leading-none text-ink';
+
+/**
+ * Buttons that belong to one tab, right-aligned above its cards. Training: Deep analysis, an AI button opening Olly
+ * on the training log; Nutrition: Adjust meal plan, which leaves for the client's meal plan.
+ */
+function TabActions({ tab, client }: { tab: ClientTabKey; client: Client }) {
+  const { openOlly, showToast } = useStore();
+  if (tab === 'training')
+    return (
+      <div className="flex w-full justify-end">
+        {/* The tooltip hangs off a wrapper: the AI button clips its own shine. */}
+        <span className="group/tip relative">
+          <button type="button" onClick={() => openOlly(client.id, { mode: 'training' })} className={`ai-btn ${TAB_BTN}`}>
+            <img src={iconSparkle} alt="" width={14} height={14} />
+            Deep analysis
+          </button>
+          <Tooltip label="AI analyzes client's training progress" end />
+        </span>
+      </div>
+    );
+  if (tab === 'nutrition')
+    return (
+      <div className="flex w-full justify-end">
+        <button type="button" onClick={() => showToast(`${client.firstName}’s meal plan opens in Meal Plans`)} className={`${TAB_BTN} hover:bg-surface-secondary`}>
+          Adjust meal plan
+        </button>
+      </div>
+    );
+  return null;
 }
 
 export function ClientTabContent({ tab, client, profile }: { tab: ClientTabKey; client: Client; profile: ClientProfile }) {

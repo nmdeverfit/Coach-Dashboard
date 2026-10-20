@@ -7,7 +7,22 @@ import { DEMO_TODAY, highlights } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { Client } from '../../data/types';
 import { buildClientAssessment } from '../../lib/client';
-import { draftFor, draftTask, highlightDraft, sendTask, tellAnswer, tellPrompt, tellTask, type OllyAnswer, type OllyChart, type OllyTaskSpec } from '../../lib/olly';
+import {
+  draftFor,
+  draftTask,
+  highlightDraft,
+  sendTask,
+  tellAnswer,
+  tellPrompt,
+  tellTask,
+  trainingAnalysis,
+  trainingPrompt,
+  trainingTask,
+  type OllyAnswer,
+  type OllyChart,
+  type OllyTaskSpec,
+  type TrainingAnalysis,
+} from '../../lib/olly';
 import { getClient, useStore, type OllyRequest } from '../../state/store';
 import { OllyTask } from './OllyTask';
 
@@ -93,6 +108,54 @@ function ChartCard({ chart }: { chart: OllyChart }) {
         <p className="text-[16px] font-bold">{chart.headline}</p>
         <p className="text-[12px] font-semibold opacity-60">{chart.caption}</p>
       </div>
+    </div>
+  );
+}
+
+/** Weekly completion columns for Deep analysis: one per finished week, to scale (the frame line is 100%). */
+function WeekBars({ weeks }: { weeks: TrainingAnalysis['weeks'] }) {
+  return (
+    <div className="flex w-full flex-col items-center gap-3 rounded-lg border border-[#e6e6e6] bg-white/60 p-4">
+      <p className="text-[14px] font-semibold leading-[1.5] text-ink">Weekly Completion</p>
+      <div className="flex h-[150px] w-full items-end justify-around border-b border-[#e6e6e6] px-2" role="img" aria-label={weeks.map((w) => `Week of ${w.label}: ${w.pct ?? 0}%`).join(', ')}>
+        {weeks.map((w) => (
+          <div key={w.label} className="flex h-full w-12 flex-col items-center justify-end gap-1">
+            <span className="text-[12px] font-semibold leading-none text-ink">{w.pct === null ? '–' : `${w.pct}%`}</span>
+            <span className="w-8 rounded-t-[3px]" style={{ height: `${((w.pct ?? 0) / 100) * 120}px`, backgroundColor: CHART[0] }} />
+          </div>
+        ))}
+      </div>
+      <div className="flex w-full justify-around px-2">
+        {weeks.map((w) => (
+          <span key={w.label} className="w-12 text-center text-[11px] leading-[1.4] text-ink-tertiary">
+            {w.label}
+            <br />
+            {w.planned ? `${w.done}/${w.planned}` : 'None'}
+          </span>
+        ))}
+      </div>
+      <p className="text-[12px] font-semibold leading-[1.5] text-ink opacity-60">Workouts done / assigned, week starting</p>
+    </div>
+  );
+}
+
+/** Deep analysis: the week-by-week read of the training log, where it comes from, then the weekly chart. */
+function TrainingAnswer({ analysis }: { analysis: TrainingAnalysis }) {
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <div className="flex flex-col gap-4 border-b border-[#e6e6e6] pb-6">
+        <p className="text-[18px] font-bold leading-[1.5] text-ink">Training Progress</p>
+        <ul className="list-disc text-[14px] leading-[1.5] text-ink">
+          {analysis.bullets.map((b) => (
+            <li key={b} className="ms-[21px]">
+              {b}
+            </li>
+          ))}
+        </ul>
+        <blockquote className="border-l-4 border-[#e6e6e6] pl-4 text-[14px] italic leading-[1.5] text-ink">{analysis.context}</blockquote>
+      </div>
+      {analysis.planned > 0 && <WeekBars weeks={analysis.weeks} />}
+      <Feedback />
     </div>
   );
 }
@@ -229,7 +292,7 @@ interface Turn {
   /** The coach's message. */
   user: string;
   task: OllyTaskSpec;
-  result: 'answer' | 'draft' | 'sent';
+  result: 'answer' | 'draft' | 'sent' | 'training';
   stopped?: boolean;
 }
 
@@ -241,11 +304,14 @@ export function OllyConversation({ clientId, request }: { clientId: string; requ
   const highlight = highlights.find((h) => h.id === request.highlightId);
   const draft = highlight ? highlightDraft(client, highlight) : draftFor(client, todo, DEMO_TODAY);
   const answer = tellAnswer(client, assessment, DEMO_TODAY);
+  const analysis = trainingAnalysis(client, DEMO_TODAY);
   const [text, setText] = useState(draft.text);
   const [turns, setTurns] = useState<Turn[]>(() => [
     request.mode === 'tell'
       ? { id: 0, user: tellPrompt(client, DEMO_TODAY), task: tellTask(client, DEMO_TODAY), result: 'answer' }
-      : { id: 0, user: draft.request, task: draftTask(client, Boolean(highlight)), result: 'draft' },
+      : request.mode === 'training'
+        ? { id: 0, user: trainingPrompt(client), task: trainingTask(client), result: 'training' }
+        : { id: 0, user: draft.request, task: draftTask(client, Boolean(highlight)), result: 'draft' },
   ]);
   const [busy, setBusy] = useState(true);
   const sent = turns.some((t) => t.result === 'sent' && !t.stopped);
@@ -265,7 +331,13 @@ export function OllyConversation({ clientId, request }: { clientId: string; requ
     push({ user: 'Send', task: sendTask(client), result: 'sent' });
   };
   // Phase 1 answers only from the stored status, so a follow-up gets the same record (AC2.3, OQ5).
-  const ask = (q: string) => push({ user: q, task: tellTask(client, DEMO_TODAY), result: 'answer' });
+  // Deep analysis keeps answering from the training log.
+  const ask = (q: string) =>
+    push(
+      request.mode === 'training'
+        ? { user: q, task: trainingTask(client), result: 'training' }
+        : { user: q, task: tellTask(client, DEMO_TODAY), result: 'answer' },
+    );
   const stop = () => {
     setTurns((t) => t.map((turn, i) => (i === t.length - 1 ? { ...turn, stopped: true } : turn)));
     setBusy(false);
@@ -275,6 +347,8 @@ export function OllyConversation({ clientId, request }: { clientId: string; requ
     switch (turn.result) {
       case 'answer':
         return <Answer answer={answer} />;
+      case 'training':
+        return <TrainingAnswer analysis={analysis} />;
       case 'draft':
         return (
           <div className="flex w-full flex-col gap-3">
