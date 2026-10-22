@@ -73,8 +73,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   in the last three weeks and up to one in the three before, each 30, 45 or 60 minutes (none yet this week, since
   today is Monday 06:00),
   generated from a seed of the id (Aima's stop when she went quiet), each with stand-in transcript lines;
-  `meetingsFor(id, added)` adds the coach's (`meetings` in the store, `addMeeting`) and sorts newest first;
-  `meetingWeeks` splits them by week, labelled like the week selector ("Aug 24 - Aug 30"). Platform
+  `meetingsFor(id, added)` adds the coach's (`meetings` in the store, `addMeeting`) and sorts by created time, newest
+  first (`createdAt`: a recorded call's start, or when the coach added it, the user's call); `meetingWeeks` splits them by the week they were created in, labelled like the week selector ("Aug 24 - Aug 30"). Platform
   comes from the link (Zoom, Google Meet, Microsoft Teams). Nothing reads a transcript (Olly and the assessment
   stay on the stored status).
 - `src/data/transcripts.ts`: the transcripts' stand-in wording, sections of a coaching call (opener, recap by
@@ -157,7 +157,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   first tab = focus) is shared by the Check-in panel and the client detail page. Meetings (key `transcript`, labelled
   "Transcript" in Figma `5731:517688`, renamed at the user's request)
   shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
-  every meeting, newest first, under a header per week; rows of title · "5:30 PM - Aug 27" (no date tile or platform, the user's call),
+  every meeting, newest created first, under a header per week; rows of title · "5:30 PM - Aug 27" (no date tile or platform, the user's call),
   lifting onto a white card with View summary in brand on hover (View transcript for a meeting the coach added); the list is capped at 580 px like Notes and
   scrolls inside, week headers pinned), `AddMeetingDialog` (laid out like New note, the user's call: the meeting's
   name as the title, empty saves "New Meeting N"; "Aug 31 - 6:00 AM" (now) with an edit icon that opens the date
@@ -166,10 +166,13 @@ one column. The Upcoming bookings session list is shared with the main branch to
   10 MB, .txt and .srt are read for the preview; no client, link, time zone or duration fields) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
   artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; Figma `5759:161235`: client avatar + name · date · start · platform, speaker names in bold, a search box pinned on top that
   highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
-  `meeting.summary`: Discuss, a rule, then Your Follow Up (Figma `5925:146302`; the overview shows only on Latest call), written by
+  `meeting.summary`: Discuss, a rule, then Your Follow Up (Figma `5925:146302`), written by
   `callSummary` in `data/transcripts.ts` from the sections the call got all the way through, so it never names a
-  point the transcript cut off). On top of the list, `LatestCall` shows the newest meeting as a plain row (the user's
-  call) with its overview and "Discuss" (the summary's `highlights`, up to three short takeaways) under the time. Booking (Spec 4 BL2's `booking` tab) shows only for a
+  point the transcript cut off. A meeting the coach adds gets its summary from the pasted or .txt / .srt text
+  (`summarizeTranscript` in `lib/meetingSummary.ts`, the demo's stand-in for the model: sentences sorted into topics
+  by their words, only statements kept, the coach's "I'll …" as follow-ups); the row and the popup read "Generating
+  summary…" for 3 s (`summaryPending`, `meetingSummaryReady` in the store), then a toast says it is ready; .docx and
+  .pdf get none). Latest call was dropped (the user's call). Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
@@ -315,8 +318,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   The frame's rows are placeholders (one title
   four times, all on day 3); View transcript has no frame and opens a popup with the lines. The Summary tab (the
   user's brief, no frame) is stand-in wording per call section; in the product it would be AI-written from the
-  transcript, which the brief puts in Phase 2 (Loom). Meetings the coach adds get no summary. Time zone choices
-  (UTC-7, -5, +0, +7) are the demo's.
+  transcript, which the brief puts in Phase 2 (Loom). A meeting the coach adds gets a stand-in summary picked from its own text (`summarizeTranscript`), never
+  anything the text does not say; .docx and .pdf can't be read in the demo, so they get none.
 - Add context (trialled at the user's request, not in the brief or Spec 4): the context is only stored and shown;
   the assessment, Tell me more and drafts do not change with it (it would apply from the next daily generation).
   Coaching style per client is close to what the brief puts out: coach-facing signal settings (Phase 3),

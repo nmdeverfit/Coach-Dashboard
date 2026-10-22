@@ -6,9 +6,10 @@ import iconEditMuted from '../../assets/figma/icon-note-edit-muted.svg';
 import iconEdit from '../../assets/figma/icon-note-edit.svg';
 import iconUploadBrand from '../../assets/figma/icon-upload-brand.svg';
 import iconUpload from '../../assets/figma/icon-upload.svg';
-import { DEMO_TODAY } from '../../data/mock';
+import { COACH_FIRST_NAME, DEMO_TODAY } from '../../data/mock';
 import type { Client, Transcript } from '../../data/types';
 import { TRANSCRIPT_MAX_BYTES, TRANSCRIPT_TYPES, fileSize } from '../../lib/meetings';
+import { summarizeTranscript } from '../../lib/meetingSummary';
 import { noteStamp } from '../../lib/notes';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
@@ -47,7 +48,8 @@ function SourceButton({ on, icon, label, semibold, onClick }: { on: boolean; ico
  * Add a meeting, laid out like New note (Figma 5850:570122; the user's call): the meeting's name as the title (empty
  * saves "New Meeting N"), its date and time (now, until the edit icon picks another day up to today and a start up to
  * now), then the transcript as a file (.txt, .docx, .srt, .pdf, up to 10 MB) or pasted text (Figma 5726:141326,
- * 5729:516037). Save waits for the transcript.
+ * 5729:516037). Save waits for the transcript; the meeting is created now, and its summary is written from the text
+ * right after (`summarizeTranscript`).
  */
 export function AddMeetingDialog({ client, onClose }: { client: Client; onClose: () => void }) {
   const { state, addMeeting } = useStore();
@@ -88,7 +90,20 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
 
   const save = () => {
     if (!transcript) return;
-    addMeeting(client.id, { id: `${client.id}-added-${Date.now()}`, title: title.trim() || newTitle, date, start: time, timeZone: TIME_ZONE, transcript });
+    // The summary is written from whatever text there is (pasted, or a .txt / .srt file); .docx and .pdf get none.
+    const text = transcript.kind === 'text' ? transcript.text : transcript.kind === 'file' ? transcript.text : undefined;
+    const summary = text ? summarizeTranscript(text, client.firstName, COACH_FIRST_NAME) : undefined;
+    addMeeting(client.id, {
+      id: `${client.id}-added-${Date.now()}`,
+      title: title.trim() || newTitle,
+      date,
+      start: time,
+      timeZone: TIME_ZONE,
+      transcript,
+      createdAt: `${DEMO_TODAY}T${NOW}`,
+      summary,
+      summaryPending: Boolean(summary),
+    });
     onClose();
   };
 

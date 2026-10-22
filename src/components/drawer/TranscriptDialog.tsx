@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import iconChevron from '../../assets/figma/icon-chevron-down.svg';
 import iconSearch from '../../assets/figma/icon-search-note.svg';
+import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import { COACH_FIRST_NAME } from '../../data/mock';
 import type { Client, Meeting } from '../../data/types';
 import { fieldTime, fileSize, meetingDate, platformOf } from '../../lib/meetings';
@@ -203,14 +204,25 @@ export function TranscriptDialog({
         </div>
         {tab === 'summary' && (
           <div className="flex flex-col gap-4 px-5 pb-5 pt-5">
-            {summary ? (
+            {meeting.summaryPending ? (
+              <div role="status" className="flex flex-col gap-3 px-2">
+                <p className="flex items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary">
+                  <img src={iconSparkle} alt="" width={14} height={14} />
+                  Generating summary from the transcript…
+                </p>
+                {[92, 80, 86, 64].map((w) => (
+                  <span key={w} className="h-3 animate-pulse rounded bg-surface-secondary" style={{ width: `${w}%` }} />
+                ))}
+              </div>
+            ) : summary ? (
               <>
-                <SummaryList title="Discuss" items={summary.discuss} ruled />
+                {summary.discuss.length > 0 && <SummaryList title="Discuss" items={summary.discuss} ruled />}
                 <SummaryList title="Your Follow Up" items={summary.followUp} />
               </>
             ) : (
               <p className="text-[13px] leading-[1.5] text-ink-tertiary">
-                No summary for this meeting yet. Summaries are written for recorded calls; the transcript you added is on the Transcript tab.
+                No summary for this meeting. The demo can’t read .docx or .pdf files, so summaries are written from .txt and
+                .srt files and pasted text.
               </p>
             )}
           </div>

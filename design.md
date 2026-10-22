@@ -278,20 +278,17 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Credits" button with a 12 px +. Action: Send message only. Sections: Upcoming sessions · No sessions booked.
 - **Meetings tab** (key `transcript`; Figma `5731:517688` labels it "Transcript", renamed at the user's request; client detail page only, last tab): one card, `border-ink/10`,
   `bg-elevated`, `shadow-[0_1px_3px_rgba(24,78,255,0.07)]`. Header "Meetings with {first}" 15 px semibold + "+ Add
-  meeting" 14 px semibold brand. `#f9fafa` well `px-3 pb-3`. Every meeting, newest first, under a week header:
+  meeting" 14 px semibold brand. `#f9fafa` well `px-3 pb-3`. Every meeting, newest created first (the user's call; Latest call was dropped), under a week header (the week it was created in):
   12 px semibold uppercase `ink-muted`, `pt-3 pb-1`, the week selector's label ("AUG 24 - AUG 30"). Rows `px-1 pt-3
   pb-[13px]`, bottom border `ink/10`: no date tile (the frame's 56 px tile was dropped, the user's call), title 14 px
   semibold, then 13 px: clock 14 + "5:30 PM - Aug 27" (`#484848`); no platform (the frame's dot + video icon + platform were
   dropped, the user's call). Hover (or focus): the row sits on a white card, rounded 4,
   `0 0 10px rgba(0,0,0,0.05)`, 5 px wider than the list on each side, its border hidden, and "View summary"
-  (13 px semibold, brand on hover; "View transcript" for a meeting the coach added) shows at the right; a click anywhere on the row opens the popup. The well is
+  (13 px semibold, brand on hover; "View transcript" for a meeting without a summary) shows at the right; while a
+  meeting the coach just added has its summary written, its time line adds a 12 px AI sparkle + "Generating
+  summary…" (`ink-tertiary`, pulsing); a click anywhere on the row opens the popup. The well is
   capped at 580 px like the Notes list and scrolls inside, each week header pinned (`sticky`, `#f9fafa`). Empty: "No meetings
   with {first} yet." With eight tabs the tab padding drops to 12 px.
-- **Latest call** (the user's mock, made plain at the user's request): on top of the Meetings tab's well, above the
-  scrolling list (which keeps its 580 px cap): "LATEST CALL" (the week headers' style, `pt-3 pb-1`), then the newest
-  meeting as an ordinary meeting row (same title, time line, hover card and View summary), with under its time line
-  the Call Summary's overview and "Discuss" (semibold `ink-secondary`) over up to three bullets (muted markers), all
-  13 px `#484848`. No card, no footer buttons: the row opens the popup like the others.
 - **Meeting popup** (Figma `5759:161235`): 620 px `Modal` with no rule under its header; title 20 px semibold, then
   14 px / 22 px: 20 px avatar + client name (semibold ink) · 4 px `#d9d9d9` dot · "Tue, Aug 4, 2026 · 12:30 PM ·
   Google Meet" (`ink-tertiary`). Then a full-width tab bar (`border-b border-line`, `px-5`; tabs `px-5`, 13 px
@@ -299,8 +296,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Transcript. Body `px-5`, at least 640 px so both tabs keep one height. Summary (default for recorded calls;
   Figma `5925:146302`, no Call summary card): "Discuss", a `border-line` rule under it, then "Your Follow Up",
   `gap-4`, each `px-2 pb-4 gap-2`: 16 px semibold title (`-0.32px`), 13 px / 1.5 ink bullets (`ms-[19.5px]`, no
-  gap), a leading "Topic:" in bold. The frames' footer (Cancel · Add meeting) is left out: it is the Add a meeting form's and has no job in a viewer. Meetings the coach
-  added have no summary: Transcript opens first and Summary reads "No summary for this meeting yet…".
+  gap), a leading "Topic:" in bold. The frames' footer (Cancel · Add meeting) is left out: it is the Add a meeting form's and has no job in a viewer. While a summary is
+  being written, Summary shows the sparkle + "Generating summary from the transcript…" (13 px semibold
+  `ink-secondary`) over four pulsing 12 px bars (`surface-secondary`). A .docx or .pdf meeting has none: Transcript
+  opens first and Summary says the demo writes summaries from .txt, .srt and pasted text.
 - **Transcript tab of the popup**: the lines sit at `px-[30px]`, so speaker names line up with the title and avatar
   (the user's call); the Notes search field (38 px, `#dbdce3`, brand
   on focus) is pinned on top of the scrolling body, focused on open; with a query it shows "2 of 8" (12 px

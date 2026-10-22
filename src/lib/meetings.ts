@@ -4,9 +4,15 @@ import { WEEKDAYS } from './checkin';
 import { daysBetween, formatMonthDay, parseDay, weekLabel } from './dates';
 import { weekAsOf } from './week';
 
-/** Every meeting with the client, the demo's plus the ones the coach added, newest first (date, then start time). */
+/** When a meeting joined the list: a recorded call when it started, one the coach added when it was added. */
+export const createdAt = (m: Meeting) => m.createdAt ?? `${m.date}T${m.start}`;
+
+/**
+ * Every meeting with the client, the demo's plus the ones the coach added, newest created first (the user's call). The
+ * coach's own come first among equals, the latest added on top, since the store keeps them newest first.
+ */
 export function meetingsFor(clientId: string, added: Meeting[] = []): Meeting[] {
-  return [...added, ...getMeetings(clientId)].sort((a, b) => `${b.date}T${b.start}`.localeCompare(`${a.date}T${a.start}`));
+  return [...added, ...getMeetings(clientId)].sort((a, b) => createdAt(b).localeCompare(createdAt(a)));
 }
 
 export interface MeetingWeek {
@@ -17,11 +23,11 @@ export interface MeetingWeek {
   meetings: Meeting[];
 }
 
-/** The list split into weeks (Monday to Sunday), newest week first, as Notes splits by day. */
+/** The list split into the weeks the meetings were created in (Monday to Sunday), newest first, as Notes splits by day. */
 export function meetingWeeks(meetings: Meeting[]): MeetingWeek[] {
   const weeks: MeetingWeek[] = [];
   for (const m of meetings) {
-    const offset = Math.floor(daysBetween(weekAsOf(0), m.date) / 7);
+    const offset = Math.floor(daysBetween(weekAsOf(0), createdAt(m).slice(0, 10)) / 7);
     const monday = weekAsOf(offset);
     let week = weeks[weeks.length - 1];
     if (week?.monday !== monday) {
