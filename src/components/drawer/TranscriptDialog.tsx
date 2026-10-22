@@ -50,7 +50,7 @@ function SummaryList({ title, items, ruled = false }: { title: string; items: st
 }
 
 /**
- * What "View transcript" opens (Figma 5759:161235, Summary redrawn in 5925:146302): the meeting's title, then client ·
+ * What "View details" opens (Figma 5759:161235, Summary redrawn in 5925:146302): the meeting's title, then client ·
  * date · start at 14 px (no platform, the user's call), then two tabs on a full-width bar. Summary: Discuss, a rule, then Your Follow Up. Transcript: the lines, with a search box pinned on top; matches are highlighted as you type and ↑ / ↓ (or
  * Enter / Shift+Enter) step through them, the current one in a stronger tint and scrolled into view.
  */

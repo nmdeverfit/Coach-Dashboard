@@ -283,8 +283,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   pb-[13px]`, bottom border `ink/10`: no date tile (the frame's 56 px tile was dropped, the user's call), title 14 px
   semibold, then 13 px: clock 14 + "5:30 PM - Aug 27" (`#484848`); no platform (the frame's dot + video icon + platform were
   dropped, the user's call). Hover (or focus): the row sits on a white card, rounded 4,
-  `0 0 10px rgba(0,0,0,0.05)`, 5 px wider than the list on each side, its border hidden, and "View summary"
-  (13 px semibold, brand on hover; "View transcript" for a meeting without a summary) shows at the right; while a
+  `0 0 10px rgba(0,0,0,0.05)`, 5 px wider than the list on each side, its border hidden, and "View details"
+  (13 px semibold, brand on hover; the user's wording) shows at the right; while a
   meeting the coach just added has its summary written, its time line adds a 12 px AI sparkle + "Generating
   summary…" (`ink-tertiary`, pulsing); a click anywhere on the row opens the popup. The well is
   capped at 580 px like the Notes list and scrolls inside, each week header pinned (`sticky`, `#f9fafa`). Empty: "No meetings
