@@ -18,12 +18,6 @@ const TITLES = ['Monthly check-in call', 'Weekly check-in', 'Program review', 'N
 const STARTS = ['07:00', '12:30', '14:00', '17:30', '18:00'];
 const MINUTES = [30, 45, 60];
 const WEEKS = 6;
-const LINKS = [
-  'https://zoom.us/j/84213307751',
-  'https://meet.google.com/xvq-pmrd-kte',
-  'https://teams.microsoft.com/l/meetup-join/19%3ameeting',
-];
-
 function generate(client: Client): Meeting[] {
   if (client.status === 'no_activities') return [];
   const rnd = random(`meetings:${client.id}`);
@@ -42,14 +36,16 @@ function generate(client: Client): Meeting[] {
       const [date] = days.splice(Math.floor(rnd() * days.length), 1);
       const name = TITLES[title++ % TITLES.length];
       const minutes = pick(MINUTES);
+      const start = pick(STARTS);
+      // Meetings carried a platform link until the user dropped it; the draw stays so every call keeps its words.
+      rnd();
       meetings.push({
         id: `${client.id}-m${meetings.length}`,
         title: name,
         date,
-        start: pick(STARTS),
+        start,
         minutes,
         timeZone: 'UTC-7',
-        link: pick(LINKS),
         transcript: { kind: 'lines', lines: transcriptLines(client.firstName, client.status, name, minutes, rnd) },
         summary: callSummary(client.firstName, client.status, name, minutes),
       });
