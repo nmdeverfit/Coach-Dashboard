@@ -13,7 +13,7 @@ import { TranscriptDialog } from './TranscriptDialog';
  * One meeting (Figma 5731:517688, without its date tile and platform, the user's call): title, then start time and
  * date, and "Generating summary…" while a meeting the coach just added has its summary written. On hover (or
  * keyboard focus) the row lifts onto a white card with a light shadow, a few px wider than the list, and shows View
- * summary in brand blue. A click anywhere on the row opens the popup too.
+ * details in brand blue. A click anywhere on the row opens the popup too.
  */
 function MeetingRow({ meeting, onView }: { meeting: Meeting; onView: () => void }) {
   return (
@@ -49,8 +49,8 @@ function MeetingRow({ meeting, onView }: { meeting: Meeting; onView: () => void 
         }}
         className="relative shrink-0 whitespace-nowrap pr-1 text-[13px] font-semibold leading-5 text-ink opacity-0 focus:opacity-100 group-hover/meeting:text-brand group-hover/meeting:opacity-100"
       >
-        {/* The popup opens on Summary whenever the meeting has one, or is about to. */}
-        {meeting.summary ? 'View summary' : 'View transcript'}
+        {/* The popup opens on Summary whenever the meeting has one, or is about to; else on Transcript. */}
+        View details
       </button>
     </li>
   );

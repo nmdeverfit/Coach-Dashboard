@@ -150,13 +150,13 @@ the same change.
   "Transcript" in Figma `5731:517688`, renamed at the user's request)
   shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
   every meeting, newest created first, under a header per week; rows of title · "5:30 PM - Aug 27" (no date tile or platform, the user's call),
-  lifting onto a white card with View summary in brand on hover (View transcript for a meeting the coach added); the list is capped at 580 px like Notes and
+  lifting onto a white card with View details in brand on hover; the list is capped at 580 px like Notes and
   scrolls inside, week headers pinned), `AddMeetingDialog` (laid out like New note, the user's call: the meeting's
   name as the title, empty saves "New Meeting N"; "Aug 31 - 6:00 AM" (now) with an edit icon that opens the date
   calendar (up to today) and then the time list (on today, up to 06:00); then Transcript with `5726:141326` Upload
   file / `5729:516037` Paste text; Cancel · Save, Save waits for a transcript; files .txt / .docx / .srt / .pdf up to
   10 MB, .txt and .srt are read for the preview; no client, link, time zone or duration fields) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
-  artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; Figma `5759:161235`: client avatar + name · date · start (no platform), speaker names in bold, a search box pinned on top that
+  artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View details; Figma `5759:161235`: client avatar + name · date · start (no platform), speaker names in bold, a search box pinned on top that
   highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
   `meeting.summary`: Discuss, a rule, then Your Follow Up (Figma `5925:146302`), written by
   `callSummary` in `data/transcripts.ts` from the sections the call got all the way through, so it never names a
@@ -315,7 +315,7 @@ the same change.
   time and date, as drawn. The transcript search has no frame. The tab
   lists every meeting whatever the week selector shows, like the rest of the client detail page.
   The frame's rows are placeholders (one title
-  four times, all on day 3); View transcript has no frame and opens a popup with the lines. The Summary tab (the
+  four times, all on day 3); View details has no frame and opens a popup with the lines. The Summary tab (the
   user's brief, no frame) is stand-in wording per call section; in the product it would be AI-written from the
   transcript, which the brief puts in Phase 2 (Loom). A meeting the coach adds gets a stand-in summary picked from its own text (`summarizeTranscript`), never
   anything the text does not say; .docx and .pdf can't be read in the demo, so they get none.
