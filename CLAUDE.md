@@ -144,8 +144,9 @@ the same change.
   at the bottom (Mark as reviewed · Draft with AI · Send message, then More as a square icon). `ClientDrawer` opens it from a group-card row (`data-client-row`);
   the to-do panel's name link shows it with ‹ back. Shell hooks in `DrawerShell.tsx`. Mark as reviewed here completes
   the client's Check-in to-dos and keeps the panel open; ticking a Check-in row marks the client reviewed (one action).
-- Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Booking · Notes · Transcript,
-  first tab = focus) is shared by the Check-in panel and the client detail page. Transcript (Figma `5731:517688`)
+- Tabs: `ClientTabs` (Training · Nutrition · Task & Habit · Program Ending · Form · Booking · Notes · Meetings,
+  first tab = focus) is shared by the Check-in panel and the client detail page. Meetings (key `transcript`, labelled
+  "Transcript" in Figma `5731:517688`, renamed at the user's request)
   shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
   every meeting, newest first, under a header per week; rows of date tile · title · "5:30 PM - Aug 27" · platform,
   lifting onto a white card with View summary in brand on hover (View transcript for a meeting the coach added); the list is capped at 580 px like Notes and

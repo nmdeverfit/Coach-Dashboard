@@ -269,7 +269,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `#e0e0e0`, rounded 8, alarm 13 px). Credits: "Balance: N", then swatch + type · "N credits expiring in N days"
   (`#ca410a`) or the "Low credits" badge (`LowCreditsBadge`, `#ffebb0` / `#71381d`), and a white 28 px "Issue
   Credits" button with a 12 px +. Action: Send message only. Sections: Upcoming sessions · No sessions booked.
-- **Transcript tab** (Figma `5731:517688`, client detail page only, last tab): one card, `border-ink/10`,
+- **Meetings tab** (key `transcript`; Figma `5731:517688` labels it "Transcript", renamed at the user's request; client detail page only, last tab): one card, `border-ink/10`,
   `bg-elevated`, `shadow-[0_1px_3px_rgba(24,78,255,0.07)]`. Header "Meetings with {first}" 15 px semibold + "+ Add
   meeting" 14 px semibold brand. `#f9fafa` well `px-3 pb-3`. Every meeting, newest first, under a week header:
   12 px semibold uppercase `ink-muted`, `pt-3 pb-1`, the week selector's label ("AUG 24 - AUG 30"). Rows `px-1 pt-3
