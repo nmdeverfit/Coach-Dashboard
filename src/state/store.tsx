@@ -129,6 +129,8 @@ function saveRail(rail: RailLayout) {
 }
 
 const METRICS_KEY = 'cid-demo-metrics';
+/** How long the demo takes to write a summary for a meeting the coach adds. */
+const SUMMARY_DELAY_MS = 3000;
 
 function loadMetrics(): MetricKey[] {
   try {
@@ -181,6 +183,7 @@ type Action =
   | { type: 'restoreHighlight'; id: string }
   | { type: 'clearHighlightHistory' }
   | { type: 'addMeeting'; clientId: string; meeting: Meeting }
+  | { type: 'meetingSummaryReady'; clientId: string; meetingId: string }
   | { type: 'setNotes'; clientId: string; notes: ClientNote[] }
   | { type: 'setAiContext'; clientId: string; context: AiContext | null }
   | { type: 'addSharedContext'; clientIds: string[]; context: AiContext; source: string };
@@ -382,6 +385,14 @@ function reducer(state: State, action: Action): State {
     }
     case 'addMeeting':
       return { ...state, meetings: { ...state.meetings, [action.clientId]: [action.meeting, ...(state.meetings[action.clientId] ?? [])] } };
+    case 'meetingSummaryReady':
+      return {
+        ...state,
+        meetings: {
+          ...state.meetings,
+          [action.clientId]: (state.meetings[action.clientId] ?? []).map((m) => (m.id === action.meetingId ? { ...m, summaryPending: false } : m)),
+        },
+      };
     case 'setNotes':
       return { ...state, notes: { ...state.notes, [action.clientId]: action.notes } };
     case 'reviewClient':
@@ -633,6 +644,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addMeeting: (clientId, meeting) => {
         dispatch({ type: 'addMeeting', clientId, meeting });
         showToast('Meeting added');
+        // The summary is written as soon as the transcript is in; the demo takes a moment, as the model would.
+        if (meeting.summaryPending) {
+          window.setTimeout(() => {
+            dispatch({ type: 'meetingSummaryReady', clientId, meetingId: meeting.id });
+            showToast(`Summary ready for “${meeting.title}”`);
+          }, SUMMARY_DELAY_MS);
+        }
       },
       setNotes: (clientId, notes, toast) => {
         dispatch({ type: 'setNotes', clientId, notes });

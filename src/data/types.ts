@@ -311,15 +311,19 @@ export interface Meeting {
   timeZone: string;
   link?: string;
   transcript: Transcript;
-  /** What the call covered, from the same sections as its transcript; unset for meetings the coach adds. */
+  /** "YYYY-MM-DDTHH:MM", when the meeting was added to the list; a recorded call's is its own start. */
+  createdAt?: string;
+  /**
+   * What the call covered: for a recorded call, from the same sections as its transcript; for one the coach adds,
+   * written from the uploaded or pasted text (unset when the file can't be read in the demo).
+   */
   summary?: MeetingSummary;
+  /** True while a meeting the coach just added has its summary written. */
+  summaryPending?: boolean;
 }
 
-/** The meeting popup's Summary tab: an overview (as the AI Assessment reads), what was discussed, the coach's to-dos. */
+/** The meeting popup's Summary tab: what was discussed, then the coach's follow-ups. */
 export interface MeetingSummary {
-  overview: { headline: string; bullets: string[] };
-  /** Up to three short takeaways, for the Transcript tab's Latest call card. */
-  highlights: string[];
   discuss: string[];
   followUp: string[];
 }
