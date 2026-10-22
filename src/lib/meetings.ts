@@ -48,30 +48,8 @@ export function platformOf(link: string): string {
   return 'Meeting link';
 }
 
-/** Accepts a link with or without its scheme ("zoom.us/j/…"). */
-export function normalizeLink(raw: string): string | null {
-  const s = raw.trim();
-  if (!s) return null;
-  try {
-    const url = new URL(/^[a-z]+:\/\//i.test(s) ? s : `https://${s}`);
-    return url.hostname.includes('.') ? url.toString() : null;
-  } catch {
-    return null;
-  }
-}
-
 /** "2:00 PM - Aug 27": a list row's start time and date (Figma 5731:517688). */
 export const meetingWhen = (m: Meeting) => `${fieldTime(m.start)} - ${formatMonthDay(parseDay(m.date))}`;
-
-/** The form's duration choices, in minutes. */
-export const DURATIONS = [15, 30, 45, 60, 90, 120];
-
-/** "HH:MM" plus minutes, as "HH:MM" (same day; the form's durations never cross midnight from a past start). */
-export function endOf(start: string, minutes: number) {
-  const [h, m] = start.split(':').map(Number);
-  const t = h * 60 + m + minutes;
-  return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
-}
 
 /** "Wed, Aug 26, 2026" */
 export function meetingDate(iso: string) {
@@ -79,13 +57,7 @@ export function meetingDate(iso: string) {
   return `${WEEKDAYS[d.getUTCDay()]}, ${formatMonthDay(d)}, ${d.getUTCFullYear()}`;
 }
 
-/** "Aug 31, 2026", as the Add a meeting form shows its date. */
-export function fieldDate(iso: string) {
-  const d = parseDay(iso);
-  return `${formatMonthDay(d)}, ${d.getUTCFullYear()}`;
-}
-
-/** "7:00 AM", as the form shows its time. */
+/** "7:00 AM", as the time picker and the meeting popup show a time. */
 export function fieldTime(hhmm: string) {
   const [hh, m] = hhmm.split(':').map(Number);
   const h = hh % 24;

@@ -19,12 +19,12 @@ import { Tooltip } from '../Tooltip';
 /** A note written or edited now: the demo's clock reads 06:00, as for a message sent from the dashboard. */
 const NOW = `${DEMO_TODAY}T06:00`;
 
-const TITLE = 'text-[19px] font-semibold leading-[1.5] tracking-[-0.57px] text-[#1a1a1a]';
+export const TITLE = 'text-[19px] font-semibold leading-[1.5] tracking-[-0.57px] text-[#1a1a1a]';
 
 /** "Created: Apr 10 - 11:25 AM" with the 16 px clock at half opacity. */
-function TimeLine({ children }: { children: ReactNode }) {
+export function TimeLine({ children }: { children: ReactNode }) {
   return (
-    <p className="flex items-center gap-2 text-[12px] leading-normal text-ink-tertiary">
+    <div className="flex items-center gap-2 text-[12px] leading-normal text-ink-tertiary">
       <span className="relative size-4 shrink-0 overflow-hidden opacity-50" aria-hidden>
         <span className="absolute inset-[15.63%]">
           <span className="absolute inset-[-4.55%]">
@@ -33,12 +33,12 @@ function TimeLine({ children }: { children: ReactNode }) {
         </span>
       </span>
       {children}
-    </p>
+    </div>
   );
 }
 
 /** The popups' header: the title row, then the time lines, over a light border. */
-function NoteHeader({ title, actions, children }: { title: ReactNode; actions?: ReactNode; children: ReactNode }) {
+export function NoteHeader({ title, actions, children }: { title: ReactNode; actions?: ReactNode; children: ReactNode }) {
   return (
     <header className="flex shrink-0 flex-col gap-0.5 border-b border-black/[0.08] px-8 pb-3 pt-8">
       <div className="flex items-center justify-between gap-4">
@@ -150,8 +150,8 @@ function NoteEditor({ initial, placeholder, onChange }: { initial: string; place
   );
 }
 
-/** Cancel · Save, as on Change Client Status; Save waits for some text. */
-function EditorFooter({ canSave, onCancel, onSave }: { canSave: boolean; onCancel: () => void; onSave: () => void }) {
+/** Cancel · Save, as on Change Client Status; Save waits for some text. Add a meeting shares it. */
+export function EditorFooter({ canSave, onCancel, onSave }: { canSave: boolean; onCancel: () => void; onSave: () => void }) {
   return (
     <footer className="flex shrink-0 justify-end gap-[5px] px-8 pb-6 pt-4">
       <button
@@ -174,7 +174,7 @@ function EditorFooter({ canSave, onCancel, onSave }: { canSave: boolean; onCance
 }
 
 /** Delete and Edit on the details' title row: 16 px, muted until hovered (Edit turns brand, as drawn). */
-function IconAction({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+export function IconAction({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
   return (
     <span className="group/tip relative flex">
       <button type="button" aria-label={label} onClick={onClick} className="group relative size-4 overflow-hidden">

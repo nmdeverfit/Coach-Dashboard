@@ -343,26 +343,26 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   rounded 16, header `px-[30px] py-5` + bottom border, body `px-[30px] pt-5 pb-[30px]` with `gap-4` between
   fields, footer `px-[30px] py-5` + top border. The × is the design's 18 px black disc centred on the top-right
   corner. Forms don't close on a backdrop click (viewers do).
-- **Form fields** (Add a meeting): label 13 px semibold ink (Transcript 12 px, as drawn), `(Optional)` 12 px
-  `ink-secondary`; input 40 px, `rounded-lg`, `#e0e0e0` border (brand on focus), 14 px / 22 px, placeholder
-  `ink-muted`; read-only field `#f7f7f7`. Date and time open the page's own dropdowns (`Pickers.tsx`), never the browser's:
-  the published page runs in an iframe that blocks `showPicker()`. The fields read "Aug 31, 2026" (+ the design's
-  chevron) and "7:00 AM"; the dropdown hangs 4 px under the field (white, `#e0e0e0` border, rounded 8,
+- **Add a meeting** (the user's call): the New note popup's shell (600 px, rounded 12, no modal header; `NoteHeader`,
+  `EditorFooter` from `NoteDialog.tsx`). Title input 19 px semibold, placeholder "New Meeting N" at 50 %; under it
+  the note's time line (16 px clock at half opacity, 12 px `ink-tertiary`) reading "Aug 31 - 6:00 AM" (now), then
+  the note's 16 px edit icon (muted, brand on hover and while a picker is open; tooltip "Edit date and time"), which
+  opens the date dropdown and, once a day is picked, the time dropdown, both hung under the time line. Body 440 px
+  like the note editor, `px-8 pt-5`: "Transcript" 12 px semibold, Upload file / Paste text, then the drop zone or
+  paste box filling the rest. Footer Cancel · Save (Save disabled at 50 % until there is a transcript). Dropdowns
+  (`Pickers.tsx`) are the page's own, never the browser's: the published page runs in an iframe that blocks
+  `showPicker()`. They hang 4 px under their anchor (white, `#e0e0e0` border, rounded 8,
   `0 8px 24px rgba(0,0,0,0.12)`, rendered into `<body>`). Date: a 280 px month calendar (‹ month year ›, Su–Sa,
   32 px day circles, selected brand, today brand semibold, days after today greyed). Time: 15-minute steps, 32 px
-  rows, selected `brand-subtle`, opens centred on the choice (else 9:00 AM, or on today the latest allowed, 6:00 AM,
-  with later times greyed). Esc or a click outside closes only the dropdown. The time zone is a native select
-  behind "UTC-7 ⌄" (11 px semibold `#8c8c8c`, 18 px divider). Errors show on
-  submit: `danger` border + 12 px `danger` line under the field, cleared as the coach types. Duration (select +
-  the design's chevron) and End time (read-only `#f7f7f7`) sit under date and time but are hidden for now
-  (`SHOW_DURATION`). The date picker goes up to today. Upload file / Paste
-  text: two 36 px buttons, active `border-brand bg-brand/[0.03]` brand text and icon (Upload's label semibold,
-  Paste's regular, as drawn). Drop zone and paste box 120 px, `border-[1.5px]` (dashed for the drop zone, brand
-  while dragging). A chosen file replaces the drop zone with one left-aligned row (`p-3 gap-3`, solid border):
-  `FileTypeIcon` (40 px tinted tile, lucide icon: .pdf red, .docx brand, .srt purple captions, .txt grey), name 13 px
-  semibold (truncates) over "5 KB · TXT" 12 px `ink-tertiary`, then Replace (brand) and Remove (`ink-secondary`)
-  13 px semibold at the right edge. The transcript popup shows an uploaded file with the same icon and lines. Buttons: Cancel 36 px white `#e0e0e0` rounded 6, primary 36 px brand rounded 8, both `px-[30px]`
-  14 px semibold.
+  rows, selected `brand-subtle`, opens centred on the choice; on today, times after 6:00 AM are greyed. Esc or a
+  click outside closes only the dropdown. Upload file / Paste text: two 36 px buttons, active
+  `border-brand bg-brand/[0.03]` brand text and icon (Upload's label semibold, Paste's regular, as drawn). Drop zone
+  and paste box `border-[1.5px]` (dashed for the drop zone, brand while dragging; a wrong file turns it `danger`
+  with a 12 px `danger` line under it). A chosen file replaces the drop zone with one left-aligned row (`p-3 gap-3`,
+  solid border): `FileTypeIcon` (40 px tinted tile, lucide icon: .pdf red, .docx brand, .srt purple captions, .txt
+  grey), name 13 px semibold (truncates) over "5 KB · TXT" 12 px `ink-tertiary`, then Replace (brand) and Remove
+  (`ink-secondary`) 13 px semibold at the right edge. The transcript popup shows an uploaded file with the same icon
+  and lines.
 - **Past week** (Figma `4780:125157`, `4798:172414`): Back, Next and Today all enabled (Today white with a
   `line-nav` border; disabled it is `surface-secondary` with muted text). A banner sits under the header: `#f3f6ff`,
   border top and bottom, `px-5 py-2`, history icon 16 px, 13 px `#484848` text, then "Back to this week" 13 px
