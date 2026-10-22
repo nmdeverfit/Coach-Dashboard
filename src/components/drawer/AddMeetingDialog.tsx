@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import iconClipboardBrand from '../../assets/figma/icon-clipboard-brand.svg';
 import iconClipboard from '../../assets/figma/icon-clipboard.svg';
 import iconCloud from '../../assets/figma/icon-cloud-upload.svg';
@@ -13,6 +14,7 @@ import { summarizeTranscript } from '../../lib/meetingSummary';
 import { docxText } from '../../lib/docx';
 import { noteStamp } from '../../lib/notes';
 import { useStore } from '../../state/store';
+import { ConfirmDialog } from '../ConfirmDialog';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Glyph } from '../Glyph';
 import { Modal } from '../Modal';
@@ -93,7 +95,7 @@ function TranscriptPreview({ text, reading, ext }: { text?: string; reading: boo
  * Add a meeting, laid out like New note (Figma 5850:570122; the user's call): the meeting's name as the title (empty
  * saves "New Meeting N"), its date and time (now, until the edit icon picks another day up to today and a start up to
  * now), then the transcript as a file (.txt, .docx, .srt, .pdf, up to 10 MB) or pasted text (Figma 5726:141326,
- * 5729:516037). Save waits for the transcript; the meeting is created now, and its summary is written from the text
+ * 5729:516037), one or the other: leaving a filled tab asks to replace it. Save waits for the transcript; the meeting is created now, and its summary is written from the text
  * right after (`summarizeTranscript`).
  */
 export function AddMeetingDialog({ client, onClose }: { client: Client; onClose: () => void }) {
@@ -102,6 +104,8 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
   const [date, setDate] = useState(DEMO_TODAY);
   const [time, setTime] = useState(NOW);
   const [mode, setMode] = useState<Mode>('upload');
+  // A meeting keeps one transcript: leaving a tab that has one asks first, and replacing clears it (the user's call).
+  const [switching, setSwitching] = useState<Mode | null>(null);
   const [file, setFile] = useState<{ name: string; size: number; text?: string } | null>(null);
   const [reading, setReading] = useState(false);
   const [pasted, setPasted] = useState('');
@@ -121,6 +125,22 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
 
   const transcript: Transcript | null =
     mode === 'upload' ? file && { kind: 'file', ...file } : pasted.trim() ? { kind: 'text', text: pasted.trim() } : null;
+
+  const switchTo = (next: Mode) => {
+    if (next === mode) return;
+    const filled = mode === 'upload' ? Boolean(file) : Boolean(pasted.trim());
+    if (filled) setSwitching(next);
+    else setMode(next);
+  };
+  const replace = () => {
+    if (mode === 'upload') {
+      setFile(null);
+      setFileError('');
+      setReading(false);
+    } else setPasted('');
+    setMode(switching!);
+    setSwitching(null);
+  };
 
   const pick = (f: File | undefined) => {
     if (!f) return;
@@ -210,13 +230,13 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
             icon={<img src={mode === 'upload' ? iconUploadBrand : iconUpload} alt="" width={20} height={20} />}
             label="Upload file"
             semibold
-            onClick={() => setMode('upload')}
+            onClick={() => switchTo('upload')}
           />
           <SourceButton
             on={mode === 'paste'}
             icon={<Glyph src={mode === 'paste' ? iconClipboardBrand : iconClipboard} size={20} inset="15.13% 15.43% 14.87% 20.43%" bleed="-4.78% -5.22%" />}
             label="Paste text"
-            onClick={() => setMode('paste')}
+            onClick={() => switchTo('paste')}
           />
         </div>
         {mode === 'upload' ? (
@@ -290,6 +310,21 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
         />
       </div>
       <EditorFooter canSave={Boolean(transcript) && !reading} onCancel={onClose} onSave={save} />
+      {switching &&
+        createPortal(
+          <ConfirmDialog
+            title={mode === 'upload' ? 'Replace the uploaded file?' : 'Replace the pasted text?'}
+            body={
+              mode === 'upload'
+                ? `“${file?.name}” will be removed so you can paste the transcript instead. A meeting keeps one transcript.`
+                : 'The text you pasted will be removed so you can upload a file instead. A meeting keeps one transcript.'
+            }
+            confirmLabel="Replace"
+            onCancel={() => setSwitching(null)}
+            onConfirm={replace}
+          />,
+          document.body,
+        )}
     </Modal>
   );
 }
