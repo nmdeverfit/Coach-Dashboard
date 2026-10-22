@@ -157,7 +157,7 @@ the same change.
   10 MB, .txt and .srt are read for the preview; no client, link, time zone or duration fields) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
   artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; Figma `5759:161235`: client avatar + name · date · start · platform, speaker names in bold, a search box pinned on top that
   highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
-  `meeting.summary`: a Call Summary card (`AiCard` in `AiAssessment.tsx`), Discuss and Your Follow Up, written by
+  `meeting.summary`: Discuss, a rule, then Your Follow Up (Figma `5925:146302`; the overview shows only on Latest call), written by
   `callSummary` in `data/transcripts.ts` from the sections the call got all the way through, so it never names a
   point the transcript cut off). On top of the list, `LatestCall` shows the newest meeting as a plain row (the user's
   call) with its overview and "Discuss" (the summary's `highlights`, up to three short takeaways) under the time. Booking (Spec 4 BL2's `booking` tab) shows only for a

@@ -210,16 +210,3 @@ export function AiAssessment({ client, assessment, onTellMeMore }: Props) {
     </>
   );
 }
-
-/**
- * The AI Assessment card's look with another title and no bottom row (no Add context, no Tell me more): the meeting
- * popup's Call Summary.
- */
-export function AiCard({ title, assessment }: { title: string; assessment: Assessment }) {
-  return (
-    <section className="flex flex-col gap-3 rounded-lg border border-ai-line bg-white p-4 shadow-ai-card">
-      <Label title={title} />
-      <Quote assessment={assessment} />
-    </section>
-  );
-}

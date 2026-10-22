@@ -291,11 +291,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   14 px / 22 px: 20 px avatar + client name (semibold ink) · 4 px `#d9d9d9` dot · "Tue, Aug 4, 2026 · 12:30 PM ·
   Google Meet" (`ink-tertiary`). Then a full-width tab bar (`border-b border-line`, `px-5`; tabs `px-5`, 13 px
   semibold; active brand with a 2 px brand underline, `pt-1.5 pb-2`; inactive `ink/40`), pinned with the search on
-  Transcript. Body `px-5`, at least 640 px so both tabs keep one height. Summary (default for recorded calls):
-  "Call summary" card drawn exactly as the AI Assessment (`AiCard`) without its bottom row, then `gap-6` and
-  "Discuss" and "Your Follow Up", each under a `border-line` top rule, `px-2 py-4 gap-2`: 16 px semibold title
-  (`-0.32px`), 13 px / 1.5 ink bullets (`ms-[19.5px]`, no gap), a leading "Topic:" in bold. The frame's footer
-  (Cancel · Add meeting) is left out: it is the Add a meeting form's and has no job in a viewer. Meetings the coach
+  Transcript. Body `px-5`, at least 640 px so both tabs keep one height. Summary (default for recorded calls;
+  Figma `5925:146302`, no Call summary card): "Discuss", a `border-line` rule under it, then "Your Follow Up",
+  `gap-4`, each `px-2 pb-4 gap-2`: 16 px semibold title (`-0.32px`), 13 px / 1.5 ink bullets (`ms-[19.5px]`, no
+  gap), a leading "Topic:" in bold. The frames' footer (Cancel · Add meeting) is left out: it is the Add a meeting form's and has no job in a viewer. Meetings the coach
   added have no summary: Transcript opens first and Summary reads "No summary for this meeting yet…".
 - **Transcript tab of the popup**: the lines sit at `px-[30px]`, so speaker names line up with the title and avatar
   (the user's call); the Notes search field (38 px, `#dbdce3`, brand
