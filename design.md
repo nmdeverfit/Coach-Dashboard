@@ -285,8 +285,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   capped at 580 px like the Notes list and scrolls inside, each week header pinned (`sticky`, `#f9fafa`). Empty: "No meetings
   with {first} yet." With eight tabs the tab padding drops to 12 px.
 - **Meeting popup** (Figma `5759:161235`): 620 px `Modal` with no rule under its header; title 20 px semibold, then
-  14 px / 22 px: 20 px avatar + client name (semibold ink) · 4 px `#d9d9d9` dot · "Tue, Aug 4, 2026 · 12:30 PM ·
-  Google Meet" (`ink-tertiary`). Then a full-width tab bar (`border-b border-line`, `px-5`; tabs `px-5`, 13 px
+  14 px / 22 px: 20 px avatar + client name (semibold ink) · 4 px `#d9d9d9` dot · "Tue, Aug 4, 2026 · 12:30 PM"
+  (`ink-tertiary`; no platform, the user's call). Then a full-width tab bar (`border-b border-line`, `px-5`; tabs `px-5`, 13 px
   semibold; active brand with a 2 px brand underline, `pt-1.5 pb-2`; inactive `ink/40`), pinned with the search on
   Transcript. Body `px-5`, at least 640 px so both tabs keep one height. Summary (default for recorded calls;
   Figma `5925:146302`, no Call summary card): "Discuss", a `border-line` rule under it, then "Your Follow Up",

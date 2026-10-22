@@ -66,8 +66,8 @@ the same change.
   today is Monday 06:00),
   generated from a seed of the id (Aima's stop when she went quiet), each with stand-in transcript lines;
   `meetingsFor(id, added)` adds the coach's (`meetings` in the store, `addMeeting`) and sorts by created time, newest
-  first (`createdAt`: a recorded call's start, or when the coach added it, the user's call); `meetingWeeks` splits them by the week they were created in, labelled like the week selector ("Aug 24 - Aug 30"). Platform
-  comes from the link (Zoom, Google Meet, Microsoft Teams). Nothing reads a transcript (Olly and the assessment
+  first (`createdAt`: a recorded call's start, or when the coach added it, the user's call); `meetingWeeks` splits them by the week they were created in, labelled like the week selector ("Aug 24 - Aug 30"). Meetings
+  carry no link or platform (dropped at the user's request). Nothing reads a transcript (Olly and the assessment
   stay on the stored status).
 - `src/data/transcripts.ts`: the transcripts' stand-in wording, sections of a coaching call (opener, recap by
   status, training, nutrition, recovery, habits, schedule, goals, mindset, plan, questions, wrap-up) taken in turn
@@ -156,7 +156,7 @@ the same change.
   calendar (up to today) and then the time list (on today, up to 06:00); then Transcript with `5726:141326` Upload
   file / `5729:516037` Paste text; Cancel · Save, Save waits for a transcript; files .txt / .docx / .srt / .pdf up to
   10 MB, .txt and .srt are read for the preview; no client, link, time zone or duration fields) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
-  artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; Figma `5759:161235`: client avatar + name · date · start · platform, speaker names in bold, a search box pinned on top that
+  artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; Figma `5759:161235`: client avatar + name · date · start (no platform), speaker names in bold, a search box pinned on top that
   highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
   `meeting.summary`: Discuss, a rule, then Your Follow Up (Figma `5925:146302`), written by
   `callSummary` in `data/transcripts.ts` from the sections the call got all the way through, so it never names a

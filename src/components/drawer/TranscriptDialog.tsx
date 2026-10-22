@@ -4,7 +4,7 @@ import iconSearch from '../../assets/figma/icon-search-note.svg';
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import { COACH_FIRST_NAME } from '../../data/mock';
 import type { Client, Meeting } from '../../data/types';
-import { fieldTime, fileSize, meetingDate, platformOf } from '../../lib/meetings';
+import { fieldTime, fileSize, meetingDate } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Avatar } from '../Avatar';
@@ -51,7 +51,7 @@ function SummaryList({ title, items, ruled = false }: { title: string; items: st
 
 /**
  * What "View transcript" opens (Figma 5759:161235, Summary redrawn in 5925:146302): the meeting's title, then client ·
- * date · start · platform at 14 px, then two tabs on a full-width bar. Summary: Discuss, a rule, then Your Follow Up. Transcript: the lines, with a search box pinned on top; matches are highlighted as you type and ↑ / ↓ (or
+ * date · start at 14 px (no platform, the user's call), then two tabs on a full-width bar. Summary: Discuss, a rule, then Your Follow Up. Transcript: the lines, with a search box pinned on top; matches are highlighted as you type and ↑ / ↓ (or
  * Enter / Shift+Enter) step through them, the current one in a stronger tint and scrolled into view.
  */
 export function TranscriptDialog({
@@ -124,7 +124,7 @@ export function TranscriptDialog({
             {client.name}
           </span>
           <span aria-hidden className="size-1 shrink-0 rounded-full bg-[#d9d9d9]" />
-          {[meetingDate(meeting.date), fieldTime(meeting.start), meeting.link && platformOf(meeting.link)].filter(Boolean).join(' · ')}
+          {meetingDate(meeting.date)} · {fieldTime(meeting.start)}
         </span>
       }
       width={620}

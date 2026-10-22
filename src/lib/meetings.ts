@@ -39,21 +39,6 @@ export function meetingWeeks(meetings: Meeting[]): MeetingWeek[] {
   return weeks;
 }
 
-/** "Zoom", "Google Meet", "Microsoft Teams", from the meeting link; any other link reads "Meeting link". */
-export function platformOf(link: string): string {
-  const host = (() => {
-    try {
-      return new URL(link).hostname;
-    } catch {
-      return '';
-    }
-  })();
-  if (host.endsWith('zoom.us')) return 'Zoom';
-  if (host === 'meet.google.com') return 'Google Meet';
-  if (host.endsWith('teams.microsoft.com') || host.endsWith('teams.live.com')) return 'Microsoft Teams';
-  return 'Meeting link';
-}
-
 /** "2:00 PM - Aug 27": a list row's start time and date (Figma 5731:517688). */
 export const meetingWhen = (m: Meeting) => `${fieldTime(m.start)} - ${formatMonthDay(parseDay(m.date))}`;
 

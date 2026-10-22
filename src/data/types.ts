@@ -309,7 +309,6 @@ export interface Meeting {
   /** Unset when the coach adds the meeting (the form's Duration is hidden for now). */
   minutes?: number;
   timeZone: string;
-  link?: string;
   transcript: Transcript;
   /** "YYYY-MM-DDTHH:MM", when the meeting was added to the list; a recorded call's is its own start. */
   createdAt?: string;
