@@ -18,9 +18,10 @@ the same change.
   Keep the page small: the artifact service rejected the page once it passed about 3.5 MB (it read it as a
   "review page, too large"). Photos go in as JPEG (the banner `hero-2.jpg` is 177 KB), and `mock.ts` globs every
   PNG in `src/assets/figma/`, so a large PNG there is embedded even when nothing imports it.
-  The service also refuses some pages as a "review page, too large" whatever their size (1.0 MB was refused): it
-  first hit native / role="checkbox" rows, then the searchable group picker in Add context to clients (Oct 20).
-  v100 is the last version it took; the probe artifact `2jbW17w2Z1eFAwUmtG6Qzb` was used to bisect it.
+  The service also refused pages as a "review page, too large" whatever their size (1.0 MB was refused, from the
+  checkbox rows and the group picker on Oct 20; v100 was the last version it took). The trigger was the minified
+  identifiers (the same code passed with them unminified), so `vite.config.ts` keeps identifiers unminified in the
+  single build (about +80 KB).
 - Layout: web-only, designed at **1440 × 900**. Below 1280px the shell scrolls sideways. No mobile layout (out of scope per brief).
 - Demo "today" is **Mon 2026-08-31** (`DEMO_TODAY` in `src/data/mock.ts`). Coach name: Long. Brief generated at 06:00 AM.
 
