@@ -150,10 +150,11 @@ the same change.
   shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
   every meeting, newest first, under a header per week; rows of title · "5:30 PM - Aug 27" (no date tile or platform, the user's call),
   lifting onto a white card with View summary in brand on hover (View transcript for a meeting the coach added); the list is capped at 580 px like Notes and
-  scrolls inside, week headers pinned), `AddMeetingDialog` (`5726:141326` Upload file, `5729:516037` Paste text; Duration and a
-  read-only End time are built but hidden for now, `SHOW_DURATION`; title, time and a transcript are required and checked on submit,
-  the date can be any day up to today, the meeting must start before 06:00 today, files .txt / .docx / .srt /
-  .pdf up to 10 MB, .txt and .srt are read for the preview) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
+  scrolls inside, week headers pinned), `AddMeetingDialog` (laid out like New note, the user's call: the meeting's
+  name as the title, empty saves "New Meeting N"; "Aug 31 - 6:00 AM" (now) with an edit icon that opens the date
+  calendar (up to today) and then the time list (on today, up to 06:00); then Transcript with `5726:141326` Upload
+  file / `5729:516037` Paste text; Cancel · Save, Save waits for a transcript; files .txt / .docx / .srt / .pdf up to
+  10 MB, .txt and .srt are read for the preview; no client, link, time zone or duration fields) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
   artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View transcript; Figma `5759:161235`: client avatar + name · date · start · platform, speaker names in bold, a search box pinned on top that
   highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
   `meeting.summary`: a Call Summary card (`AiCard` in `AiAssessment.tsx`), Discuss and Your Follow Up, written by
@@ -305,7 +306,8 @@ the same change.
 - Transcript tab (`5731:517688`, trialled at the user's request): the brief puts meeting transcription into the
   AI assessment in Phase 2 (Loom integration), so in the demo transcripts are only stored and shown; Olly and the
   assessment never read them. The tab is on the client detail page only (Spec 4 BL1 fixes the Check-in panel's
-  tabs). Duration and End time (no frame) are hidden for now at the user's request; the list row shows the start
+  tabs). Add a meeting follows the New note popup instead of its frames' form (the user's call): no client, time
+  zone, link or duration fields; the meeting starts now unless the coach edits it. The list row shows the start
   time and date, as drawn. The transcript search has no frame. The tab
   lists every meeting whatever the week selector shows, like the rest of the client detail page.
   The frame's rows are placeholders (one title
