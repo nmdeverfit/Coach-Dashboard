@@ -360,7 +360,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `0 8px 24px rgba(0,0,0,0.12)`, rendered into `<body>`). Date: a 280 px month calendar (‹ month year ›, Su–Sa,
   32 px day circles, selected brand, today brand semibold, days after today greyed). Time: 15-minute steps, 32 px
   rows, selected `brand-subtle`, opens centred on the choice; on today, times after 6:00 AM are greyed. Esc or a
-  click outside closes only the dropdown. Upload file / Paste text: two 36 px buttons, active
+  click outside closes only the dropdown. Upload file / Paste text: one or the other (the user's call); switching away from a tab that holds a file or text
+  opens `ConfirmDialog` ("Replace the uploaded file?" / "Replace the pasted text?", the body names what goes and says
+  "A meeting keeps one transcript.", Cancel · Replace). Two 36 px buttons, active
   `border-brand bg-brand/[0.03]` brand text and icon (Upload's label semibold, Paste's regular, as drawn). Drop zone
   and paste box `border-[1.5px]` (dashed for the drop zone, brand while dragging; a wrong file turns it `danger`
   with a 12 px `danger` line under it). A chosen file replaces the drop zone with one left-aligned row (`p-3 gap-3`,
