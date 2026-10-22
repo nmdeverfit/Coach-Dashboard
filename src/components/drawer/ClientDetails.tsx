@@ -3,6 +3,7 @@ import iconCircleCheck from '../../assets/figma/icon-circle-check-fill.svg';
 import iconMore from '../../assets/figma/icon-more.svg';
 import iconClose from '../../assets/figma/icon-close.svg';
 import iconChevronLeft from '../../assets/figma/icon-chevron-left.svg';
+import iconExternal from '../../assets/figma/icon-external.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { Client } from '../../data/types';
@@ -26,11 +27,24 @@ const PINNED_CARD_ROOM = 124;
 
 /** Avatar, name, status and the four quick actions of the client detail page (Figma 5671:141948). */
 function ClientTitle({ client, actions }: { client: Client; actions: RefObject<HTMLDivElement> }) {
+  const { showToast } = useStore();
   return (
     <div className="flex items-center gap-4 px-[30px] py-5">
       <Avatar name={client.name} src={client.avatar} size={44} />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <h2 className="truncate text-[18px] font-bold leading-[1.5] text-ink">{client.name}</h2>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <h2 className="truncate text-[18px] font-bold leading-[1.5] text-ink">{client.name}</h2>
+          {/* The client profile is not in the demo, so the icon toasts. */}
+          <button
+            type="button"
+            aria-label="Open client profile"
+            onClick={() => showToast(`${client.firstName}’s client profile opens in a new tab`)}
+            className="group/tip relative flex size-5 shrink-0 items-center justify-center rounded hover:opacity-70"
+          >
+            <img src={iconExternal} alt="" width={20} height={20} />
+            <Tooltip label="Open client profile" below />
+          </button>
+        </div>
         <p className="flex items-center gap-1 text-[13px] leading-normal text-ink-tertiary">
           Status: <StatusChip status={client.status} />
         </p>

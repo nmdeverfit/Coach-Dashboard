@@ -214,7 +214,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   in its ranked place. The user's call; the brief keeps a completed row in place.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
-  `ink-secondary`). Title block: name 18 px bold, "Status:" + chip, then four 32 px icon buttons (Draft
+  `ink-secondary`). Title block: name 18 px bold with the 20 px External icon (`icon-external`, `#838d9f`) 6 px after it
+  (the user's call, no frame; dark tooltip "Open client profile" below it; it toasts, the profile is not in the demo),
+  "Status:" + chip, then four 32 px icon buttons (Draft
   with AI uses `ai-btn`; its tooltip hangs off a wrapper because `ai-btn` clips). Opened from a group-card row or
   the drawer's name link (‹ back). No footer while the icons show; once they scroll up out of view the same four
   actions rise in as the to-do panel's footer (no frame, the user's call; 220 ms slide up), right-aligned: "Mark as reviewed" (primary,
