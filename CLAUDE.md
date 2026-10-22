@@ -27,6 +27,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   Keep the page small: the artifact service rejected the page once it passed about 3.5 MB (it read it as a
   "review page, too large"). Photos go in as JPEG (the banner `hero-2.jpg` is 177 KB), and `mock.ts` globs every
   PNG in `src/assets/figma/`, so a large PNG there is embedded even when nothing imports it.
+  The service also refused pages as a "review page, too large" whatever their size; the trigger was the minified
+  identifiers (the same code passed with them unminified), so `vite.config.ts` keeps identifiers unminified in the
+  single build (about +80 KB).
 - Layout: web-only, designed at **1440 × 900**. Below 1280px the shell scrolls sideways. No mobile layout (out of scope per brief).
 - Demo "today" is **Mon 2026-08-31** (`DEMO_TODAY` in `src/data/mock.ts`). Coach name: Long. Brief generated at 06:00 AM.
 
