@@ -10,6 +10,7 @@ import { COACH_FIRST_NAME, DEMO_TODAY } from '../../data/mock';
 import type { Client, Transcript } from '../../data/types';
 import { TRANSCRIPT_MAX_BYTES, TRANSCRIPT_TYPES, fileSize } from '../../lib/meetings';
 import { summarizeTranscript } from '../../lib/meetingSummary';
+import { docxText } from '../../lib/docx';
 import { noteStamp } from '../../lib/notes';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
@@ -22,7 +23,7 @@ import { DatePicker, TimePicker } from './Pickers';
 const NOW = '06:00';
 /** Meetings the coach adds keep the generated calls' time zone; the form no longer asks for one. */
 const TIME_ZONE = 'UTC-7';
-/** .txt and .srt are read as text so the transcript can be shown; .docx and .pdf are kept as files. */
+/** .txt and .srt are read as text and .docx through its XML, so the transcript can be previewed and summarised; .pdf is kept as a file. */
 const READABLE = ['.txt', '.srt'];
 
 type Mode = 'upload' | 'paste';
@@ -44,6 +45,50 @@ function SourceButton({ on, icon, label, semibold, onClick }: { on: boolean; ico
   );
 }
 
+/** "Long (04:12):" or "Malcom:" at the start of a line, set in bold like the meeting popup's speakers. */
+const SPEAKER = /^([^():\n]{1,40}?(?:\s*\([^)]*\))?\s*:)(\s.*)$/;
+
+/**
+ * What the chosen file says, read in the page before Save: one row per line, speakers in bold. A .pdf can't be read
+ * in the demo, so it says so; the file is still kept with the meeting.
+ */
+function TranscriptPreview({ text, reading, ext }: { text?: string; reading: boolean; ext: string }) {
+  const lines = text?.split(/\r?\n/).filter((l) => l.trim()) ?? [];
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-1.5">
+      <p className="flex items-baseline justify-between text-[12px] leading-[18px]">
+        <span className="font-semibold text-ink">Preview</span>
+        {lines.length > 0 && <span className="text-ink-tertiary">{lines.length} lines</span>}
+      </p>
+      <div className="scroll-thin min-h-0 flex-1 overflow-y-auto rounded-lg border-[1.5px] border-[#e0e0e0] bg-[#f9fafa] px-3 py-2.5 text-[13px] leading-[1.6] text-ink">
+        {reading ? (
+          <p className="animate-pulse text-ink-tertiary">Reading the file…</p>
+        ) : lines.length ? (
+          lines.map((l, i) => {
+            const m = l.match(SPEAKER);
+            return (
+              <p key={i} className="mb-1 break-words last:mb-0">
+                {m ? (
+                  <>
+                    <span className="font-semibold">{m[1]}</span>
+                    {m[2]}
+                  </>
+                ) : (
+                  l
+                )}
+              </p>
+            );
+          })
+        ) : (
+          <p className="text-ink-tertiary">
+            {ext === 'pdf' ? 'No preview for .pdf files in the demo. The file is kept with the meeting, without a summary.' : 'No text found in this file.'}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /**
  * Add a meeting, laid out like New note (Figma 5850:570122; the user's call): the meeting's name as the title (empty
  * saves "New Meeting N"), its date and time (now, until the edit icon picks another day up to today and a start up to
@@ -58,6 +103,7 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
   const [time, setTime] = useState(NOW);
   const [mode, setMode] = useState<Mode>('upload');
   const [file, setFile] = useState<{ name: string; size: number; text?: string } | null>(null);
+  const [reading, setReading] = useState(false);
   const [pasted, setPasted] = useState('');
   const [dragging, setDragging] = useState(false);
   const [fileError, setFileError] = useState('');
@@ -85,12 +131,18 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
     }
     setFileError('');
     setFile({ name: f.name, size: f.size });
-    if (READABLE.includes(ext)) f.text().then((text) => setFile((cur) => (cur?.name === f.name ? { ...cur, text } : cur)));
+    const read = READABLE.includes(ext) ? f.text() : ext === '.docx' ? docxText(f) : null;
+    if (!read) return;
+    setReading(true);
+    read.then((text) => {
+      setReading(false);
+      if (text) setFile((cur) => (cur?.name === f.name ? { ...cur, text } : cur));
+    });
   };
 
   const save = () => {
-    if (!transcript) return;
-    // The summary is written from whatever text there is (pasted, or a .txt / .srt file); .docx and .pdf get none.
+    if (!transcript || reading) return;
+    // The summary is written from whatever text there is (pasted, or a .txt / .srt / .docx file); a .pdf gets none.
     const text = transcript.kind === 'text' ? transcript.text : transcript.kind === 'file' ? transcript.text : undefined;
     const summary = text ? summarizeTranscript(text, client.firstName, COACH_FIRST_NAME) : undefined;
     addMeeting(client.id, {
@@ -169,26 +221,29 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
         </div>
         {mode === 'upload' ? (
           file ? (
-            // The chosen file: type icon, name over size, then Replace and Remove at the right edge.
-            <div className="flex items-center gap-3 rounded-lg border-[1.5px] border-[#e0e0e0] p-3 text-[13px] leading-[1.5]">
-              <FileTypeIcon name={file.name} />
-              <div className="flex min-w-0 flex-1 flex-col">
-                <p className="truncate font-semibold text-ink" title={file.name}>
-                  {file.name}
-                </p>
-                <p className="text-[12px] leading-[18px] text-ink-tertiary">
-                  {fileSize(file.size)} · {fileExtension(file.name).toUpperCase()}
-                </p>
+            <>
+              {/* The chosen file: type icon, name over size, then Replace and Remove at the right edge. */}
+              <div className="flex items-center gap-3 rounded-lg border-[1.5px] border-[#e0e0e0] p-3 text-[13px] leading-[1.5]">
+                <FileTypeIcon name={file.name} />
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <p className="truncate font-semibold text-ink" title={file.name}>
+                    {file.name}
+                  </p>
+                  <p className="text-[12px] leading-[18px] text-ink-tertiary">
+                    {fileSize(file.size)} · {fileExtension(file.name).toUpperCase()}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-3 font-semibold">
+                  <button type="button" onClick={() => fileInput.current?.click()} className="text-brand hover:underline">
+                    Replace
+                  </button>
+                  <button type="button" onClick={() => setFile(null)} className="text-ink-secondary hover:text-ink">
+                    Remove
+                  </button>
+                </div>
               </div>
-              <div className="flex shrink-0 items-center gap-3 font-semibold">
-                <button type="button" onClick={() => fileInput.current?.click()} className="text-brand hover:underline">
-                  Replace
-                </button>
-                <button type="button" onClick={() => setFile(null)} className="text-ink-secondary hover:text-ink">
-                  Remove
-                </button>
-              </div>
-            </div>
+              <TranscriptPreview text={file.text} reading={reading} ext={fileExtension(file.name)} />
+            </>
           ) : (
             <button
               type="button"
@@ -234,7 +289,7 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
           }}
         />
       </div>
-      <EditorFooter canSave={Boolean(transcript)} onCancel={onClose} onSave={save} />
+      <EditorFooter canSave={Boolean(transcript) && !reading} onCancel={onClose} onSave={save} />
     </Modal>
   );
 }

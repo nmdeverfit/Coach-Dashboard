@@ -163,16 +163,18 @@ one column. The Upcoming bookings session list is shared with the main branch to
   name as the title, empty saves "New Meeting N"; "Aug 31 - 6:00 AM" (now) with an edit icon that opens the date
   calendar (up to today) and then the time list (on today, up to 06:00); then Transcript with `5726:141326` Upload
   file / `5729:516037` Paste text; Cancel · Save, Save waits for a transcript; files .txt / .docx / .srt / .pdf up to
-  10 MB, .txt and .srt are read for the preview; no client, link, time zone or duration fields) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
+  10 MB; .txt, .srt and .docx (`docxText` in `lib/docx.ts`: the zip's `word/document.xml`, inflated with the
+  browser's `DecompressionStream`) are read at once and shown under the file as a Preview before Save, a .pdf says it
+  has no preview; no client, link, time zone or duration fields) `Pickers` (the form's date calendar and 15-minute time list, drawn in the page because the
   artifact's iframe blocks the browser's pickers) and `TranscriptDialog` (View details; Figma `5759:161235`: client avatar + name · date · start (no platform), speaker names in bold, a search box pinned on top that
   highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
   `meeting.summary`: Discuss, a rule, then Your Follow Up (Figma `5925:146302`), written by
   `callSummary` in `data/transcripts.ts` from the sections the call got all the way through, so it never names a
-  point the transcript cut off. A meeting the coach adds gets its summary from the pasted or .txt / .srt text
+  point the transcript cut off. A meeting the coach adds gets its summary from the pasted or .txt / .srt / .docx text
   (`summarizeTranscript` in `lib/meetingSummary.ts`, the demo's stand-in for the model: sentences sorted into topics
   by their words, only statements kept, the coach's "I'll …" as follow-ups); the row and the popup read "Generating
-  summary…" for 3 s (`summaryPending`, `meetingSummaryReady` in the store), then a toast says it is ready; .docx and
-  .pdf get none). Latest call was dropped (the user's call). Booking (Spec 4 BL2's `booking` tab) shows only for a
+  summary…" for 3 s (`summaryPending`, `meetingSummaryReady` in the store), then a toast says it is ready; a .pdf
+  gets none). Latest call was dropped (the user's call). Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
@@ -319,7 +321,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   four times, all on day 3); View details has no frame and opens a popup with the lines. The Summary tab (the
   user's brief, no frame) is stand-in wording per call section; in the product it would be AI-written from the
   transcript, which the brief puts in Phase 2 (Loom). A meeting the coach adds gets a stand-in summary picked from its own text (`summarizeTranscript`), never
-  anything the text does not say; .docx and .pdf can't be read in the demo, so they get none.
+  anything the text does not say; a .pdf can't be read in the demo, so it gets no preview and no summary.
 - Add context (trialled at the user's request, not in the brief or Spec 4): the context is only stored and shown;
   the assessment, Tell me more and drafts do not change with it (it would apply from the next daily generation).
   Coaching style per client is close to what the brief puts out: coach-facing signal settings (Phase 3),
