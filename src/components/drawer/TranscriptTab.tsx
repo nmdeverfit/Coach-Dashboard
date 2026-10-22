@@ -51,7 +51,7 @@ function MeetingRow({ meeting, onView, children }: { meeting: Meeting; onView: (
 }
 
 /**
- * The newest meeting, on top of the list: a meeting row like the others (the user's call), with the Call Summary's
+ * The newest meeting, on top of the list: a meeting row like the others (the user's call), with the summary's
  * overview and "Discuss" (up to three short takeaways) under its time line. A click opens the popup on Summary, or on
  * Transcript for a meeting the coach added, which has no summary yet.
  */

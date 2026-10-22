@@ -8,7 +8,6 @@ import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Avatar } from '../Avatar';
 import { Modal } from '../Modal';
-import { AiCard } from './AiAssessment';
 
 interface Line {
   speaker?: string;
@@ -23,10 +22,10 @@ const TABS = [
   { key: 'transcript', label: 'Transcript' },
 ] as const;
 
-/** One list section of the Summary tab (Figma 5759:161274): a top rule, 16 px title, 13 px bullets, "Topic:" in bold. */
-function SummaryList({ title, items }: { title: string; items: string[] }) {
+/** One list section of the Summary tab (Figma 5925:146302): 16 px title, 13 px bullets, "Topic:" in bold; `ruled` adds the rule under it. */
+function SummaryList({ title, items, ruled = false }: { title: string; items: string[]; ruled?: boolean }) {
   return (
-    <section className="flex flex-col gap-2 border-t border-line px-2 py-4">
+    <section className={`flex flex-col gap-2 px-2 pb-4 ${ruled ? 'border-b border-line' : ''}`}>
       <h4 className="text-[16px] font-semibold tracking-[-0.32px] text-ink">{title}</h4>
       <ul className="list-disc text-[13px] leading-[1.5] text-ink">
         {items.map((it) => {
@@ -50,9 +49,8 @@ function SummaryList({ title, items }: { title: string; items: string[] }) {
 }
 
 /**
- * What "View transcript" opens (Figma 5759:161235): the meeting's title, then client · date · start · platform at
- * 14 px, then two tabs on a full-width bar. Summary: a Call summary card drawn like the AI Assessment without its
- * buttons, then Discuss and Your Follow Up, each under a rule. Transcript: the lines, with a search box pinned on top; matches are highlighted as you type and ↑ / ↓ (or
+ * What "View transcript" opens (Figma 5759:161235, Summary redrawn in 5925:146302): the meeting's title, then client ·
+ * date · start · platform at 14 px, then two tabs on a full-width bar. Summary: Discuss, a rule, then Your Follow Up. Transcript: the lines, with a search box pinned on top; matches are highlighted as you type and ↑ / ↓ (or
  * Enter / Shift+Enter) step through them, the current one in a stronger tint and scrolled into view.
  */
 export function TranscriptDialog({
@@ -204,14 +202,11 @@ export function TranscriptDialog({
           )}
         </div>
         {tab === 'summary' && (
-          <div className="flex flex-col gap-6 px-5 pb-5 pt-5">
+          <div className="flex flex-col gap-4 px-5 pb-5 pt-5">
             {summary ? (
               <>
-                <AiCard title="Call summary" assessment={{ headline: { before: summary.overview.headline }, bullets: summary.overview.bullets }} />
-                <div className="flex flex-col">
-                  <SummaryList title="Discuss" items={summary.discuss} />
-                  <SummaryList title="Your Follow Up" items={summary.followUp} />
-                </div>
+                <SummaryList title="Discuss" items={summary.discuss} ruled />
+                <SummaryList title="Your Follow Up" items={summary.followUp} />
               </>
             ) : (
               <p className="text-[13px] leading-[1.5] text-ink-tertiary">
