@@ -30,7 +30,7 @@ export const CLIENT_TABS = [
   { key: 'form', label: 'Form' },
   { key: 'booking', label: 'Booking' },
   { key: 'notes', label: 'Notes' },
-  { key: 'transcript', label: 'Transcript' },
+  { key: 'transcript', label: 'Meetings' },
 ] as const;
 
 export type ClientTabKey = (typeof CLIENT_TABS)[number]['key'];
