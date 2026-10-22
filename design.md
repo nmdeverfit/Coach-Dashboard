@@ -366,8 +366,11 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   with a 12 px `danger` line under it). A chosen file replaces the drop zone with one left-aligned row (`p-3 gap-3`,
   solid border): `FileTypeIcon` (40 px tinted tile, lucide icon: .pdf red, .docx brand, .srt purple captions, .txt
   grey), name 13 px semibold (truncates) over "5 KB · TXT" 12 px `ink-tertiary`, then Replace (brand) and Remove
-  (`ink-secondary`) 13 px semibold at the right edge. The transcript popup shows an uploaded file with the same icon
-  and lines.
+  (`ink-secondary`) 13 px semibold at the right edge. Under it, filling the rest, the Preview (the user's request):
+  "Preview" 12 px semibold + "N lines" `ink-tertiary` at the right, then a scrolling box (`border-[1.5px]
+  #e0e0e0`, rounded 8, `#f9fafa`, `px-3 py-2.5`) of the file's lines, 13 px / 1.6 ink, a leading "Name (04:12):" in
+  semibold; "Reading the file…" (pulsing) while it reads; a .pdf reads "No preview for .pdf files in the demo…".
+  Save waits for the read. The transcript popup shows an uploaded file with the same icon and lines.
 - **Past week** (Figma `4780:125157`, `4798:172414`): Back, Next and Today all enabled (Today white with a
   `line-nav` border; disabled it is `surface-secondary` with muted text). A banner sits under the header: `#f3f6ff`,
   border top and bottom, `px-5 py-2`, history icon 16 px, 13 px `#484848` text, then "Back to this week" 13 px

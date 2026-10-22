@@ -296,7 +296,7 @@ export interface TranscriptLine {
 export type Transcript =
   | { kind: 'lines'; lines: TranscriptLine[] }
   | { kind: 'text'; text: string }
-  | { kind: 'file'; name: string; size: number; /** Read for .txt and .srt; .docx and .pdf are not previewed. */ text?: string };
+  | { kind: 'file'; name: string; size: number; /** Read for .txt, .srt and .docx; a .pdf is not previewed. */ text?: string };
 
 /** A coach–client meeting on the Transcript tab. */
 export interface Meeting {

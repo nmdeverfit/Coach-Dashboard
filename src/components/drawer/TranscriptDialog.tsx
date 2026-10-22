@@ -221,8 +221,8 @@ export function TranscriptDialog({
               </>
             ) : (
               <p className="text-[13px] leading-[1.5] text-ink-tertiary">
-                No summary for this meeting. The demo can’t read .docx or .pdf files, so summaries are written from .txt and
-                .srt files and pasted text.
+                No summary for this meeting. The demo can’t read .pdf files, so summaries are written from .txt, .srt and
+                .docx files and pasted text.
               </p>
             )}
           </div>
