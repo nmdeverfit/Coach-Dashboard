@@ -280,20 +280,18 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `bg-elevated`, `shadow-[0_1px_3px_rgba(24,78,255,0.07)]`. Header "Meetings with {first}" 15 px semibold + "+ Add
   meeting" 14 px semibold brand. `#f9fafa` well `px-3 pb-3`. Every meeting, newest first, under a week header:
   12 px semibold uppercase `ink-muted`, `pt-3 pb-1`, the week selector's label ("AUG 24 - AUG 30"). Rows `px-1 pt-3
-  pb-[13px]`, bottom border `ink/10`: date tile 56 px (`rounded-[9px]`, day 20 px, weekday 12 px, full date on
-  hover), title 14 px semibold, then 13 px: clock 14 + "5:30 PM - Aug 27" (`#484848`) · `#d9d9d9` 4 px dot · video
-  icon 14 + platform (ink, plain text). Hover (or focus): the row sits on a white card, rounded 4,
+  pb-[13px]`, bottom border `ink/10`: no date tile (the frame's 56 px tile was dropped, the user's call), title 14 px
+  semibold, then 13 px: clock 14 + "5:30 PM - Aug 27" (`#484848`); no platform (the frame's dot + video icon + platform were
+  dropped, the user's call). Hover (or focus): the row sits on a white card, rounded 4,
   `0 0 10px rgba(0,0,0,0.05)`, 5 px wider than the list on each side, its border hidden, and "View summary"
   (13 px semibold, brand on hover; "View transcript" for a meeting the coach added) shows at the right; a click anywhere on the row opens the popup. The well is
   capped at 580 px like the Notes list and scrolls inside, each week header pinned (`sticky`, `#f9fafa`). Empty: "No meetings
   with {first} yet." With eight tabs the tab padding drops to 12 px.
-- **Latest call** (the user's mock): on top of the Transcript tab's well, above the scrolling list (which keeps its
-  580 px cap): "LATEST CALL" 12 px semibold uppercase `ink-muted`, then a white card (`border-line`, rounded 8, `p-4`,
-  `gap-4`): the 56 px date tile + title 15 px semibold + "2:00 PM · 45 min · Microsoft Teams" 13 px `ink-tertiary`;
-  the Call Summary's overview 14 px semibold ink; "Discuss" 13 px semibold `ink-secondary` over up to three 14 px
-  `#484848` bullets (muted markers); a top border, then "View full summary" (brand, opens the popup on Summary) and
-  "Transcript" (`ink-secondary`, opens it on Transcript), 14 px semibold. The mock's top-right element and its pink
-  callout were struck out, so neither is built.
+- **Latest call** (the user's mock, made plain at the user's request): on top of the Meetings tab's well, above the
+  scrolling list (which keeps its 580 px cap): "LATEST CALL" (the week headers' style, `pt-3 pb-1`), then the newest
+  meeting as an ordinary meeting row (same title, time line, hover card and View summary), with under its time line
+  the Call Summary's overview and "Discuss" (semibold `ink-secondary`) over up to three bullets (muted markers), all
+  13 px `#484848`. No card, no footer buttons: the row opens the popup like the others.
 - **Meeting popup** (Figma `5759:161235`): 620 px `Modal` with no rule under its header; title 20 px semibold, then
   14 px / 22 px: 20 px avatar + client name (semibold ink) · 4 px `#d9d9d9` dot · "Tue, Aug 4, 2026 · 12:30 PM ·
   Google Meet" (`ink-tertiary`). Then a full-width tab bar (`border-b border-line`, `px-5`; tabs `px-5`, 13 px

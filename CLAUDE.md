@@ -154,7 +154,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   first tab = focus) is shared by the Check-in panel and the client detail page. Meetings (key `transcript`, labelled
   "Transcript" in Figma `5731:517688`, renamed at the user's request)
   shows on the client detail page only, for every client: `TranscriptTab` ("Meetings with {first}", + Add meeting,
-  every meeting, newest first, under a header per week; rows of date tile · title · "5:30 PM - Aug 27" · platform,
+  every meeting, newest first, under a header per week; rows of title · "5:30 PM - Aug 27" (no date tile or platform, the user's call),
   lifting onto a white card with View summary in brand on hover (View transcript for a meeting the coach added); the list is capped at 580 px like Notes and
   scrolls inside, week headers pinned), `AddMeetingDialog` (`5726:141326` Upload file, `5729:516037` Paste text; Duration and a
   read-only End time are built but hidden for now, `SHOW_DURATION`; title, time and a transcript are required and checked on submit,
@@ -164,8 +164,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   highlights matches and steps through them with ↑ / ↓ / Enter; tabs Summary | Transcript, Summary from
   `meeting.summary`: a Call Summary card (`AiCard` in `AiAssessment.tsx`), Discuss and Your Follow Up, written by
   `callSummary` in `data/transcripts.ts` from the sections the call got all the way through, so it never names a
-  point the transcript cut off). On top of the list, `LatestCall` shows the newest meeting: overview, "Discuss" with
-  the summary's `highlights` (up to three short takeaways), View full summary and Transcript. Booking (Spec 4 BL2's `booking` tab) shows only for a
+  point the transcript cut off). On top of the list, `LatestCall` shows the newest meeting as a plain row (the user's
+  call) with its overview and "Discuss" (the summary's `highlights`, up to three short takeaways) under the time. Booking (Spec 4 BL2's `booking` tab) shows only for a
   client in `sessions.ts`: the Prepare panel's `SessionsCard`, then the Unblock panel's `CreditsCard`, each with an
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
