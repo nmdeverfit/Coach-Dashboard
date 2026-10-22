@@ -39,9 +39,10 @@ function ClientTitle({ client, actions }: { client: Client; actions: RefObject<H
             type="button"
             aria-label="Open client profile"
             onClick={() => showToast(`${client.firstName}’s client profile opens in a new tab`)}
-            className="group/tip relative flex size-5 shrink-0 items-center justify-center rounded hover:opacity-70"
+            className="group/tip relative flex size-5 shrink-0 items-center justify-center rounded"
           >
-            <img src={iconExternal} alt="" width={20} height={20} />
+            {/* Only the icon dims on hover; dimming the button would fade its tooltip too. */}
+            <img src={iconExternal} alt="" width={20} height={20} className="group-hover/tip:opacity-70" />
             <Tooltip label="Open client profile" below />
           </button>
         </div>
