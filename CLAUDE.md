@@ -51,7 +51,9 @@ the same change.
   (`bookingRow` in `lib/dashboard.ts`, credit figures from `buildUnblockView`) are computed from it. The card lists
   sessions, not clients (`sessionsInWeek` in `lib/week.ts`, same bookings and window as `Client.nextSession`): line 1
   type swatch · session name, line 2 "Today" or "Sep 1" • time span · a 16 px avatar · client name; the count is
-  the sessions'; a row opens its client on the Booking tab. `groupSessions` (Small group HIIT, every Tuesday 5:30 PM,
+  the sessions'; a row opens its Session details (`SessionDrawer`, Figma `5940:151048`, id `oneToOneId` =
+  "client@dateTtime", read back by `getOneToOne`; studio `STUDIO`, type text `SESSION_DESCRIPTION`), whose client
+  line opens the client on the Booking tab. `groupSessions` (Small group HIIT, every Tuesday 5:30 PM,
   17 of 23 enrolled, 1 canceled, all dashboard clients) adds one row per week in the same window (`CardSession` in
   `lib/week.ts`), shown by `GroupSessionRow` (`components/GroupSession.tsx`: avatar stack + a "17 clients" link
   whose hover lists the roster); a click opens `SessionDrawer` (`drawer/SessionDetails.tsx`, Figma `5825:544656`,
@@ -172,7 +174,7 @@ the same change.
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
   green, Issue Credits sits beside the balance and credit rows start collapsed (the panels keep theirs in the
-  footer). Opening a client from the list's Booking tab or an Upcoming bookings row lands on this tab (`selectClient(id, 'booking')`)
+  footer). Opening a client from the list's Booking tab or from a Session details panel lands on this tab (`selectClient(id, 'booking')`)
   and, once the panel has slid in, scrolls the tabs up under the pinned assessment so the Sessions card shows.
   On the client detail page only (`withTabActions`), a tab can carry its own buttons under its cards
   (`TabActions`): Training's Deep analysis (AI button, tooltip "AI analyzes client's training progress") opens Olly
@@ -345,7 +347,8 @@ the same change.
   sits on the Upcoming bookings card (its count counts it) but adds no client to the card's members, raises no
   Prepare to-do and is not on its clients' Booking tab or `nextSession`. The frame's description ("In this 1-on-1
   strength session…") reads as a copy slip for a group class; the demo writes its own. The frame is a 540 px side
-  panel, so "popup" is drawn as one. View calendar only toasts.
+  panel, so "popup" is drawn as one. View calendar only toasts. A 1:1 row opens the same panel (Figma `5940:151048`):
+  the frame's "1 credit used (per spot)" drops "(per spot)", which only means something in a class.
 - Client highlight actions (Figma `5795:175100`): the brief puts "Reactions on client highlights" in Phase 2, but the
   row's 👍 is drawn. The demo built it (toggles, toasts "Reaction sent to {first}") and hides it for now
   (`SHOW_REACTION`, the user's call).

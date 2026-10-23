@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import chevronSmall from '../assets/figma/icon-chevron-right-small.svg';
 import dotTiny from '../assets/figma/dot-tiny.svg';
 import iconMore from '../assets/figma/icon-more.svg';
+import { oneToOneId } from '../data/sessions';
 import { formatMonthDay, parseDay } from '../lib/dates';
 import { cardMembers } from '../lib/groups';
 import { timeSpan } from '../lib/todos';
@@ -100,7 +101,7 @@ export function CategoryGroup({
   wide?: boolean;
   narrow?: boolean;
 }) {
-  const { state, openGroup, selectClient, toggleCollapsed, reviewedNow } = useStore();
+  const { state, openGroup, selectClient, selectSession, toggleCollapsed, reviewedNow } = useStore();
   // Cards follow the week selector: a past week shows that Monday's groups.
   const members = cardMembers(group.key, state.weekOffset, { todos: state.todos, reviewed: reviewedNow });
   const collapsed = state.rail.collapsed.includes(group.key);
@@ -147,20 +148,21 @@ export function CategoryGroup({
               <li className="px-1 py-3 text-[13px] leading-[1.5] text-ink-muted">{sessions ? 'No sessions booked right now.' : 'No clients here right now.'}</li>
             )}
             {/* A session row: type colour · session name, then date and time · a 16 px avatar · client name on the line
-                below. It opens its client on the Booking tab. A group session shows its roster instead (GroupSessionRow). */}
+                below. It opens the session's details panel (Figma 5940:151048), as a group session's row does; a group
+                session shows its roster instead of one client (GroupSessionRow). */}
             {sessions?.map(({ client, booking, group: session }) => session ? (
               <li key={session.id}>
                 <GroupSessionRow session={session} today={today} />
               </li>
             ) : (
-              <li key={`${client.id}:${booking.date}:${booking.start}`}>
+              <li key={oneToOneId(client.id, booking)}>
                 <button
                   type="button"
                   data-client-row
-                  aria-current={state.selectedClientId === client.id ? 'true' : undefined}
-                  onClick={() => selectClient(client.id, 'booking')}
+                  aria-current={state.selectedSessionId === oneToOneId(client.id, booking) ? 'true' : undefined}
+                  onClick={() => selectSession(oneToOneId(client.id, booking))}
                   className={`flex w-full flex-col gap-1.5 border-b border-line/80 px-1 py-2.5 text-left hover:bg-surface-secondary/60 ${
-                    state.selectedClientId === client.id ? 'bg-surface-secondary' : ''
+                    state.selectedSessionId === oneToOneId(client.id, booking) ? 'bg-surface-secondary' : ''
                   }`}
                 >
                   <span className="flex items-center gap-2">
