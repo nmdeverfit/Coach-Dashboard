@@ -192,7 +192,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   Bold · Italic · two lists, stored as cleaned HTML (`cleanNoteHtml` in `lib/notes.ts`); the coach's notes replace the
   profile's in `notes` in the store, `setNotes`, session only), `FormStatus`.
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
-  reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
+  reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (on every type, Check-in too: the user's call),
   close on ×, Esc or click outside.
 - `src/components/drawer/AiContext.tsx`: Add context (hidden for now, the code kept: `SHOW_ADD_CONTEXT` in
   `AiAssessment.tsx`, the user's call; Figma `5746:520123`, `5744:519377`, `5746:519756`), inside
@@ -369,6 +369,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - Deep analysis (the user's call, no frame): Phase 1's Olly answers only from the stored status, and the brief puts
   Olly reading program data in Phase 2; Deep analysis reads the training log and the program's week directly. It
   describes, never prescribes. Adjust meal plan has no page to land on, so it toasts.
+- Client name link on the Check-in panel (the user's call): the brief and Spec 4 BL1 keep the name plain on a
+  Check-in panel ("that panel already shows what the detail page would"); the demo links it like every other type,
+  opening ‹ CLIENT DETAILS in the panel's place.
 - The vertical row expand (rows open the client detail
   drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
   are not built yet.
