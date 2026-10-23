@@ -104,7 +104,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   Penelope (Unblock + Prepare), all raised by their data under BL7, with panel data from `sessions.ts`; `TYPE_PRIORITY` / `byPriority`
   (BL3), `groupByClient`. Today's Brief draws a client's to-dos as one card (`TodayBrief` `itemsOf`,
   `TodoGroupCard`, `TodoRow` `inCard`; option B, the user's pick over a dashed-line tree and a hybrid, both removed):
-  a client header with the count and a collapse chevron, white only on hover or while one of its to-dos is open; the panel lists the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or
+  a client header with the count and a collapse chevron, white only on hover or while one of its to-dos is open
+  (header as a sentence, "3 to-dos with [avatar] Wade Warren", for `SENTENCE_HEADERS`: Wade and Penelope); the panel lists the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or
   dismissed on its own, and the header counts to-dos. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).

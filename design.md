@@ -229,7 +229,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   fill on the list's grey; white with `shadow-row` on hover, and white while one of its to-dos is open (the user's
   call). Header button `px-2 py-2.5`: the 24 px avatar (in the checkbox column), the name 13 px semibold, a pill
   "3 to-dos" / "1 of 3 done" (11 px semibold `ink-secondary`, white, border `line-light`, rounded full) and a 16 px
-  chevron that collapses it; collapsed, the header lists what is left ("Issue credit · Prepare for the session", 12 px
+  chevron that collapses it. Sentence header (`SENTENCE_HEADERS`: Wade and Penelope, tried beside Ethan's for
+  comparison): "3 to-dos with" 13 px semibold ink, then the avatar + name like a row's client chip, then "· 1 done"
+  12 px `ink-tertiary` once any is ticked; no pill. Collapsed, the header lists what is left ("Issue credit · Prepare for the session", 12 px
   `ink-tertiary`). Rows under a top border, divided by `line`: no client chip, the type's short action
   (`SHORT_ACTION`), hover `surface-secondary/60`, selected = 4 px brand edge on `brand/[0.03]`. Each row keeps its own
   checkbox, Dismiss and panel; a done row greys in place, and the card sinks once all its rows are done. "Show N

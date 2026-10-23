@@ -60,6 +60,12 @@ function withGroups(base: Todo[]): Todo[] {
 
 export const seedTodos: Todo[] = GROUPED_TODOS ? withGroups(baseTodos) : baseTodos;
 
+/**
+ * The card header as a sentence, "3 to-dos with [avatar] Wade Warren", in the to-do rows' own wording, tried on these
+ * clients beside the name-and-pill header (Ethan) for comparison (the user's call).
+ */
+export const SENTENCE_HEADERS = new Set(['wade-warren', 'penelope-brooks']);
+
 /** A section's to-dos as client groups: in the order each client first appears, each group sorted by BL3. */
 export function groupByClient(todos: Todo[]): { key: string; todos: Todo[] }[] {
   const groups = new Map<string, Todo[]>();
