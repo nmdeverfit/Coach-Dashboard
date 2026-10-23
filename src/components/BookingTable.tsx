@@ -119,7 +119,7 @@ export function BookingTable({ query }: { query: string }) {
 }
 
 function BookingClientRow({ client, row, stacked }: { client: Client; row: BookingRow; stacked: Stacked }) {
-  const { state, selectClient, showToast, openInbox } = useStore();
+  const { state, openBookingDetails, showToast, openInbox } = useStore();
   const COL = useCols();
   const stop = (fn: () => void) => (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -127,7 +127,7 @@ function BookingClientRow({ client, row, stacked }: { client: Client; row: Booki
   };
   const { next, credits } = row;
   return (
-    <div {...rowProps(client, state.selectedClientId === client.id, (id) => selectClient(id, 'booking'))}>
+    <div {...rowProps(client, state.selectedClientId === client.id, openBookingDetails)}>
       <ClientCell client={client} className={COL.client} />
 
       <div className={`${COL.activity} flex min-h-[76px] flex-col justify-center gap-1 p-3`}>

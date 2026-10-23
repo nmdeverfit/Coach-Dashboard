@@ -282,6 +282,11 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `#e0e0e0`, rounded 8, alarm 13 px). Credits: "Balance: N", then swatch + type · "N credits expiring in N days"
   (`#ca410a`) or the "Low credits" badge (`LowCreditsBadge`, `#ffebb0` / `#71381d`), and a white 28 px "Issue
   Credits" button with a 12 px +. Action: Send message only. Sections: Upcoming sessions · No sessions booked.
+  A row opens **Booking details** (the user's call), not the client detail page: the 720 px panel, "BOOKING DETAILS" + ×;
+  the title row keeps the 44 px avatar, 18 px bold name and the external icon, drops the status line and the four
+  icon actions for one labelled Send message (32 px outline button like View calendar: message icon 16 + 13 px
+  semibold, opens the Inbox beside the panel); then the Booking tab's Sessions and Session credits cards
+  (`px-[30px] pb-[30px]`). No assessment, feedback, tab bar or pinned footer.
 - **Meetings tab** (key `transcript`; Figma `5731:517688` labels it "Transcript", renamed at the user's request; client detail page only, last tab): one card, `border-ink/10`,
   `bg-elevated`, `shadow-[0_1px_3px_rgba(24,78,255,0.07)]`. Header "Meetings with {first}" 15 px semibold + "+ Add
   meeting" 14 px semibold brand. `#f9fafa` well `px-3 pb-3`. Every meeting, newest created first (the user's call; Latest call was dropped), under a week header (the week it was created in):

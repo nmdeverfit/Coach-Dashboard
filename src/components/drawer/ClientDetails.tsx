@@ -4,6 +4,7 @@ import iconMore from '../../assets/figma/icon-more.svg';
 import iconClose from '../../assets/figma/icon-close.svg';
 import iconChevronLeft from '../../assets/figma/icon-chevron-left.svg';
 import iconExternal from '../../assets/figma/icon-external.svg';
+import iconMessage from '../../assets/figma/icon-message-dots.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { Client } from '../../data/types';
@@ -15,7 +16,7 @@ import { reducedMotion } from '../ClientListParts';
 import { StatusChip } from '../StatusChip';
 import { Tooltip } from '../Tooltip';
 import { AiAssessment } from './AiAssessment';
-import { ClientTabs, type ClientTabKey } from './ClientTabs';
+import { BookingTab, ClientTabs, type ClientTabKey } from './ClientTabs';
 import { DrawerAside, useCloseOnOutside, useDrawerPresence } from './DrawerShell';
 import { DraftWithAiButton, FooterButton, SendMessageButton } from './PanelParts';
 import { StatusFeedback } from './StatusFeedback';
@@ -25,9 +26,12 @@ const SLIDE_IN_MS = 300;
 /** Room under the header for the pinned assessment, which covers the top of the scroller once it has scrolled past. */
 const PINNED_CARD_ROOM = 124;
 
-/** Avatar, name, status and the four quick actions of the client detail page (Figma 5671:141948). */
-function ClientTitle({ client, actions }: { client: Client; actions: RefObject<HTMLDivElement> }) {
-  const { showToast } = useStore();
+/**
+ * Avatar, name, status and the four quick actions of the client detail page (Figma 5671:141948). Booking details
+ * (`booking`) keeps the avatar and name only, with Send message as a labelled button (the user's call).
+ */
+function ClientTitle({ client, actions, booking }: { client: Client; actions?: RefObject<HTMLDivElement>; booking?: boolean }) {
+  const { showToast, openInbox } = useStore();
   return (
     <div className="flex items-center gap-4 px-[30px] py-5">
       <Avatar name={client.name} src={client.avatar} size={44} />
@@ -46,13 +50,27 @@ function ClientTitle({ client, actions }: { client: Client; actions: RefObject<H
             <Tooltip label="Open client profile" below />
           </button>
         </div>
-        <p className="flex items-center gap-1 text-[13px] leading-normal text-ink-tertiary">
-          Status: <StatusChip status={client.status} />
-        </p>
+        {!booking && (
+          <p className="flex items-center gap-1 text-[13px] leading-normal text-ink-tertiary">
+            Status: <StatusChip status={client.status} />
+          </p>
+        )}
       </div>
-      <div ref={actions}>
-        <ClientActions client={client} where="panel" />
-      </div>
+      {booking ? (
+        // The 32 px outline button of the panels' title rows (Session details' View calendar), icon + label.
+        <button
+          type="button"
+          onClick={() => openInbox(client.id)}
+          className="flex h-8 shrink-0 items-center gap-2 rounded border border-line-light bg-white px-4 text-[13px] font-semibold leading-5 tracking-[-0.26px] text-ink hover:bg-surface-secondary"
+        >
+          <img src={iconMessage} alt="" width={16.2} height={16.2} />
+          Send message
+        </button>
+      ) : (
+        <div ref={actions}>
+          <ClientActions client={client} where="panel" />
+        </div>
+      )}
     </div>
   );
 }
@@ -126,7 +144,7 @@ export function ClientDetailsPanel({
   const footer = useScrolledPast(actions);
   const scroller = useRef<HTMLDivElement>(null);
 
-  // Opened on a tab (an Upcoming bookings row or the list's Booking tab opens Booking): once the panel has slid in,
+  // Opened on a tab (a Session details panel's client line opens Booking): once the panel has slid in,
   // scroll the tabs up to just under the pinned assessment, so the tab's first card (Sessions) is in view.
   useEffect(() => {
     if (!initialTab) return;
@@ -172,7 +190,31 @@ export function ClientDetailsPanel({
   );
 }
 
-/** The client detail panel opened from a group card in the right rail. */
+/**
+ * Booking details: what the client list's Booking tab opens (the user's call). The client detail page cut down to
+ * the booking: BOOKING DETAILS, avatar + name + profile link, a labelled Send message, then the Booking tab's
+ * Sessions and Session credits cards. No status, assessment, feedback, other tabs or quick actions.
+ */
+function BookingDetailsPanel({ client, onClose }: { client: Client; onClose: () => void }) {
+  return (
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-5 pb-2.5 pt-[15px]">
+        <p className="text-[13px] font-semibold leading-[1.5] text-ink-secondary">BOOKING DETAILS</p>
+        <button type="button" aria-label="Close booking details" onClick={onClose} className="relative size-5 overflow-hidden rounded hover:opacity-70">
+          <img src={iconClose} alt="" className="absolute left-1/2 top-1/2 size-6 max-w-none -translate-x-1/2 -translate-y-1/2" />
+        </button>
+      </header>
+      <div key={client.id} data-panel-scroll className="flex-1 overflow-y-auto">
+        <ClientTitle client={client} booking />
+        <div className="px-[30px] pb-[30px]">
+          <BookingTab client={client} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** The client detail panel opened from a group card in the right rail, or Booking details from the list's Booking tab. */
 export function ClientDrawer() {
   const { state, selectClient } = useStore();
   const { shown, closing } = useDrawerPresence(state.selectedClientId);
@@ -180,8 +222,12 @@ export function ClientDrawer() {
   useCloseOnOutside(Boolean(state.selectedClientId), close);
   if (!shown) return null;
   return (
-    <DrawerAside label="Client details" closing={closing}>
-      <ClientDetailsPanel client={getClient(shown)} onClose={close} initialTab={state.selectedClientTab} />
+    <DrawerAside label={state.selectedClientBooking ? 'Booking details' : 'Client details'} closing={closing}>
+      {state.selectedClientBooking ? (
+        <BookingDetailsPanel client={getClient(shown)} onClose={close} />
+      ) : (
+        <ClientDetailsPanel client={getClient(shown)} onClose={close} initialTab={state.selectedClientTab} />
+      )}
     </DrawerAside>
   );
 }

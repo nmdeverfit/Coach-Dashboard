@@ -107,7 +107,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   dismissed = greyed, "Dismissed" + Restore (back to Need attention). History opens on "Moments older than 30 days are cleared
   automatically." + Clear all (confirm dialog; `clearHighlightHistory` marks them `cleared`, gone from both views). Every highlight carries `on` (the moment's day); its sentence ends on that day ("… on Aug 29.", `sentence` in `ClientHighlights`), with no timestamp at the row's edge (the user's call), and the texts carry no time words. Empty lists show `EmptyArt` + a line per view and category (`emptyLine`, Figma `5809:544623`). The header count is Need attention's. Nine
   highlight people are not dashboard clients: `highlightOnlyClients` / `findPerson` in `mock.ts` give them a
-  profile and a thread without counting them anywhere), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`),
+  profile and a thread without counting them anywhere), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`; a row opens Booking details, `openBookingDetails` →
+  `selectedClientBooking` in the store, `BookingDetailsPanel` in `ClientDetails.tsx`: name, a labelled Send message
+  and the Booking tab's two cards, nothing else, the user's call),
   `ClientListParts` (row shell, client cell, section header shared by both tables), `ClientActions` (the
   four 32 px quick actions, shared by the detail page and list rows), `Glyph` (Figma vector with inset/bleed), `StatusChip`, `Toast` (Figma `4805:185601`, top-right, ✕ = `hideToast`; every
   finished action shows one), `Avatar`, `CountChip`,
@@ -182,7 +184,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   empty state ("No upcoming sessions booked.", Balance 0 + "No credits on any session type."). In the tab, as in
   the user's reference, every upcoming session has its own Draft a reminder, sessions completed this week read
   green, Issue Credits sits beside the balance and credit rows start collapsed (the panels keep theirs in the
-  footer). Opening a client from the list's Booking tab or from a Session details panel lands on this tab (`selectClient(id, 'booking')`)
+  footer). Opening a client from a Session details panel lands on this tab (`selectClient(id, 'booking')`)
   and, once the panel has slid in, scrolls the tabs up under the pinned assessment so the Sessions card shows.
   On the client detail page only (`withTabActions`), a tab can carry its own buttons under its cards
   (`TabActions`): Training's Deep analysis (AI button, tooltip "AI analyzes client's training progress") opens Olly

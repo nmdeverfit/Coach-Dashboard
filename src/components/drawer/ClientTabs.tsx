@@ -129,7 +129,7 @@ export function ClientTabContent({ tab, client, profile }: { tab: ClientTabKey; 
 }
 
 /** Booking: the Prepare panel's Sessions card, then the Unblock panel's Session credits card, from the same data. */
-function BookingTab({ client }: { client: Client }) {
+export function BookingTab({ client }: { client: Client }) {
   const { showToast } = useStore();
   const s = getSessions(client.id);
   if (!s) return null;

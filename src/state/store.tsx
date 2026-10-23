@@ -63,6 +63,8 @@ interface State {
   selectedSessionId: string | null;
   /** The tab the client detail page opens on, when the coach came from a list that implies one (the Booking tab). */
   selectedClientTab: ClientTabKey | null;
+  /** The client panel shows Booking details only (opened from the client list's Booking tab), not the detail page. */
+  selectedClientBooking: boolean;
   /** Clients reviewed this week. A Check-in review is one action on both views (brief, S3 BL5). */
   reviewed: Record<string, boolean>;
   /** Reviews the coach changed on past weeks, by week offset (the rest come from `seededReview`). */
@@ -159,7 +161,7 @@ type Action =
   | { type: 'toggleCollapsed'; key: CardKey }
   | { type: 'toast'; message: string | null }
   | { type: 'select'; id: string | null }
-  | { type: 'selectClient'; id: string | null; tab?: ClientTabKey }
+  | { type: 'selectClient'; id: string | null; tab?: ClientTabKey; booking?: boolean }
   | { type: 'selectSession'; id: string | null }
   | { type: 'reviewClient'; clientId: string }
   | { type: 'toggleReview'; clientId: string; offset: number }
@@ -193,6 +195,7 @@ const initialState: State = {
   selectedClientId: null,
   selectedSessionId: null,
   selectedClientTab: null,
+  selectedClientBooking: false,
   reviewed: {},
   pastReviewed: {},
   side: null,
@@ -316,6 +319,8 @@ function reducer(state: State, action: Action): State {
         ...state,
         selectedClientId: action.id,
         selectedClientTab: action.tab ?? null,
+        // Kept while the panel slides out, so it does not turn into the detail page on its way.
+        selectedClientBooking: action.id ? Boolean(action.booking) : state.selectedClientBooking,
         selectedTodoId: action.id ? null : state.selectedTodoId,
         selectedSessionId: action.id ? null : state.selectedSessionId,
         side: keepSide(state.side, action.id ?? (state.selectedTodoId ? todoClient(state) : null)),
@@ -491,6 +496,8 @@ interface Store {
   selectTodo: (id: string | null) => void;
   /** Opens the client detail page, optionally on a given tab. */
   selectClient: (id: string | null, tab?: ClientTabKey) => void;
+  /** Opens Booking details for a client: their sessions and credits, without the rest of the detail page. */
+  openBookingDetails: (id: string) => void;
   /** Opens a group session's details panel; null closes it. */
   selectSession: (id: string | null) => void;
   /** Mark as reviewed from the client detail page. */
@@ -584,6 +591,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       selectTodo: (id) => dispatch({ type: 'select', id }),
       selectClient: (id, tab) => dispatch({ type: 'selectClient', id, tab }),
+      openBookingDetails: (id) => dispatch({ type: 'selectClient', id, booking: true }),
       selectSession: (id) => dispatch({ type: 'selectSession', id }),
       reviewClient: (clientId) => {
         dispatch({ type: 'reviewClient', clientId });
