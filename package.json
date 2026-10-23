@@ -9,7 +9,8 @@
     "build:single": "tsc -b && vite build --mode single",
     "preview": "vite preview",
     "typecheck": "tsc -b",
-    "build:artifact": "npm run build:single && node scripts/make-artifact.mjs"
+    "build:artifact": "npm run build:single && node scripts/make-artifact.mjs",
+    "build:artifact:grouped": "tsc -b && VITE_GROUPED_TODOS=1 vite build --mode single && node scripts/make-artifact.mjs coach-dashboard-grouped"
   },
   "dependencies": {
     "lucide-react": "^0.460.0",

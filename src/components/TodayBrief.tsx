@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 're
 import heroDivider from '../assets/figma/hero-divider.svg';
 import heroPhoto from '../assets/figma/hero-2.jpg';
 import dot from '../assets/figma/dot.svg';
+import { GROUPED_TODOS, groupByClient } from '../data/groupedTodos';
 import { COACH_FIRST_NAME, DEMO_TODAY, GENERATED_AT } from '../data/mock';
 import type { Todo } from '../data/types';
 import { ageLabel, formatMonthDay, parseDay } from '../lib/dates';
@@ -56,6 +57,32 @@ const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 /** With reduced motion there is no slide: a ticked row shows its tick in place, then drops to the bottom. */
 const SINK_DELAY_MS = 450;
 
+/**
+ * A row of a section: one to-do, or (grouped to-dos, a trial) a client's group. `key` is the to-do's id for a single
+ * row and `client:{id}` for a group; it names the element the motion moves (`data-todo-id`). A group is done, and
+ * sinks, once every to-do in it is.
+ */
+interface Item {
+  key: string;
+  todos: Todo[];
+  done: boolean;
+}
+
+const isDone = (t: Todo) => t.state === 'completed';
+
+function itemsOf(todos: Todo[]): Item[] {
+  if (!GROUPED_TODOS) return todos.map((t) => ({ key: t.id, todos: [t], done: isDone(t) }));
+  return groupByClient(todos).map((g) => ({ key: g.todos.length === 1 ? g.todos[0].id : g.key, todos: g.todos, done: g.todos.every(isDone) }));
+}
+
+/** Rows up to INITIAL_ROWS to-dos; a group is never split, so it can carry the count past it. */
+function firstRows(items: Item[]): Item[] {
+  let shown = 0;
+  return items.filter((it) => (shown < INITIAL_ROWS ? ((shown += it.todos.length), true) : false));
+}
+
+const todoCount = (items: Item[]) => items.reduce((n, it) => n + it.todos.length, 0);
+
 interface RowMotion {
   /** Rows that have just been moved to the bottom: they fade in there instead of sliding down. */
   arriving: Set<string>;
@@ -69,8 +96,8 @@ interface RowMotion {
  * the bottom; rows completed before the page opened start there. The sort is stable, so each group keeps its rank,
  * and an unticked row goes straight back to its place.
  */
-function useDoneLast(todos: Todo[], list: RefObject<HTMLUListElement>): { rows: Todo[]; motion: RowMotion } {
-  const done = todos.filter((t) => t.state === 'completed').map((t) => t.id);
+function useDoneLast(items: Item[], list: RefObject<HTMLUListElement>): { rows: Item[]; motion: RowMotion } {
+  const done = items.filter((it) => it.done).map((it) => it.key);
   const [sunk, setSunk] = useState(() => new Set(done));
   const sunkNow = useRef(sunk);
   sunkNow.current = sunk;
@@ -116,7 +143,7 @@ function useDoneLast(todos: Todo[], list: RefObject<HTMLUListElement>): { rows: 
       });
     };
   }, [key, list, motion]);
-  return { rows: [...todos].sort((a, b) => Number(sunk.has(a.id)) - Number(sunk.has(b.id))), motion };
+  return { rows: [...items].sort((a, b) => Number(sunk.has(a.key)) - Number(sunk.has(b.key))), motion };
 }
 
 /**
@@ -163,15 +190,40 @@ export function TodayBrief() {
   const { state, openSuggestedCount, toggleComplete, dismiss, dismissAllPrevious, selectTodo } = store;
   const suggestedList = useRef<HTMLUListElement>(null);
   const previousList = useRef<HTMLUListElement>(null);
-  const { rows: suggested, motion: suggestedMotion } = useDoneLast(store.suggested, suggestedList);
-  const { rows: previous, motion: previousMotion } = useDoneLast(store.previous, previousList);
+  const { rows: suggested, motion: suggestedMotion } = useDoneLast(itemsOf(store.suggested), suggestedList);
+  const { rows: previous, motion: previousMotion } = useDoneLast(itemsOf(store.previous), previousList);
   const [expanded, setExpanded] = useState(false);
   const [pending, setPending] = useState<PendingDismiss | null>(null);
 
-  const visibleSuggested = expanded ? suggested : suggested.slice(0, INITIAL_ROWS);
-  const hiddenCount = suggested.length - visibleSuggested.length;
-  useSlideRows(suggestedList, visibleSuggested.map((t) => t.id).join(), suggestedMotion);
-  useSlideRows(previousList, previous.map((t) => t.id).join(), previousMotion);
+  const visibleSuggested = expanded ? suggested : firstRows(suggested);
+  const hiddenCount = store.suggested.length - todoCount(visibleSuggested);
+  useSlideRows(suggestedList, visibleSuggested.map((it) => it.key).join(), suggestedMotion);
+  useSlideRows(previousList, previous.map((it) => it.key).join(), previousMotion);
+
+  const rowsOf = (items: Item[], past: boolean) =>
+    items.map(({ key, todos }) => {
+      const row = (todo: Todo, grouped?: 'first' | 'nested' | 'last') => (
+        <TodoRow
+          key={todo.id}
+          todo={todo}
+          age={past && grouped !== 'nested' && grouped !== 'last' ? ageLabel(todo.raisedOn, DEMO_TODAY) : undefined}
+          selected={state.selectedTodoId === todo.id}
+          onOpen={() => selectTodo(todo.id)}
+          onToggle={() => toggleComplete(todo.id)}
+          onDismiss={() => setPending({ kind: 'one', todo })}
+          grouped={grouped}
+        />
+      );
+      if (todos.length === 1) return row(todos[0]);
+      // A client's group (trial): the first to-do names the client, the rest hang under it; one border for the group.
+      return (
+        <li key={key} data-todo-id={key} className="border-b border-line">
+          <ul aria-label={`${todos.length} to-dos for ${getClient(todos[0].clientId).name}`}>
+            {todos.map((t, i) => row(t, i === 0 ? 'first' : i === todos.length - 1 ? 'last' : 'nested'))}
+          </ul>
+        </li>
+      );
+    });
 
   const confirmDismiss = () => {
     if (!pending) return;
@@ -208,20 +260,11 @@ export function TodayBrief() {
         </div>
 
         <div className="flex flex-col gap-3 px-[60px] pb-5">
-          <SectionTitle title="Suggested to-dos" count={suggested.length} />
+          <SectionTitle title="Suggested to-dos" count={store.suggested.length} />
           {suggested.length > 0 ? (
             <div className="rounded-lg bg-surface-secondary px-2 pt-1">
               <ul ref={suggestedList} className="relative">
-                {visibleSuggested.map((todo) => (
-                  <TodoRow
-                    key={todo.id}
-                    todo={todo}
-                    selected={state.selectedTodoId === todo.id}
-                    onOpen={() => selectTodo(todo.id)}
-                    onToggle={() => toggleComplete(todo.id)}
-                    onDismiss={() => setPending({ kind: 'one', todo })}
-                  />
-                ))}
+                {rowsOf(visibleSuggested, false)}
               </ul>
               {hiddenCount > 0 && (
                 <button
@@ -243,27 +286,17 @@ export function TodayBrief() {
         {previous.length > 0 && (
           <div className="flex flex-col gap-3 px-[60px] pb-[30px]">
             <div className="flex items-end justify-between pr-2">
-              <SectionTitle title="Previous to-dos" count={previous.length} />
+              <SectionTitle title="Previous to-dos" count={store.previous.length} />
               <button
                 type="button"
-                onClick={() => setPending({ kind: 'all', count: previous.length })}
+                onClick={() => setPending({ kind: 'all', count: store.previous.length })}
                 className="text-[13px] leading-[1.4] text-ink-secondary underline hover:text-ink"
               >
                 Dismiss all
               </button>
             </div>
             <ul ref={previousList} className="relative rounded-lg bg-surface-secondary px-2 pt-1">
-              {previous.map((todo) => (
-                <TodoRow
-                  key={todo.id}
-                  todo={todo}
-                  age={ageLabel(todo.raisedOn, DEMO_TODAY)}
-                  selected={state.selectedTodoId === todo.id}
-                  onOpen={() => selectTodo(todo.id)}
-                  onToggle={() => toggleComplete(todo.id)}
-                  onDismiss={() => setPending({ kind: 'one', todo })}
-                />
-              ))}
+              {rowsOf(previous, true)}
             </ul>
           </div>
         )}

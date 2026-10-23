@@ -23,7 +23,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - Stack: React 18 + TypeScript + Vite + Tailwind CSS 3. Icons and images are Figma exports in `src/assets/figma/`
   (`lucide-react` only for the few icons the design does not draw, e.g. the row dismiss ✕). Mock data only, no backend.
 - Commands: `npm run dev`, `npm run typecheck`, `npm run build`,
-  `npm run build:artifact` (single-file page in `dist-single/coach-dashboard.html`, published as a claude.ai Artifact).
+  `npm run build:artifact` (single-file page in `dist-single/coach-dashboard.html`, published as a claude.ai Artifact),
+  `npm run build:artifact:grouped` (the grouped to-dos trial, `VITE_GROUPED_TODOS=1`, written to
+  `dist-single/coach-dashboard-grouped.html` and published as its own artifact, "Check-in Dashboard v2 · Grouped
+  to-dos"; the default builds drop its code). Each build empties `dist-single/`, so publish right after building.
   Keep the page small: the artifact service rejected the page once it passed about 3.5 MB (it read it as a
   "review page, too large"). Photos go in as JPEG (the banner `hero-2.jpg` is 177 KB), and `mock.ts` globs every
   PNG in `src/assets/figma/`, so a large PNG there is embedded even when nothing imports it.
@@ -95,6 +98,13 @@ one column. The Upcoming bookings session list is shared with the main branch to
   (`f01`–`f20` female, `m01`–`m20` male, 96 px JPEG). `FEMALE` / `MALE` list people most visible first and take
   photos in order; `*_REUSE` gives the few people beyond 20, who only show when a card is scrolled, a highlight
   person's photo. The coach avatar stays the Figma export.
+- `src/data/groupedTodos.ts`: the grouped to-dos trial (the user's call, outside the brief), on only with
+  `GROUPED_TODOS`. `seedTodos` (the store's to-dos) adds Wade (Check-in + Unblock), Ethan and Penelope (Unblock +
+  Prepare), all raised by their own data under BL7, with panel data from `sessions.ts`; `TYPE_PRIORITY` / `byPriority`
+  (BL3), `groupByClient`. Today's Brief draws a client's to-dos as one group (`TodayBrief` `itemsOf`, `TodoRow`
+  `grouped`); the panel lists the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or
+  dismissed on its own, and the header counts to-dos. A Check-in without panel data (Wade) reads the client detail
+  page's assessment (`ProfileCheckinBody`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights in two views, the user's call: Need attention | History, each with the
@@ -377,6 +387,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - Client name link on the Check-in panel (the user's call): the brief and Spec 4 BL1 keep the name plain on a
   Check-in panel ("that panel already shows what the detail page would"); the demo links it like every other type,
   opening ‹ CLIENT DETAILS in the panel's place.
+- Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
+  day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
+  by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for
+  Related to-dos.
 - The vertical row expand (rows open the client detail
   drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
   are not built yet.
