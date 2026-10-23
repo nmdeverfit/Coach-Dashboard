@@ -166,28 +166,29 @@ const hl = (id: string, category: Highlight['category'], clientName: string, tex
   image: avatar(slugOf(clientName)),
 });
 
+// Each sentence ends on its day, added from `on` where it shows ("… on Aug 29."), so the text carries no time words.
 export const highlights: Highlight[] = [
-  hl('leo-midgett', 'anniversary', 'Leo Midgett', 'just reached his 6-month coaching anniversary', '2026-08-29'),
-  hl('daniel-lee', 'anniversary', 'Daniel Lee', 'just reached his 1-year coaching anniversary', '2026-08-27'),
+  hl('leo-midgett', 'anniversary', 'Leo Midgett', 'reached his 6-month coaching anniversary', '2026-08-29'),
+  hl('daniel-lee', 'anniversary', 'Daniel Lee', 'reached his 1-year coaching anniversary', '2026-08-27'),
   hl('kevin-williams', 'anniversary', 'Kevin Williams', 'logged his 50th workout', '2026-08-29'),
-  hl('anna-taylor', 'anniversary', 'Anna Taylor', 'just reached her 1-year coaching anniversary', '2026-08-25'),
+  hl('anna-taylor', 'anniversary', 'Anna Taylor', 'reached her 1-year coaching anniversary', '2026-08-25'),
   hl('rachel-kim', 'milestone', 'Rachel Kim', 'hit her goal - target weight 65 kg', '2026-08-30'),
   hl('kevin-williams-2', 'milestone', 'Kevin Williams', 'logged his 50th workout', '2026-08-29'),
   hl('ryan-miller', 'milestone', 'Ryan Miller', 'finished 30-Day Fat Loss Challenge', '2026-08-28'),
   hl('michael-brown', 'milestone', 'Michael Brown', 'kept his streak 12 weeks in a row', '2026-08-30'),
-  hl('erika-harris', 'birthday', 'Erika Harris', 'turns 29 today.', '2026-08-31'),
-  hl('mia-young', 'birthday', 'Mia Young', 'turned 23 three days ago.', '2026-08-28'),
+  hl('erika-harris', 'birthday', 'Erika Harris', 'turns 29', '2026-08-31'),
+  hl('mia-young', 'birthday', 'Mia Young', 'turned 23', '2026-08-28'),
   // Ten more, about clients already on the dashboard so each keeps the same photo everywhere.
   hl('ethan-smith', 'milestone', 'Ethan Smith', 'logged his 100th workout', '2026-08-27'),
   hl('penelope-brooks', 'milestone', 'Penelope Brooks', 'set a new deadlift PR of 120 kg', '2026-08-26'),
   hl('andrew-scott', 'milestone', 'Andrew Scott', 'finished the 12-week Strength Foundations program', '2026-08-21'),
   hl('layla-mitchell', 'milestone', 'Layla Mitchell', 'logged her meals 30 days in a row', '2026-08-30'),
-  hl('gabriella-clark', 'birthday', 'Gabriella Clark', 'turns 34 today.', '2026-08-31'),
-  hl('elijah-wright', 'birthday', 'Elijah Wright', 'turns 41 tomorrow.', '2026-09-01'),
-  hl('evelyn-moore', 'birthday', 'Evelyn Moore', 'turned 27 yesterday.', '2026-08-30'),
-  hl('alexander-thompson', 'anniversary', 'Alexander Thompson', 'just reached his 2-year coaching anniversary', '2026-08-30'),
-  hl('grace-adams', 'anniversary', 'Grace Adams', 'just reached her 1-year coaching anniversary', '2026-08-24'),
-  hl('owen-price', 'anniversary', 'Owen Price', 'just reached his 6-month coaching anniversary', '2026-08-26'),
+  hl('gabriella-clark', 'birthday', 'Gabriella Clark', 'turns 34', '2026-08-31'),
+  hl('elijah-wright', 'birthday', 'Elijah Wright', 'turns 41', '2026-09-01'),
+  hl('evelyn-moore', 'birthday', 'Evelyn Moore', 'turned 27', '2026-08-30'),
+  hl('alexander-thompson', 'anniversary', 'Alexander Thompson', 'reached his 2-year coaching anniversary', '2026-08-30'),
+  hl('grace-adams', 'anniversary', 'Grace Adams', 'reached her 1-year coaching anniversary', '2026-08-24'),
+  hl('owen-price', 'anniversary', 'Owen Price', 'reached his 6-month coaching anniversary', '2026-08-26'),
 ];
 
 /**

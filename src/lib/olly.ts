@@ -271,13 +271,13 @@ export function draftFor(client: Client, todo: Todo | undefined, today: string):
  * A note for a Client highlight (Draft with AI on its row): a congratulation, a birthday wish or an anniversary
  * thank-you, written from the highlight's own sentence. The sentence is the system's, never the client's words.
  */
-export function highlightDraft(client: Client, h: Highlight): OllyDraft {
+export function highlightDraft(client: Client, h: Highlight, today: string): OllyDraft {
   const first = client.firstName;
   const ask = (purpose: string) => `Draft a message for ${client.name} to ${purpose}.`;
   if (h.category === 'birthday') {
     const request = ask(`wish ${first} a happy birthday`);
-    const late = /ago|yesterday/.test(h.text);
-    const ahead = /tomorrow/.test(h.text);
+    const late = h.on < today;
+    const ahead = h.on > today;
     return {
       request,
       text: late
@@ -293,7 +293,7 @@ export function highlightDraft(client: Client, h: Highlight): OllyDraft {
     const length = `${span[1]} ${span[2]}${span[1] === '1' ? '' : 's'}`;
     return {
       request,
-      text: `Hi ${first}, ${length} since we started working together today! Thanks for showing up week after week. I’m proud of how far you’ve come.`,
+      text: `Hi ${first}, ${length} since we started working together${h.on === today ? ' today' : ''}! Thanks for showing up week after week. I’m proud of how far you’ve come.`,
     };
   }
   // "hit her goal - target weight 65 kg" → "you hit your goal: target weight 65 kg"

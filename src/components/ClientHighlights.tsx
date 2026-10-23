@@ -15,8 +15,8 @@ import emptyUserSm from '../assets/figma/empty-hl-user-sm.svg';
 import emptyWindow from '../assets/figma/empty-hl-window.svg';
 import confetti from '../assets/figma/icon-confetti.svg';
 import iconPencilAi from '../assets/figma/icon-pencil-ai.svg';
-import { DEMO_TODAY, highlights } from '../data/mock';
-import { daysBetween, formatMonthDay, parseDay } from '../lib/dates';
+import { highlights } from '../data/mock';
+import { formatMonthDay, parseDay } from '../lib/dates';
 import type { Highlight, HighlightCategory } from '../data/types';
 import { sideIsSidebar, useStore } from '../state/store';
 import { Avatar } from './Avatar';
@@ -145,16 +145,8 @@ function OutcomeTag({ completed }: { completed: boolean }) {
   );
 }
 
-/**
- * When the moment happened, at the row's right edge in 11 px `ink-muted` (the user's call), on every highlight:
- * "Today", "1d ago" to "6d ago" within the week, else "Aug 21"; a birthday still to come reads "Tomorrow". Read against
- * the brief's morning (`DEMO_TODAY`). The hover bar covers it while it shows.
- */
-function When({ h }: { h: Highlight }) {
-  const ago = daysBetween(h.on, DEMO_TODAY);
-  const when = ago === 0 ? 'Today' : ago === -1 ? 'Tomorrow' : ago > 0 && ago < 7 ? `${ago}d ago` : formatMonthDay(parseDay(h.on));
-  return <span className="shrink-0 whitespace-nowrap text-[11px] leading-[1.5] text-ink-muted">{when}</span>;
-}
+/** The highlight's sentence with its day: "reached his 6-month coaching anniversary on Aug 29." (the user's call). */
+const sentence = (h: Highlight) => `${h.text} on ${formatMonthDay(parseDay(h.on))}.`;
 
 /** Avatar with its category badge (milestones blue, birthdays and anniversaries orange). */
 function Who({ h, muted = false }: { h: Highlight; muted?: boolean }) {
@@ -180,9 +172,8 @@ function HistoryRow({ h, completed, last }: { h: Highlight; completed: boolean; 
       <div className="flex min-w-0 items-center gap-4">
         <Who h={h} muted={!completed} />
         <p className={`min-w-0 flex-1 text-[13px] leading-[1.5] ${completed ? 'text-ink' : 'text-ink-secondary'}`}>
-          <span className="font-semibold">{h.clientName}</span> {h.text}
+          <span className="font-semibold">{h.clientName}</span> {sentence(h)}
         </p>
-        <When h={h} />
       </div>
       <div className="flex items-center gap-3 pr-[18px]">
         <OutcomeTag completed={completed} />
@@ -366,9 +357,8 @@ export function ClientHighlights({ narrow: narrowRail = false }: { narrow?: bool
                 >
                   <Who h={h} />
                   <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-ink">
-                    <span className="font-semibold">{h.clientName}</span> {h.text}
+                    <span className="font-semibold">{h.clientName}</span> {sentence(h)}
                   </p>
-                  <When h={h} />
                   <HighlightActions
                     h={h}
                     reacted={reacted.includes(h.id)}
