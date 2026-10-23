@@ -111,52 +111,55 @@ function SessionBody({ booking, group, client, onClose }: Shown & { onClose: () 
         </button>
       </header>
       <div key={`${booking.date}T${booking.start}`} className="scroll-thin flex-1 overflow-y-auto">
-        <div className="flex items-start gap-2.5 p-5">
-          <div className="flex min-w-0 flex-1 flex-col gap-1 border-b border-[#f2f2f2] pb-4">
-            <div className="flex items-center gap-3">
-              <span className="flex h-6 w-[19.2px] shrink-0 items-center justify-center">
-                <span className="size-[16.8px] rounded-[4.8px] border-[1.2px] border-black/10" style={{ backgroundColor: booking.type.color }} />
-              </span>
-              <h2 className="truncate text-[18px] font-bold leading-[1.5] text-[#1a1a1a]">{booking.type.name}</h2>
-            </div>
-            <p className="flex items-center gap-1.5 pl-7 pt-0.5 text-[14px] leading-[22px] text-[#1a1a1a]">
-              {longDate(booking.date)}
-              <img src={dotSession} alt="" width={3} height={3} />
-              {timeSpan(booking)} ({booking.type.minutes}min)
-            </p>
-            {client && (
-              // The client: 24 px avatar and name (5940:151511). A click opens their detail page, in this panel's place.
-              <div className="flex items-center pl-7 pt-1">
-                <button
-                  type="button"
-                  title="Open client details"
-                  onClick={() => selectClient(client.id, 'booking')}
-                  className="group/client flex min-w-0 items-center gap-3 text-left"
-                >
-                  <span className="rounded-full ring-1 ring-black/10">
-                    <Avatar name={client.name} src={client.avatar} size={24} />
-                  </span>
-                  <span className="truncate text-[14px] font-semibold leading-[1.5] text-[#1a1a1a] group-hover/client:text-brand group-hover/client:underline">
-                    {client.name}
-                  </span>
-                </button>
+        {/* The divider runs the full width under the title block and View calendar (the user's call). */}
+        <div className="p-5">
+          <div className="flex items-start gap-2.5 border-b border-[#f2f2f2] pb-4">
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <div className="flex items-center gap-3">
+                <span className="flex h-6 w-[19.2px] shrink-0 items-center justify-center">
+                  <span className="size-[16.8px] rounded-[4.8px] border-[1.2px] border-black/10" style={{ backgroundColor: booking.type.color }} />
+                </span>
+                <h2 className="truncate text-[18px] font-bold leading-[1.5] text-[#1a1a1a]">{booking.type.name}</h2>
               </div>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => showToast(`The calendar opens on ${longDate(booking.date)}`)}
-            className="flex h-8 shrink-0 items-center gap-2 rounded border border-line-light bg-white px-4 text-[13px] font-semibold leading-5 tracking-[-0.26px] text-ink hover:bg-surface-secondary"
-          >
-            <span className="relative size-5 overflow-hidden" aria-hidden>
-              <span className="absolute inset-[10%_14.01%]">
-                <span className="absolute inset-[-4.5%_-5%]">
-                  <img src={iconCalendar} alt="" className="block size-full max-w-none" />
+              <p className="flex items-center gap-1.5 pl-7 pt-0.5 text-[14px] leading-[22px] text-[#1a1a1a]">
+                {longDate(booking.date)}
+                <img src={dotSession} alt="" width={3} height={3} />
+                {timeSpan(booking)} ({booking.type.minutes}min)
+              </p>
+              {client && (
+                // The client: 24 px avatar and name (5940:151511). A click opens their detail page, in this panel's place.
+                <div className="flex items-center pl-7 pt-1">
+                  <button
+                    type="button"
+                    title="Open client details"
+                    onClick={() => selectClient(client.id, 'booking')}
+                    className="group/client flex min-w-0 items-center gap-3 text-left"
+                  >
+                    <span className="rounded-full ring-1 ring-black/10">
+                      <Avatar name={client.name} src={client.avatar} size={24} />
+                    </span>
+                    <span className="truncate text-[14px] font-semibold leading-[1.5] text-[#1a1a1a] group-hover/client:text-brand group-hover/client:underline">
+                      {client.name}
+                    </span>
+                  </button>
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => showToast(`The calendar opens on ${longDate(booking.date)}`)}
+              className="flex h-8 shrink-0 items-center gap-2 rounded border border-line-light bg-white px-4 text-[13px] font-semibold leading-5 tracking-[-0.26px] text-ink hover:bg-surface-secondary"
+            >
+              <span className="relative size-5 overflow-hidden" aria-hidden>
+                <span className="absolute inset-[10%_14.01%]">
+                  <span className="absolute inset-[-4.5%_-5%]">
+                    <img src={iconCalendar} alt="" className="block size-full max-w-none" />
+                  </span>
                 </span>
               </span>
-            </span>
-            View calendar
-          </button>
+              View calendar
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2 px-5 pb-5 pl-7 text-[14px] leading-[22px] text-ink">

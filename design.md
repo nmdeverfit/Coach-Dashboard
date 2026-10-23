@@ -66,7 +66,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   (Figma `5825:544656`): a 540 px panel from the right with the drawer shadow, "SESSION DETAILS" + ×; body
   sections 20 px left and right, the same as the title block's top (the user's call); swatch
   16.8 px + name 18 px bold `#1a1a1a`; "Tue, Sep 1 · 5:30 - 6:30pm (60min)" 14 px; View calendar (outline, 32 px,
-  toasts); info lines with 16 px icons (location + directions with a grey bar, credits per spot, description,
+  toasts); a `#f2f2f2` divider 16 px under them, full width between the 20 px paddings, under View
+  calendar too (the frame stops it at the title block; the user's call); info lines with 16 px icons (location + directions with a grey bar, credits per spot, description,
   Trainer: You with the coach avatar); a top border, then pill tabs Enrolled 17/23 | Canceled 1 (active = `#1a1a1a`
   border) and 28 px avatar + 14 px name rows, which open that client on the Booking tab.
 - **Customize cards** (Figma `5749:521640` + a tab, a trial on both branches; extra cards keep the 2 × 2 grid, so six
