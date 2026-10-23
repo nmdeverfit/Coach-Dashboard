@@ -39,9 +39,19 @@ function useDoneLast(todos: Todo[], on: boolean): Todo[] {
  * "1 of 3 done", chevron at the right. The sentence one (SENTENCE_HEADERS): the chevron sits in the rows' checkbox
  * column so the sentence starts on the rows' text edge; "2 to-dos left with" is regular `ink-secondary` and only the
  * client is semibold, so the header reads as the group's label and the rows stay the actions; it counts what is left
- * ("All done with" once nothing is); ticked rows drop to the bottom of the card.
+ * ("All done with" once nothing is); ticked rows drop to the bottom of the card. Its header carries no avatar: each row
+ * keeps its full action with the client's avatar and name, as in the flat list (the user's call).
  */
-export function TodoGroupCard({ groupKey, todos, renderRow }: { groupKey: string; todos: Todo[]; renderRow: (t: Todo) => ReactNode }) {
+export function TodoGroupCard({
+  groupKey,
+  todos,
+  renderRow,
+}: {
+  groupKey: string;
+  todos: Todo[];
+  /** `fullAction`: the row keeps its full action and client chip (the sentence header names no avatar). */
+  renderRow: (t: Todo, fullAction: boolean) => ReactNode;
+}) {
   const [collapsed, setCollapsed] = useState(false);
   const client = getClient(todos[0].clientId);
   const sentence = SENTENCE_HEADERS.has(client.id);
@@ -74,7 +84,7 @@ export function TodoGroupCard({ groupKey, todos, renderRow }: { groupKey: string
                 <span className="whitespace-nowrap text-[13px] leading-[1.5] text-ink-secondary">
                   {open.length ? `${open.length} to-do${open.length === 1 ? '' : 's'} left with` : 'All done with'}
                 </span>
-                {who}
+                <span className="min-w-0 truncate text-[13px] font-semibold leading-[1.5] text-ink">{client.name}</span>
               </span>
             </>
           ) : (
@@ -92,7 +102,7 @@ export function TodoGroupCard({ groupKey, todos, renderRow }: { groupKey: string
         </button>
         {!collapsed && (
           <ul aria-label={`${todos.length} to-dos for ${client.name}`} className="divide-y divide-line border-t border-line">
-            {rows.map(renderRow)}
+            {rows.map((t) => renderRow(t, sentence))}
           </ul>
         )}
       </div>

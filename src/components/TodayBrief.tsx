@@ -203,7 +203,7 @@ export function TodayBrief() {
 
   const rowsOf = (items: Item[], past: boolean) =>
     items.map(({ key, todos }) => {
-      const row = (todo: Todo, inCard?: boolean) => (
+      const row = (todo: Todo, inCard?: boolean, fullAction?: boolean) => (
         <TodoRow
           key={todo.id}
           todo={todo}
@@ -213,12 +213,13 @@ export function TodayBrief() {
           onToggle={() => toggleComplete(todo.id)}
           onDismiss={() => setPending({ kind: 'one', todo })}
           inCard={inCard}
+          fullAction={fullAction}
         />
       );
       if (todos.length === 1) return row(todos[0]);
       // A client's to-dos (grouped to-dos trial): one card, the client named in its header.
       return (
-        <TodoGroupCard key={key} groupKey={key} todos={todos} renderRow={(t) => row(t, true)} />
+        <TodoGroupCard key={key} groupKey={key} todos={todos} renderRow={(t, full) => row(t, true, full)} />
       );
     });
 
