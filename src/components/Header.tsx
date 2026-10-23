@@ -22,6 +22,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useStore, type View } from '../state/store';
 import { BulkContextDialog } from './BulkContextDialog';
 
+/** Add context to clients in Dashboard Settings; hidden for now (the user's call). */
+const SHOW_BULK_CONTEXT = false;
+
 const VIEWS: { key: View; label: string }[] = [
   { key: 'brief', label: 'Today’s Brief' },
   { key: 'dashboard', label: 'Dashboard' },
@@ -139,7 +142,8 @@ function SettingsMenu() {
     { icon: iconSettingsHome, label: 'Home screen settings', run: () => showToast('Home screen settings open here') },
     { icon: iconSettingsStatus, label: 'About Client status & data', run: () => showToast('About Client status & data opens here') },
     { icon: iconSettingsWidget, label: 'Customize cards', run: () => openCustomize(brief ? 'brief' : 'dashboard') },
-    { icon: iconListPlus, label: 'Add context to clients', run: () => setBulkContext(true) },
+    // Hidden for now with the per-client Add context, the code kept (the user's call).
+    ...(SHOW_BULK_CONTEXT ? [{ icon: iconListPlus, label: 'Add context to clients', run: () => setBulkContext(true) }] : []),
     { icon: iconSettingsUndo, label: 'Switch back to old dashboard', run: () => showToast('Switch back to the old dashboard happens here') },
   ];
   return (

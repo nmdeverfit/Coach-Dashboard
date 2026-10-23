@@ -333,7 +333,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   below the quick actions and the footer buttons. Training: Deep analysis with the 14 px AI sparkle and `.ai-btn`, dark tooltip
   above, right-aligned (`Tooltip end`). Nutrition: Adjust meal plan, plain (hover `surface-secondary`), with Figma `5835:570011`'s
   task-edit icon at 16 px and 60 % opacity (`icon-meal-plan-edit`).
-- **Add context to clients** (Dashboard Settings item, `list-plus` icon; no frame): 640 px `Modal`, title "Add context
+- **Add context to clients** (Dashboard Settings item, `list-plus` icon; no frame; hidden for now, `SHOW_BULK_CONTEXT`): 640 px `Modal`, title "Add context
   to clients", subtitle "Tell Olly what it should know about these clients. It applies from tomorrow's 06:00
   update."; "Apply to" (14 px semibold) and three pills (the questions' chip style): All clients (43) · Client groups ·
   Selected clients. Client groups and Selected clients share one picker (`PickerBox`): a bordered box with a search

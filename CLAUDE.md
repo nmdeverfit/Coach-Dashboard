@@ -194,7 +194,8 @@ the same change.
   client detail page. `AiAssessment` also pins a copy under the panel header once scrolled past (Figma
   `5747:520276` / `520431` / `520587`): it finds the nearest `[data-panel-scroll]` and draws into its parent
   (`relative`), collapsed to the summary + View more, expanded with the facts and both buttons.
-  Add context to clients (main branch only, the user's call, no frame): an item in Dashboard Settings opens
+  Add context to clients (main branch only, the user's call, no frame; hidden for now with Add context,
+  `SHOW_BULK_CONTEXT` in `Header.tsx`): an item in Dashboard Settings opens
   `BulkContextDialog` (`components/`): Apply to All clients · Client groups (`data/clientGroups.ts`, four invented
   groups, every client in one by a hash of its id) · Selected clients, both in `PickerBox` (search + rows that tint when picked;
   checkbox rows got the page rejected by the artifact service as a "review page"), then the same three
