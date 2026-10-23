@@ -94,11 +94,9 @@ the same change.
   `GROUPED_TODOS` (`lib/flags.ts`). `seedTodos` (the store's to-dos) adds Wade, the three-to-do case (Check-in +
   Unblock + Prepare, his PT session tomorrow at 7:30 AM booked in `sessions.ts` for the trial only), Ethan and
   Penelope (Unblock + Prepare), all raised by their data under BL7, with panel data from `sessions.ts`; `TYPE_PRIORITY` / `byPriority`
-  (BL3), `groupByClient`. Today's Brief draws a client's to-dos as one group (`TodayBrief` `itemsOf`, `TodoRow`
-  `grouped`), in three layouts side by side for comparison: a dashed line (Ethan), a card with a client header and
-  collapse (`TodoGroupCard`, option B, `CARD_GROUPS`: Wade) or the hybrid, the first row with a "+N to-dos" pill
-  and the rest indented with no line (`HYBRID_GROUPS`: Penelope; the pill is close to the "+K more" Spec 4 BL3
-  rules out); the panel lists the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or
+  (BL3), `groupByClient`. Today's Brief draws a client's to-dos as one card (`TodayBrief` `itemsOf`,
+  `TodoGroupCard`, `TodoRow` `inCard`; option B, the user's pick over a dashed-line tree and a hybrid, both removed):
+  a client header with the count and a collapse chevron, white only on hover or while one of its to-dos is open; the panel lists the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or
   dismissed on its own, and the header counts to-dos. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).

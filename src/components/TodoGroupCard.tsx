@@ -6,9 +6,10 @@ import { Avatar } from './Avatar';
 import { SHORT_ACTION } from './TodoRow';
 
 /**
- * Grouped to-dos, card layout (option B, a trial beside the dashed-line groups; no frame): a white card in the list
- * with a client header (avatar, name, "3 to-dos" or "1 of 3 done", collapse chevron) over the client's to-dos, which
- * keep their own checkbox, Dismiss and panel. Collapsed, the header keeps a one-line list of what is left.
+ * Grouped to-dos, the card layout (option B, the user's pick; no frame): a bordered card in the list with a client
+ * header (avatar, name, "3 to-dos" or "1 of 3 done", collapse chevron) over the client's to-dos, which keep their own
+ * checkbox, Dismiss and panel. The card sits on the list's grey and turns white on hover, or while one of its to-dos
+ * is open in the panel (the user's call). Collapsed, the header keeps a one-line list of what is left.
  */
 export function TodoGroupCard({ groupKey, todos, children }: { groupKey: string; todos: Todo[]; children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -17,7 +18,7 @@ export function TodoGroupCard({ groupKey, todos, children }: { groupKey: string;
   const open = todos.filter((t) => t.state !== 'completed');
   return (
     <li data-todo-id={groupKey} className="py-1.5">
-      <div className="overflow-hidden rounded-lg border border-line bg-white shadow-[0_1px_2px_rgba(24,78,255,0.06)]">
+      <div className="overflow-hidden rounded-lg border border-line transition-colors duration-150 hover:bg-white hover:shadow-row has-[[aria-current=true]]:bg-white">
         <button
           type="button"
           data-keep-open
@@ -27,7 +28,7 @@ export function TodoGroupCard({ groupKey, todos, children }: { groupKey: string;
         >
           <Avatar name={client.name} src={client.avatar} />
           <span className="min-w-0 truncate text-[13px] font-semibold leading-[1.5] text-ink">{client.name}</span>
-          <span className="shrink-0 rounded-full bg-surface-secondary px-2 py-0.5 text-[11px] font-semibold leading-4 text-ink-secondary">
+          <span className="shrink-0 rounded-full border border-line-light bg-white px-2 py-px text-[11px] font-semibold leading-4 text-ink-secondary">
             {done ? `${done} of ${todos.length} done` : `${todos.length} to-dos`}
           </span>
           {collapsed && open.length > 0 && (
