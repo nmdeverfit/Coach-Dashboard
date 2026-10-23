@@ -194,7 +194,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
   reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
   close on ×, Esc or click outside.
-- `src/components/drawer/AiContext.tsx`: Add context (Figma `5746:520123`, `5744:519377`, `5746:519756`), inside
+- `src/components/drawer/AiContext.tsx`: Add context (hidden for now, the code kept: `SHOW_ADD_CONTEXT` in
+  `AiAssessment.tsx`, the user's call; Figma `5746:520123`, `5744:519377`, `5746:519756`), inside
   every AI Assessment card (`AiAssessment` takes `client`): `AddContextButton`, `ContextForm` (coaching style ·
   what the client doesn't track + note · a note for the next N weeks), `ContextAddedChip` ("Context added | Edit").
   Stored per client in `aiContext` (`setAiContext`, session only, not persisted), shared by the panel and the

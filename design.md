@@ -187,7 +187,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   adds the facts, "Show less" after the last one, and the Add context · Tell me more row. Add context or Edit from
   the pinned card scrolls back to the card and opens the questionnaire there. Scrolling back unpins and folds it.
   Every panel with an assessment has it (Check-in, Build, Remind, Acknowledge, client details).
-- **Add context** (Figma `5746:520123` button, `5744:519377` open, `5746:519756` saved; `drawer/AiContext.tsx`): the
+- **Add context** (hidden for now, the code kept: `SHOW_ADD_CONTEXT` in `AiAssessment.tsx`, the user's call; Tell me
+  more stays at the right of the bottom row) (Figma `5746:520123` button, `5744:519377` open, `5746:519756` saved; `drawer/AiContext.tsx`): the
   card's bottom row is `justify-between`, Add context left, Tell me more right. Button 36 px, white, `border-line-light`,
   rounded 4, list-plus icon 20 px + "Add context" 13 px semibold `ink-tertiary`. Hover (no frame): the dark
   `Tooltip`, `wide start` (wraps at 240 px, left edge on the button's, arrow over the icon): "Tell the AI how you coach {first}, so the assessment matches your
