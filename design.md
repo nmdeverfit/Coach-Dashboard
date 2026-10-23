@@ -232,7 +232,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   chevron that collapses it. Sentence header (`SENTENCE_HEADERS`: Wade and Penelope, tried beside Ethan's for
   comparison): the 16 px chevron sits in the rows' 24 px checkbox column, so the sentence starts on the rows' text
   edge (40 px); "2 to-dos left with" / "1 to-do left with" / "All done with" 13 px regular `ink-secondary`, then the
-  avatar + name, the name 13 px semibold ink; no pill, no right chevron. In these cards a ticked row drops to the
+  name 13 px semibold ink, no avatar; no pill, no right chevron. Its rows keep the full action and the client chip
+  ("Issue credit for [avatar] Wade Warren"), as in the flat list (the user's call). In these cards a ticked row drops to the
   bottom of the card after 450 ms (at once with reduced motion; an unticked one goes straight back). Collapsed, the header lists what is left ("Issue credit · Prepare for the session", 12 px
   `ink-tertiary`). Rows under a top border, divided by `line`: no client chip, the type's short action
   (`SHORT_ACTION`), hover `surface-secondary/60`, selected = 4 px brand edge on `brand/[0.03]`. Each row keeps its own

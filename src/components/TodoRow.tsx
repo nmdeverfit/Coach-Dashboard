@@ -20,6 +20,8 @@ interface TodoRowProps {
    * action, since the card's header names the client, and draws no bottom border of its own.
    */
   inCard?: boolean;
+  /** In a card, keep the full action and the client chip (the sentence-header cards, the user's call). */
+  fullAction?: boolean;
 }
 
 /** A row's action inside a client's card: the client is named once, in the card's header. */
@@ -40,7 +42,7 @@ export const SHORT_ACTION: Record<TodoType, string> = {
  * To-do item (Figma component 3925:6908): Default, Hover, Selected and Completed states, each in a
  * Current and a Past (Previous to-dos) variant.
  */
-export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCard }: TodoRowProps) {
+export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCard, fullAction }: TodoRowProps) {
   const client = getClient(todo.clientId);
   const done = todo.state === 'completed';
   const strike = done ? 'line-through' : '';
@@ -56,7 +58,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
     }
   };
 
-  const nested = Boolean(inCard);
+  const nested = Boolean(inCard) && !fullAction;
   // Inside a card the selected row keeps the brand edge but not the lifted white surface (the card turns white).
   const surface = selected
     ? inCard
