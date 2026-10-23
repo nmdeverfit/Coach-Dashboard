@@ -225,7 +225,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   checkbox (x = 20 px) and bends (rounded 6) into each nested checkbox. One bottom border for the group. Each row
   keeps its own checkbox, hover, Dismiss and selected state; a done row greys in place, and the group sinks once
   all its rows are done. "Show N more" never splits a group.
-  Card layout (option B, shown beside the dashed line for comparison, `CARD_GROUPS`: Wade and Penelope): the group
+  Hybrid layout (`HYBRID_GROUPS`: Penelope): the dashed line's rows without the line; the first row adds a pill
+  "+1 to-do" after the client chip (11 px semibold `ink-secondary`, white, border `line-light`, rounded full), the
+  others are indented the same `ml-8` (their checkbox under the first row's text).
+  Card layout (option B, shown beside the other two for comparison, `CARD_GROUPS`: Wade): the group
   sits in a white card in the list (`py-1.5` around it, border `line`, rounded 8, `0 1px 2px rgba(24,78,255,0.06)`);
   a header button `px-2 py-2.5` with the 24 px avatar (in the checkbox column), the name 13 px semibold, a pill
   "3 to-dos" / "1 of 3 done" (11 px semibold `ink-secondary` on `surface-secondary`) and a 16 px chevron that
