@@ -4,6 +4,8 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const name = process.argv[2] ?? 'coach-dashboard';
+// The trial's page gets its own title, so its artifact never reads as the layout's.
+const TITLES = { 'coach-dashboard-grouped': 'Check-in Dashboard v2 · Grouped to-dos' };
 
 const html = readFileSync('dist-single/index.html', 'utf8');
 const fragment = html
@@ -11,7 +13,8 @@ const fragment = html
   .replace(/<\/?(html|head|body)[^>]*>/gi, '')
   .replace(/<meta charset[^>]*>\s*/i, '')
   .replace(/<meta name="viewport"[^>]*>\s*/i, '')
-  .trim();
+  .trim()
+  .replace(/<title>[^<]*<\/title>/, (t) => (TITLES[name] ? `<title>${TITLES[name]}</title>` : t));
 
 writeFileSync(`dist-single/${name}.html`, `${fragment}\n`);
 console.log(`wrote dist-single/${name}.html`);
