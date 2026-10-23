@@ -1,4 +1,5 @@
 import { ASSESSMENT, CONSULT, PILATES, PT, todoDetails } from './details';
+import { GROUPED_TODOS } from '../lib/flags';
 import type { Booking, CreditPool, PrepareDetail, SessionType, UnblockDetail } from './types';
 
 /**
@@ -51,7 +52,8 @@ export const clientSessions: Record<string, ClientSessions> = {
     credits: (todoDetails.t5 as UnblockDetail).credits,
   },
   'wade-warren': {
-    sessions: [done(PT, '2026-08-10', '07:30'), done(PT, '2026-08-17', '07:30')],
+    // The grouped to-dos trial books him tomorrow, so he has three to-dos (Check-in, Unblock, Prepare).
+    sessions: [done(PT, '2026-08-10', '07:30'), done(PT, '2026-08-17', '07:30'), ...(GROUPED_TODOS ? [booked(PT, '2026-09-01', '07:30')] : [])],
     credits: [{ type: PT, batches: [{ count: 1 }] }],
   },
   // Booked before, no credits left on any session type.
