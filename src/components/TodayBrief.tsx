@@ -218,9 +218,7 @@ export function TodayBrief() {
       if (todos.length === 1) return row(todos[0]);
       // A client's to-dos (grouped to-dos trial): one card, the client named in its header.
       return (
-        <TodoGroupCard key={key} groupKey={key} todos={todos}>
-          {todos.map((t) => row(t, true))}
-        </TodoGroupCard>
+        <TodoGroupCard key={key} groupKey={key} todos={todos} renderRow={(t) => row(t, true)} />
       );
     });
 

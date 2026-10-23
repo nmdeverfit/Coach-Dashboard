@@ -1,25 +1,54 @@
 import { ChevronDown } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { SENTENCE_HEADERS } from '../data/groupedTodos';
 import type { Todo } from '../data/types';
 import { getClient } from '../state/store';
 import { Avatar } from './Avatar';
+import { reducedMotion } from './ClientListParts';
 import { SHORT_ACTION } from './TodoRow';
+
+/** A ticked row shows its tick this long before it drops to the bottom of its card (the list's own sink is 470 ms). */
+const SINK_MS = 450;
+
+const isDone = (t: Todo) => t.state === 'completed';
+
+/**
+ * A ticked to-do drops below the open ones in its card once its tick has shown; an unticked one goes straight back to
+ * its BL3 place. The sort is stable, so each part keeps its order.
+ */
+function useDoneLast(todos: Todo[], on: boolean): Todo[] {
+  const key = todos.filter(isDone).map((t) => t.id).join();
+  const [sunk, setSunk] = useState(() => new Set(key ? key.split(',') : []));
+  useEffect(() => {
+    if (!on) return;
+    const now = new Set(key ? key.split(',') : []);
+    setSunk((s) => new Set([...s].filter((id) => now.has(id))));
+    const timer = window.setTimeout(() => setSunk(now), reducedMotion() ? 0 : SINK_MS);
+    return () => window.clearTimeout(timer);
+  }, [key, on]);
+  return on ? [...todos].sort((a, b) => Number(sunk.has(a.id)) - Number(sunk.has(b.id))) : todos;
+}
 
 /**
  * Grouped to-dos, the card layout (option B, the user's pick; no frame): a bordered card in the list with a client
- * header (avatar, name, "3 to-dos" or "1 of 3 done", collapse chevron) over the client's to-dos, which keep their own
- * checkbox, Dismiss and panel. The card sits on the list's grey and turns white on hover, or while one of its to-dos
- * is open in the panel (the user's call). Collapsed, the header keeps a one-line list of what is left.
- * For the clients in SENTENCE_HEADERS the header reads like a to-do row instead: "3 to-dos with [avatar] Wade Warren",
- * then "· 1 done" once any is ticked.
+ * header over the client's to-dos, which keep their own checkbox, Dismiss and panel. The card sits on the list's grey
+ * and turns white on hover, or while one of its to-dos is open in the panel (the user's call). Collapsed, the header
+ * keeps a one-line list of what is left.
+ *
+ * Two headers, side by side for comparison (the user's call). The name-and-pill one: avatar, name, "3 to-dos" or
+ * "1 of 3 done", chevron at the right. The sentence one (SENTENCE_HEADERS): the chevron sits in the rows' checkbox
+ * column so the sentence starts on the rows' text edge; "2 to-dos left with" is regular `ink-secondary` and only the
+ * client is semibold, so the header reads as the group's label and the rows stay the actions; it counts what is left
+ * ("All done with" once nothing is); ticked rows drop to the bottom of the card.
  */
-export function TodoGroupCard({ groupKey, todos, children }: { groupKey: string; todos: Todo[]; children: ReactNode }) {
+export function TodoGroupCard({ groupKey, todos, renderRow }: { groupKey: string; todos: Todo[]; renderRow: (t: Todo) => ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const client = getClient(todos[0].clientId);
-  const done = todos.filter((t) => t.state === 'completed').length;
-  const open = todos.filter((t) => t.state !== 'completed');
   const sentence = SENTENCE_HEADERS.has(client.id);
+  const rows = useDoneLast(todos, sentence);
+  const done = todos.filter(isDone).length;
+  const open = todos.filter((t) => !isDone(t));
+  const chevron = <ChevronDown size={16} aria-hidden className={`shrink-0 text-ink-secondary transition-transform ${collapsed ? '-rotate-90' : ''}`} />;
   const who = (
     <>
       <Avatar name={client.name} src={client.avatar} />
@@ -33,15 +62,20 @@ export function TodoGroupCard({ groupKey, todos, children }: { groupKey: string;
           type="button"
           data-keep-open
           aria-expanded={!collapsed}
+          aria-label={`${collapsed ? 'Expand' : 'Collapse'} ${client.name}’s to-dos`}
           onClick={() => setCollapsed((c) => !c)}
           className="flex w-full items-center gap-2 px-2 py-2.5 text-left hover:bg-surface-secondary/60"
         >
           {sentence ? (
-            // The row's sentence shape (Figma 3925:6908's action + client chip): count, "with", avatar, name.
             <>
-              <span className="whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink">{todos.length} to-dos with</span>
-              <span className="flex min-w-0 items-center gap-1.5">{who}</span>
-              {done > 0 && <span className="shrink-0 whitespace-nowrap text-[12px] leading-normal text-ink-tertiary">· {done} done</span>}
+              {/* The chevron takes the rows' 24 px checkbox column, so the sentence lines up with their text. */}
+              <span className="flex w-6 shrink-0 justify-center">{chevron}</span>
+              <span className="flex min-w-0 items-center gap-1.5">
+                <span className="whitespace-nowrap text-[13px] leading-[1.5] text-ink-secondary">
+                  {open.length ? `${open.length} to-do${open.length === 1 ? '' : 's'} left with` : 'All done with'}
+                </span>
+                {who}
+              </span>
             </>
           ) : (
             <>
@@ -54,11 +88,11 @@ export function TodoGroupCard({ groupKey, todos, children }: { groupKey: string;
           {collapsed && open.length > 0 && (
             <span className="min-w-0 flex-1 truncate text-[12px] leading-normal text-ink-tertiary">{open.map((t) => SHORT_ACTION[t.type]).join(' · ')}</span>
           )}
-          <ChevronDown size={16} aria-hidden className={`ml-auto shrink-0 text-ink-secondary transition-transform ${collapsed ? '-rotate-90' : ''}`} />
+          {!sentence && <span className="ml-auto">{chevron}</span>}
         </button>
         {!collapsed && (
           <ul aria-label={`${todos.length} to-dos for ${client.name}`} className="divide-y divide-line border-t border-line">
-            {children}
+            {rows.map(renderRow)}
           </ul>
         )}
       </div>

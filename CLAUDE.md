@@ -97,7 +97,8 @@ the same change.
   (BL3), `groupByClient`. Today's Brief draws a client's to-dos as one card (`TodayBrief` `itemsOf`,
   `TodoGroupCard`, `TodoRow` `inCard`; option B, the user's pick over a dashed-line tree and a hybrid, both removed):
   a client header with the count and a collapse chevron, white only on hover or while one of its to-dos is open
-  (header as a sentence, "3 to-dos with [avatar] Wade Warren", for `SENTENCE_HEADERS`: Wade and Penelope); the panel lists the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or
+  (for `SENTENCE_HEADERS`, Wade and Penelope, the header is a sentence, "2 to-dos left with [avatar] Wade Warren",
+  chevron in the checkbox column, and ticked rows drop to the bottom of the card); the panel lists the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or
   dismissed on its own, and the header counts to-dos. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
