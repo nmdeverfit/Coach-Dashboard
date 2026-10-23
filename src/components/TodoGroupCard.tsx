@@ -37,10 +37,11 @@ function useDoneLast(todos: Todo[], on: boolean): Todo[] {
  *
  * Two headers, side by side for comparison (the user's call). The name-and-pill one: avatar, name, "3 to-dos" or
  * "1 of 3 done", chevron at the right. The sentence one (SENTENCE_HEADERS): the chevron sits in the rows' checkbox
- * column so the sentence starts on the rows' text edge; "2 to-dos left with" is regular `ink-secondary` and only the
- * client is semibold, so the header reads as the group's label and the rows stay the actions; it counts what is left
- * ("All done with" once nothing is); ticked rows drop to the bottom of the card. Its header carries no avatar: each row
- * keeps its full action with the client's avatar and name, as in the flat list (the user's call).
+ * column so the sentence starts on the rows' text edge; the whole sentence is one style, 13 px semibold
+ * `ink-secondary`, a label lighter than the rows' actions (the user's call); it counts what is left ("All done with"
+ * once nothing is); ticked rows drop to the bottom of the card. Open, the header carries no avatar, since each row
+ * keeps its full action with the client's avatar and name; collapsed, the rows are gone, so the avatar comes back
+ * before the name (the user's call).
  */
 export function TodoGroupCard({
   groupKey,
@@ -80,11 +81,10 @@ export function TodoGroupCard({
             <>
               {/* The chevron takes the rows' 24 px checkbox column, so the sentence lines up with their text. */}
               <span className="flex w-6 shrink-0 justify-center">{chevron}</span>
-              <span className="flex min-w-0 items-center gap-1.5">
-                <span className="whitespace-nowrap text-[13px] leading-[1.5] text-ink-secondary">
-                  {open.length ? `${open.length} to-do${open.length === 1 ? '' : 's'} left with` : 'All done with'}
-                </span>
-                <span className="min-w-0 truncate text-[13px] font-semibold leading-[1.5] text-ink">{client.name}</span>
+              <span className="flex min-w-0 items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary">
+                <span className="whitespace-nowrap">{open.length ? `${open.length} to-do${open.length === 1 ? '' : 's'} left with` : 'All done with'}</span>
+                {collapsed && <Avatar name={client.name} src={client.avatar} />}
+                <span className="min-w-0 truncate">{client.name}</span>
               </span>
             </>
           ) : (

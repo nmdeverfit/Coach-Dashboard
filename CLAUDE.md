@@ -105,8 +105,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   (BL3), `groupByClient`. Today's Brief draws a client's to-dos as one card (`TodayBrief` `itemsOf`,
   `TodoGroupCard`, `TodoRow` `inCard`; option B, the user's pick over a dashed-line tree and a hybrid, both removed):
   a client header with the count and a collapse chevron, white only on hover or while one of its to-dos is open
-  (for `SENTENCE_HEADERS`, Wade and Penelope, the header is a sentence with no avatar, "2 to-dos left with Wade
-  Warren", chevron in the checkbox column; the rows keep their full action and client chip, `TodoRow` `fullAction`;
+  (for `SENTENCE_HEADERS`, Wade and Penelope, the header is a sentence in one style, "2 to-dos left with Wade
+  Warren", chevron in the checkbox column, the avatar shown only while collapsed; the rows keep their full action and client chip, `TodoRow` `fullAction`;
   ticked rows drop to the bottom of the card); the panel lists the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or
   dismissed on its own, and the header counts to-dos. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
