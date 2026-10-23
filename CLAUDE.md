@@ -103,7 +103,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   (`side.highlightId`) completes it; completed and dismissed ones move to History (`highlightLog` in the store,
   session only, newest first). `HistoryRow`: completed = Figma `4341:459184` ("Message sent" + Open chat);
   dismissed = greyed, "Dismissed" + Restore (back to Need attention). History opens on "Moments older than 30 days are cleared
-  automatically." + Clear all (confirm dialog; `clearHighlightHistory` marks them `cleared`, gone from both views). Every highlight carries `on` (the moment's day) and shows "Today" / "Tomorrow" / "1d ago" … "6d ago" / "Aug 21" muted at the row's right edge (`When`). Empty lists show `EmptyArt` + a line per view and category (`emptyLine`, Figma `5809:544623`). The header count is Need attention's. Nine
+  automatically." + Clear all (confirm dialog; `clearHighlightHistory` marks them `cleared`, gone from both views). Every highlight carries `on` (the moment's day); its sentence ends on that day ("… on Aug 29.", `sentence` in `ClientHighlights`), with no timestamp at the row's edge (the user's call), and the texts carry no time words. Empty lists show `EmptyArt` + a line per view and category (`emptyLine`, Figma `5809:544623`). The header count is Need attention's. Nine
   highlight people are not dashboard clients: `highlightOnlyClients` / `findPerson` in `mock.ts` give them a
   profile and a thread without counting them anywhere), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`),
   `ClientListParts` (row shell, client cell, section header shared by both tables), `ClientActions` (the
