@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 're
 import heroDivider from '../assets/figma/hero-divider.svg';
 import heroPhoto from '../assets/figma/hero-2.jpg';
 import dot from '../assets/figma/dot.svg';
-import { CARD_GROUPS, GROUPED_TODOS, groupByClient } from '../data/groupedTodos';
+import { CARD_GROUPS, GROUPED_TODOS, HYBRID_GROUPS, groupByClient } from '../data/groupedTodos';
 import { COACH_FIRST_NAME, DEMO_TODAY, GENERATED_AT } from '../data/mock';
 import type { Todo } from '../data/types';
 import { ageLabel, formatMonthDay, parseDay } from '../lib/dates';
@@ -203,16 +203,17 @@ export function TodayBrief() {
 
   const rowsOf = (items: Item[], past: boolean) =>
     items.map(({ key, todos }) => {
-      const row = (todo: Todo, grouped?: 'first' | 'nested' | 'last' | 'card') => (
+      const row = (todo: Todo, grouped?: 'first' | 'nested' | 'last' | 'card' | 'lead' | 'sub') => (
         <TodoRow
           key={todo.id}
           todo={todo}
-          age={past && grouped !== 'nested' && grouped !== 'last' ? ageLabel(todo.raisedOn, DEMO_TODAY) : undefined}
+          age={past && (!grouped || grouped === 'first' || grouped === 'lead') ? ageLabel(todo.raisedOn, DEMO_TODAY) : undefined}
           selected={state.selectedTodoId === todo.id}
           onOpen={() => selectTodo(todo.id)}
           onToggle={() => toggleComplete(todo.id)}
           onDismiss={() => setPending({ kind: 'one', todo })}
           grouped={grouped}
+          more={grouped === 'lead' ? todos.length - 1 : undefined}
         />
       );
       if (todos.length === 1) return row(todos[0]);
@@ -223,11 +224,13 @@ export function TodayBrief() {
             {todos.map((t) => row(t, 'card'))}
           </TodoGroupCard>
         );
-      // A client's group (trial): the first to-do names the client, the rest hang under it; one border for the group.
+      // A client's group (trial): the first to-do names the client, the rest hang under it (on a dashed line, or
+      // indented with no line in the hybrid); one border for the group.
+      const hybrid = HYBRID_GROUPS.has(todos[0].clientId);
       return (
         <li key={key} data-todo-id={key} className="border-b border-line">
           <ul aria-label={`${todos.length} to-dos for ${getClient(todos[0].clientId).name}`}>
-            {todos.map((t, i) => row(t, i === 0 ? 'first' : i === todos.length - 1 ? 'last' : 'nested'))}
+            {todos.map((t, i) => row(t, hybrid ? (i === 0 ? 'lead' : 'sub') : i === 0 ? 'first' : i === todos.length - 1 ? 'last' : 'nested'))}
           </ul>
         </li>
       );

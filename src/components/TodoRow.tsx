@@ -18,9 +18,13 @@ interface TodoRowProps {
   /**
    * Grouped to-dos (trial): the row's place in its client's group. `first` carries the client chip as usual; `nested`
    * and `last` rows drop it for the type's short action and hang off a dashed line. `card` rows (the card layout,
-   * option B) drop the chip too, under the card's client header, with no line. None draws its own bottom border.
+   * option B) drop the chip too, under the card's client header, with no line. The hybrid layout's `lead` row is
+   * `first` without the line and with a "+N to-dos" pill after the client; its `sub` rows are indented like `nested`,
+   * with no line. None draws its own bottom border.
    */
-  grouped?: 'first' | 'nested' | 'last' | 'card';
+  grouped?: 'first' | 'nested' | 'last' | 'card' | 'lead' | 'sub';
+  /** The `lead` row's pill: how many more to-dos the client has in the group. */
+  more?: number;
 }
 
 const TREE = 'pointer-events-none absolute border-l border-dashed border-ink-muted';
@@ -43,7 +47,7 @@ export const SHORT_ACTION: Record<TodoType, string> = {
  * To-do item (Figma component 3925:6908): Default, Hover, Selected and Completed states, each in a
  * Current and a Past (Previous to-dos) variant.
  */
-export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, grouped }: TodoRowProps) {
+export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, grouped, more }: TodoRowProps) {
   const client = getClient(todo.clientId);
   const done = todo.state === 'completed';
   const strike = done ? 'line-through' : '';
@@ -60,7 +64,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, grou
   };
 
   const tree = grouped === 'nested' || grouped === 'last';
-  const nested = tree || grouped === 'card';
+  const nested = tree || grouped === 'card' || grouped === 'sub';
   // Inside a card the selected row keeps the brand edge but not the lifted white surface (the card is white already).
   const surface = selected
     ? grouped === 'card'
@@ -81,8 +85,8 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, grou
       onClick={onOpen}
       onKeyDown={onKeyDown}
       className={`group relative flex cursor-pointer gap-2 px-2 pt-[10px] outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
-        grouped === 'first' ? 'pb-2' : 'pb-[14px]'
-      } ${tree ? 'ml-8' : ''} ${age ? 'items-center' : 'items-start'} ${surface}`}
+        grouped === 'first' || grouped === 'lead' ? 'pb-2' : 'pb-[14px]'
+      } ${tree || grouped === 'sub' ? 'ml-8' : ''} ${age ? 'items-center' : 'items-start'} ${surface}`}
     >
       {/* The dashed line runs down from the first row's checkbox, 20 px in, and bends into each nested checkbox. */}
       {grouped === 'first' && <span aria-hidden className={`${TREE} left-5 top-[30px] bottom-0`} />}
@@ -119,6 +123,11 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, grou
             {todo.actionAfter && !nested && (
               <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{todo.actionAfter}</span>
             )}
+            {grouped === 'lead' && more ? (
+              <span className="shrink-0 rounded-full border border-line-light bg-white px-2 py-px text-[11px] font-semibold leading-4 text-ink-secondary">
+                +{more} to-do{more === 1 ? '' : 's'}
+              </span>
+            ) : null}
           </div>
           <p className={`text-[12px] leading-normal text-ink-tertiary ${strike}`}>{todo.reason}</p>
         </div>
