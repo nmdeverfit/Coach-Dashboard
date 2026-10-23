@@ -184,7 +184,7 @@ the same change.
   Bold · Italic · two lists, stored as cleaned HTML (`cleanNoteHtml` in `lib/notes.ts`); the coach's notes replace the
   profile's in `notes` in the store, `setNotes`, session only), `FormStatus`.
 - `src/components/drawer/TodoDrawer.tsx` follows Spec 4: title row with ✓ (Mark as reviewed on Check-in) and Dismiss,
-  reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (not on Check-in),
+  reason line verbatim from the row, Completed tag on reopen, client-name link → ‹ CLIENT DETAILS (on every type, Check-in too: the user's call),
   close on ×, Esc or click outside.
 - `src/components/drawer/AiContext.tsx`: Add context (hidden for now, the code kept: `SHOW_ADD_CONTEXT` in
   `AiAssessment.tsx`, the user's call; Figma `5746:520123`, `5744:519377`, `5746:519756`), inside
@@ -373,6 +373,9 @@ the same change.
   context for all clients or client groups is close to per-workspace tone personalisation and group coaching
   workflows (both Out) and coach-facing signal settings (Phase 3). Client groups are the demo's four; the client
   list's Group filter still only toasts. Nothing reads the context.
+- Client name link on the Check-in panel (the user's call): the brief and Spec 4 BL1 keep the name plain on a
+  Check-in panel ("that panel already shows what the detail page would"); the demo links it like every other type,
+  opening ‹ CLIENT DETAILS in the panel's place.
 - The vertical row expand (rows open the client detail
   drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
   are not built yet.

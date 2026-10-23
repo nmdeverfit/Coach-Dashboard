@@ -43,7 +43,7 @@ interface TitleProps {
 
 /**
  * Parts A + B (Spec 4 BL1): avatar, title, status, the row's reason line verbatim, and the ✓ / Dismiss icons.
- * The name links to client details on every type except Check-in, which already is the client's details (AC1.11).
+ * The name links to client details on every type (AC1.11), Check-in too (the user's call; Spec 4 keeps it plain there).
  */
 function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: TitleProps) {
   const isCheckin = todo.type === 'checkin';
@@ -56,13 +56,9 @@ function TitleBlock({ todo, client, onComplete, onDismiss, onOpenClient }: Title
         <div className="flex min-w-0 items-center gap-2">
           <h2 className="truncate text-[18px] font-bold leading-[1.5] text-ink">
             {todo.action}{' '}
-            {isCheckin ? (
-              client.name
-            ) : (
-              <button type="button" title="Open client details" onClick={onOpenClient} className="text-brand hover:underline">
-                {client.name}
-              </button>
-            )}
+            <button type="button" title="Open client details" onClick={onOpenClient} className="text-brand hover:underline">
+              {client.name}
+            </button>
             {todo.actionAfter && ` ${todo.actionAfter}`}
           </h2>
           {done && (

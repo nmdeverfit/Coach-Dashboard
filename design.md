@@ -256,7 +256,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "Complete this task" (hidden once completed).
 - The drawer's reason line is never truncated: it flows inline after the status chip and dot, and wraps under the
   chip (13 px, 21 px line height).
-- The client name is a blue link only on the drawer title, never on Check-in, never on rows.
+- The client name is a blue link only on the drawer title (every type, Check-in too, the user's call), never on rows.
 - A finished action confirms with a toast in the past tense: "To-do has been completed" / "To-do has been reopened",
   "To-do has been dismissed", "{First} marked as reviewed", "Context saved
   for {First}", "Meeting added", "Cards updated", the highlight toasts. Sending a message has none (Olly and the Inbox show it).
