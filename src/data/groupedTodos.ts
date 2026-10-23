@@ -1,4 +1,5 @@
 import { statusLine } from '../lib/dashboard';
+import { GROUPED_TODOS } from '../lib/flags';
 import { rowReasonFor } from '../lib/todos';
 import { todoDetails } from './details';
 import { DEMO_TODAY, findPerson, todos as baseTodos } from './mock';
@@ -11,7 +12,7 @@ import type { Todo, TodoDetail, TodoType } from './types';
  * group on Today's Brief and as Related to-dos in the panel. Built only with `VITE_GROUPED_TODOS=1`
  * (`npm run build:artifact:grouped`, its own artifact); every other build keeps one to-do per client.
  */
-export const GROUPED_TODOS = import.meta.env.VITE_GROUPED_TODOS === '1';
+export { GROUPED_TODOS };
 
 /** Spec 4 BL3's type priority, which orders a client's to-dos and the groups themselves. */
 export const TYPE_PRIORITY: TodoType[] = ['respond', 'checkin', 'build', 'remind', 'unblock', 'prepare', 'acknowledge', 'congratulate', 'kudos', 'adjust'];
@@ -22,9 +23,10 @@ const unblock = (clientId: string): TodoDetail => ({ kind: 'unblock', credits: g
 const prepare = (clientId: string): TodoDetail => ({ kind: 'prepare', sessions: getSessions(clientId)!.sessions });
 
 /**
- * The extra to-dos: clients whose own data already raises a second to-do under BL7. Ethan and Penelope have credits
- * expiring within 7 days and a session today or tomorrow (Unblock + Prepare); Wade needs attention (Check-in) and has
- * one PT credit left (Unblock). Each sits after the to-do it ranks below, so the list keeps BL3's order.
+ * The extra to-dos: clients whose own data raises more than one to-do under BL7. Ethan and Penelope have credits
+ * expiring within 7 days and a session today or tomorrow (Unblock + Prepare). Wade, the three-to-do case, needs
+ * attention (Check-in), has one PT credit left (Unblock) and, in this trial only, a PT session tomorrow (Prepare;
+ * `sessions.ts`). Each sits after the to-do it ranks below, so the list keeps BL3's order.
  */
 const EXTRA: { after: string; todos: (Omit<Todo, 'reason' | 'raisedOn' | 'state'> & { detail?: TodoDetail })[] }[] = [
   { after: 't3', todos: [{ id: 'g1', clientId: 'wade-warren', type: 'checkin', action: 'Check in with' }] },
@@ -32,6 +34,7 @@ const EXTRA: { after: string; todos: (Omit<Todo, 'reason' | 'raisedOn' | 'state'
     after: 't5',
     todos: [
       { id: 'g2', clientId: 'wade-warren', type: 'unblock', action: 'Issue credit for', detail: unblock('wade-warren') },
+      { id: 'g7', clientId: 'wade-warren', type: 'prepare', action: 'Prepare for the session with', detail: prepare('wade-warren') },
       { id: 'g3', clientId: 'ethan-smith', type: 'unblock', action: 'Issue credit for', detail: unblock('ethan-smith') },
       { id: 'g4', clientId: 'ethan-smith', type: 'prepare', action: 'Prepare for the session with', detail: prepare('ethan-smith') },
       { id: 'g5', clientId: 'penelope-brooks', type: 'unblock', action: 'Issue credit for', detail: unblock('penelope-brooks') },
