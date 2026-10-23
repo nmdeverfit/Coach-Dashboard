@@ -17,9 +17,10 @@ interface TodoRowProps {
   onDismiss: () => void;
   /**
    * Grouped to-dos (trial): the row's place in its client's group. `first` carries the client chip as usual; `nested`
-   * and `last` rows drop it for the type's short action and hang off a dashed line. None draws its own bottom border.
+   * and `last` rows drop it for the type's short action and hang off a dashed line. `card` rows (the card layout,
+   * option B) drop the chip too, under the card's client header, with no line. None draws its own bottom border.
    */
-  grouped?: 'first' | 'nested' | 'last';
+  grouped?: 'first' | 'nested' | 'last' | 'card';
 }
 
 const TREE = 'pointer-events-none absolute border-l border-dashed border-ink-muted';
@@ -58,10 +59,16 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, grou
     }
   };
 
-  const nested = grouped === 'nested' || grouped === 'last';
+  const tree = grouped === 'nested' || grouped === 'last';
+  const nested = tree || grouped === 'card';
+  // Inside a card the selected row keeps the brand edge but not the lifted white surface (the card is white already).
   const surface = selected
-    ? 'rounded-r-lg border-l-4 border-l-brand bg-white shadow-row'
-    : `${grouped ? '' : 'border-b border-line hover:border-transparent'} hover:rounded-lg hover:bg-white hover:shadow-row`;
+    ? grouped === 'card'
+      ? 'border-l-4 border-l-brand bg-brand/[0.03]'
+      : 'rounded-r-lg border-l-4 border-l-brand bg-white shadow-row'
+    : grouped === 'card'
+      ? 'hover:bg-surface-secondary/60'
+      : `${grouped ? '' : 'border-b border-line hover:border-transparent'} hover:rounded-lg hover:bg-white hover:shadow-row`;
 
   return (
     <li
@@ -75,13 +82,13 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, grou
       onKeyDown={onKeyDown}
       className={`group relative flex cursor-pointer gap-2 px-2 pt-[10px] outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
         grouped === 'first' ? 'pb-2' : 'pb-[14px]'
-      } ${nested ? 'ml-8' : ''} ${age ? 'items-center' : 'items-start'} ${surface}`}
+      } ${tree ? 'ml-8' : ''} ${age ? 'items-center' : 'items-start'} ${surface}`}
     >
       {/* The dashed line runs down from the first row's checkbox, 20 px in, and bends into each nested checkbox. */}
       {grouped === 'first' && <span aria-hidden className={`${TREE} left-5 top-[30px] bottom-0`} />}
       {/* A selected row's 4 px brand border moves its padding box, so its lines start 4 px further left. */}
       {grouped === 'nested' && <span aria-hidden className={`${TREE} ${selected ? '-left-4' : '-left-3'} top-0 bottom-0`} />}
-      {nested && <span aria-hidden className={`${TREE} top-0 h-[26px] rounded-bl-md border-b ${selected ? '-left-4 w-[26px]' : '-left-3 w-[22px]'}`} />}
+      {tree && <span aria-hidden className={`${TREE} top-0 h-[26px] rounded-bl-md border-b ${selected ? '-left-4 w-[26px]' : '-left-3 w-[22px]'}`} />}
       <div className="flex min-w-0 flex-1 items-start gap-2">
         <div className="relative h-8 w-6 shrink-0">
           <button

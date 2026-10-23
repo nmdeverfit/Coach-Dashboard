@@ -230,6 +230,13 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   checkbox (x = 20 px) and bends (rounded 6) into each nested checkbox. One bottom border for the group. Each row
   keeps its own checkbox, hover, Dismiss and selected state; a done row greys in place, and the group sinks once
   all its rows are done. "Show N more" never splits a group.
+  Card layout (option B, shown beside the dashed line for comparison, `CARD_GROUPS`: Wade and Penelope): the group
+  sits in a white card in the list (`py-1.5` around it, border `line`, rounded 8, `0 1px 2px rgba(24,78,255,0.06)`);
+  a header button `px-2 py-2.5` with the 24 px avatar (in the checkbox column), the name 13 px semibold, a pill
+  "3 to-dos" / "1 of 3 done" (11 px semibold `ink-secondary` on `surface-secondary`) and a 16 px chevron that
+  collapses it; collapsed, the header lists what is left ("Issue credit · Prepare for the session", 12 px
+  `ink-tertiary`). Rows under a top border, divided by `line`, no client chip, hover `surface-secondary/60`,
+  selected = 4 px brand edge on `brand/[0.03]`.
 - **Related to-dos** (same trial): under the panel's title block, `px-[30px] pb-2.5`, a white card (border `line`,
   rounded 8): a `surface-secondary` header "Related to-dos" 13 px semibold + count chip, then one row per other
   to-do of the client (border-top `line`, `px-4 py-2.5`): an 18 px read-only checkbox, the short action 13 px

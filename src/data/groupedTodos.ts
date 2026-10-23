@@ -60,6 +60,12 @@ function withGroups(base: Todo[]): Todo[] {
 
 export const seedTodos: Todo[] = GROUPED_TODOS ? withGroups(baseTodos) : baseTodos;
 
+/**
+ * The two group layouts side by side, for comparison (the user's call): these clients' groups are cards (option B:
+ * a client header with the count and a collapse chevron over the to-dos), the rest hang off a dashed line.
+ */
+export const CARD_GROUPS = new Set(['wade-warren', 'penelope-brooks']);
+
 /** A section's to-dos as client groups: in the order each client first appears, each group sorted by BL3. */
 export function groupByClient(todos: Todo[]): { key: string; todos: Todo[] }[] {
   const groups = new Map<string, Todo[]>();

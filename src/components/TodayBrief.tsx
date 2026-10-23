@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 're
 import heroDivider from '../assets/figma/hero-divider.svg';
 import heroPhoto from '../assets/figma/hero-2.jpg';
 import dot from '../assets/figma/dot.svg';
-import { GROUPED_TODOS, groupByClient } from '../data/groupedTodos';
+import { CARD_GROUPS, GROUPED_TODOS, groupByClient } from '../data/groupedTodos';
 import { COACH_FIRST_NAME, DEMO_TODAY, GENERATED_AT } from '../data/mock';
 import type { Todo } from '../data/types';
 import { ageLabel, formatMonthDay, parseDay } from '../lib/dates';
@@ -10,6 +10,7 @@ import { getClient, useStore } from '../state/store';
 import { reducedMotion } from './ClientListParts';
 import { ConfirmDialog } from './ConfirmDialog';
 import { CountChip } from './CountChip';
+import { TodoGroupCard } from './TodoGroupCard';
 import { TodoRow } from './TodoRow';
 
 /** Rows shown before "Show N more" (brief: INITIAL_ROWS = 7). */
@@ -202,7 +203,7 @@ export function TodayBrief() {
 
   const rowsOf = (items: Item[], past: boolean) =>
     items.map(({ key, todos }) => {
-      const row = (todo: Todo, grouped?: 'first' | 'nested' | 'last') => (
+      const row = (todo: Todo, grouped?: 'first' | 'nested' | 'last' | 'card') => (
         <TodoRow
           key={todo.id}
           todo={todo}
@@ -215,6 +216,13 @@ export function TodayBrief() {
         />
       );
       if (todos.length === 1) return row(todos[0]);
+      // Option B, the card layout, for the clients in CARD_GROUPS: the two layouts side by side (the user's call).
+      if (CARD_GROUPS.has(todos[0].clientId))
+        return (
+          <TodoGroupCard key={key} groupKey={key} todos={todos}>
+            {todos.map((t) => row(t, 'card'))}
+          </TodoGroupCard>
+        );
       // A client's group (trial): the first to-do names the client, the rest hang under it; one border for the group.
       return (
         <li key={key} data-todo-id={key} className="border-b border-line">
