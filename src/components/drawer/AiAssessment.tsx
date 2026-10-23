@@ -122,6 +122,9 @@ function usePinned(card: RefObject<HTMLElement>) {
  * (5747:520587); Show less folds it back. Add context from the pinned card scrolls back to the card and opens the
  * questionnaire there, so there is only ever one form.
  */
+/** Add context (button, chip and questionnaire) is hidden for now, the code kept for later (the user's call). */
+const SHOW_ADD_CONTEXT = false;
+
 export function AiAssessment({ client, assessment, onTellMeMore }: Props) {
   const { state, setAiContext } = useStore();
   const [editing, setEditing] = useState(false);
@@ -147,7 +150,7 @@ export function AiAssessment({ client, assessment, onTellMeMore }: Props) {
 
   const actions = (fromPin: boolean) => (
     <div className="flex items-center justify-between gap-3">
-      {editing ? (
+      {editing || !SHOW_ADD_CONTEXT ? (
         <span />
       ) : saved ? (
         <ContextAddedChip summary={contextSummary(saved)} source={shared?.source} onEdit={() => edit(fromPin)} />
