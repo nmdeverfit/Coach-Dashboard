@@ -9,14 +9,20 @@ import dot from '../../assets/figma/dot-drawer.svg';
 import iconDuplicateWhite from '../../assets/figma/icon-duplicate-white.svg';
 import iconTrashHover from '../../assets/figma/icon-trash-hover.svg';
 import iconTrash from '../../assets/figma/icon-trash.svg';
+import iconChevronRight from '../../assets/figma/icon-chevron-right-small.svg';
+import iconCheck from '../../assets/figma/icon-check.svg';
 import { todoDetails } from '../../data/details';
+import { GROUPED_TODOS, byPriority } from '../../data/groupedTodos';
 import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { CheckinDetail, Client, Todo, TodoDetail } from '../../data/types';
 import { buildCheckinView } from '../../lib/checkin';
+import { buildClientAssessment } from '../../lib/client';
 import { buildAcknowledgeView, buildBuildView, buildPrepareView, buildRemindView, buildRespondView, buildUnblockView } from '../../lib/todos';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
+import { CountChip } from '../CountChip';
+import { SHORT_ACTION } from '../TodoRow';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { StatusChip } from '../StatusChip';
 import { Tooltip } from '../Tooltip';
@@ -133,20 +139,88 @@ function CheckinBody({ client, detail }: { client: Client; detail: CheckinDetail
   );
 }
 
+/**
+ * A Check-in with no hand-written panel data (grouped to-dos' Wade): the client detail page's assessment, feedback and
+ * tabs, read from the same profile as the list's status line, so the row's reason and the card agree (AC4).
+ */
+function ProfileCheckinBody({ client }: { client: Client }) {
+  const { openOlly } = useStore();
+  const profile = getProfile(client.id);
+  const assessment = buildClientAssessment(client, profile, DEMO_TODAY);
+  return (
+    <>
+      <div className="flex flex-col gap-2 px-[30px] pb-[30px] pt-2.5">
+        <AiAssessment client={client} assessment={assessment} onTellMeMore={() => openOlly(client.id, { mode: 'tell', assessment })} />
+        <StatusFeedback client={client} />
+      </div>
+      <ClientTabs client={client} profile={profile} />
+    </>
+  );
+}
+
+/**
+ * Related to-dos (grouped to-dos, a trial): the client's other to-dos today, in BL3 order. Each opens its own panel in
+ * this one's place; each is completed or dismissed on its own (the user's call).
+ */
+function RelatedTodos({ todo }: { todo: Todo }) {
+  const { suggested, previous, selectTodo } = useStore();
+  const related = [...suggested, ...previous].filter((t) => t.clientId === todo.clientId && t.id !== todo.id).sort(byPriority);
+  if (!related.length) return null;
+  return (
+    <div className="px-[30px] pb-2.5">
+      <section aria-label="Related to-dos" className="overflow-hidden rounded-lg border border-line bg-white">
+        <h3 className="flex items-center gap-2 bg-surface-secondary px-4 py-2.5 text-[13px] font-semibold leading-[1.5] text-ink">
+          Related to-dos
+          <CountChip value={related.length} />
+        </h3>
+        <ul>
+          {related.map((t) => {
+            const done = t.state === 'completed';
+            return (
+              <li key={t.id} className="border-t border-line">
+                <button type="button" onClick={() => selectTodo(t.id)} className="group flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-surface-secondary/60">
+                  {/* The row checkbox's look, read-only here: the to-do is ticked in its own panel or on its row. */}
+                  <span
+                    aria-hidden
+                    className={`mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full border-[0.938px] border-black/15 ${done ? 'bg-checked' : 'bg-white'}`}
+                  >
+                    <span className="relative size-[9px]">
+                      <span className="absolute bottom-[25.73%] left-[16.64%] right-[16.67%] top-1/4">
+                        <img src={done ? iconCheckWhite : iconCheck} alt="" className="block size-full max-w-none" />
+                      </span>
+                    </span>
+                  </span>
+                  <span className={`flex min-w-0 flex-1 flex-col gap-0.5 ${done ? 'opacity-60 line-through' : ''}`}>
+                    <span className="text-[13px] font-semibold leading-[1.5] text-ink group-hover:text-brand">{SHORT_ACTION[t.type]}</span>
+                    <span className="text-[12px] leading-normal text-ink-tertiary">{t.reason}</span>
+                  </span>
+                  <img src={iconChevronRight} alt="" width={16} height={16} className="mt-0.5 shrink-0 opacity-60 group-hover:opacity-100" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    </div>
+  );
+}
+
 /** One footer per type: primary action plus at most two secondary controls (Spec 4 BL1 G). */
-function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Client; detail: TodoDetail; onComplete: () => void }) {
+function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Client; detail?: TodoDetail; onComplete: () => void }) {
   const { showToast } = useStore();
   const done = todo.state === 'completed';
   const white = (src: string, size = 20) => <img src={src} alt="" width={size} height={size} />;
+  const checkinFooter = (
+    <PanelFooter>
+      <FooterButton variant="primary" icon={white(iconCircleCheck, 16)} label={done ? 'Reviewed' : 'Mark as reviewed'} disabled={done} onClick={onComplete} />
+      <DraftWithAiButton clientId={client.id} todoId={todo.id} />
+      <SendMessageButton clientId={client.id} />
+    </PanelFooter>
+  );
+  if (!detail) return todo.type === 'checkin' ? checkinFooter : null;
   switch (detail.kind) {
     case 'checkin':
-      return (
-        <PanelFooter>
-          <FooterButton variant="primary" icon={white(iconCircleCheck, 16)} label={done ? 'Reviewed' : 'Mark as reviewed'} disabled={done} onClick={onComplete} />
-          <DraftWithAiButton clientId={client.id} todoId={todo.id} />
-          <SendMessageButton clientId={client.id} />
-        </PanelFooter>
-      );
+      return checkinFooter;
     case 'respond':
       // Reviewing clears only this client's Respond to-do and never counts as a check-in review (AC3.5).
       return (
@@ -272,9 +346,16 @@ export function TodoDrawer() {
         </header>
         <div key={todo.id} data-panel-scroll className="flex-1 overflow-y-auto">
           <TitleBlock todo={todo} client={client} onComplete={complete} onDismiss={() => setConfirmDismiss(true)} onOpenClient={() => setClientOpen(true)} />
-          {detail ? <Body todo={todo} client={client} detail={detail} /> : <PlaceholderBody />}
+          {GROUPED_TODOS && <RelatedTodos todo={todo} />}
+          {detail ? (
+            <Body todo={todo} client={client} detail={detail} />
+          ) : todo.type === 'checkin' && GROUPED_TODOS ? (
+            <ProfileCheckinBody client={client} />
+          ) : (
+            <PlaceholderBody />
+          )}
         </div>
-        {detail && <Footer todo={todo} client={client} detail={detail} onComplete={complete} />}
+        {(detail || GROUPED_TODOS) && <Footer todo={todo} client={client} detail={detail} onComplete={complete} />}
       </div>
 
       {confirmDismiss && (

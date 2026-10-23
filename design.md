@@ -218,6 +218,18 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   fades in there from 24 px right (320 ms). Under reduced motion it shows the tick for 450 ms and moves without
   animation. Unticking puts it back
   in its ranked place. The user's call; the brief keeps a completed row in place.
+- **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
+  one group in the list, at the place of its highest-ranked to-do (BL3 order inside it). The first row is the usual
+  row (action + client chip, `pb-2`); the others are nested rows (`ml-8`, no client chip, the type's short action
+  from `SHORT_ACTION`, text `pt-1.5` to centre on the checkbox). A dashed `ink-muted` line runs down from the first
+  checkbox (x = 20 px) and bends (rounded 6) into each nested checkbox. One bottom border for the group. Each row
+  keeps its own checkbox, hover, Dismiss and selected state; a done row greys in place, and the group sinks once
+  all its rows are done. "Show N more" never splits a group.
+- **Related to-dos** (same trial): under the panel's title block, `px-[30px] pb-2.5`, a white card (border `line`,
+  rounded 8): a `surface-secondary` header "Related to-dos" 13 px semibold + count chip, then one row per other
+  to-do of the client (border-top `line`, `px-4 py-2.5`): an 18 px read-only checkbox, the short action 13 px
+  semibold (brand on hover) over the reason 12 px `ink-tertiary`, a 16 px chevron. A click opens that to-do's panel
+  in place; a done one reads struck through at 60 %.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
   `ink-secondary`). Title block: name 18 px bold with the 20 px External icon (`icon-external`, `#838d9f`) 6 px after it

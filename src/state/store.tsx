@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
-import { DEMO_TODAY, clients, findPerson, generatedStatus, setEffectiveStatus, todos as seedTodos } from '../data/mock';
+import { DEMO_TODAY, clients, findPerson, generatedStatus, setEffectiveStatus } from '../data/mock';
+import { seedTodos } from '../data/groupedTodos';
 import type { AiContext, CardKey, Client, ClientNote, ClientStatus, FeedbackState, GroupKey, Meeting, MetricKey, StatusChange, Todo } from '../data/types';
 import { ALL_GROUPS, DEFAULT_ORDER } from '../components/groups';
 import { STATUS_LABEL } from '../components/StatusChip';

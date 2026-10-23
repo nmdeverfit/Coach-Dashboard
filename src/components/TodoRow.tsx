@@ -2,7 +2,7 @@ import type { KeyboardEvent, MouseEvent } from 'react';
 import iconCheck from '../assets/figma/icon-check.svg';
 import iconCheckWhite from '../assets/figma/icon-check-white.svg';
 import iconTrash from '../assets/figma/icon-trash.svg';
-import type { Todo } from '../data/types';
+import type { Todo, TodoType } from '../data/types';
 import { getClient } from '../state/store';
 import { Avatar } from './Avatar';
 import { Tooltip } from './Tooltip';
@@ -15,13 +15,34 @@ interface TodoRowProps {
   onOpen: () => void;
   onToggle: () => void;
   onDismiss: () => void;
+  /**
+   * Grouped to-dos (trial): the row's place in its client's group. `first` carries the client chip as usual; `nested`
+   * and `last` rows drop it for the type's short action and hang off a dashed line. None draws its own bottom border.
+   */
+  grouped?: 'first' | 'nested' | 'last';
 }
+
+const TREE = 'pointer-events-none absolute border-l border-dashed border-ink-muted';
+
+/** A nested row's action: the client is named once, on the group's first row. */
+export const SHORT_ACTION: Record<TodoType, string> = {
+  checkin: 'Check in',
+  respond: 'Reply to the form',
+  remind: 'Remind to submit a check-in form',
+  build: 'Assign a new program',
+  prepare: 'Prepare for the session',
+  unblock: 'Issue credit',
+  adjust: 'Adjust the plan',
+  acknowledge: 'Congratulate',
+  congratulate: 'Congratulate',
+  kudos: 'Send kudos',
+};
 
 /**
  * To-do item (Figma component 3925:6908): Default, Hover, Selected and Completed states, each in a
  * Current and a Past (Previous to-dos) variant.
  */
-export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss }: TodoRowProps) {
+export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, grouped }: TodoRowProps) {
   const client = getClient(todo.clientId);
   const done = todo.state === 'completed';
   const strike = done ? 'line-through' : '';
@@ -37,21 +58,30 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss }: To
     }
   };
 
+  const nested = grouped === 'nested' || grouped === 'last';
   const surface = selected
     ? 'rounded-r-lg border-l-4 border-l-brand bg-white shadow-row'
-    : 'border-b border-line hover:rounded-lg hover:border-transparent hover:bg-white hover:shadow-row';
+    : `${grouped ? '' : 'border-b border-line hover:border-transparent'} hover:rounded-lg hover:bg-white hover:shadow-row`;
 
   return (
     <li
       data-todo-row
-      data-todo-id={todo.id}
+      // The group, not its rows, slides and sinks when the list reorders (TodayBrief).
+      data-todo-id={grouped ? undefined : todo.id}
       tabIndex={0}
       aria-current={selected ? 'true' : undefined}
       aria-label={`${todo.action} ${client.name}`}
       onClick={onOpen}
       onKeyDown={onKeyDown}
-      className={`group flex cursor-pointer gap-2 px-2 pb-[14px] pt-[10px] outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${age ? 'items-center' : 'items-start'} ${surface}`}
+      className={`group relative flex cursor-pointer gap-2 px-2 pt-[10px] outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
+        grouped === 'first' ? 'pb-2' : 'pb-[14px]'
+      } ${nested ? 'ml-8' : ''} ${age ? 'items-center' : 'items-start'} ${surface}`}
     >
+      {/* The dashed line runs down from the first row's checkbox, 20 px in, and bends into each nested checkbox. */}
+      {grouped === 'first' && <span aria-hidden className={`${TREE} left-5 top-[30px] bottom-0`} />}
+      {/* A selected row's 4 px brand border moves its padding box, so its lines start 4 px further left. */}
+      {grouped === 'nested' && <span aria-hidden className={`${TREE} ${selected ? '-left-4' : '-left-3'} top-0 bottom-0`} />}
+      {nested && <span aria-hidden className={`${TREE} top-0 h-[26px] rounded-bl-md border-b ${selected ? '-left-4 w-[26px]' : '-left-3 w-[22px]'}`} />}
       <div className="flex min-w-0 flex-1 items-start gap-2">
         <div className="relative h-8 w-6 shrink-0">
           <button
@@ -73,13 +103,13 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss }: To
           </button>
         </div>
         <div className={`flex min-w-0 flex-1 flex-col gap-1 ${done ? 'opacity-60' : ''}`}>
-          <div className="flex min-w-0 items-center gap-1.5">
-            <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{todo.action}</span>
-            <span className={`flex min-w-0 items-center gap-1.5 rounded-full py-0.5 pl-0.5 ${age ? 'pr-2' : ''}`}>
+          <div className={`flex min-w-0 items-center gap-1.5 ${nested ? 'pt-1.5' : ''}`}>
+            <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{nested ? SHORT_ACTION[todo.type] : todo.action}</span>
+            {!nested && <span className={`flex min-w-0 items-center gap-1.5 rounded-full py-0.5 pl-0.5 ${age ? 'pr-2' : ''}`}>
               <Avatar name={client.name} src={client.avatar} />
               <span className={`truncate text-[13px] font-semibold text-ink ${strike}`}>{client.name}</span>
-            </span>
-            {todo.actionAfter && (
+            </span>}
+            {todo.actionAfter && !nested && (
               <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{todo.actionAfter}</span>
             )}
           </div>
