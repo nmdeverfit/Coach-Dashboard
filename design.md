@@ -55,8 +55,12 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   first, rows `py-2.5`, `gap-1.5` between lines. Line 1: 14 px `Swatch` in the type's colour + session name 14 px
   semibold ink. Line 2 (12 px, left-aligned with line 1): date • time `ink-secondary` ("Today • 6:30 - 7:30pm",
   "Sep 1 • 8:00 - 9:00am", no weekday), a 2 px dot, 16 px avatar, client name medium (500) ink. Empty state "No
-  sessions booked right now."; the count chip counts sessions. A row opens its client on the Booking tab, and the
-  panel scrolls (smooth, after its slide-in) so the Sessions card is in view.
+  sessions booked right now."; the count chip counts sessions. A row opens **Session details** for that booking
+  (Figma `5940:151048`, the user's call; it used to open the client on the Booking tab): the group session's panel
+  below without the roster, plus a client line under the date (`pl-7 pt-1`, 24 px avatar with a `black/10` ring,
+  14 px semibold name; hover turns it `brand` and underlined, title "Open client details"; a click opens the client
+  detail page on the Booking tab in the panel's place). The credits line reads "1 credit used" (no "(per spot)" on a
+  1:1); location is the studio for in-person types; the description is the session type's (`SESSION_DESCRIPTION`).
   Its description reads "Sessions booked for the next few days, 1:1 and group." (the user's call: the rows are
   sessions, not clients).
   A group session (Small group HIIT, the user's call) keeps line 1 and the date • time; after the dot comes a stack

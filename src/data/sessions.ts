@@ -63,6 +63,27 @@ export const clientSessions: Record<string, ClientSessions> = {
 
 export const getSessions = (clientId: string): ClientSessions | undefined => clientSessions[clientId];
 
+/** Where every in-person session takes place: the coach's studio. */
+export const STUDIO = { address: '123 Main St, Boston, MA 02110', directions: 'Go through the front door' };
+
+/** The session type's description, as the coach wrote it in Client Sessions (shown on the Session details panel). */
+export const SESSION_DESCRIPTION: Record<string, string> = {
+  [PT.name]: 'In this 1-on-1 strength session, we will focus on your specific movement patterns and progressive goals.',
+  [PILATES.name]: 'A 1-on-1 Pilates session on core control, posture and mobility, at your own pace.',
+  [ASSESSMENT.name]: 'We will check your strength, mobility and body measurements to set the starting point for your next block.',
+  [CONSULT.name]: 'A 1-on-1 talk about your goals, your week and what to change in your plan.',
+};
+
+/** A 1:1 session's id on the Session details panel: "malcom-reed@2026-08-31T18:30". */
+export const oneToOneId = (clientId: string, b: Booking) => `${clientId}@${b.date}T${b.start}`;
+
+/** The client and booking behind a 1:1 session id, or undefined (a group session's id, say). */
+export function getOneToOne(id: string): { clientId: string; booking: Booking } | undefined {
+  const [clientId, when] = id.split('@');
+  const booking = when && getSessions(clientId)?.sessions.find((b) => `${b.date}T${b.start}` === when);
+  return booking ? { clientId, booking } : undefined;
+}
+
 /** A small-group class: one session on the calendar, many clients in it (the user's call; Phase 1 bookings are 1:1). */
 export interface GroupSession extends Booking {
   /** The occurrence, e.g. "hiit-2026-09-01". */
@@ -92,8 +113,7 @@ export const groupSessions: GroupSession[] = ['2026-08-04', '2026-08-11', '2026-
   start: '17:30',
   status: date < '2026-08-31' ? 'completed' : 'booked',
   capacity: 23,
-  address: '123 Main St, Boston, MA 02110',
-  directions: 'Go through the front door',
+  ...STUDIO,
   description: 'Strength and cardio intervals in a small group, each move scaled to the level of the person doing it.',
   creditsPerSpot: 1,
   enrolled: HIIT_ROSTER,
