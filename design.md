@@ -23,7 +23,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 - One layout, **1440 × 900**, web only. Below 1280 px the shell scrolls sideways; no responsive ladder.
 - Shell: main sidebar · header (2 rows) · body split in two equal columns (Today's Brief | right rail).
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`; each lists at most four rows, `CARD_ROWS`, with no scroll inside
-  and View all for the rest, its row flat with no shadow; the user's call), then Client highlights. The highlights list shows every
+  and View all for the rest, its row flat with no shadow, reading "View all 10 clients" ("sessions" on Upcoming
+  bookings) or "View list" when nothing is hidden; the user's call), then Client highlights. The highlights list shows every
   highlight, no fixed height and no scroll inside (the rail scrolls), and the section ends 56 px under the card
   (`pb-14`; the user's call). The white card opens on two view tabs, Need attention
   | History (no counts; the category tabs carry them), underlined like the panel's `TabBar` (13 px semibold, brand + 2 px brand line when active,
