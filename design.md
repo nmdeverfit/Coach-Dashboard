@@ -225,14 +225,14 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   in its ranked place. The user's call; the brief keeps a completed row in place.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one card in the list (option B, the user's pick over a dashed-line tree and a "+N to-dos" hybrid), at the place of
-  its highest-ranked to-do, BL3 order inside it. `TodoGroupCard`: `py-1.5` around it, border `line`, rounded 8, no
-  fill on the list's grey; white with `shadow-row` on hover, and white while one of its to-dos is open (the user's
+  its highest-ranked to-do, BL3 order inside it. `TodoGroupCard`: `py-1.5` around it, border `line`, rounded 8, a
+  faint brand tint `brand/[0.04]` so a group reads apart from the single rows (the user's call); white with `shadow-row` on hover, and white while one of its to-dos is open (the user's
   call). Header button `px-2 py-2.5`: the 24 px avatar (in the checkbox column), the name 13 px semibold, a pill
   "3 to-dos" / "1 of 3 done" (11 px semibold `ink-secondary`, white, border `line-light`, rounded full) and a 16 px
   chevron that collapses it. Sentence header (`SENTENCE_HEADERS`: Wade and Penelope, tried beside Ethan's for
   comparison): the 16 px chevron sits in the rows' 24 px checkbox column, so the sentence starts on the rows' text
   edge (40 px); "2 to-dos left with Wade Warren" / "1 to-do left with …" / "All done with …" in one style, 13 px
-  semibold `ink-secondary` (the user's call); no pill, no right chevron. Open, no avatar, since its rows keep the full
+  semibold `ink`, the rows' action colour (the user's call); no pill, no right chevron. Open, no avatar, since its rows keep the full
   action and the client chip ("Issue credit for [avatar] Wade Warren"), as in the flat list; collapsed, the 24 px
   avatar comes back before the name, then the list of what is left (the user's call). In these cards a ticked row drops to the
   bottom of the card after 450 ms (at once with reduced motion; an unticked one goes straight back). Collapsed, the header lists what is left ("Issue credit · Prepare for the session", 12 px
