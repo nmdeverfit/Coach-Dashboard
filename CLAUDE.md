@@ -105,7 +105,7 @@ the same change.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights in two views, the user's call: Need attention | History, each with the
-  category tabs; the list is fixed at the height of 10 one-line rows and scrolls past that. A Need attention row
+  category tabs; the list shows every highlight, no fixed height or inner scroll, 56 px under the card (the user's call). A Need attention row
   shows `HighlightActions` on hover, Figma `5795:175100`: React 👍 (hidden for now, `SHOW_REACTION`) · Draft with
   AI (Olly with `highlightDraft` in `lib/olly.ts`: a congratulation, birthday wish or anniversary note from the
   highlight's sentence) · Send message · Dismiss. A message sent from that highlight's Olly or Inbox

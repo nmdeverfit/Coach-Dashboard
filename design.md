@@ -23,8 +23,9 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 - One layout, **1440 × 900**, web only. Below 1280 px the shell scrolls sideways; no responsive ladder.
 - Shell: main sidebar · header (2 rows) · body split in two equal columns (Today's Brief | right rail).
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`; each lists at most four rows, `CARD_ROWS`, with no scroll inside
-  and View all for the rest, the user's call), then Client highlights. The highlights list is fixed at the
-  height of 10 one-line rows (560 px) and scrolls inside. The white card opens on two view tabs, Need attention
+  and View all for the rest, the user's call), then Client highlights. The highlights list shows every
+  highlight, no fixed height and no scroll inside (the rail scrolls), and the section ends 56 px under the card
+  (`pb-14`; the user's call). The white card opens on two view tabs, Need attention
   | History (no counts; the category tabs carry them), underlined like the panel's `TabBar` (13 px semibold, brand + 2 px brand line when active,
   `border-b border-line`; the two split the width evenly, labels centred), then the category tabs and list as before; the header chip counts Need attention.
   A hovered Need attention row turns `bg-surface-secondary` and shows its actions (Figma `5795:175100`) over its
@@ -73,7 +74,7 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   border) and 28 px avatar + 14 px name rows, which open that client on the Booking tab.
 - **Customize cards** (Figma `5749:521640` + a tab, a trial on both branches; extra cards keep the 2 × 2 grid, so six
   make three rows): each card's header ends in a chevron (collapse
-  toggle) and a 28 px ⋯ button (`icon-more`) opening a 190 px menu (white, `#e0e0e0` border, rounded 8, shadow
+  toggle; hidden for now, `SHOW_COLLAPSE`, the ⋯ menu still collapses, the user's call) and a 28 px ⋯ button (`icon-more`) opening a 190 px menu (white, `#e0e0e0` border, rounded 8, shadow
   `0 8px 24px rgba(0,0,0,0.12)`; Remove in `danger`; last item "Customize cards…"). Collapsed card = header only,
   `py-3`, with View all at the right (text only, no arrow); in the two-column (past week) grid it spans both columns.
   Dashboard Settings' item reads "Customize cards" on both views (the user's call), so the menu item, the ⋯ menu
