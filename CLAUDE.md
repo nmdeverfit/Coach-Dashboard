@@ -56,7 +56,7 @@ the same change.
   type swatch · session name, line 2 "Today" or "Sep 1" • time span · a 16 px avatar · client name; the count is
   the sessions'; a row opens its Session details (`SessionDrawer`, Figma `5940:151048`, id `oneToOneId` =
   "client@dateTtime", read back by `getOneToOne`; studio `STUDIO`, type text `SESSION_DESCRIPTION`), whose client
-  line opens the client on the Booking tab. `groupSessions` (Small group HIIT, every Tuesday 5:30 PM,
+  line opens the client on the Booking tab. `groupSessions` (Small group HIIT, every Monday 5:30 PM, today's leading the card,
   17 of 23 enrolled, 1 canceled, all dashboard clients) adds one row per week in the same window (`CardSession` in
   `lib/week.ts`), shown by `GroupSessionRow` (`components/GroupSession.tsx`: avatar stack + a "17 clients" link
   whose hover lists the roster); a click opens `SessionDrawer` (`drawer/SessionDetails.tsx`, Figma `5825:544656`,
