@@ -92,6 +92,10 @@ function CardMenu({ group, collapsed }: { group: GroupMeta; collapsed: boolean }
  * one click away (AC5) while the rail gets shorter. `narrow`: the three-part layout's stacked rail, where the list
  * stops partway into the fourth client to keep it short.
  */
+/** The collapse chevron (and the title's collapse click) is hidden for now, the code kept (the user's call). The ⋯ menu
+ * still collapses and expands the card. */
+const SHOW_COLLAPSE = false;
+
 /** Rows a group card shows; the rest are one click away on View all. */
 const CARD_ROWS = 4;
 
@@ -119,14 +123,16 @@ export function CategoryGroup({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            aria-expanded={!collapsed}
-            onClick={() => toggleCollapsed(group.key)}
-            className="flex min-w-0 flex-1 items-center gap-2 text-left"
+            aria-expanded={SHOW_COLLAPSE ? !collapsed : undefined}
+            onClick={SHOW_COLLAPSE ? () => toggleCollapsed(group.key) : undefined}
+            className={`flex min-w-0 flex-1 items-center gap-2 text-left ${SHOW_COLLAPSE ? '' : 'cursor-default'}`}
           >
             <GroupIcon group={group} />
             <h3 className="truncate text-[14px] font-bold leading-[1.5] text-ink">{group.title}</h3>
             <CountChip value={sessions?.length ?? members.length} />
-            <ChevronDown size={14} className={`shrink-0 text-ink-secondary transition-transform ${collapsed ? '-rotate-90' : ''}`} aria-hidden />
+            {SHOW_COLLAPSE && (
+              <ChevronDown size={14} className={`shrink-0 text-ink-secondary transition-transform ${collapsed ? '-rotate-90' : ''}`} aria-hidden />
+            )}
           </button>
           {collapsed && (
             <button

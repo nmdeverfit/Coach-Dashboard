@@ -34,12 +34,6 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'anniversary', label: 'Anniversaries' },
 ];
 
-/**
- * The list is as tall as 10 one-line highlights (10 × 55 px rows + 10 px top padding). More scroll inside it;
- * fewer leave white space below, so switching tabs or views never moves the layout.
- */
-const LIST_HEIGHT = 10 * 55 + 10;
-
 
 /** Milestones get the blue badge; birthdays and anniversaries share the orange one, as drawn. */
 function CatchUpBadge({ category }: { category: HighlightCategory }) {
@@ -270,7 +264,8 @@ export function ClientHighlights({ narrow: narrowRail = false }: { narrow?: bool
   const countFor = (t: Tab) => (t === 'all' ? pool.length : pool.filter((h) => h.category === t).length);
 
   return (
-    <section className="flex flex-col gap-3 p-5">
+    // 56 px under the card, so the rail's last highlight never sits on the window's edge (the user's call).
+    <section className="flex flex-col gap-3 px-5 pb-14 pt-5">
       <div className="flex items-center gap-2 pt-3">
         <img src={confetti} alt="" width={20} height={20} />
         <h3 className="text-[14px] font-bold leading-[1.5] text-ink">Client highlights</h3>
@@ -322,11 +317,8 @@ export function ClientHighlights({ narrow: narrowRail = false }: { narrow?: bool
               );
             })}
           </div>
-          {/* Stacked under the tabs (narrow), flex-1 would let the list grow to every row, so it keeps a fixed height. */}
-          <ul
-            className={`scroll-thin flex min-w-0 flex-col overflow-y-auto ${narrow && view === 'history' ? '' : 'pt-2.5'} ${narrow ? 'shrink-0' : 'flex-1'}`}
-            style={{ height: LIST_HEIGHT }}
-          >
+          {/* Every highlight, no fixed height and no scroll inside: the rail scrolls instead (the user's call). */}
+          <ul className={`flex min-w-0 flex-col ${narrow && view === 'history' ? '' : 'pt-2.5'} ${narrow ? '' : 'flex-1'}`}>
             {/* History opens on the retention note; Clear all empties every category, after a confirm. Stacked under
                 the category tabs, it starts right under them, flush with the first tab's left edge (the user's call). */}
             {view === 'history' && (

@@ -13,7 +13,7 @@ the same change.
 Brief takes two and the right rail one (the rail fixed at a third of the page, `calc((max(100vw,1280px)-4rem)/3)`, each
 column scrolls on its own; with the highlights' sidebar open only the brief narrows, the user's call). In the narrow
 rail the group cards stack in one column, each showing at most four rows (`CARD_ROWS`, no scroll inside; View all opens the rest, the user's call), and
-Client highlights put their tabs in a row above the list, which keeps its 10-row height (`RightRail narrow`). Past weeks keep the full-width rail.
+Client highlights put their tabs in a row above the list, which shows every highlight (`RightRail narrow`). Past weeks keep the full-width rail.
 Customize cards (see the Structure entry) is shared with the main branch; here the narrow rail stacks the cards in
 one column. The Upcoming bookings session list is shared with the main branch too (see `sessions.ts`). It publishes to its own artifact (title "Check-in Dashboard v2 ·
 3 columns"); the main branch's artifact is unchanged.
@@ -113,7 +113,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights in two views, the user's call: Need attention | History, each with the
-  category tabs; the list is fixed at the height of 10 one-line rows and scrolls past that. A Need attention row
+  category tabs; the list shows every highlight, no fixed height or inner scroll, 56 px under the card (the user's call). A Need attention row
   shows `HighlightActions` on hover, Figma `5795:175100`: React 👍 (hidden for now, `SHOW_REACTION`) · Draft with
   AI (Olly with `highlightDraft` in `lib/olly.ts`: a congratulation, birthday wish or anniversary note from the
   highlight's sentence) · Send message · Dismiss. A message sent from that highlight's Olly or Inbox
