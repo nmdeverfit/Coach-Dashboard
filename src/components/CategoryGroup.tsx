@@ -115,6 +115,11 @@ export function CategoryGroup({
   // Upcoming bookings lists sessions, not clients (the user's call, tried on the three-part layout first): its count is theirs.
   const sessions = group.key === 'upcoming_bookings' ? sessionsInWeek(state.weekOffset) : undefined;
   const today = weekAsOf(state.weekOffset);
+  // The link names what it opens (option A, the user's pick): the header's count and its unit ("View all 10 clients",
+  // sessions on Upcoming bookings); a card already showing everything just reads "View list".
+  const total = sessions?.length ?? members.length;
+  const unit = sessions ? 'session' : 'client';
+  const viewAll = total > CARD_ROWS ? `View all ${total} ${unit}s` : 'View list';
 
   return (
     // In the two-column grid (past weeks) a collapsed card spans both columns as one slim bar, so it leaves no hole.
@@ -141,7 +146,7 @@ export function CategoryGroup({
               className="shrink-0 text-[12px] font-semibold leading-normal text-ink-secondary hover:text-ink"
             >
               {/* No arrow here: the header already ends in the collapse chevron (the user's call). */}
-              View all
+              {viewAll}
             </button>
           )}
           <CardMenu group={group} collapsed={collapsed} />
@@ -215,7 +220,7 @@ export function CategoryGroup({
             onClick={() => openGroup(group.key)}
             className="flex items-center gap-1 rounded-b-xl bg-white px-4 py-3 text-[12px] font-semibold leading-normal text-ink-secondary hover:text-ink"
           >
-            View all
+            {viewAll}
             <img src={chevronSmall} alt="" width={14} height={14} />
           </button>
         </>
