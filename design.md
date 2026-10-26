@@ -25,8 +25,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   The header (and a past week's banner) carries `shadow-header` (`0 2px 10px rgba(32,35,83,0.06)`, `0 1px 2px
   rgba(32,35,83,0.04)`) above both views, a light line between it and the content (the user's call; 3 columns branch).
   **Layout test (branch `claude/layout-3-columns`):** three parts instead, Today's Brief 2/3 (917 px at 1440) and the
-  rail 1/3 (459 px, fixed: with the highlights' sidebar open only the brief narrows), each scrolling on its own; group cards stack (`gap-4`, descriptions unpinned, each list `max-h-[186px]`: three
-  rows and half of the fourth, so the scroll shows) and the highlights'
+  rail 1/3 (459 px, fixed: with the highlights' sidebar open only the brief narrows), each scrolling on its own; group cards stack (`gap-4`, descriptions unpinned, each list shows at most four
+  rows, no scroll inside, View all for the rest; the user's call) and the highlights'
   category tabs become a row of chips above the list (scrolls sideways if needed).
   Customize cards: as on the main branch (below), the stacked cards included.
 - Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
