@@ -108,6 +108,8 @@ export default {
       boxShadow: {
         'shadow-1': '0 1px 2px 0 rgba(102,102,102,0.08), 0 1px 1px 0 rgba(102,102,102,0.08)',
         column: '8px 0 30px 0 rgba(0,0,0,0.05)',
+        // Under the page header, on both views: just enough to part it from the content (the user's call, 3 columns).
+        header: '0 2px 10px 0 rgba(32,35,83,0.06), 0 1px 2px 0 rgba(32,35,83,0.04)',
         'see-all': '0 -2px 15px rgba(0,0,0,0.08)',
         dialog: '0 12px 40px rgba(32,35,83,0.18)',
         row: '0 20px 14px 0 rgba(0,0,0,0), 0 10px 13px 0 rgba(0,0,0,0.04)',

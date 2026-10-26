@@ -22,6 +22,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 
 - One layout, **1440 × 900**, web only. Below 1280 px the shell scrolls sideways; no responsive ladder.
 - Shell: main sidebar · header (2 rows) · body split in two equal columns (Today's Brief | right rail).
+  The header (and a past week's banner) carries `shadow-header` (`0 2px 10px rgba(32,35,83,0.06)`, `0 1px 2px
+  rgba(32,35,83,0.04)`) above both views, a light line between it and the content (the user's call; 3 columns branch).
   **Layout test (branch `claude/layout-3-columns`):** three parts instead, Today's Brief 2/3 (917 px at 1440) and the
   rail 1/3 (459 px, fixed: with the highlights' sidebar open only the brief narrows), each scrolling on its own; group cards stack (`gap-4`, descriptions unpinned, each list `max-h-[186px]`: three
   rows and half of the fourth, so the scroll shows) and the highlights'

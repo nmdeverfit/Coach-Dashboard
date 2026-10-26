@@ -214,7 +214,8 @@ function PastWeekBanner() {
 export function Header() {
   const { showToast } = useStore();
   return (
-    <div className="flex shrink-0 flex-col">
+    // The header (and a past week's banner) sits above the views with a light shadow under it (the user's call).
+    <div className="relative z-10 flex shrink-0 flex-col shadow-header">
     <header className="flex shrink-0 flex-col gap-5 bg-white px-5 pb-3 pt-5">
       <div className="flex h-[26px] items-center justify-between">
         <h1 className="text-[20px] font-bold leading-none tracking-[-0.4px] text-ink">Check-in Dashboard</h1>
