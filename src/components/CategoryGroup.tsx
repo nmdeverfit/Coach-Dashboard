@@ -92,6 +92,9 @@ function CardMenu({ group, collapsed }: { group: GroupMeta; collapsed: boolean }
  * one click away (AC5) while the rail gets shorter. `narrow`: the three-part layout's stacked rail, where the list
  * stops partway into the fourth client to keep it short.
  */
+/** Rows a group card shows; the rest are one click away on View all. */
+const CARD_ROWS = 4;
+
 export function CategoryGroup({
   group,
   wide = false,
@@ -142,15 +145,16 @@ export function CategoryGroup({
       </header>
       {!collapsed && (
         <>
-          {/* Rows are 53 px: 210 shows four; 186 shows three and half of the fourth, a hint that the list scrolls. */}
-          <ul className={`scroll-thin ${narrow ? 'max-h-[186px]' : 'h-[210px]'} overflow-y-auto px-3`}>
+          {/* At most CARD_ROWS rows and no scroll inside the card; View all opens the full list (the user's call). In
+              the two-column grid the list keeps four rows' height (53 px each), so paired cards stay aligned. */}
+          <ul className={`${narrow ? '' : 'min-h-[212px]'} px-3`}>
             {(sessions ?? members).length === 0 && (
               <li className="px-1 py-3 text-[13px] leading-[1.5] text-ink-muted">{sessions ? 'No sessions booked right now.' : 'No clients here right now.'}</li>
             )}
             {/* A session row: type colour · session name, then date and time · a 16 px avatar · client name on the line
                 below. It opens the session's details panel (Figma 5940:151048), as a group session's row does; a group
                 session shows its roster instead of one client (GroupSessionRow). */}
-            {sessions?.map(({ client, booking, group: session }) => session ? (
+            {sessions?.slice(0, CARD_ROWS).map(({ client, booking, group: session }) => session ? (
               <li key={session.id}>
                 <GroupSessionRow session={session} today={today} />
               </li>
@@ -180,7 +184,7 @@ export function CategoryGroup({
                 </button>
               </li>
             ))}
-            {!sessions && members.map((client) => (
+            {!sessions && members.slice(0, CARD_ROWS).map((client) => (
               <li key={client.id}>
                 <button
                   type="button"

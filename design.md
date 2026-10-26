@@ -22,7 +22,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
 
 - One layout, **1440 × 900**, web only. Below 1280 px the shell scrolls sideways; no responsive ladder.
 - Shell: main sidebar · header (2 rows) · body split in two equal columns (Today's Brief | right rail).
-- Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`), then Client highlights. The highlights list is fixed at the
+- Right rail: 2 × 2 group cards (`gap-5`, `px-5 pt-5`; each lists at most four rows, `CARD_ROWS`, with no scroll inside
+  and View all for the rest, the user's call), then Client highlights. The highlights list is fixed at the
   height of 10 one-line rows (560 px) and scrolls inside. The white card opens on two view tabs, Need attention
   | History (no counts; the category tabs carry them), underlined like the panel's `TabBar` (13 px semibold, brand + 2 px brand line when active,
   `border-b border-line`; the two split the width evenly, labels centred), then the category tabs and list as before; the header chip counts Need attention.
