@@ -96,7 +96,7 @@ the same change.
   Penelope (Unblock + Prepare), all raised by their data under BL7, with panel data from `sessions.ts`; `TYPE_PRIORITY` / `byPriority`
   (BL3), `groupByClient`. Today's Brief draws a client's to-dos as one card (`TodayBrief` `itemsOf`,
   `TodoGroupCard`, `TodoRow` `inCard`; option B, the user's pick over a dashed-line tree and a hybrid, both removed):
-  a client header with the count and a collapse chevron, white only on hover or while one of its to-dos is open
+  a client header with the count and a collapse chevron, a faint brand tint, white on hover or while one of its to-dos is open
   (for `SENTENCE_HEADERS`, Wade and Penelope, the header is a sentence in one style, "2 to-dos left with Wade
   Warren", chevron in the checkbox column, the avatar shown only while collapsed; the rows keep their full action and client chip, `TodoRow` `fullAction`;
   ticked rows drop to the bottom of the card); the panel lists the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or

@@ -31,14 +31,15 @@ function useDoneLast(todos: Todo[], on: boolean): Todo[] {
 
 /**
  * Grouped to-dos, the card layout (option B, the user's pick; no frame): a bordered card in the list with a client
- * header over the client's to-dos, which keep their own checkbox, Dismiss and panel. The card sits on the list's grey
- * and turns white on hover, or while one of its to-dos is open in the panel (the user's call). Collapsed, the header
+ * header over the client's to-dos, which keep their own checkbox, Dismiss and panel. The card has its own faint brand
+ * tint, so a group reads apart from the single rows on the list's grey, and turns white on hover, or while one of its
+ * to-dos is open in the panel (the user's call). Collapsed, the header
  * keeps a one-line list of what is left.
  *
  * Two headers, side by side for comparison (the user's call). The name-and-pill one: avatar, name, "3 to-dos" or
  * "1 of 3 done", chevron at the right. The sentence one (SENTENCE_HEADERS): the chevron sits in the rows' checkbox
- * column so the sentence starts on the rows' text edge; the whole sentence is one style, 13 px semibold
- * `ink-secondary`, a label lighter than the rows' actions (the user's call); it counts what is left ("All done with"
+ * column so the sentence starts on the rows' text edge; the whole sentence is one style, 13 px semibold `ink`, the
+ * rows' own action style (the user's call); it counts what is left ("All done with"
  * once nothing is); ticked rows drop to the bottom of the card. Open, the header carries no avatar, since each row
  * keeps its full action with the client's avatar and name; collapsed, the rows are gone, so the avatar comes back
  * before the name (the user's call).
@@ -68,7 +69,7 @@ export function TodoGroupCard({
   );
   return (
     <li data-todo-id={groupKey} className="py-1.5">
-      <div className="overflow-hidden rounded-lg border border-line transition-colors duration-150 hover:bg-white hover:shadow-row has-[[aria-current=true]]:bg-white">
+      <div className="overflow-hidden rounded-lg border border-line bg-brand/[0.04] transition-colors duration-150 hover:bg-white hover:shadow-row has-[[aria-current=true]]:bg-white">
         <button
           type="button"
           data-keep-open
@@ -81,7 +82,7 @@ export function TodoGroupCard({
             <>
               {/* The chevron takes the rows' 24 px checkbox column, so the sentence lines up with their text. */}
               <span className="flex w-6 shrink-0 justify-center">{chevron}</span>
-              <span className="flex min-w-0 items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary">
+              <span className="flex min-w-0 items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink">
                 <span className="whitespace-nowrap">{open.length ? `${open.length} to-do${open.length === 1 ? '' : 's'} left with` : 'All done with'}</span>
                 {collapsed && <Avatar name={client.name} src={client.avatar} />}
                 <span className="min-w-0 truncate">{client.name}</span>
