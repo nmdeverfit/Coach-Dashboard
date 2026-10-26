@@ -213,7 +213,7 @@ export function CategoryGroup({
           <button
             type="button"
             onClick={() => openGroup(group.key)}
-            className="relative flex items-center gap-1 rounded-b-xl bg-white px-4 py-3 text-[12px] font-semibold leading-normal text-ink-secondary shadow-see-all hover:text-ink"
+            className="flex items-center gap-1 rounded-b-xl bg-white px-4 py-3 text-[12px] font-semibold leading-normal text-ink-secondary hover:text-ink"
           >
             View all
             <img src={chevronSmall} alt="" width={14} height={14} />
