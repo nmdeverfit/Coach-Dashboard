@@ -234,24 +234,19 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   icon (`icon-note-sticky.svg` / `icon-note-video.svg`) on a 1 px `line-light` rail above and below, 12 px gap, then
   the card `py-2` around it: border `line`, rounded 8, `p-4`; "Note • Aug 21 - 6:40 PM" 13 px `#636f7a` with the 4 px
   `dot-note-meta.svg`, then the title 15 px semibold `ink`. Hover: white + `0 0 10px rgba(0,0,0,0.05)`. Meeting
-  notes add "Generating summary…" to the meta line while pending. New note (no frame): the kind sits over the
-  title, a chip (28 px, rounded full, `line-light` border, 14 px icon, 12 px semibold; A's has × "Change to a
-  note") or C's segmented toggle (`surface-secondary` track, white thumb). No banner reads a paste (no auto-detect).
-  A's switch line (after a file is attached): `surface-secondary`, 12 px, with Keep as a note. Attach transcript sits on the
-  editor's toolbar after a 1 px `black/10` divider (lucide paperclip 14, 12 px semibold `ink-secondary`, 26 px, hover
-  `black/[0.05]`), on Meeting notes and on A's Note side (not C's Note tab). Meeting notes
-  (`MeetingNotesForm`): the note editor fills the 440 px body until a transcript is attached; then the transcript
-  card sits under the notes (no drop strip; a file dragged over the form shows the dashed brand frame). The card (1.5 px `#e0e0e0`, rounded 8: a white head with the file icon or a clipboard tile, name 13 px semibold, a
-  12 px `ink-tertiary` line "5 KB · TXT · 61 lines · Long and Malcom · ~30 min", Replace in brand · Remove; then
-  the lines on `#f9fafa`, speakers semibold, scrolling) takes the room, under a 176 px editor when notes are typed
-  or "+ Add your notes (optional)" (13 px semibold brand, "(optional)" regular `ink-tertiary`) when not. Dragging a
-  file over the form draws a dashed brand frame, "Drop the transcript to attach it". Switching to Note with a file attached opens the `ConfirmDialog` "Switch to a
-  note?" · "Switch to note". The meeting popup is one plain page on this trial: the
-  notes (`note-body`, 30 px sides, no heading), then 16 px down the transcript in the form's card
-  (`TranscriptFileCard`, capped at 300 px, the lines scrolling inside, Download in brand for a file); no tabs,
-  headings, rule or search, and a part shows only when the meeting has it. B's menu:
-  260 px, two items with a 28 px ring icon, name and a 12 px line. The trial bar: `ink` bar, rounded 12, bottom
-  16 px, left 80 px, z 45 (over the panels, under popups), `data-keep-open`.
+  notes add "Generating summary…" to the meta line while pending. New note (no frame) is one form for every note:
+  a Label row over the title ("Label" 12 px semibold `ink-tertiary`, then two 28 px pills with the kind's 14 px
+  icon, 12 px semibold: on = `brand` border, `brand/[0.06]` fill, brand text; off = `line-light` border, white,
+  `ink-secondary`). Note shows "Created: …"; Meeting notes shows the meeting's date and start with the edit icon.
+  Attach file sits on the editor's toolbar after a 1 px `black/10` divider (lucide paperclip 14, 12 px semibold
+  `ink-secondary`, 26 px, hover `black/[0.05]`) and hides once a file is in. The editor fills the 440 px body; with a
+  file it drops to 176 px and the file card (`AttachedFileCard`: 1.5 px `#e0e0e0`, rounded 8, a white head with
+  the file icon, name 13 px semibold, a 12 px `ink-tertiary` line "5 KB · TXT · 61 lines · Long and Malcom · ~30
+  min", Replace in brand · Remove; then the lines on `#f9fafa`, speakers semibold, scrolling) fills the rest. A file
+  dragged over the form draws a dashed brand frame, "Drop the file to attach it". The meeting popup is one plain page on this trial: the
+  notes (`note-body`, 30 px sides, no heading), then 16 px down the transcript in the same card
+  (`TranscriptFileCard`, capped at 300 px, Download in brand for a file); no tabs, headings, rule or search, and a
+  part shows only when the meeting has it. Note details shows an attached file the same way under the note's text.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one card in the list (option B, the user's pick over a dashed-line tree and a "+N to-dos" hybrid), at the place of
   its highest-ranked to-do, BL3 order inside it. `TodoGroupCard`: `py-1.5` around it, border `line`, rounded 8, a

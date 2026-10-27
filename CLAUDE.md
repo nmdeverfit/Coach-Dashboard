@@ -397,26 +397,20 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - Notes timeline (the trial page only, the user's call; Figma `6049:170285`): Meetings folds into Notes, so meeting
   notes also show on the Check-in panel's Notes tab, which Spec 4 BL1 fixes as notes only, and the brief puts
   meeting transcription in Phase 2 (Loom). Notes and meeting notes run on one timeline by created time. New note is
-  tried three ways on one page, switched on a bar at the bottom left (`NotesTrialBar`, `useNotesVariant` in
-  `lib/notesTrial.ts`, kept in localStorage): A one New note that turns into meeting notes when a transcript file is
-  attached (a line says why, with Keep as a note), B New note ▾ asking Note or Meeting notes, C a Note | Meeting
-  notes toggle the coach flips (its Note tab takes no file). Nothing detects a pasted transcript: the team can't
-  build auto-detect yet (the user's call), so a paste stays where it lands on either side. A meeting note
-  is a note with a transcript. `NewNoteDialog` reuses the note
-  editor; its meeting notes are `MeetingNotesForm` (the user's call: no Upload / Paste tabs): the coach's notes in
-  the note editor, Attach transcript on the editor's toolbar beside the formatting tools (or a file dropped on the
-  form; the drop strip was dropped, the user's call; on the Note side only A, whose one way into meeting notes it
-  is, has the button), for the transcript, shown under the notes as a card with
-  "61 lines · Long and Malcom · ~30 min" (`transcriptStats`) and a scrolling preview; once a transcript is in and
-  the notes are empty they fold into "+ Add your notes (optional)"; the title is suggested from the transcript's
-  heading or file name (`titleFrom`). Switching kinds carries the text across as notes. Going back to
-  a note with a file attached asks "Switch to a note?" (the file is removed, the notes stay; Cancel stays on Meeting
-  notes). The meeting's date and start survive the round trip. Meetings carry
+  one form for every note (`NewNoteDialog`, the user's call after trying three ways side by side): the note editor
+  with Attach file on its toolbar (`AttachFileButton` in `NoteAttachment.tsx`; a file dropped on the form attaches
+  too) and a Label over the title, Note | Meeting notes, picked by the coach. The label only names it: a note shows
+  "Created: …", meeting notes the meeting's date and start (editable, `MeetingWhen`); the title placeholder is "New
+  Note N", or for meeting notes the file's heading or name (`titleFrom`) or "New Meeting N". A file shows under the
+  text as a preview card (`AttachedFileCard`: "5 KB · TXT · 61 lines · Long and Malcom · ~30 min" from
+  `transcriptStats`, Replace · Remove). Save needs text or a file; a note keeps the file as `ClientNote.attachment`
+  (shown in Note details under the text, with Download), meeting notes as their transcript. Nothing detects a pasted
+  transcript: the team can't build auto-detect yet (the user's call). Meetings carry
   `notes` and may have no transcript. On this page the meeting popup is one plain page (the user's call): no tabs,
   Summary, headings, rule or search; the coach's notes first, then the transcript as a file preview
-  (`TranscriptFileCard`, shared with the form: icon, name, "5 KB · TXT · 61 lines · …", Download, the lines
-  scrolling inside; a recorded call reads "Call transcript"), each only when the meeting has it; meeting notes get no summary, no "Generating summary…" and no summary toast, and search
-  skips summaries. There is no frame for the popup or the bar.
+  (`TranscriptFileCard`, icon, name, meta, Download, the lines scrolling inside, capped at 300 px; a recorded call
+  reads "Call transcript"), each only when the meeting has it; meeting notes get no summary, no "Generating
+  summary…" and no summary toast, and search skips summaries. There is no frame for the popup or the label.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for

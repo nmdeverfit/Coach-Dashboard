@@ -7,7 +7,7 @@ import type { Client, Meeting } from '../../data/types';
 import { NOTES_TIMELINE } from '../../lib/flags';
 import { statsLine, transcriptStats } from '../../lib/noteKind';
 import { KindIcon } from './NewNoteDialog';
-import { TranscriptFileCard, TranscriptTile } from './MeetingNotesForm';
+import { TranscriptFileCard, TranscriptTile } from './NoteAttachment';
 import { fieldTime, fileSize, meetingDate } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
@@ -249,9 +249,9 @@ export function TranscriptDialog({
                 t.kind === 'file' ? (
                   <FileTypeIcon name={t.name} />
                 ) : t.kind === 'lines' ? (
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-secondary">
+                  <TranscriptTile>
                     <KindIcon kind="meeting" size={18} />
-                  </span>
+                  </TranscriptTile>
                 ) : (
                   <TranscriptTile />
                 )

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import iconChevronDown from '../../assets/figma/icon-chevron-down.svg';
 import dotMeta from '../../assets/figma/dot-note-meta.svg';
 import iconPlus from '../../assets/figma/icon-plus-brand.svg';
@@ -8,9 +8,8 @@ import type { Client, ClientNote, Meeting } from '../../data/types';
 import { formatMonthDay, parseDay } from '../../lib/dates';
 import { createdAt, meetingsFor } from '../../lib/meetings';
 import { noteStamp, noteText } from '../../lib/notes';
-import { useNotesVariant } from '../../lib/notesTrial';
 import { useStore } from '../../state/store';
-import { KIND_LABEL, KindIcon, NewNoteDialog, type NoteKind } from './NewNoteDialog';
+import { KIND_LABEL, KindIcon, NewNoteDialog } from './NewNoteDialog';
 import { NoteDialog } from './NoteDialog';
 import { TranscriptDialog } from './TranscriptDialog';
 
@@ -30,7 +29,7 @@ function timeline(notes: ClientNote[], meetings: Meeting[], newestFirst: boolean
     ...notes.map((n): Entry => ({ kind: 'note', key: `note:${n.id}`, title: n.title, at: n.at, note: n })),
     ...meetings.map((m): Entry => ({ kind: 'meeting', key: `meeting:${m.id}`, title: m.title, at: createdAt(m), meeting: m })),
   ]
-    .filter((e) => !q || (e.kind === 'note' ? `${e.title} ${noteText(e.note.body)}` : meetingText(e.meeting)).toLowerCase().includes(q))
+    .filter((e) => !q || (e.kind === 'note' ? `${e.title} ${noteText(e.note.body)} ${e.note.attachment?.text ?? ''}` : meetingText(e.meeting)).toLowerCase().includes(q))
     .sort((a, b) => (newestFirst ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at)));
   const days: { date: string; entries: Entry[] }[] = [];
   for (const e of entries) {
@@ -74,88 +73,20 @@ function EntryRow({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
   );
 }
 
-/** B: New note ▾ asks for the kind first. */
-function NewMenu({ firstName, onPick }: { firstName: string; onPick: (k: NoteKind) => void }) {
-  const [open, setOpen] = useState(false);
-  const root = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const away = (e: PointerEvent) => !root.current?.contains(e.target as Node) && setOpen(false);
-    const esc = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      // The menu takes this Esc, not the panel behind it.
-      e.stopPropagation();
-      setOpen(false);
-    };
-    document.addEventListener('pointerdown', away);
-    window.addEventListener('keydown', esc, true);
-    return () => {
-      document.removeEventListener('pointerdown', away);
-      window.removeEventListener('keydown', esc, true);
-    };
-  }, [open]);
-  const items: { kind: NoteKind; sub: string }[] = [
-    { kind: 'note', sub: `Type a note for ${firstName}` },
-    { kind: 'meeting', sub: 'Upload or paste a call transcript' },
-  ];
-  return (
-    <div ref={root} className="relative">
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 text-[14px] font-semibold leading-[18px] text-brand hover:underline"
-      >
-        <img src={iconPlus} alt="" width={16} height={16} />
-        New note
-        <img src={iconChevronDown} alt="" width={16} height={16} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
-      </button>
-      {open && (
-        <ul role="menu" className="absolute right-0 top-full z-10 mt-1.5 w-[260px] rounded-lg border border-line bg-white p-1 shadow-[0_4px_16px_rgba(32,35,83,0.12)]">
-          {items.map((it) => (
-            <li key={it.kind}>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setOpen(false);
-                  onPick(it.kind);
-                }}
-                className="flex w-full items-start gap-2.5 rounded-md px-2.5 py-2 text-left hover:bg-surface-secondary"
-              >
-                <span className="mt-px flex size-7 shrink-0 items-center justify-center rounded-full border-[0.842px] border-line-light">
-                  <KindIcon kind={it.kind} size={14} />
-                </span>
-                <span className="flex min-w-0 flex-col">
-                  <span className="text-[13px] font-semibold leading-[1.5] text-ink">{KIND_LABEL[it.kind]}</span>
-                  <span className="text-[12px] leading-[18px] text-ink-tertiary">{it.sub}</span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 /**
  * Notes timeline trial (the user's call; Figma 6049:170285): Notes and Meetings as one Notes tab. Notes and meeting
  * notes (a meeting with its transcript) run in one list by created time, split by day ("Today", "Aug 27"), each on a
- * timeline with its kind's icon. Search reads notes' text and meetings' notes and transcripts. A note opens Note
- * details, meeting notes their Notes | Transcript popup (no Summary on this trial). New note works the way the trial
- * bar picks (A, B or C).
+ * timeline with its kind's icon. Search reads the text and any attached file. A note opens Note details, meeting
+ * notes their one-page popup (no Summary on this trial). New note is one form with a Label (Note | Meeting notes).
  */
 export function NotesTimeline({ client, notes: profileNotes }: { client: Client; notes: ClientNote[] }) {
   const { state } = useStore();
-  const variant = useNotesVariant();
   const notes = state.notes[client.id] ?? profileNotes;
   const meetings = meetingsFor(client.id, state.meetings[client.id]);
   const [query, setQuery] = useState('');
   const [newestFirst, setNewestFirst] = useState(true);
   const [open, setOpen] = useState<string | null>(null);
-  const [adding, setAdding] = useState<NoteKind | null>(null);
+  const [adding, setAdding] = useState(false);
   const days = timeline(notes, meetings, newestFirst, query);
   const total = notes.length + meetings.length;
   // Looked up in the whole list, so a search never closes what is open.
@@ -165,14 +96,10 @@ export function NotesTimeline({ client, notes: profileNotes }: { client: Client;
     <div className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/15 bg-elevated p-px">
       <div className="flex h-11 items-center justify-between rounded-t-lg border-b border-ink/10 bg-white p-3">
         <h4 className="text-[15px] font-semibold leading-[18px] text-ink">Notes ({total})</h4>
-        {variant === 'B' ? (
-          <NewMenu firstName={client.firstName} onPick={setAdding} />
-        ) : (
-          <button type="button" onClick={() => setAdding('note')} className="flex items-center gap-1 text-[14px] font-semibold leading-[18px] text-brand hover:underline">
-            <img src={iconPlus} alt="" width={16} height={16} />
-            New note
-          </button>
-        )}
+        <button type="button" onClick={() => setAdding(true)} className="flex items-center gap-1 text-[14px] font-semibold leading-[18px] text-brand hover:underline">
+          <img src={iconPlus} alt="" width={16} height={16} />
+          New note
+        </button>
       </div>
       <div className="scroll-thin flex max-h-[580px] flex-col gap-3 overflow-y-auto p-3">
         <label className="flex h-[38px] shrink-0 items-center gap-2.5 rounded-[5px] border border-[#dbdce3] px-3 focus-within:border-brand">
@@ -225,7 +152,7 @@ export function NotesTimeline({ client, notes: profileNotes }: { client: Client;
       </div>
       {opened?.kind === 'note' && <NoteDialog key={opened.key} client={client} notes={notes} noteId={opened.note.id} onClose={() => setOpen(null)} />}
       {opened?.kind === 'meeting' && <TranscriptDialog client={client} meeting={opened.meeting} onClose={() => setOpen(null)} />}
-      {adding && <NewNoteDialog client={client} notes={notes} variant={variant} start={adding} onClose={() => setAdding(null)} />}
+      {adding && <NewNoteDialog client={client} notes={notes} onClose={() => setAdding(false)} />}
     </div>
   );
 }

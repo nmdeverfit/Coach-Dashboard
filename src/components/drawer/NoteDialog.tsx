@@ -15,6 +15,7 @@ import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { Tooltip } from '../Tooltip';
+import { AttachedFileCard } from './NoteAttachment';
 
 /** A note written or edited now: the demo's clock reads 06:00, as for a message sent from the dashboard. */
 const NOW = `${DEMO_TODAY}T06:00`;
@@ -234,7 +235,7 @@ export function NoteDialog({
   noteId: string | null;
   onClose: () => void;
 }) {
-  const { setNotes } = useStore();
+  const { setNotes, showToast } = useStore();
   const note = noteId ? notes.find((n) => n.id === noteId) : undefined;
   const [editing, setEditing] = useState(!note);
   const [title, setTitle] = useState(note?.title ?? '');
@@ -311,6 +312,18 @@ export function NoteDialog({
             </NoteHeader>
             <div className="scroll-thin h-[440px] shrink-0 overflow-y-auto px-8 py-5">
               <div className="note-body" dangerouslySetInnerHTML={{ __html: note.body }} />
+              {/* Notes timeline trial: a file attached in New note, as the meeting popup shows a transcript. */}
+              {note.attachment && (
+                <AttachedFileCard
+                  file={note.attachment}
+                  className={`max-h-[300px] ${note.body ? 'mt-4' : ''}`}
+                  actions={
+                    <button type="button" onClick={() => showToast(`${note.attachment!.name} downloads`)} className="text-brand hover:underline">
+                      Download
+                    </button>
+                  }
+                />
+              )}
             </div>
             <div className="h-8 shrink-0" />
           </>
