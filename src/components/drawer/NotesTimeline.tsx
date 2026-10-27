@@ -13,7 +13,7 @@ import { useNotesLayout } from '../../lib/notesTrial';
 import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { NewNoteDialog } from './NewNoteDialog';
-import { BackButton, KIND_LABEL, KindIcon, NotesCardBar, TranscriptFileCard, transcriptCard } from './NoteAttachment';
+import { BackButton, INLINE_HEIGHT, KIND_LABEL, KindIcon, NotesCardBar, TranscriptFileCard, transcriptCard } from './NoteAttachment';
 import { DetailActions, KindTag, NoteDialog, TITLE, TimeLine } from './NoteDialog';
 import { TranscriptDialog } from './TranscriptDialog';
 
@@ -95,7 +95,7 @@ function InlineDetails({ client, entry, onBack, onEdit, onDelete }: { client: Cl
         <BackButton onClick={onBack} />
         <DetailActions what={what} onDelete={() => setConfirming(true)} onEdit={onEdit} />
       </NotesCardBar>
-      <div className="scroll-thin flex max-h-[620px] flex-col overflow-y-auto rounded-b-lg bg-white">
+      <div className={`scroll-thin flex ${INLINE_HEIGHT} flex-col overflow-y-auto rounded-b-lg bg-white`}>
         {/* 20 px all round (the user's call); the kind and both times on one line under the title. */}
         <header className="flex shrink-0 flex-col gap-2 border-b border-black/[0.08] p-5">
           <h2 className={`${TITLE} min-w-0 break-words`}>{entry.title}</h2>
@@ -218,7 +218,7 @@ export function NotesTimeline({ client, notes: profileNotes }: { client: Client;
           New note
         </button>
       </div>
-      <div className="scroll-thin flex max-h-[580px] flex-col gap-3 overflow-y-auto p-3">
+      <div className={`scroll-thin flex ${inline ? INLINE_HEIGHT : 'max-h-[580px]'} flex-col gap-3 overflow-y-auto p-3`}>
         <label className="flex h-[38px] shrink-0 items-center gap-2.5 rounded-[5px] border border-[#dbdce3] px-3 focus-within:border-brand">
           <span className="relative size-5 shrink-0 overflow-hidden">
             <span className="absolute inset-[15%_14.69%_14.69%_15%]">

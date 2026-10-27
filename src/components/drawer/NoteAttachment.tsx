@@ -20,6 +20,9 @@ export function KindIcon({ kind, size = 16.842 }: { kind: NoteKind; size?: numbe
   return <img src={kind === 'note' ? iconSticky : iconVideo} alt="" width={size} height={size} className="block shrink-0" />;
 }
 
+/** Option B: the Notes card's body is one height on the list, a note's details and the form (the user's call). */
+export const INLINE_HEIGHT = 'h-[580px]';
+
 /** The Notes card's 44 px white header: Notes (N) + New note on the list; ‹ Back or Cancel · Save in the section (option B). */
 export function NotesCardBar({ children }: { children: ReactNode }) {
   return <div className="flex h-11 shrink-0 items-center justify-between gap-3 rounded-t-lg border-b border-ink/10 bg-white px-3">{children}</div>;

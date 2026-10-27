@@ -428,7 +428,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   note, Edit and both details open in the Notes card itself (`InlineDetails` in `NotesTimeline.tsx`, `NewNoteDialog`
   `inline`): on details the card's header reads ‹ Back with Delete · Edit, and under the title one line holds the kind tag and
   the times ("Created: …" or "Meeting date: …" • "Last edited: …"), 20 px all round; on the form its name with Cancel · Save;
-  Save or Cancel on an edit returns to the details, on a new note to the list. New note, Note details and the meeting popup are one size on this page, 720 × 800 capped at the window (`NOTE_POPUP` in `NoteDialog.tsx`, the user's call, so the content has more room). There is no frame for the popup, its edit or the tabs.
+  Save or Cancel on an edit returns to the details, on a new note to the list. The card keeps one height on the list,
+  details and form (`INLINE_HEIGHT`, 580 px body), and the form's tabs, title and text start 20 px in (`compact` on
+  `NoteHeader` and `NoteEditor`). New note, Note details and the meeting popup are one size on this page, 720 × 800 capped at the window (`NOTE_POPUP` in `NoteDialog.tsx`, the user's call, so the content has more room). There is no frame for the popup, its edit or the tabs.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for

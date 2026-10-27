@@ -9,7 +9,7 @@ import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { MeetingWhen, TIME_ZONE } from './AddMeetingDialog';
-import { KIND_LABEL, NotesCardBar, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
+import { INLINE_HEIGHT, KIND_LABEL, NotesCardBar, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
 import { EditorButtons, EditorFooter, NOTE_POPUP, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
 
 /** The demo's clock reads 06:00, as for a message sent from the dashboard. */
@@ -133,6 +133,7 @@ export function NewNoteDialog({
   const form = (
     <>
       <NoteHeader
+        compact={inline}
         above={!editing && !editingNote && <KindTabs kind={kind} onChange={switchTo} />}
         title={
           <input
@@ -174,10 +175,11 @@ export function NewNoteDialog({
           placeholder={kind === 'meeting' ? `Type your notes from the meeting with ${client.firstName}...` : `Type your note for ${client.firstName}...`}
           onChange={setHtml}
           toolbarEnd={meeting && !transcript && <UploadTranscriptButton onClick={browse} />}
-          height={transcript ? 'h-[240px] shrink-0' : 'min-h-0 flex-1'}
+          height={transcript ? (inline ? 'h-[180px] shrink-0' : 'h-[240px] shrink-0') : 'min-h-0 flex-1'}
+          compact={inline}
         />
         {meeting && transcript && (
-          <div className="flex min-h-0 flex-1 flex-col px-8 pb-2 pt-1">
+          <div className={`flex min-h-0 flex-1 flex-col pb-2 pt-1 ${inline ? 'px-5' : 'px-8'}`}>
             <TranscriptFileCard
               {...transcriptCard(transcript, client, editing?.minutes)}
               reading={reading}
@@ -194,7 +196,7 @@ export function NewNoteDialog({
             />
           </div>
         )}
-        {error && <p className="mx-8 shrink-0 pb-1 text-[12px] leading-[18px] text-danger">{error}</p>}
+        {error && <p className={`${inline ? 'mx-5' : 'mx-8'} shrink-0 pb-1 text-[12px] leading-[18px] text-danger`}>{error}</p>}
         {dragging && (
           <div className="pointer-events-none absolute inset-3 flex items-center justify-center rounded-lg border-[1.5px] border-dashed border-brand text-[13px] font-semibold text-brand">
             Drop the file to attach it
@@ -245,7 +247,7 @@ export function NewNoteDialog({
             <EditorButtons canSave={canSave} onCancel={onClose} onSave={save} />
           </div>
         </NotesCardBar>
-        <div className="flex h-[620px] flex-col rounded-b-lg bg-white">{form}</div>
+        <div className={`flex ${INLINE_HEIGHT} flex-col rounded-b-lg bg-white`}>{form}</div>
         {extras}
       </>
     );

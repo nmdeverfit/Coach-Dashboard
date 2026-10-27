@@ -51,9 +51,22 @@ export function KindTag({ label }: { label: string }) {
 }
 
 /** The popups' header: the title row, then the time lines, over a light border. */
-export function NoteHeader({ title, actions, above, children }: { title: ReactNode; actions?: ReactNode; above?: ReactNode; children: ReactNode }) {
+export function NoteHeader({
+  title,
+  actions,
+  above,
+  compact = false,
+  children,
+}: {
+  title: ReactNode;
+  actions?: ReactNode;
+  above?: ReactNode;
+  /** 20 px sides and top instead of 32 (option B's form in the Notes card, the user's call). */
+  compact?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <header className="flex shrink-0 flex-col gap-0.5 border-b border-black/[0.08] px-8 pb-3 pt-8">
+    <header className={`flex shrink-0 flex-col gap-0.5 border-b border-black/[0.08] pb-3 ${compact ? 'px-5 pt-5' : 'px-8 pt-8'}`}>
       {/* Notes timeline trial: the Note | Meeting notes tabs over the title. */}
       {above && <div className="mb-3 flex">{above}</div>}
       <div className="flex items-center justify-between gap-4">
@@ -84,6 +97,7 @@ export function NoteEditor({
   onDropFile,
   toolbarEnd,
   height = 'h-[440px] shrink-0',
+  compact = false,
 }: {
   initial: string;
   placeholder: string;
@@ -91,6 +105,8 @@ export function NoteEditor({
   onDropFile?: (file: File) => void;
   toolbarEnd?: ReactNode;
   height?: string;
+  /** The text starts 20 px in, under a compact header's title (option B). */
+  compact?: boolean;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const [empty, setEmpty] = useState(!noteText(initial));
@@ -163,8 +179,8 @@ export function NoteEditor({
           </>
         )}
       </div>
-      <div className="scroll-thin relative min-h-0 flex-1 overflow-y-auto px-5">
-        {empty && <p className="pointer-events-none absolute left-5 top-0 text-[14px] leading-[1.75] text-ink-secondary">{placeholder}</p>}
+      <div className={`scroll-thin relative min-h-0 flex-1 overflow-y-auto ${compact ? 'px-2' : 'px-5'}`}>
+        {empty && <p className={`pointer-events-none absolute top-0 ${compact ? 'left-2' : 'left-5'} text-[14px] leading-[1.75] text-ink-secondary`}>{placeholder}</p>}
         <div
           ref={box}
           role="textbox"
