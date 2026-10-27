@@ -401,13 +401,14 @@ one column. The Upcoming bookings session list is shared with the main branch to
   `lib/notesTrial.ts`, kept in localStorage): A one New note that turns into meeting notes when a transcript is
   pasted or a file attached (`detectTranscript` in `lib/noteKind.ts`: subtitle timecodes or timed speaker lines
   switch at once with Keep as a note, untimed speaker lines ask first, label lines like "Sleep: …" never count),
-  B New note ▾ asking Note or Meeting notes, C a Note | Meeting notes toggle that detection flips. A meeting note
+  B New note ▾ asking Note or Meeting notes, C a Note | Meeting notes toggle; a transcript pasted on its Note tab
+  asks first (Switch to meeting notes · Keep as note), then flips it. A meeting note
   is a note with a transcript, so the kind follows where the text comes from. `NewNoteDialog` reuses the note
   editor; its meeting notes are `MeetingNotesForm` (the user's call: no Upload / Paste tabs): the coach's notes in
   the note editor, Attach transcript (or a file dropped on the form) for the transcript, shown as a card with
   "61 lines · Long and Malcom · ~30 min" (`transcriptStats`) and a scrolling preview; once a transcript is in and
-  the notes are empty they fold into "+ Add your notes (optional)"; a transcript pasted into the notes offers Move
-  to transcript; the title is suggested from the transcript's heading or file name (`titleFrom`). A paste that makes
+  the notes are empty they fold into "+ Add your notes (optional)"; on Meeting notes a pasted transcript just stays in
+  the notes, with no question (meeting notes and transcript are one thing, the user's call); the title is suggested from the transcript's heading or file name (`titleFrom`). A paste that makes
   a note into meeting notes keeps the typed text as notes and only the pasted text as the transcript. Meetings carry
   `notes` and may have no transcript. On this page the meeting popup has no Summary (the user's call): tabs Notes |
   Transcript when the coach wrote notes, else the transcript alone with no tab bar (`tabsFor` in

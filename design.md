@@ -245,8 +245,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   12 px `ink-tertiary` line "5 KB · TXT · 61 lines · Long and Malcom · ~30 min", Replace in brand · Remove; then
   the lines on `#f9fafa`, speakers semibold, scrolling) takes the room, under a 176 px editor when notes are typed
   or "+ Add your notes (optional)" (13 px semibold brand, "(optional)" regular `ink-tertiary`) when not. Dragging a
-  file over the form draws a dashed brand frame, "Drop the transcript to attach it". Move to transcript: a one-line
-  `brand/20` banner, 12 px, a 28 px brand button and Keep in notes. The meeting popup drops Summary on this page:
+  file over the form draws a dashed brand frame, "Drop the transcript to attach it". The transcript banner only
+  shows on the Note side (A's unsure pastes, every paste on C's Note tab): "Switch to meeting notes" · "Keep as
+  note"; Meeting notes never asks. The meeting popup drops Summary on this page:
   Notes (the coach's notes, `note-body`, 30 px sides) | Transcript, or the transcript alone without a tab bar. B's menu:
   260 px, two items with a 28 px ring icon, name and a 12 px line. The trial bar: `ink` bar, rounded 12, bottom
   16 px, left 80 px, z 45 (over the panels, under popups), `data-keep-open`.

@@ -83,12 +83,12 @@ function SuggestBanner({ detection, onKeep, onSwitch }: { detection: Detection; 
       <img src={iconSparkle} alt="" width={16} height={16} className="mt-0.5 shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <p className="text-[13px] leading-[1.5] text-ink">
-          <span className="font-semibold">This looks like a meeting transcript</span> ({detection.reason}). Save as meeting notes to attach
-          it as the transcript, keep the rest as your notes and get a summary.
+          <span className="font-semibold">This looks like a meeting transcript</span> ({detection.reason}). Switch to meeting notes to attach
+          it as the transcript and keep the rest as your notes.
         </p>
         <div className="flex items-center gap-3">
           <button type="button" onClick={onSwitch} className="h-7 rounded-[6px] bg-brand px-3 text-[12px] font-semibold text-white hover:bg-brand/90">
-            Save as meeting notes
+            Switch to meeting notes
           </button>
           <button type="button" onClick={onKeep} className="text-[12px] font-semibold text-ink-secondary hover:text-ink">
             Keep as note
@@ -121,7 +121,9 @@ function SwitchedNotice({ why, onUndo }: { why: string; onUndo: () => void }) {
  *   speaker lines makes it meeting notes at once, with a line saying why and Keep as a note; a paste of untimed
  *   speaker lines asks first (`SuggestBanner`).
  * - B: the coach picked the kind on New note ▾ (`start`); nothing is detected.
- * - C: a Note | Meeting notes toggle; a file or any detected transcript flips it, saying what was detected.
+ * - C: a Note | Meeting notes toggle; a file flips it, and a transcript pasted on the Note tab asks first
+ *   (`SuggestBanner`), then flips it saying what was detected. The Meeting notes tab asks nothing: there the notes
+ *   and the transcript are one thing (the user's call).
  * A transcript found in a paste leaves the note's text and becomes the attached transcript. Turning meeting notes back
  * into a note restores the note as it was, or the notes plus the pasted transcript if the coach changed either.
  */
@@ -149,7 +151,7 @@ export function NewNoteDialog({
   const current = useRef({ notes: '', pasted: '' });
   const before = useRef<{ html: string; notes: string; text: string } | null>(null);
   const [why, setWhy] = useState<string | null>(null);
-  // A paste the coach is asked about (A): the text, and the note before and after it.
+  // A paste the coach is asked about (A and C): the text, and the note before and after it.
   const [suggestion, setSuggestion] = useState<{ detection: Detection; text: string; before: string; after: string } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const detects = variant !== 'B';
@@ -178,8 +180,9 @@ export function NewNoteDialog({
   const onPasteText = (text: string, after: string) => {
     const found = detectTranscript(text);
     if (!found) return;
-    if (variant === 'A' && found.level === 'likely') return setSuggestion({ detection: found, text: text.trim(), before: html, after });
-    toMeeting({ pasted: text.trim() }, variant === 'A' ? `the pasted text has ${found.reason}` : found.reason, html, after);
+    // C asks on the Note tab for any transcript; A asks only when it is not sure.
+    if (variant === 'C' || found.level === 'likely') return setSuggestion({ detection: found, text: text.trim(), before: html, after });
+    toMeeting({ pasted: text.trim() }, `the pasted text has ${found.reason}`, html, after);
   };
 
   const attach = (file: File) => toMeeting({ file }, variant === 'A' ? 'a transcript file is attached' : 'transcript file attached');
@@ -239,7 +242,9 @@ export function NewNoteDialog({
             <SuggestBanner
               detection={suggestion.detection}
               onKeep={() => setSuggestion(null)}
-              onSwitch={() => toMeeting({ pasted: suggestion.text }, null, suggestion.before, suggestion.after)}
+              onSwitch={() =>
+                toMeeting({ pasted: suggestion.text }, variant === 'C' ? suggestion.detection.reason : null, suggestion.before, suggestion.after)
+              }
             />
           )}
           <NoteEditor

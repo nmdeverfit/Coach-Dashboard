@@ -1,11 +1,10 @@
 import { Paperclip, Plus } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import iconClipboard from '../../assets/figma/icon-clipboard.svg';
-import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import type { Client, Transcript } from '../../data/types';
 import { TRANSCRIPT_TYPES, fileSize } from '../../lib/meetings';
-import { detectTranscript, statsLine, titleFrom, transcriptStats, type Detection } from '../../lib/noteKind';
+import { statsLine, titleFrom, transcriptStats } from '../../lib/noteKind';
 import { cleanNoteHtml, noteText } from '../../lib/notes';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
@@ -83,30 +82,13 @@ function TranscriptCard({ attached, reading, onReplace, onRemove }: { attached: 
   );
 }
 
-/** A transcript pasted into the notes: one click moves it out into the attached transcript. */
-function MoveBanner({ detection, onMove, onKeep }: { detection: Detection; onMove: () => void; onKeep: () => void }) {
-  return (
-    <div className="mx-8 mt-4 flex shrink-0 items-center gap-2.5 rounded-lg border border-brand/20 bg-brand/[0.04] px-3 py-2">
-      <img src={iconSparkle} alt="" width={14} height={14} className="shrink-0" />
-      <p className="min-w-0 flex-1 text-[12px] leading-[18px] text-ink">
-        <span className="font-semibold">That looks like the transcript</span> ({detection.reason}).
-      </p>
-      <button type="button" onClick={onMove} className="h-7 shrink-0 rounded-[6px] bg-brand px-3 text-[12px] font-semibold text-white hover:bg-brand/90">
-        Move to transcript
-      </button>
-      <button type="button" onClick={onKeep} className="shrink-0 text-[12px] font-semibold text-ink-secondary hover:text-ink">
-        Keep in notes
-      </button>
-    </div>
-  );
-}
-
 /**
  * Meeting notes on the Notes timeline trial (the user's call; no frame): a note about a call, with its transcript
  * attached. The coach's notes come first, in the note editor; Attach transcript (or a file dropped anywhere on the
  * form) adds the transcript, shown as a card with what it holds and a scrolling preview. Once one is attached and the
  * notes are empty, the notes fold into "Add your notes (optional)" so the transcript takes the room; notes already
- * typed stay open above it. A transcript pasted into the notes offers Move to transcript. Save needs notes or a
+ * typed stay open above it. Here meeting notes and transcript are one thing, so a transcript pasted into the notes
+ * stays there, with no question asked (the user's call; detection lives on the Note side). Save needs notes or a
  * transcript. Meeting notes get no summary on this trial (the user's call).
  */
 export function MeetingNotesForm({
@@ -139,13 +121,11 @@ export function MeetingNotesForm({
   const [date, setDate] = useState(DEMO_TODAY);
   const [time, setTime] = useState(NOW);
   const [notes, setNotes] = useState(initialNotes);
-  const [editorKey, setEditorKey] = useState(0);
   const [attached, setAttached] = useState<Attached | null>(seed?.pasted ? { kind: 'text', text: seed.pasted } : null);
   const [reading, setReading] = useState(false);
   const [fileError, setFileError] = useState('');
   const [dragging, setDragging] = useState(false);
   const [notesOpen, setNotesOpen] = useState(Boolean(noteText(initialNotes)) || !seed?.pasted);
-  const [move, setMove] = useState<{ detection: Detection; text: string; before: string } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const added = state.meetings[client.id] ?? [];
   const newTitle = `New Meeting ${1 + added.filter((m) => /^New Meeting \d+$/.test(m.title)).length}`;
@@ -196,15 +176,9 @@ export function MeetingNotesForm({
 
   const editor = (height: string) => (
     <NoteEditor
-      key={editorKey}
       initial={notes}
       placeholder={`Type your notes from the meeting with ${client.firstName}...`}
       onChange={setNotes}
-      onPasteText={(text) => {
-        const found = !attached && detectTranscript(text);
-        // `notes` is still the text from before the paste.
-        if (found) setMove({ detection: found, text, before: notes });
-      }}
       height={height}
     />
   );
@@ -245,19 +219,6 @@ export function MeetingNotesForm({
         }}
       >
         {notice && <div className="mx-8 mt-4 shrink-0">{notice}</div>}
-        {move && (
-          <MoveBanner
-            detection={move.detection}
-            onKeep={() => setMove(null)}
-            onMove={() => {
-              setNotes(move.before);
-              setEditorKey((k) => k + 1);
-              setAttached({ kind: 'text', text: move.text.trim() });
-              setNotesOpen(Boolean(noteText(move.before)));
-              setMove(null);
-            }}
-          />
-        )}
         {!attached ? (
           editor('min-h-0 flex-1')
         ) : (
