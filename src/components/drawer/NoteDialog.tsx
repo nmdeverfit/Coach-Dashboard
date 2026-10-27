@@ -62,19 +62,21 @@ const TOOLS = [
 /**
  * The note editor (Figma 5850:570122): Bold · Italic · Numbered list · Bulleted list over a writing area. The page's
  * own rich-text editing does the formatting; what it writes is cleaned on save (`cleanNoteHtml`). The Notes timeline
- * trial listens for a file dropped on it (`onDropFile`).
+ * trial listens for a file dropped on it (`onDropFile`) and adds Attach transcript after the tools (`toolbarEnd`).
  */
 export function NoteEditor({
   initial,
   placeholder,
   onChange,
   onDropFile,
+  toolbarEnd,
   height = 'h-[440px] shrink-0',
 }: {
   initial: string;
   placeholder: string;
   onChange: (html: string) => void;
   onDropFile?: (file: File) => void;
+  toolbarEnd?: ReactNode;
   height?: string;
 }) {
   const box = useRef<HTMLDivElement>(null);
@@ -141,6 +143,12 @@ export function NoteEditor({
             <Tooltip label={t.label} />
           </span>
         ))}
+        {toolbarEnd && (
+          <>
+            <span aria-hidden className="h-5 w-px self-center bg-black/10" />
+            {toolbarEnd}
+          </>
+        )}
       </div>
       <div className="scroll-thin relative min-h-0 flex-1 overflow-y-auto px-5">
         {empty && <p className="pointer-events-none absolute left-5 top-0 text-[14px] leading-[1.75] text-ink-secondary">{placeholder}</p>}

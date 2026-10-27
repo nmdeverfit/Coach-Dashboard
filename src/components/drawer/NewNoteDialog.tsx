@@ -1,4 +1,4 @@
-import { Paperclip, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
@@ -13,7 +13,7 @@ import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { Tooltip } from '../Tooltip';
-import { MeetingNotesForm, type MeetingDraft } from './MeetingNotesForm';
+import { AttachTranscriptButton, MeetingNotesForm, type MeetingDraft } from './MeetingNotesForm';
 import { EditorFooter, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
 
 export type NoteKind = 'note' | 'meeting';
@@ -208,23 +208,12 @@ export function NewNoteDialog({
             placeholder={`Type your note for ${client.firstName}...`}
             onChange={setHtml}
             onDropFile={attaches ? attach : undefined}
+            toolbarEnd={attaches && <AttachTranscriptButton onClick={() => fileInput.current?.click()} />}
           />
           <EditorFooter
             canSave={Boolean(noteText(html)) || /<li/i.test(html)}
             onCancel={onClose}
             onSave={save}
-            start={
-              attaches && (
-                <button
-                  type="button"
-                  onClick={() => fileInput.current?.click()}
-                  className="flex items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:text-brand"
-                >
-                  <Paperclip size={14} aria-hidden />
-                  Attach transcript
-                </button>
-              )
-            }
           />
           <input
             ref={fileInput}

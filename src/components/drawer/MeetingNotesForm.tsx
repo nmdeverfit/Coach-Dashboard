@@ -29,6 +29,45 @@ type Attached = { kind: 'text'; text: string } | { kind: 'file'; name: string; s
 
 const textOf = (t: Attached | null) => t?.text;
 
+/** Attach transcript on the editor's toolbar, beside the formatting tools (the user's pick of the composer pattern). */
+export function AttachTranscriptButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      // Keeps the selection in the writing area, like the tools beside it.
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onClick}
+      className="flex h-[26px] items-center gap-1.5 rounded-[4px] px-2 text-[12px] font-semibold leading-none text-ink-secondary hover:bg-black/[0.05] hover:text-ink"
+    >
+      <Paperclip size={14} aria-hidden />
+      Attach transcript
+    </button>
+  );
+}
+
+/** Under the notes until a transcript is attached: a dashed strip that takes a dropped file or opens the picker. */
+function DropStrip({ dragging, error, onBrowse }: { dragging: boolean; error: boolean; onBrowse: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onBrowse}
+      className={`mx-8 mb-2 flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-dashed text-[13px] leading-[1.5] ${
+        dragging ? 'border-brand bg-brand/[0.03] font-semibold text-brand' : error ? 'border-danger text-ink-tertiary' : 'border-[#e0e0e0] text-ink-tertiary hover:border-brand/60'
+      }`}
+    >
+      <Paperclip size={14} aria-hidden />
+      {dragging ? (
+        'Drop to attach the transcript'
+      ) : (
+        <span>
+          Drop a transcript here, or <span className="font-semibold text-ink underline">browse</span>
+          <span className="text-ink-muted"> · .txt, .docx, .srt, .pdf</span>
+        </span>
+      )}
+    </button>
+  );
+}
+
 /** The attached transcript (no frame): what it is and what is in it, then the lines, speakers in bold, scrolling. */
 function TranscriptCard({ attached, reading, onReplace, onRemove }: { attached: Attached; reading: boolean; onReplace: () => void; onRemove: () => void }) {
   const text = textOf(attached);
@@ -185,11 +224,13 @@ export function MeetingNotesForm({
     onSaved();
   };
 
+  const browse = () => fileInput.current?.click();
   const editor = (height: string) => (
     <NoteEditor
       initial={notes}
       placeholder={`Type your notes from the meeting with ${client.firstName}...`}
       onChange={setNotes}
+      toolbarEnd={!attached && <AttachTranscriptButton onClick={browse} />}
       height={height}
     />
   );
@@ -214,7 +255,7 @@ export function MeetingNotesForm({
       </NoteHeader>
 
       <div
-        className={`relative flex h-[440px] shrink-0 flex-col ${dragging ? 'bg-brand/[0.03]' : ''}`}
+        className={`relative flex h-[440px] shrink-0 flex-col ${dragging && attached ? 'bg-brand/[0.03]' : ''}`}
         onDragOver={(e) => {
           if (!e.dataTransfer.types.includes('Files')) return;
           e.preventDefault();
@@ -231,7 +272,10 @@ export function MeetingNotesForm({
       >
         {notice && <div className="mx-8 mt-4 shrink-0">{notice}</div>}
         {!attached ? (
-          editor('min-h-0 flex-1')
+          <>
+            {editor('min-h-0 flex-1')}
+            <DropStrip dragging={dragging} error={Boolean(fileError)} onBrowse={browse} />
+          </>
         ) : (
           <>
             {notesOpen ? (
@@ -250,7 +294,7 @@ export function MeetingNotesForm({
               <TranscriptCard
                 attached={attached}
                 reading={reading}
-                onReplace={() => fileInput.current?.click()}
+                onReplace={browse}
                 onRemove={() => {
                   setAttached(null);
                   setReading(false);
@@ -261,7 +305,7 @@ export function MeetingNotesForm({
           </>
         )}
         {fileError && <p className="mx-8 shrink-0 pb-1 text-[12px] leading-[18px] text-danger">{fileError}</p>}
-        {dragging && (
+        {dragging && attached && (
           <div className="pointer-events-none absolute inset-3 flex items-center justify-center rounded-lg border-[1.5px] border-dashed border-brand text-[13px] font-semibold text-brand">
             Drop the transcript to attach it
           </div>
@@ -271,14 +315,6 @@ export function MeetingNotesForm({
         canSave={(hasNotes || Boolean(attached)) && !reading}
         onCancel={onCancel}
         onSave={save}
-        start={
-          !attached && (
-            <button type="button" onClick={() => fileInput.current?.click()} className="flex items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:text-brand">
-              <Paperclip size={14} aria-hidden />
-              Attach transcript
-            </button>
-          )
-        }
       />
       <input
         ref={fileInput}
