@@ -267,7 +267,7 @@ export function TranscriptDialog({
                   </button>
                 )
               }
-              className="max-h-[560px]"
+              className="max-h-[300px]"
             />
           )}
         </div>

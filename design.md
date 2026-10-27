@@ -248,7 +248,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   file over the form draws a dashed brand frame, "Drop the transcript to attach it". Switching to Note with a file attached opens the `ConfirmDialog` "Switch to a
   note?" · "Switch to note". The meeting popup is one plain page on this trial: the
   notes (`note-body`, 30 px sides, no heading), then 16 px down the transcript in the form's card
-  (`TranscriptFileCard`, capped at 560 px, the lines scrolling inside, Download in brand for a file); no tabs,
+  (`TranscriptFileCard`, capped at 300 px, the lines scrolling inside, Download in brand for a file); no tabs,
   headings, rule or search, and a part shows only when the meeting has it. B's menu:
   260 px, two items with a 28 px ring icon, name and a 12 px line. The trial bar: `ink` bar, rounded 12, bottom
   16 px, left 80 px, z 45 (over the panels, under popups), `data-keep-open`.
