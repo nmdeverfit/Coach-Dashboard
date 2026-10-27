@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import iconChevronLeft from '../../assets/figma/icon-chevron-left.svg';
+import iconChevronRight from '../../assets/figma/icon-chevron-right-small.svg';
 import iconCheckTitle from '../../assets/figma/icon-check-title.svg';
 import iconCheckWhite from '../../assets/figma/icon-check-white.svg';
 import iconAddWhite from '../../assets/figma/icon-add-white.svg';
@@ -158,11 +160,11 @@ function ProfileCheckinBody({ client }: { client: Client }) {
 
 /**
  * Related to-dos (grouped to-dos, a trial): the client's other to-dos today, by `TYPE_PRIORITY`, each only its checkbox
- * and title (the user's call), on a plain header. Each opens its own panel in
- * this one's place; each is completed or dismissed on its own (the user's call).
+ * and title (the user's call), on a plain header; hover adds a chevron, since a click goes to that to-do. Each opens
+ * its own panel in this one's place, with ‹ back to this one (`onOpen`); each is completed or dismissed on its own.
  */
-function RelatedTodos({ todo }: { todo: Todo }) {
-  const { suggested, previous, selectTodo } = useStore();
+function RelatedTodos({ todo, onOpen }: { todo: Todo; onOpen: (id: string) => void }) {
+  const { suggested, previous } = useStore();
   const related = [...suggested, ...previous].filter((t) => t.clientId === todo.clientId && t.id !== todo.id).sort(byPriority);
   if (!related.length) return null;
   return (
@@ -174,7 +176,7 @@ function RelatedTodos({ todo }: { todo: Todo }) {
             const done = t.state === 'completed';
             return (
               <li key={t.id}>
-                <button type="button" onClick={() => selectTodo(t.id)} className="group flex w-full items-center gap-3 px-4 py-1.5 text-left hover:bg-surface-secondary/60">
+                <button type="button" onClick={() => onOpen(t.id)} className="group flex w-full items-center gap-3 px-4 py-1.5 text-left hover:bg-surface-secondary/60">
                   {/* The row checkbox's look, read-only here: the to-do is ticked in its own panel or on its row. */}
                   <span
                     aria-hidden
@@ -189,6 +191,7 @@ function RelatedTodos({ todo }: { todo: Todo }) {
                   <span className={`min-w-0 flex-1 truncate text-[13px] font-semibold leading-[1.5] text-ink group-hover:text-brand ${done ? 'opacity-60 line-through' : ''}`}>
                     {SHORT_ACTION[t.type]}
                   </span>
+                  <img src={iconChevronRight} alt="" width={16} height={16} className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
                 </button>
               </li>
             );
@@ -314,10 +317,30 @@ export function TodoDrawer() {
   const [clientOpen, setClientOpen] = useState(false);
   const close = useCallback(() => selectTodo(null), [selectTodo]);
   useCloseOnOutside(Boolean(state.selectedTodoId), close);
+  // Grouped to-dos: the to-dos left by Related to-dos, newest last, for ‹ back. Opening a to-do any other way (its
+  // row, or closing the panel) starts again.
+  const [trail, setTrail] = useState<string[]>([]);
+  const viaRelated = useRef(false);
+  const openRelated = (id: string) => {
+    viaRelated.current = true;
+    setTrail((t) => [...t, state.selectedTodoId!]);
+    selectTodo(id);
+  };
+  const back = () => {
+    // A to-do dismissed meanwhile is skipped.
+    const left = trail.filter((id) => state.todos.find((t) => t.id === id)?.state !== 'dismissed');
+    const prev = left.pop();
+    setTrail(left);
+    if (!prev) return;
+    viaRelated.current = true;
+    selectTodo(prev);
+  };
 
   useEffect(() => {
     setConfirmDismiss(false);
     setClientOpen(false);
+    if (!viaRelated.current) setTrail([]);
+    viaRelated.current = false;
   }, [state.selectedTodoId]);
 
   const todo = state.todos.find((t) => t.id === shownId);
@@ -333,14 +356,21 @@ export function TodoDrawer() {
       {/* Kept mounted behind client details so ‹ returns to the same tab and scroll (AC1.11). */}
       <div className={`relative flex min-h-0 flex-1 flex-col ${clientOpen ? 'hidden' : ''}`}>
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-5 pb-2.5 pt-[15px]">
-          <p className="text-[13px] font-semibold leading-[1.5] text-ink-secondary">TO-DO DETAILS</p>
+          {trail.length > 0 ? (
+            <button type="button" aria-label="Back to the previous to-do" onClick={back} className="-ml-1.5 flex items-center gap-0.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:text-ink">
+              <img src={iconChevronLeft} alt="" width={24} height={24} />
+              TO-DO DETAILS
+            </button>
+          ) : (
+            <p className="text-[13px] font-semibold leading-[1.5] text-ink-secondary">TO-DO DETAILS</p>
+          )}
           <button type="button" aria-label="Close to-do details" onClick={() => selectTodo(null)} className="relative size-5 overflow-hidden rounded hover:opacity-70">
             <img src={iconClose} alt="" className="absolute left-1/2 top-1/2 size-6 max-w-none -translate-x-1/2 -translate-y-1/2" />
           </button>
         </header>
         <div key={todo.id} data-panel-scroll className="flex-1 overflow-y-auto">
           <TitleBlock todo={todo} client={client} onComplete={complete} onDismiss={() => setConfirmDismiss(true)} onOpenClient={() => setClientOpen(true)} />
-          {GROUPED_TODOS && <RelatedTodos todo={todo} />}
+          {GROUPED_TODOS && <RelatedTodos todo={todo} onOpen={openRelated} />}
           {detail ? (
             <Body todo={todo} client={client} detail={detail} />
           ) : todo.type === 'checkin' && GROUPED_TODOS ? (

@@ -112,8 +112,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   rows, with a Linear-style connect line from the main row's checkbox down past the related rows, a branch to each related
   checkbox, which is centred on its text. A
   ticked row dims in place; the card sinks to the bottom of its section only once every row is done. The panel lists
-  the others as Related to-dos (`RelatedTodos` in `TodoDrawer`, checkbox and title only), each completed or dismissed
-  on its own. A Check-in without panel data (Wade) reads the client detail
+  the others as Related to-dos (`RelatedTodos` in `TodoDrawer`, checkbox and title only, a chevron on hover), each completed or
+  dismissed on its own; opening one puts ‹ back on the new panel's "TO-DO DETAILS" (`trail` in `TodoDrawer`). A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
