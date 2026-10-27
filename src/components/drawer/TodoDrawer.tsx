@@ -9,7 +9,6 @@ import dot from '../../assets/figma/dot-drawer.svg';
 import iconDuplicateWhite from '../../assets/figma/icon-duplicate-white.svg';
 import iconTrashHover from '../../assets/figma/icon-trash-hover.svg';
 import iconTrash from '../../assets/figma/icon-trash.svg';
-import iconChevronRight from '../../assets/figma/icon-chevron-right-small.svg';
 import iconCheck from '../../assets/figma/icon-check.svg';
 import { todoDetails } from '../../data/details';
 import { GROUPED_TODOS, byPriority } from '../../data/groupedTodos';
@@ -159,7 +158,8 @@ function ProfileCheckinBody({ client }: { client: Client }) {
 }
 
 /**
- * Related to-dos (grouped to-dos, a trial): the client's other to-dos today, in BL3 order. Each opens its own panel in
+ * Related to-dos (grouped to-dos, a trial): the client's other to-dos today, by `TYPE_PRIORITY`, each only its checkbox
+ * and title (the user's call), on a plain header. Each opens its own panel in
  * this one's place; each is completed or dismissed on its own (the user's call).
  */
 function RelatedTodos({ todo }: { todo: Todo }) {
@@ -169,20 +169,20 @@ function RelatedTodos({ todo }: { todo: Todo }) {
   return (
     <div className="px-[30px] pb-2.5">
       <section aria-label="Related to-dos" className="overflow-hidden rounded-lg border border-line bg-white">
-        <h3 className="flex items-center gap-2 bg-surface-secondary px-4 py-2.5 text-[13px] font-semibold leading-[1.5] text-ink">
+        <h3 className="flex items-center gap-2 px-4 pb-1 pt-3 text-[13px] font-semibold leading-[1.5] text-ink">
           Related to-dos
           <CountChip value={related.length} />
         </h3>
-        <ul>
+        <ul className="pb-2">
           {related.map((t) => {
             const done = t.state === 'completed';
             return (
-              <li key={t.id} className="border-t border-line">
-                <button type="button" onClick={() => selectTodo(t.id)} className="group flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-surface-secondary/60">
+              <li key={t.id}>
+                <button type="button" onClick={() => selectTodo(t.id)} className="group flex w-full items-center gap-3 px-4 py-1.5 text-left hover:bg-surface-secondary/60">
                   {/* The row checkbox's look, read-only here: the to-do is ticked in its own panel or on its row. */}
                   <span
                     aria-hidden
-                    className={`mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full border-[0.938px] border-black/15 ${done ? 'bg-checked' : 'bg-white'}`}
+                    className={`flex size-[18px] shrink-0 items-center justify-center rounded-full border-[0.938px] border-black/15 ${done ? 'bg-checked' : 'bg-white'}`}
                   >
                     <span className="relative size-[9px]">
                       <span className="absolute bottom-[25.73%] left-[16.64%] right-[16.67%] top-1/4">
@@ -190,11 +190,9 @@ function RelatedTodos({ todo }: { todo: Todo }) {
                       </span>
                     </span>
                   </span>
-                  <span className={`flex min-w-0 flex-1 flex-col gap-0.5 ${done ? 'opacity-60 line-through' : ''}`}>
-                    <span className="text-[13px] font-semibold leading-[1.5] text-ink group-hover:text-brand">{SHORT_ACTION[t.type]}</span>
-                    <span className="text-[12px] leading-normal text-ink-tertiary">{t.reason}</span>
+                  <span className={`min-w-0 flex-1 truncate text-[13px] font-semibold leading-[1.5] text-ink group-hover:text-brand ${done ? 'opacity-60 line-through' : ''}`}>
+                    {SHORT_ACTION[t.type]}
                   </span>
-                  <img src={iconChevronRight} alt="" width={16} height={16} className="mt-0.5 shrink-0 opacity-60 group-hover:opacity-100" />
                 </button>
               </li>
             );

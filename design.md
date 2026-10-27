@@ -276,10 +276,11 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   and sinks to the bottom of its section once all its rows are done. On Previous the main row carries the age.
   "Show N more" never splits a group.
 - **Related to-dos** (same trial): under the panel's title block, `px-[30px] pb-2.5`, a white card (border `line`,
-  rounded 8): a `surface-secondary` header "Related to-dos" 13 px semibold + count chip, then one row per other
-  to-do of the client (border-top `line`, `px-4 py-2.5`): an 18 px read-only checkbox, the short action 13 px
-  semibold (brand on hover) over the reason 12 px `ink-tertiary`, a 16 px chevron. A click opens that to-do's panel
-  in place; a done one reads struck through at 60 %.
+  rounded 8). Plain header (the user's call: no fill, no divider), `px-4 pb-1 pt-3`: "Related to-dos" 13 px
+  semibold + count chip. Then one compact row per other to-do of the client, `px-4 py-1.5`, no dividers, the list
+  ending on `pb-2`: an 18 px read-only checkbox and the short action 13 px semibold (brand on hover), nothing else
+  (the user's call: no reason, no chevron). A click opens that to-do's panel in place; a done one reads struck
+  through at 60 %.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
   `ink-secondary`). Title block: name 18 px bold with the 20 px External icon (`icon-external`, `#838d9f`) 6 px after it
