@@ -250,7 +250,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   (`TranscriptFileCard`, filling the rest of the popup, at least 240 px, Download in brand for a file). Option B (trial bar, the user's call, no frame): the
   same content in the Notes card instead of a popup; the card's 44 px white header (`NotesCardBar`) turns into ‹ Back
   (20 px chevron, 14 px semibold) + Delete · Edit on details, or the form's name (15 px semibold) + Cancel · Save
-  (the editor's buttons) on the form; details scroll inside up to 620 px, the form is 620 px. On this page New
+  (the editor's buttons) on the form; details scroll inside up to 620 px, 20 px padding all round, the title then one line with the `KindTag` and one
+  clock line, "Created: …" / "Meeting date: …" • "Last edited: …" (4 px `#d9d9d9` dot); the form is 620 px. On this page New
   note, Note details and the meeting popup share one size, 720 × 800 capped at the window's height (`NOTE_POPUP`,
   the user's call; the main build keeps 600 px notes and the 620 px meeting popup); no tabs, headings, rule or search, and a
   part shows only when the meeting has it. Its header is Note details' (`NoteHeader`): no client name, the clock lines

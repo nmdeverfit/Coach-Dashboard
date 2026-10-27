@@ -14,7 +14,7 @@ import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { NewNoteDialog } from './NewNoteDialog';
 import { BackButton, KIND_LABEL, KindIcon, NotesCardBar, TranscriptFileCard, transcriptCard } from './NoteAttachment';
-import { DetailActions, KindTag, NoteDialog, NoteHeader, TITLE, TimeLine } from './NoteDialog';
+import { DetailActions, KindTag, NoteDialog, TITLE, TimeLine } from './NoteDialog';
 import { TranscriptDialog } from './TranscriptDialog';
 
 type Entry = { kind: 'note'; key: string; title: string; at: string; note: ClientNote } | { kind: 'meeting'; key: string; title: string; at: string; meeting: Meeting };
@@ -79,8 +79,8 @@ function EntryRow({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
 
 /**
  * Option B (the user's call, no frame): a note's details in the Notes card itself. The header turns into ‹ Back (to
- * the list) with Delete · Edit; under it the details popup's content: the kind, the title, its times, the text and
- * any transcript.
+ * the list) with Delete · Edit; under it the title, then the kind and its times on one line, the text and any
+ * transcript, 20 px all round.
  */
 function InlineDetails({ client, entry, onBack, onEdit, onDelete }: { client: Client; entry: Entry; onBack: () => void; onEdit: () => void; onDelete: () => void }) {
   const { showToast } = useStore();
@@ -88,6 +88,7 @@ function InlineDetails({ client, entry, onBack, onEdit, onDelete }: { client: Cl
   const what = entry.kind === 'note' ? 'note' : 'meeting notes';
   const body = entry.kind === 'note' ? entry.note.body : entry.meeting.notes;
   const t = entry.kind === 'meeting' ? entry.meeting.transcript : undefined;
+  const edited = entry.kind === 'note' ? entry.note.editedAt : entry.meeting.editedAt;
   return (
     <>
       <NotesCardBar>
@@ -95,20 +96,23 @@ function InlineDetails({ client, entry, onBack, onEdit, onDelete }: { client: Cl
         <DetailActions what={what} onDelete={() => setConfirming(true)} onEdit={onEdit} />
       </NotesCardBar>
       <div className="scroll-thin flex max-h-[620px] flex-col overflow-y-auto rounded-b-lg bg-white">
-        <NoteHeader above={<KindTag label={KIND_LABEL[entry.kind]} />} title={<h2 className={`${TITLE} min-w-0 break-words`}>{entry.title}</h2>}>
-          {entry.kind === 'note' ? (
-            <>
-              <TimeLine>Created: {noteStamp(entry.note.at)}</TimeLine>
-              {entry.note.editedAt && <TimeLine>Last edited: {noteStamp(entry.note.editedAt)}</TimeLine>}
-            </>
-          ) : (
-            <>
-              <TimeLine>Meeting date: {noteStamp(`${entry.meeting.date}T${entry.meeting.start}`)}</TimeLine>
-              {entry.meeting.editedAt && <TimeLine>Last edited: {noteStamp(entry.meeting.editedAt)}</TimeLine>}
-            </>
-          )}
-        </NoteHeader>
-        <div className="flex flex-col gap-4 px-8 pb-8 pt-5">
+        {/* 20 px all round (the user's call); the kind and both times on one line under the title. */}
+        <header className="flex shrink-0 flex-col gap-2 border-b border-black/[0.08] p-5">
+          <h2 className={`${TITLE} min-w-0 break-words`}>{entry.title}</h2>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <KindTag label={KIND_LABEL[entry.kind]} />
+            <TimeLine>
+              {entry.kind === 'note' ? `Created: ${noteStamp(entry.note.at)}` : `Meeting date: ${noteStamp(`${entry.meeting.date}T${entry.meeting.start}`)}`}
+              {edited && (
+                <>
+                  <span aria-hidden className="size-1 shrink-0 rounded-full bg-[#d9d9d9]" />
+                  Last edited: {noteStamp(edited)}
+                </>
+              )}
+            </TimeLine>
+          </div>
+        </header>
+        <div className="flex flex-col gap-4 p-5">
           {body && <div className="note-body" dangerouslySetInnerHTML={{ __html: body }} />}
           {t && entry.kind === 'meeting' && (
             <TranscriptFileCard
