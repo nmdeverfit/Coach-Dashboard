@@ -399,7 +399,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   meeting transcription in Phase 2 (Loom). Notes and meeting notes run on one timeline by created time. New note is
   one form for every note (`NewNoteDialog`, the user's call after trying three ways side by side): the note editor
   with Attach file on its toolbar (`AttachFileButton` in `NoteAttachment.tsx`; a file dropped on the form attaches
-  too) and a Label over the title, Note | Meeting notes, picked by the coach. The label only names it: a note shows
+  too) and the note type under the time line (`NoteTypePicker`: a chip "[icon] Note ▾" with no label, tooltip "Note
+  type", a menu of Note · Meeting notes with a line each; the user's pick over a footer chip), chosen by the coach.
+  The type only classifies it: a note shows
   "Created: …", meeting notes the meeting's date and start (editable, `MeetingWhen`); the title placeholder is "New
   Note N", or for meeting notes the file's heading or name (`titleFrom`) or "New Meeting N". A file shows under the
   text as a preview card (`AttachedFileCard`: "5 KB · TXT · 61 lines · Long and Malcom · ~30 min" from
@@ -410,7 +412,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   Summary, headings, rule or search; the coach's notes first, then the transcript as a file preview
   (`TranscriptFileCard`, icon, name, meta, Download, the lines scrolling inside, capped at 300 px; a recorded call
   reads "Call transcript"), each only when the meeting has it; meeting notes get no summary, no "Generating
-  summary…" and no summary toast, and search skips summaries. There is no frame for the popup or the label.
+  summary…" and no summary toast, and search skips summaries. There is no frame for the popup or the type picker.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for
