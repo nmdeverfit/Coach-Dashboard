@@ -45,29 +45,6 @@ export function AttachTranscriptButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-/** Under the notes until a transcript is attached: a dashed strip that takes a dropped file or opens the picker. */
-function DropStrip({ dragging, error, onBrowse }: { dragging: boolean; error: boolean; onBrowse: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onBrowse}
-      className={`mx-8 mb-2 flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-dashed text-[13px] leading-[1.5] ${
-        dragging ? 'border-brand bg-brand/[0.03] font-semibold text-brand' : error ? 'border-danger text-ink-tertiary' : 'border-[#e0e0e0] text-ink-tertiary hover:border-brand/60'
-      }`}
-    >
-      <Paperclip size={14} aria-hidden />
-      {dragging ? (
-        'Drop to attach the transcript'
-      ) : (
-        <span>
-          Drop a transcript here, or <span className="font-semibold text-ink underline">browse</span>
-          <span className="text-ink-muted"> · .txt, .docx, .srt, .pdf</span>
-        </span>
-      )}
-    </button>
-  );
-}
-
 /** The attached transcript (no frame): what it is and what is in it, then the lines, speakers in bold, scrolling. */
 /**
  * A transcript as a file preview (no frame): a white head with the file's icon, name and what it holds, its actions
@@ -294,7 +271,7 @@ export function MeetingNotesForm({
       </NoteHeader>
 
       <div
-        className={`relative flex h-[440px] shrink-0 flex-col ${dragging && attached ? 'bg-brand/[0.03]' : ''}`}
+        className={`relative flex h-[440px] shrink-0 flex-col ${dragging ? 'bg-brand/[0.03]' : ''}`}
         onDragOver={(e) => {
           if (!e.dataTransfer.types.includes('Files')) return;
           e.preventDefault();
@@ -311,10 +288,7 @@ export function MeetingNotesForm({
       >
         {notice && <div className="mx-8 mt-4 shrink-0">{notice}</div>}
         {!attached ? (
-          <>
-            {editor('min-h-0 flex-1')}
-            <DropStrip dragging={dragging} error={Boolean(fileError)} onBrowse={browse} />
-          </>
+          editor('min-h-0 flex-1')
         ) : (
           <>
             {notesOpen ? (
@@ -344,7 +318,7 @@ export function MeetingNotesForm({
           </>
         )}
         {fileError && <p className="mx-8 shrink-0 pb-1 text-[12px] leading-[18px] text-danger">{fileError}</p>}
-        {dragging && attached && (
+        {dragging && (
           <div className="pointer-events-none absolute inset-3 flex items-center justify-center rounded-lg border-[1.5px] border-dashed border-brand text-[13px] font-semibold text-brand">
             Drop the transcript to attach it
           </div>

@@ -239,10 +239,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   note") or C's segmented toggle (`surface-secondary` track, white thumb). No banner reads a paste (no auto-detect).
   A's switch line (after a file is attached): `surface-secondary`, 12 px, with Keep as a note. Attach transcript sits on the
   editor's toolbar after a 1 px `black/10` divider (lucide paperclip 14, 12 px semibold `ink-secondary`, 26 px, hover
-  `black/[0.05]`), on the Note side of A and C and on Meeting notes. Meeting notes
+  `black/[0.05]`), on Meeting notes and on A's Note side (not C's Note tab). Meeting notes
   (`MeetingNotesForm`): the note editor fills the 440 px body until a transcript is attached; then the transcript
-  card takes the place of the drop strip (44 px, 1.5 px dashed `#e0e0e0`, 13 px `ink-tertiary` "Drop a transcript
-  here, or browse · .txt, .docx, .srt, .pdf", brand while a file is over it). The card (1.5 px `#e0e0e0`, rounded 8: a white head with the file icon or a clipboard tile, name 13 px semibold, a
+  card sits under the notes (no drop strip; a file dragged over the form shows the dashed brand frame). The card (1.5 px `#e0e0e0`, rounded 8: a white head with the file icon or a clipboard tile, name 13 px semibold, a
   12 px `ink-tertiary` line "5 KB · TXT · 61 lines · Long and Malcom · ~30 min", Replace in brand · Remove; then
   the lines on `#f9fafa`, speakers semibold, scrolling) takes the room, under a 176 px editor when notes are typed
   or "+ Add your notes (optional)" (13 px semibold brand, "(optional)" regular `ink-tertiary`) when not. Dragging a

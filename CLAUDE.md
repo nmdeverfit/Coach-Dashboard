@@ -400,13 +400,13 @@ one column. The Upcoming bookings session list is shared with the main branch to
   tried three ways on one page, switched on a bar at the bottom left (`NotesTrialBar`, `useNotesVariant` in
   `lib/notesTrial.ts`, kept in localStorage): A one New note that turns into meeting notes when a transcript file is
   attached (a line says why, with Keep as a note), B New note ▾ asking Note or Meeting notes, C a Note | Meeting
-  notes toggle the coach flips (attaching a file flips it too). Nothing detects a pasted transcript: the team can't
+  notes toggle the coach flips (its Note tab takes no file). Nothing detects a pasted transcript: the team can't
   build auto-detect yet (the user's call), so a paste stays where it lands on either side. A meeting note
   is a note with a transcript. `NewNoteDialog` reuses the note
   editor; its meeting notes are `MeetingNotesForm` (the user's call: no Upload / Paste tabs): the coach's notes in
-  the note editor, Attach transcript on the editor's toolbar beside the formatting tools plus a dashed "Drop a
-  transcript here, or browse" strip under the notes (the composer and comment-box patterns combined, the user's
-  pick; the Note side of A and C has the toolbar button too), for the transcript, shown in the strip's place as a card with
+  the note editor, Attach transcript on the editor's toolbar beside the formatting tools (or a file dropped on the
+  form; the drop strip was dropped, the user's call; on the Note side only A, whose one way into meeting notes it
+  is, has the button), for the transcript, shown under the notes as a card with
   "61 lines · Long and Malcom · ~30 min" (`transcriptStats`) and a scrolling preview; once a transcript is in and
   the notes are empty they fold into "+ Add your notes (optional)"; the title is suggested from the transcript's
   heading or file name (`titleFrom`). Switching kinds carries the text across as notes. Going back to

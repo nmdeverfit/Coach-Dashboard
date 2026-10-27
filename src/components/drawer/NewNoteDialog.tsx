@@ -93,7 +93,7 @@ function SwitchedNotice({ why, onUndo }: { why: string; onUndo: () => void }) {
  * - A: one New note. Attaching a transcript file (Attach transcript, or dropped on the editor) makes it meeting notes,
  *   with a line saying why and Keep as a note.
  * - B: the coach picked the kind on New note ▾ (`start`).
- * - C: a Note | Meeting notes toggle the coach flips; attaching a file flips it too.
+ * - C: a Note | Meeting notes toggle the coach flips; its Note tab takes no file.
  * Turning meeting notes back into a note keeps the notes; with a file attached it asks first (Switch to a note?),
  * since a note keeps no transcript. The meeting's date and start survive the trip.
  */
@@ -124,8 +124,9 @@ export function NewNoteDialog({
   const [confirmNote, setConfirmNote] = useState(false);
   const [why, setWhy] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
-  // A and C take a transcript file on the Note side; B's note is a note.
-  const attaches = variant !== 'B';
+  // Only A takes a transcript file on the Note side, its one way into meeting notes; on B and C a note is a note and
+  // the coach picks Meeting notes to attach one (the user's call).
+  const attaches = variant === 'A';
   const newTitle = `New Note ${1 + notes.filter((n) => /^New Note \d+$/.test(n.title)).length}`;
 
   /** The note's text goes along as the meeting's notes. */
