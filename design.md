@@ -235,7 +235,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   the card `py-2` around it: border `line`, rounded 8, `p-4`; "Note • Aug 21 - 6:40 PM" 13 px `#636f7a` with the 4 px
   `dot-note-meta.svg`, then the title 15 px semibold `ink`. Hover: white + `0 0 10px rgba(0,0,0,0.05)`. Meeting
   notes add "Generating summary…" to the meta line while pending. New note (no frame) is one form for every note:
-  Note | Meeting notes tabs over the title (`surface-secondary` track, `p-0.5`, 28 px tabs, 14 px icon, 12 px
+  Note | Meeting notes tabs over the title (`surface-secondary` track, `p-0.5`, 28 px tabs, text only (no icon, the user's call), 12 px
   semibold; the chosen one white with a `0 1px 2px rgba(32,35,83,0.12)` shadow, the other `ink-secondary`). Note shows
   "Created: …"; Meeting notes shows the meeting's date and start with the edit icon, and Upload transcript on the
   editor's toolbar after a 1 px `black/10` divider (Figma `icon-upload.svg` 16 px at 70 %, 12 px semibold

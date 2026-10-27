@@ -9,13 +9,13 @@ import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { MeetingWhen, TIME_ZONE } from './AddMeetingDialog';
-import { KIND_LABEL, KindIcon, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
+import { KIND_LABEL, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
 import { EditorFooter, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
 
 /** The demo's clock reads 06:00, as for a message sent from the dashboard. */
 const NOW = '06:00';
 
-/** Note | Meeting notes over the title (the user's pick): tabs, the chosen one on a white thumb. */
+/** Note | Meeting notes over the title (the user's pick): text tabs, no icons, the chosen one on a white thumb. */
 function KindTabs({ kind, onChange }: { kind: NoteKind; onChange: (k: NoteKind) => void }) {
   return (
     <div role="tablist" aria-label="Note type" className="flex rounded-lg bg-surface-secondary p-0.5">
@@ -26,11 +26,10 @@ function KindTabs({ kind, onChange }: { kind: NoteKind; onChange: (k: NoteKind) 
           role="tab"
           aria-selected={kind === k}
           onClick={() => kind !== k && onChange(k)}
-          className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-[12px] font-semibold leading-none ${
+          className={`flex h-7 items-center rounded-md px-3 text-[12px] font-semibold leading-none ${
             kind === k ? 'bg-white text-ink shadow-[0_1px_2px_rgba(32,35,83,0.12)]' : 'text-ink-secondary hover:text-ink'
           }`}
         >
-          <KindIcon kind={k} size={14} />
           {KIND_LABEL[k]}
         </button>
       ))}
