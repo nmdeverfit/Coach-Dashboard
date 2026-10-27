@@ -410,9 +410,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
   heading or file name (`titleFrom`). Switching kinds carries the text across as notes. Going back to
   a note with a file attached asks "Switch to a note?" (the file is removed, the notes stay; Cancel stays on Meeting
   notes). The meeting's date and start survive the round trip. Meetings carry
-  `notes` and may have no transcript. On this page the meeting popup has no Summary (the user's call): tabs Notes |
-  Transcript when the coach wrote notes, else the transcript alone with no tab bar (`tabsFor` in
-  `TranscriptDialog`); meeting notes get no summary, no "Generating summary…" and no summary toast, and search
+  `notes` and may have no transcript. On this page the meeting popup is one page with no tabs and no Summary (the
+  user's call): "Your notes" first, then "Transcript" (its line count, speakers and length, the search pinned while
+  it scrolls), each only when the meeting has it, so a pasted transcript saved as notes shows as notes and no
+  section is ever empty; meeting notes get no summary, no "Generating summary…" and no summary toast, and search
   skips summaries. There is no frame for the popup or the bar.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
