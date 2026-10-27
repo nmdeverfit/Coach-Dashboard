@@ -39,11 +39,9 @@ export function TimeLine({ children }: { children: ReactNode }) {
 }
 
 /** The popups' header: the title row, then the time lines, over a light border. */
-export function NoteHeader({ title, actions, above, children }: { title: ReactNode; actions?: ReactNode; above?: ReactNode; children: ReactNode }) {
+export function NoteHeader({ title, actions, children }: { title: ReactNode; actions?: ReactNode; children: ReactNode }) {
   return (
     <header className="flex shrink-0 flex-col gap-0.5 border-b border-black/[0.08] px-8 pb-3 pt-8">
-      {/* Notes timeline trial: the note's kind (chip or toggle) over the title. */}
-      {above && <div className="mb-3 flex">{above}</div>}
       <div className="flex items-center justify-between gap-4">
         {title}
         {actions}
