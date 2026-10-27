@@ -83,6 +83,8 @@ interface State {
   statusChanges: Record<string, StatusChange>;
   /** Meetings the coach added on the Transcript tab in this session, by client. */
   meetings: Record<string, Meeting[]>;
+  /** Meetings the coach edited (or, null, deleted) in this session, by meeting id (the Notes timeline trial). */
+  meetingEdits: Record<string, Meeting | null>;
   /** A client's notes once the coach has added, edited or deleted one in this session; else the profile's. */
   notes: Record<string, ClientNote[]>;
   /** What the coach told Olly about each client through Add context on the AI Assessment. */
@@ -183,6 +185,7 @@ type Action =
   | { type: 'clearHighlightHistory' }
   | { type: 'addMeeting'; clientId: string; meeting: Meeting }
   | { type: 'meetingSummaryReady'; clientId: string; meetingId: string }
+  | { type: 'editMeeting'; meetingId: string; meeting: Meeting | null }
   | { type: 'setNotes'; clientId: string; notes: ClientNote[] }
   | { type: 'setAiContext'; clientId: string; context: AiContext | null };
 
@@ -206,6 +209,7 @@ const initialState: State = {
   feedback: {},
   statusChanges: {},
   meetings: {},
+  meetingEdits: {},
   notes: {},
   aiContext: {},
   rail: loadRail(),
@@ -388,6 +392,8 @@ function reducer(state: State, action: Action): State {
           [action.clientId]: (state.meetings[action.clientId] ?? []).map((m) => (m.id === action.meetingId ? { ...m, summaryPending: false } : m)),
         },
       };
+    case 'editMeeting':
+      return { ...state, meetingEdits: { ...state.meetingEdits, [action.meetingId]: action.meeting } };
     case 'setNotes':
       return { ...state, notes: { ...state.notes, [action.clientId]: action.notes } };
     case 'reviewClient':
@@ -528,6 +534,10 @@ interface Store {
   /** Empties History; cleared highlights do not come back to Need attention. */
   clearHighlightHistory: () => void;
   addMeeting: (clientId: string, meeting: Meeting) => void;
+  /** Saves an edit of a meeting's notes (the Notes timeline trial). */
+  editMeeting: (meeting: Meeting) => void;
+  /** Deletes a meeting's notes (the Notes timeline trial). */
+  deleteMeeting: (meetingId: string) => void;
   /** Replaces the client's notes (after an add, edit or delete) and confirms it with `toast`. */
   setNotes: (clientId: string, notes: ClientNote[], toast: string) => void;
   /** Saves (or, with null, clears) the coach's context for a client's AI Assessment. */
@@ -643,6 +653,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             showToast(`Summary ready for “${meeting.title}”`);
           }, SUMMARY_DELAY_MS);
         }
+      },
+      editMeeting: (meeting) => {
+        dispatch({ type: 'editMeeting', meetingId: meeting.id, meeting });
+        showToast('Meeting notes saved');
+      },
+      deleteMeeting: (meetingId) => {
+        dispatch({ type: 'editMeeting', meetingId, meeting: null });
+        showToast('Meeting notes deleted');
       },
       setNotes: (clientId, notes, toast) => {
         dispatch({ type: 'setNotes', clientId, notes });

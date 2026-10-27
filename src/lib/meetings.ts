@@ -9,10 +9,13 @@ export const createdAt = (m: Meeting) => m.createdAt ?? `${m.date}T${m.start}`;
 
 /**
  * Every meeting with the client, the demo's plus the ones the coach added, newest created first (the user's call). The
- * coach's own come first among equals, the latest added on top, since the store keeps them newest first.
+ * coach's own come first among equals, the latest added on top, since the store keeps them newest first. `edits`
+ * (the Notes timeline trial) replaces a meeting the coach edited and drops one they deleted.
  */
-export function meetingsFor(clientId: string, added: Meeting[] = []): Meeting[] {
-  return [...added, ...getMeetings(clientId)].sort((a, b) => createdAt(b).localeCompare(createdAt(a)));
+export function meetingsFor(clientId: string, added: Meeting[] = [], edits: Record<string, Meeting | null> = {}): Meeting[] {
+  return [...added, ...getMeetings(clientId)]
+    .flatMap((m) => (m.id in edits ? (edits[m.id] ? [edits[m.id]!] : []) : [m]))
+    .sort((a, b) => createdAt(b).localeCompare(createdAt(a)));
 }
 
 export interface MeetingWeek {

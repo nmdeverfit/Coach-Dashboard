@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import iconChevron from '../../assets/figma/icon-chevron-down.svg';
 import iconSearch from '../../assets/figma/icon-search-note.svg';
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import { COACH_FIRST_NAME } from '../../data/mock';
 import type { Client, Meeting } from '../../data/types';
 import { NOTES_TIMELINE } from '../../lib/flags';
-import { statsLine, transcriptStats } from '../../lib/noteKind';
-import { KindIcon } from './NewNoteDialog';
-import { TranscriptFileCard, TranscriptTile } from './NoteAttachment';
+import { ConfirmDialog } from '../ConfirmDialog';
+import { DetailActions } from './NoteDialog';
+import { TranscriptFileCard, transcriptCard } from './NoteAttachment';
 import { fieldTime, fileSize, meetingDate } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
@@ -62,12 +63,17 @@ export function TranscriptDialog({
   client,
   meeting,
   initialTab,
+  onEdit,
+  onDelete,
   onClose,
 }: {
   client: Client;
   meeting: Meeting;
   /** Opens on this tab; by default Summary when the call has one. */
   initialTab?: 'summary' | 'transcript';
+  /** Notes timeline trial: Edit and Delete on the title row. */
+  onEdit?: () => void;
+  onDelete?: () => void;
   onClose: () => void;
 }) {
   const { showToast } = useStore();
@@ -212,26 +218,33 @@ export function TranscriptDialog({
       )}
     </>
   );
-  const text = t && t.kind !== 'lines' ? t.text : undefined;
-  const transcriptMeta =
-    t?.kind === 'lines'
-      ? [`${t.lines.length} lines`, `${COACH_FIRST_NAME} and ${client.firstName}`, meeting.minutes ? `${meeting.minutes} min` : ''].filter(Boolean).join(' · ')
-      : text
-        ? statsLine(transcriptStats(text))
-        : '';
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const when = (
+    <span className="mt-1 flex items-center gap-2 text-[14px] leading-[22px]">
+      <span className="flex shrink-0 items-center gap-2 font-semibold text-ink">
+        <Avatar name={client.name} src={client.avatar} size={20} />
+        {client.name}
+      </span>
+      <span aria-hidden className="size-1 shrink-0 rounded-full bg-[#d9d9d9]" />
+      {meetingDate(meeting.date)} · {fieldTime(meeting.start)}
+    </span>
+  );
 
   return (
     <Modal
       title={meeting.title}
-      subtitle={
-        <span className="mt-1 flex items-center gap-2 text-[14px] leading-[22px]">
-          <span className="flex shrink-0 items-center gap-2 font-semibold text-ink">
-            <Avatar name={client.name} src={client.avatar} size={20} />
-            {client.name}
-          </span>
-          <span aria-hidden className="size-1 shrink-0 rounded-full bg-[#d9d9d9]" />
-          {meetingDate(meeting.date)} · {fieldTime(meeting.start)}
-        </span>
+      subtitle={when}
+      // Notes timeline trial: Delete · Edit on the title row, as on Note details (the user's call).
+      header={
+        NOTES_TIMELINE && onEdit && onDelete ? (
+          <header className="shrink-0 px-[30px] py-5">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="min-w-0 break-words text-[20px] font-semibold leading-[1.5] text-ink">{meeting.title}</h2>
+              <DetailActions what="meeting notes" onDelete={() => setConfirmingDelete(true)} onEdit={onEdit} />
+            </div>
+            <div className="mt-1 text-[13px] leading-[1.5] text-ink-tertiary">{when}</div>
+          </header>
+        ) : undefined
       }
       width={620}
       onClose={onClose}
@@ -245,21 +258,7 @@ export function TranscriptDialog({
           {meeting.notes && <div className="note-body" dangerouslySetInnerHTML={{ __html: meeting.notes }} />}
           {t && (
             <TranscriptFileCard
-              icon={
-                t.kind === 'file' ? (
-                  <FileTypeIcon name={t.name} />
-                ) : t.kind === 'lines' ? (
-                  <TranscriptTile>
-                    <KindIcon kind="meeting" size={18} />
-                  </TranscriptTile>
-                ) : (
-                  <TranscriptTile />
-                )
-              }
-              name={t.kind === 'file' ? t.name : t.kind === 'lines' ? 'Call transcript' : 'Pasted transcript'}
-              meta={t.kind === 'file' ? [fileSize(t.size), fileExtension(t.name).toUpperCase(), transcriptMeta].filter(Boolean).join(' · ') : transcriptMeta}
-              lines={lines ? lines.map((l) => (l.speaker ? `${l.speaker} (${l.at}): ${l.text}` : l.text)).filter((l) => l.trim()) : []}
-              empty="No preview for this file type in the demo. Download it to read the transcript."
+              {...transcriptCard(t, client, meeting.minutes)}
               actions={
                 t.kind === 'file' && (
                   <button type="button" onClick={() => showToast(`${t.name} downloads`)} className="text-brand hover:underline">
@@ -324,6 +323,18 @@ export function TranscriptDialog({
           {tab === 'transcript' && <div className={`px-[30px] pb-[30px] ${lines ? 'pt-2' : 'pt-5'}`}>{transcriptLines}</div>}
         </div>
       )}
+      {confirmingDelete &&
+        onDelete &&
+        createPortal(
+          <ConfirmDialog
+            title="Delete these meeting notes?"
+            body={`“${meeting.title}” will be removed from ${client.firstName}’s notes.`}
+            confirmLabel="Delete"
+            onCancel={() => setConfirmingDelete(false)}
+            onConfirm={onDelete}
+          />,
+          document.body,
+        )}
     </Modal>
   );
 }

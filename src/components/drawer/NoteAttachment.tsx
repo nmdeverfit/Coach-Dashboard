@@ -1,12 +1,23 @@
 import { useRef, useState, type ReactNode } from 'react';
 import iconClipboard from '../../assets/figma/icon-clipboard.svg';
+import iconSticky from '../../assets/figma/icon-note-sticky.svg';
+import iconVideo from '../../assets/figma/icon-note-video.svg';
 import iconUpload from '../../assets/figma/icon-upload.svg';
-import type { Transcript } from '../../data/types';
+import { COACH_FIRST_NAME } from '../../data/mock';
+import type { Client, Transcript } from '../../data/types';
 import { fileSize } from '../../lib/meetings';
-import { statsLine, transcriptStats } from '../../lib/noteKind';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Glyph } from '../Glyph';
 import { SPEAKER, transcriptFileError, transcriptFileText } from './AddMeetingDialog';
+
+export type NoteKind = 'note' | 'meeting';
+
+export const KIND_LABEL: Record<NoteKind, string> = { note: 'Note', meeting: 'Meeting notes' };
+
+/** The timeline's two icons (Figma 6049:170285: energy-icons sticky-note, carbon video-chat), drawn at 16.84 px. */
+export function KindIcon({ kind, size = 16.842 }: { kind: NoteKind; size?: number }) {
+  return <img src={kind === 'note' ? iconSticky : iconVideo} alt="" width={size} height={size} className="block shrink-0" />;
+}
 
 /** A transcript file attached to meeting notes (Notes timeline trial): read in the page when it can be. */
 export type AttachedFile = Extract<Transcript, { kind: 'file' }>;
@@ -100,26 +111,39 @@ export function TranscriptTile({ children }: { children?: ReactNode }) {
   );
 }
 
-/** An attached file's card: "5 KB · TXT · 61 lines · Long and Malcom · ~30 min" and its lines. */
-export function AttachedFileCard({ file, reading, actions, className }: { file: AttachedFile; reading?: boolean; actions?: ReactNode; className?: string }) {
-  const stats = file.text ? statsLine(transcriptStats(file.text)) : '';
-  return (
-    <TranscriptFileCard
-      icon={<FileTypeIcon name={file.name} />}
-      name={file.name}
-      meta={[fileSize(file.size), fileExtension(file.name).toUpperCase(), stats].filter(Boolean).join(' · ')}
-      lines={file.text?.split(/\r?\n/).filter((l) => l.trim()) ?? []}
-      reading={reading}
-      empty={fileExtension(file.name) === 'pdf' ? 'No preview for .pdf files in the demo. The file is kept with the meeting notes.' : 'No text found in this file.'}
-      actions={actions}
-      className={className}
-    />
-  );
+const textLines = (text?: string) => text?.split(/\r?\n/).filter((l) => l.trim()) ?? [];
+
+/**
+ * What a transcript's card shows: a file's icon, name and "TXT · 5 KB" (the user's call: type and size only); a
+ * recorded call's "Call transcript" and length, its lines as "Long (00:12): …"; pasted text as "Pasted transcript".
+ */
+export function transcriptCard(t: Transcript, client: Client, minutes?: number) {
+  if (t.kind === 'file')
+    return {
+      icon: <FileTypeIcon name={t.name} />,
+      name: t.name,
+      meta: `${fileExtension(t.name).toUpperCase()} · ${fileSize(t.size)}`,
+      lines: textLines(t.text),
+      empty: fileExtension(t.name) === 'pdf' ? 'No preview for .pdf files in the demo. Download it to read the transcript.' : 'No text found in this file.',
+    };
+  if (t.kind === 'lines')
+    return {
+      icon: (
+        <TranscriptTile>
+          <KindIcon kind="meeting" size={18} />
+        </TranscriptTile>
+      ),
+      name: 'Call transcript',
+      meta: minutes ? `${minutes} min` : '',
+      lines: t.lines.map((l) => `${l.from === 'coach' ? COACH_FIRST_NAME : client.firstName} (${l.at}): ${l.text}`),
+      empty: 'No lines in this transcript.',
+    };
+  return { icon: <TranscriptTile />, name: 'Pasted transcript', meta: '', lines: textLines(t.text), empty: 'No text in this transcript.' };
 }
 
 /** Attaching one file: checks it, reads .txt / .srt / .docx in the page, keeps the name and size of any other. */
-export function useAttachedFile() {
-  const [file, setFile] = useState<AttachedFile | null>(null);
+export function useAttachedFile(initial: AttachedFile | null = null) {
+  const [file, setFile] = useState<AttachedFile | null>(initial);
   const [reading, setReading] = useState(false);
   const [error, setError] = useState('');
   const latest = useRef('');

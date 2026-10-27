@@ -240,14 +240,15 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "Created: …"; Meeting notes shows the meeting's date and start with the edit icon, and Upload transcript on the
   editor's toolbar after a 1 px `black/10` divider (Figma `icon-upload.svg` 16 px at 70 %, 12 px semibold
   `ink-secondary`, 26 px, hover `black/[0.05]`), hidden once a file is in. The editor fills the 440 px body; with a
-  file it drops to 176 px and the file card (`AttachedFileCard`: 1.5 px `#e0e0e0`, rounded 8, a white head with
-  the file icon, name 13 px semibold, a 12 px `ink-tertiary` line "5 KB · TXT · 61 lines · Long and Malcom · ~30
-  min", Replace in brand · Remove; then the lines on `#f9fafa`, speakers semibold, scrolling) fills the rest. Leaving
+  file it drops to 176 px and the file card (`TranscriptFileCard`: 1.5 px `#e0e0e0`, rounded 8, a white head with
+  the file icon, name 13 px semibold, a 12 px `ink-tertiary` line with only the type and size, "TXT · 5 KB" (a
+  recorded call: "Call transcript", "30 min"), Replace in brand · Remove; then the lines on `#f9fafa`, speakers semibold, scrolling) fills the rest. Leaving
   Meeting notes with a file opens the `ConfirmDialog` "Switch to a note?" · "Switch to note". On Meeting notes a file
   dragged over the form draws a dashed brand frame, "Drop the file to attach it". The meeting popup is one plain page on this trial: the
   notes (`note-body`, 30 px sides, no heading), then 16 px down the transcript in the same card
   (`TranscriptFileCard`, capped at 300 px, Download in brand for a file); no tabs, headings, rule or search, and a
-  part shows only when the meeting has it.
+  part shows only when the meeting has it. Its title row carries Note details' Delete · Edit (`DetailActions`, 16 px,
+  muted until hovered); Edit is the New note form titled with the meeting's name, without the tabs.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one card in the list (option B, the user's pick over a dashed-line tree and a "+N to-dos" hybrid), at the place of
   its highest-ranked to-do, BL3 order inside it. `TodoGroupCard`: `py-1.5` around it, border `line`, rounded 8, a

@@ -1,9 +1,7 @@
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import iconSticky from '../../assets/figma/icon-note-sticky.svg';
-import iconVideo from '../../assets/figma/icon-note-video.svg';
 import { DEMO_TODAY } from '../../data/mock';
-import type { Client, ClientNote } from '../../data/types';
+import type { Client, ClientNote, Meeting, Transcript } from '../../data/types';
 import { TRANSCRIPT_TYPES } from '../../lib/meetings';
 import { titleFrom } from '../../lib/noteKind';
 import { cleanNoteHtml, noteStamp, noteText } from '../../lib/notes';
@@ -11,20 +9,11 @@ import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { MeetingWhen, TIME_ZONE } from './AddMeetingDialog';
-import { AttachedFileCard, UploadTranscriptButton, useAttachedFile } from './NoteAttachment';
+import { KIND_LABEL, KindIcon, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
 import { EditorFooter, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
-
-export type NoteKind = 'note' | 'meeting';
 
 /** The demo's clock reads 06:00, as for a message sent from the dashboard. */
 const NOW = '06:00';
-
-export const KIND_LABEL: Record<NoteKind, string> = { note: 'Note', meeting: 'Meeting notes' };
-
-/** The timeline's two icons (Figma 6049:170285: energy-icons sticky-note, carbon video-chat), drawn at 16.84 px. */
-export function KindIcon({ kind, size = 16.842 }: { kind: NoteKind; size?: number }) {
-  return <img src={kind === 'note' ? iconSticky : iconVideo} alt="" width={size} height={size} className="block shrink-0" />;
-}
 
 /** Note | Meeting notes over the title (the user's pick): tabs, the chosen one on a white thumb. */
 function KindTabs({ kind, onChange }: { kind: NoteKind; onChange: (k: NoteKind) => void }) {
@@ -55,17 +44,29 @@ function KindTabs({ kind, onChange }: { kind: NoteKind; onChange: (k: NoteKind) 
  * date and start (editable) and an Upload transcript button on the toolbar (a file dropped on the form works too):
  * the file shows under the text as a preview card (Replace · Remove). The text stays when the tab changes; leaving
  * Meeting notes with a file in asks first, since a note keeps no transcript. Save needs text, or on Meeting notes a
- * file. Nothing reads what is pasted.
+ * file. Nothing reads what is pasted. With `editing` it is Edit meeting notes (the user's call, like a note's Edit):
+ * the meeting's own title, time, notes and transcript (a recorded call's lines included), no tabs.
  */
-export function NewNoteDialog({ client, notes, onClose }: { client: Client; notes: ClientNote[]; onClose: () => void }) {
-  const { state, setNotes, addMeeting } = useStore();
-  const [kind, setKind] = useState<NoteKind>('note');
-  const [title, setTitle] = useState('');
-  const [html, setHtml] = useState('');
-  const [date, setDate] = useState(DEMO_TODAY);
-  const [time, setTime] = useState(NOW);
+export function NewNoteDialog({ client, notes, editing, onClose }: { client: Client; notes: ClientNote[]; editing?: Meeting; onClose: () => void }) {
+  const { state, setNotes, addMeeting, editMeeting } = useStore();
+  const [kind, setKind] = useState<NoteKind>(editing ? 'meeting' : 'note');
+  const [title, setTitle] = useState(editing?.title ?? '');
+  const [html, setHtml] = useState(editing?.notes ?? '');
+  const [date, setDate] = useState(editing?.date ?? DEMO_TODAY);
+  const [time, setTime] = useState(editing?.start ?? NOW);
   const [dragging, setDragging] = useState(false);
-  const { file, reading, error, attach, remove } = useAttachedFile();
+  const { file, reading, error, attach: attachFile, remove: removeFile } = useAttachedFile(editing?.transcript?.kind === 'file' ? editing.transcript : null);
+  // A transcript that is not a file (a recorded call's lines, or pasted text) can only be kept or removed.
+  const [other, setOther] = useState<Transcript | null>(editing?.transcript && editing.transcript.kind !== 'file' ? editing.transcript : null);
+  const transcript: Transcript | null = file ?? other;
+  const attach = (f: File) => {
+    setOther(null);
+    attachFile(f);
+  };
+  const remove = () => {
+    removeFile();
+    setOther(null);
+  };
   // Leaving Meeting notes with a transcript in asks first.
   const [confirmNote, setConfirmNote] = useState(false);
   const meeting = kind === 'meeting';
@@ -74,18 +75,21 @@ export function NewNoteDialog({ client, notes, onClose }: { client: Client; note
   const browse = () => fileInput.current?.click();
   const hasText = Boolean(noteText(html)) || /<li/i.test(html);
   const meetings = state.meetings[client.id] ?? [];
-  const placeholder =
-    kind === 'meeting'
+  const placeholder = editing
+    ? editing.title
+    : kind === 'meeting'
       ? (file && titleFrom(file.text, file.name)) || `New Meeting ${1 + meetings.filter((m) => /^New Meeting \d+$/.test(m.title)).length}`
       : `New Note ${1 + notes.filter((n) => /^New Note \d+$/.test(n.title)).length}`;
 
   const switchTo = (k: NoteKind) => (k === 'note' && file ? setConfirmNote(true) : setKind(k));
 
   const save = () => {
-    if (reading || (!hasText && !file)) return;
+    if (reading || (!hasText && !transcript)) return;
     const body = hasText ? cleanNoteHtml(html) : '';
     const name = title.trim() || placeholder;
-    if (kind === 'note') {
+    if (editing) {
+      editMeeting({ ...editing, title: name, date, start: time, notes: body || undefined, transcript: transcript ?? undefined });
+    } else if (kind === 'note') {
       const added: ClientNote = { id: `c${Date.now()}`, title: name, at: `${DEMO_TODAY}T${NOW}`, body };
       setNotes(client.id, [added, ...notes], 'Note added');
     } else {
@@ -104,9 +108,9 @@ export function NewNoteDialog({ client, notes, onClose }: { client: Client; note
   };
 
   return (
-    <Modal title={kind === 'note' ? 'New note' : 'New meeting notes'} width={600} radius={12} onClose={onClose} header={<></>}>
+    <Modal title={editing ? 'Edit meeting notes' : kind === 'note' ? 'New note' : 'New meeting notes'} width={600} radius={12} onClose={onClose} header={<></>}>
       <NoteHeader
-        above={<KindTabs kind={kind} onChange={switchTo} />}
+        above={!editing && <KindTabs kind={kind} onChange={switchTo} />}
         title={
           <input
             autoFocus
@@ -143,16 +147,16 @@ export function NewNoteDialog({ client, notes, onClose }: { client: Client; note
         }}
       >
         <NoteEditor
-          initial=""
+          initial={editing?.notes ?? ''}
           placeholder={kind === 'meeting' ? `Type your notes from the meeting with ${client.firstName}...` : `Type your note for ${client.firstName}...`}
           onChange={setHtml}
-          toolbarEnd={meeting && !file && <UploadTranscriptButton onClick={browse} />}
-          height={file ? 'h-[176px] shrink-0' : 'min-h-0 flex-1'}
+          toolbarEnd={meeting && !transcript && <UploadTranscriptButton onClick={browse} />}
+          height={transcript ? 'h-[176px] shrink-0' : 'min-h-0 flex-1'}
         />
-        {meeting && file && (
+        {meeting && transcript && (
           <div className="flex min-h-0 flex-1 flex-col px-8 pb-2 pt-1">
-            <AttachedFileCard
-              file={file}
+            <TranscriptFileCard
+              {...transcriptCard(transcript, client, editing?.minutes)}
               reading={reading}
               actions={
                 <>
@@ -174,7 +178,7 @@ export function NewNoteDialog({ client, notes, onClose }: { client: Client; note
           </div>
         )}
       </div>
-      <EditorFooter canSave={(hasText || Boolean(file)) && !reading} onCancel={onClose} onSave={save} />
+      <EditorFooter canSave={(hasText || Boolean(transcript)) && !reading} onCancel={onClose} onSave={save} />
       {confirmNote &&
         file &&
         createPortal(

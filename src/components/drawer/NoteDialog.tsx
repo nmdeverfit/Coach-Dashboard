@@ -219,6 +219,25 @@ export function IconAction({ label, onClick, children }: { label: string; onClic
   );
 }
 
+/** Delete and Edit on a details popup's title row: Note details, and meeting notes on the Notes timeline trial. */
+export function DetailActions({ what, onDelete, onEdit }: { what: string; onDelete: () => void; onEdit: () => void }) {
+  return (
+    <div className="flex shrink-0 items-center gap-5">
+      <IconAction label={`Delete ${what}`} onClick={onDelete}>
+        <span className="absolute inset-[6.67%_7.24%_3.67%_7.32%] opacity-60 group-hover:opacity-100">
+          <span className="absolute inset-[-1.05%_-1.1%]">
+            <img src={iconDelete} alt="" className="block size-full max-w-none" />
+          </span>
+        </span>
+      </IconAction>
+      <IconAction label={`Edit ${what}`} onClick={onEdit}>
+        <img src={iconEditMuted} alt="" className="absolute inset-0 block size-full max-w-none opacity-60 group-hover:hidden" />
+        <img src={iconEdit} alt="" className="absolute inset-0 hidden size-full max-w-none group-hover:block" />
+      </IconAction>
+    </div>
+  );
+}
+
 /**
  * A note from the Notes tab: Note details (Figma 5850:570056) with Delete and Edit, or the editor (Figma 5850:570122)
  * for a new note (`noteId` null) or an edit. Saving replaces the client's notes in the store (session only).
@@ -290,21 +309,7 @@ export function NoteDialog({
           <>
             <NoteHeader
               title={<h2 className={`${TITLE} min-w-0 break-words`}>{note.title}</h2>}
-              actions={
-                <div className="flex shrink-0 items-center gap-5">
-                  <IconAction label="Delete note" onClick={() => setConfirming(true)}>
-                    <span className="absolute inset-[6.67%_7.24%_3.67%_7.32%] opacity-60 group-hover:opacity-100">
-                      <span className="absolute inset-[-1.05%_-1.1%]">
-                        <img src={iconDelete} alt="" className="block size-full max-w-none" />
-                      </span>
-                    </span>
-                  </IconAction>
-                  <IconAction label="Edit note" onClick={startEdit}>
-                    <img src={iconEditMuted} alt="" className="absolute inset-0 block size-full max-w-none opacity-60 group-hover:hidden" />
-                    <img src={iconEdit} alt="" className="absolute inset-0 hidden size-full max-w-none group-hover:block" />
-                  </IconAction>
-                </div>
-              }
+              actions={<DetailActions what="note" onDelete={() => setConfirming(true)} onEdit={startEdit} />}
             >
               <TimeLine>Created: {noteStamp(note.at)}</TimeLine>
               {note.editedAt && <TimeLine>Last Edited: {noteStamp(note.editedAt)}</TimeLine>}

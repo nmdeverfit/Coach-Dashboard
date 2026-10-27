@@ -401,8 +401,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   with Note | Meeting notes tabs over the title (`KindTabs`; a chip and a label row were tried first). A note is text
   only, "Created: …". Meeting notes carry the meeting's date and start (editable, `MeetingWhen`) and an Upload
   transcript button on the editor's toolbar (`UploadTranscriptButton` in `NoteAttachment.tsx`; a file dropped on the
-  form works too; the Note tab has neither). The file shows under the text as a preview card (`AttachedFileCard`:
-  "5 KB · TXT · 61 lines · Long and Malcom · ~30 min" from `transcriptStats`, Replace · Remove). The text stays when
+  form works too; the Note tab has neither). The file shows under the text as a preview card (`TranscriptFileCard`
+  with `transcriptCard` in `NoteAttachment.tsx`: the file's type and size only, "TXT · 5 KB", the user's call;
+  Replace · Remove). The text stays when
   the tab changes; leaving Meeting notes with a file in asks "Switch to a note?" (the file goes, the text stays,
   Cancel keeps Meeting notes). The title placeholder is "New Note N", or for meeting notes the file's heading or name
   (`titleFrom`) or "New Meeting N". Save needs text or, on Meeting notes, a file. Nothing detects a pasted
@@ -410,8 +411,13 @@ one column. The Upcoming bookings session list is shared with the main branch to
   `notes` and may have no transcript. On this page the meeting popup is one plain page (the user's call): no tabs,
   Summary, headings, rule or search; the coach's notes first, then the transcript as a file preview
   (`TranscriptFileCard`, icon, name, meta, Download, the lines scrolling inside, capped at 300 px; a recorded call
-  reads "Call transcript"), each only when the meeting has it; meeting notes get no summary, no "Generating
-  summary…" and no summary toast, and search skips summaries. There is no frame for the popup or the type picker.
+  reads "Call transcript" with its length), each only when the meeting has it; meeting notes get no summary, no
+  "Generating summary…" and no summary toast, and search skips summaries. The popup's title row carries Delete ·
+  Edit, as Note details does (`DetailActions` in `NoteDialog.tsx`, the user's call): Delete asks "Delete these
+  meeting notes?"; Edit opens New note on those meeting notes with no tabs (`NewNoteDialog` `editing`: title, date
+  and start, notes, transcript, a recorded call's lines kept or removed) and returns to the details. Edits and deletes
+  of any meeting, the demo's too, live in `meetingEdits` in the store (session only; `meetingsFor` applies them).
+  There is no frame for the popup, its edit or the tabs.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for

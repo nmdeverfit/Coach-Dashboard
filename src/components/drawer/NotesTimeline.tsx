@@ -9,7 +9,8 @@ import { formatMonthDay, parseDay } from '../../lib/dates';
 import { createdAt, meetingsFor } from '../../lib/meetings';
 import { noteStamp, noteText } from '../../lib/notes';
 import { useStore } from '../../state/store';
-import { KIND_LABEL, KindIcon, NewNoteDialog } from './NewNoteDialog';
+import { NewNoteDialog } from './NewNoteDialog';
+import { KIND_LABEL, KindIcon } from './NoteAttachment';
 import { NoteDialog } from './NoteDialog';
 import { TranscriptDialog } from './TranscriptDialog';
 
@@ -77,16 +78,20 @@ function EntryRow({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
  * Notes timeline trial (the user's call; Figma 6049:170285): Notes and Meetings as one Notes tab. Notes and meeting
  * notes (a meeting with its transcript) run in one list by created time, split by day ("Today", "Aug 27"), each on a
  * timeline with its kind's icon. Search reads the text and any attached file. A note opens Note details, meeting
- * notes their one-page popup (no Summary on this trial). New note is one form with a Label (Note | Meeting notes).
+ * notes their one-page popup (no Summary on this trial) with Delete and Edit. New note is one form with Note |
+ * Meeting notes tabs; Edit opens it on the meeting notes.
  */
 export function NotesTimeline({ client, notes: profileNotes }: { client: Client; notes: ClientNote[] }) {
-  const { state } = useStore();
+  const { state, deleteMeeting } = useStore();
   const notes = state.notes[client.id] ?? profileNotes;
-  const meetings = meetingsFor(client.id, state.meetings[client.id]);
+  const meetings = meetingsFor(client.id, state.meetings[client.id], state.meetingEdits);
   const [query, setQuery] = useState('');
   const [newestFirst, setNewestFirst] = useState(true);
   const [open, setOpen] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  // The meeting notes being edited; closing the editor goes back to their details, as a note's Edit does.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editing = editingId ? meetings.find((m) => m.id === editingId) : undefined;
   const days = timeline(notes, meetings, newestFirst, query);
   const total = notes.length + meetings.length;
   // Looked up in the whole list, so a search never closes what is open.
@@ -151,7 +156,19 @@ export function NotesTimeline({ client, notes: profileNotes }: { client: Client;
         )}
       </div>
       {opened?.kind === 'note' && <NoteDialog key={opened.key} client={client} notes={notes} noteId={opened.note.id} onClose={() => setOpen(null)} />}
-      {opened?.kind === 'meeting' && <TranscriptDialog client={client} meeting={opened.meeting} onClose={() => setOpen(null)} />}
+      {opened?.kind === 'meeting' && !editing && (
+        <TranscriptDialog
+          client={client}
+          meeting={opened.meeting}
+          onEdit={() => setEditingId(opened.meeting.id)}
+          onDelete={() => {
+            deleteMeeting(opened.meeting.id);
+            setOpen(null);
+          }}
+          onClose={() => setOpen(null)}
+        />
+      )}
+      {editing && <NewNoteDialog client={client} notes={notes} editing={editing} onClose={() => setEditingId(null)} />}
       {adding && <NewNoteDialog client={client} notes={notes} onClose={() => setAdding(false)} />}
     </div>
   );
