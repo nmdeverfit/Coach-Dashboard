@@ -408,7 +408,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
   Cancel keeps Meeting notes). The title placeholder is "New Note N", or for meeting notes the file's heading or name
   (`titleFrom`) or "New Meeting N". Save needs text or, on Meeting notes, a file. Nothing detects a pasted
   transcript: the team can't build auto-detect yet (the user's call). Meetings carry
-  `notes` and may have no transcript. On this page the meeting popup is one plain page (the user's call): no tabs,
+  `notes` and may have no transcript; on this page the demo's recorded calls carry coach notes too (`callNotes` in
+  `data/meetings.ts`, the user's call so their details are not a bare transcript): "What we covered" (up to four
+  of the call summary's points, topic in bold) and "Next steps" (its follow-ups), so they only name what the call got
+  through. On this page the meeting popup is one plain page (the user's call): no tabs,
   Summary, headings, rule or search; the coach's notes first, then the transcript as a file preview
   (`TranscriptFileCard`, icon, name, meta, Download, the lines scrolling inside, capped at 300 px; a recorded call
   reads "Call transcript" with its length), each only when the meeting has it; meeting notes get no summary, no

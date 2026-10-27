@@ -245,7 +245,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   recorded call: "Call transcript", "30 min"), Replace in brand · Remove; then the lines on `#f9fafa`, speakers semibold, scrolling) fills the rest. Leaving
   Meeting notes with a file opens the `ConfirmDialog` "Switch to a note?" · "Switch to note". On Meeting notes a file
   dragged over the form draws a dashed brand frame, "Drop the file to attach it". The meeting popup is one plain page on this trial: the
-  notes (`note-body`, 30 px sides, no heading), then 16 px down the transcript in the same card
+  notes (`note-body`, 30 px sides, no heading; a recorded call's read "What we covered" and "Next steps", bold
+  paragraphs over bullet lists), then 16 px down the transcript in the same card
   (`TranscriptFileCard`, capped at 300 px, Download in brand for a file); no tabs, headings, rule or search, and a
   part shows only when the meeting has it. Its title row carries Note details' Delete · Edit (`DetailActions`, 16 px,
   muted until hovered); Edit is the New note form titled with the meeting's name, without the tabs.

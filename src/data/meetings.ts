@@ -1,9 +1,10 @@
 import { addDays } from '../lib/checkin';
+import { NOTES_TIMELINE } from '../lib/flags';
 import { weekAsOf } from '../lib/week';
 import { DEMO_TODAY, clients } from './mock';
 import { random } from './profiles';
 import { callSummary, transcriptLines } from './transcripts';
-import type { Client, Meeting } from './types';
+import type { Client, Meeting, MeetingSummary } from './types';
 
 /**
  * Coach–client meetings for the Transcript tab, generated from a seed of the client's id like the rest of the
@@ -13,6 +14,26 @@ import type { Client, Meeting } from './types';
  * row. Transcripts are stand-in wording; nothing reads them (Olly and the assessment use the stored status only in
  * Phase 1).
  */
+
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/** "Training: the upper body days…" with its topic in bold, as the coach would jot it. */
+const item = (s: string) => {
+  const at = s.indexOf(': ');
+  return at > 0 && at < 24 ? `<li><b>${esc(s.slice(0, at))}:</b> ${esc(s.slice(at + 2))}</li>` : `<li>${esc(s)}</li>`;
+};
+
+/**
+ * The coach's notes on a recorded call (the Notes timeline trial, so its meeting notes are not a bare transcript, the
+ * user's call): what came up and what comes next, from the call's own summary, so they never name a point the
+ * transcript cut off. Up to four points.
+ */
+function callNotes(summary: MeetingSummary) {
+  const points = summary.discuss.slice(0, 4);
+  return [
+    points.length ? `<p><b>What we covered</b></p><ul>${points.map(item).join('')}</ul>` : '',
+    `<p><b>Next steps</b></p><ul>${summary.followUp.map(item).join('')}</ul>`,
+  ].join('');
+}
 
 const TITLES = ['Monthly check-in call', 'Weekly check-in', 'Program review', 'Nutrition catch-up', 'Goal setting session'];
 const STARTS = ['07:00', '12:30', '14:00', '17:30', '18:00'];
@@ -39,6 +60,7 @@ function generate(client: Client): Meeting[] {
       const start = pick(STARTS);
       // Meetings carried a platform link until the user dropped it; the draw stays so every call keeps its words.
       rnd();
+      const summary = callSummary(client.firstName, client.status, name, minutes);
       meetings.push({
         id: `${client.id}-m${meetings.length}`,
         title: name,
@@ -47,7 +69,8 @@ function generate(client: Client): Meeting[] {
         minutes,
         timeZone: 'UTC-7',
         transcript: { kind: 'lines', lines: transcriptLines(client.firstName, client.status, name, minutes, rnd) },
-        summary: callSummary(client.firstName, client.status, name, minutes),
+        summary,
+        ...(NOTES_TIMELINE ? { notes: callNotes(summary) } : {}),
       });
     }
   }
