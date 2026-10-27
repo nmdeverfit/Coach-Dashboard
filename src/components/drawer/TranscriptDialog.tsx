@@ -7,8 +7,9 @@ import { COACH_FIRST_NAME } from '../../data/mock';
 import type { Client, Meeting } from '../../data/types';
 import { NOTES_TIMELINE } from '../../lib/flags';
 import { ConfirmDialog } from '../ConfirmDialog';
-import { DetailActions, NOTE_POPUP } from './NoteDialog';
-import { TranscriptFileCard, transcriptCard } from './NoteAttachment';
+import { DetailActions, KindTag, NOTE_POPUP, NoteHeader, TITLE, TimeLine } from './NoteDialog';
+import { KIND_LABEL, TranscriptFileCard, transcriptCard } from './NoteAttachment';
+import { noteStamp } from '../../lib/notes';
 import { fieldTime, fileSize, meetingDate } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
@@ -234,16 +235,18 @@ export function TranscriptDialog({
     <Modal
       title={meeting.title}
       subtitle={when}
-      // Notes timeline trial: Delete · Edit on the title row, as on Note details (the user's call).
+      // Notes timeline trial: Note details' header (the user's call): the kind over the title, Delete · Edit on the
+      // title row, then the meeting's date and the last edit; no client name.
       header={
         NOTES_TIMELINE && onEdit && onDelete ? (
-          <header className="shrink-0 px-[30px] py-5">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="min-w-0 break-words text-[20px] font-semibold leading-[1.5] text-ink">{meeting.title}</h2>
-              <DetailActions what="meeting notes" onDelete={() => setConfirmingDelete(true)} onEdit={onEdit} />
-            </div>
-            <div className="mt-1 text-[13px] leading-[1.5] text-ink-tertiary">{when}</div>
-          </header>
+          <NoteHeader
+            above={<KindTag label={KIND_LABEL.meeting} />}
+            title={<h2 className={`${TITLE} min-w-0 break-words`}>{meeting.title}</h2>}
+            actions={<DetailActions what="meeting notes" onDelete={() => setConfirmingDelete(true)} onEdit={onEdit} />}
+          >
+            <TimeLine>Meeting date: {noteStamp(`${meeting.date}T${meeting.start}`)}</TimeLine>
+            {meeting.editedAt && <TimeLine>Last Edited: {noteStamp(meeting.editedAt)}</TimeLine>}
+          </NoteHeader>
         ) : undefined
       }
       {...(NOTES_TIMELINE ? NOTE_POPUP : { width: 620 })}
@@ -254,7 +257,7 @@ export function TranscriptDialog({
       {NOTES_TIMELINE ? (
         // Notes timeline trial (the user's call): one plain page, no tabs, headings, rule or search. The coach's notes
         // come first; under them the transcript as a file preview, each only when the meeting has it.
-        <div ref={body} className="scroll-thin flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-[30px] pb-[30px] pt-2">
+        <div ref={body} className="scroll-thin flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-8 pb-8 pt-5">
           {meeting.notes && <div className="note-body shrink-0" dangerouslySetInnerHTML={{ __html: meeting.notes }} />}
           {t && (
             <TranscriptFileCard

@@ -655,7 +655,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
       },
       editMeeting: (meeting) => {
-        dispatch({ type: 'editMeeting', meetingId: meeting.id, meeting });
+        // Stamped with the demo's clock, as an edited note is.
+        dispatch({ type: 'editMeeting', meetingId: meeting.id, meeting: { ...meeting, editedAt: `${DEMO_TODAY}T06:00` } });
         showToast('Meeting notes saved');
       },
       deleteMeeting: (meetingId) => {

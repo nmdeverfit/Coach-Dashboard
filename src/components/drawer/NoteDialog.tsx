@@ -45,6 +45,11 @@ export function TimeLine({ children }: { children: ReactNode }) {
   );
 }
 
+/** Notes timeline trial: what the details popup holds, "Note" or "Meeting notes", over the title (the user's call). */
+export function KindTag({ label }: { label: string }) {
+  return <span className="inline-flex h-6 items-center rounded-md bg-surface-secondary px-2 text-[12px] font-semibold leading-none text-ink-secondary">{label}</span>;
+}
+
 /** The popups' header: the title row, then the time lines, over a light border. */
 export function NoteHeader({ title, actions, above, children }: { title: ReactNode; actions?: ReactNode; above?: ReactNode; children: ReactNode }) {
   return (
@@ -321,6 +326,7 @@ export function NoteDialog({
         note && (
           <>
             <NoteHeader
+              above={NOTES_TIMELINE && <KindTag label="Note" />}
               title={<h2 className={`${TITLE} min-w-0 break-words`}>{note.title}</h2>}
               actions={<DetailActions what="note" onDelete={() => setConfirming(true)} onEdit={startEdit} />}
             >

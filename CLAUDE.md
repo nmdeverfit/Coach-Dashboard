@@ -415,8 +415,11 @@ one column. The Upcoming bookings session list is shared with the main branch to
   Summary, headings, rule or search; the coach's notes first, then the transcript as a file preview
   (`TranscriptFileCard`, icon, name, meta, Download, the lines scrolling inside, filling the rest of the popup, at least 240 px; a recorded call
   reads "Call transcript" with its length), each only when the meeting has it; meeting notes get no summary, no
-  "Generating summary…" and no summary toast, and search skips summaries. The popup's title row carries Delete ·
-  Edit, as Note details does (`DetailActions` in `NoteDialog.tsx`, the user's call): Delete asks "Delete these
+  "Generating summary…" and no summary toast, and search skips summaries. The popup's header is Note details' (`NoteHeader`,
+  the user's call): no client name, "Meeting date: Aug 24 - 2:00 PM" and, once edited, "Last Edited: …"
+  (`Meeting.editedAt`: the coach's edits are stamped Aug 31, 6:00 AM; about half the demo's calls were edited 15 min
+  to 2 h after they ended, their own seed). Both details popups put their kind over the title, "Note" or "Meeting
+  notes" (`KindTag`). The title row carries Delete · Edit, as Note details does (`DetailActions` in `NoteDialog.tsx`, the user's call): Delete asks "Delete these
   meeting notes?"; Edit opens New note on those meeting notes with no tabs (`NewNoteDialog` `editing`: title, date
   and start, notes, transcript, a recorded call's lines kept or removed) and returns to the details. Edits and deletes
   of any meeting, the demo's too, live in `meetingEdits` in the store (session only; `meetingsFor` applies them).

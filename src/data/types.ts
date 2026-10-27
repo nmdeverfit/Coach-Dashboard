@@ -313,6 +313,8 @@ export interface Meeting {
   transcript?: Transcript;
   /** The coach's own notes on the call, as a note stores them (the Notes timeline trial). */
   notes?: string;
+  /** "YYYY-MM-DDTHH:MM", when the coach last edited the meeting notes (the Notes timeline trial). */
+  editedAt?: string;
   /** "YYYY-MM-DDTHH:MM", when the meeting was added to the list; a recorded call's is its own start. */
   createdAt?: string;
   /**

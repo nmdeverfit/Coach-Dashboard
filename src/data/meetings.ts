@@ -39,6 +39,18 @@ const TITLES = ['Monthly check-in call', 'Weekly check-in', 'Program review', 'N
 const STARTS = ['07:00', '12:30', '14:00', '17:30', '18:00'];
 const MINUTES = [30, 45, 60];
 const WEEKS = 6;
+/**
+ * Notes timeline trial: about half of the recorded calls' notes were edited later that day, 15 minutes to 2 hours
+ * after the call ended (their own seed, so the calls themselves are unchanged).
+ */
+function editedAt(id: string, date: string, start: string, minutes: number) {
+  const rnd = random(`meeting-edit:${id}`);
+  if (rnd() < 0.5) return undefined;
+  const [h, m] = start.split(':').map(Number);
+  const at = Math.min(h * 60 + m + minutes + 15 + Math.floor(rnd() * 22) * 5, 23 * 60 + 55);
+  return `${date}T${String(Math.floor(at / 60)).padStart(2, '0')}:${String(at % 60).padStart(2, '0')}`;
+}
+
 function generate(client: Client): Meeting[] {
   if (client.status === 'no_activities') return [];
   const rnd = random(`meetings:${client.id}`);
@@ -61,8 +73,9 @@ function generate(client: Client): Meeting[] {
       // Meetings carried a platform link until the user dropped it; the draw stays so every call keeps its words.
       rnd();
       const summary = callSummary(client.firstName, client.status, name, minutes);
+      const id = `${client.id}-m${meetings.length}`;
       meetings.push({
-        id: `${client.id}-m${meetings.length}`,
+        id,
         title: name,
         date,
         start,
@@ -70,7 +83,7 @@ function generate(client: Client): Meeting[] {
         timeZone: 'UTC-7',
         transcript: { kind: 'lines', lines: transcriptLines(client.firstName, client.status, name, minutes, rnd) },
         summary,
-        ...(NOTES_TIMELINE ? { notes: callNotes(summary) } : {}),
+        ...(NOTES_TIMELINE ? { notes: callNotes(summary), editedAt: editedAt(id, date, start, minutes) } : {}),
       });
     }
   }
