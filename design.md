@@ -280,9 +280,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   semibold `ink-secondary`, no count (the user's call). Then one compact row per other to-do of the client, `px-4 py-1.5`, no dividers, the list
   ending on `pb-2`: an 18 px read-only checkbox and the short action 13 px semibold (brand on hover), nothing else
   (the user's call: no reason); on hover a 16 px chevron right fades in at the row's end, since a click goes to
-  another to-do. A click opens that to-do's panel in place, and its header's "TO-DO DETAILS" becomes a back button
-  (24 px chevron left, as on ‹ CLIENT DETAILS) to the to-do it came from, one step per click (the user's call); a row
-  click elsewhere or closing the panel clears it. A done one reads struck through at 60 %.
+  another to-do. A click opens that to-do's panel in place, with no back button (tried, then dropped: the user's
+  call). A done one reads struck through at 60 %.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
   `ink-secondary`). Title block: name 18 px bold with the 20 px External icon (`icon-external`, `#838d9f`) 6 px after it
