@@ -26,7 +26,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   `npm run build:artifact` (single-file page in `dist-single/coach-dashboard.html`, published as a claude.ai Artifact),
   `npm run build:artifact:grouped` (the grouped to-dos trial, `VITE_GROUPED_TODOS=1`, written to
   `dist-single/coach-dashboard-grouped.html` and published as its own artifact, "Check-in Dashboard v2 · Grouped
-  to-dos"; the default builds drop its code). Each build empties `dist-single/`, so publish right after building.
+  to-dos"; the default builds drop its code). `npm run build:artifact:notes` (the Notes timeline trial,
+  `VITE_NOTES_TIMELINE=1`, `dist-single/coach-dashboard-notes.html`, its own artifact "Check-in Dashboard v2 · Notes
+  timeline", built from this branch). Each build empties `dist-single/`, so publish right after building.
   Keep the page small: the artifact service rejected the page once it passed about 3.5 MB (it read it as a
   "review page, too large"). Photos go in as JPEG (the banner `hero-2.jpg` is 177 KB), and `mock.ts` globs every
   PNG in `src/assets/figma/`, so a large PNG there is embedded even when nothing imports it.
@@ -392,6 +394,17 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - Client name link on the Check-in panel (the user's call): the brief and Spec 4 BL1 keep the name plain on a
   Check-in panel ("that panel already shows what the detail page would"); the demo links it like every other type,
   opening ‹ CLIENT DETAILS in the panel's place.
+- Notes timeline (the trial page only, the user's call; Figma `6049:170285`): Meetings folds into Notes, so meeting
+  notes also show on the Check-in panel's Notes tab, which Spec 4 BL1 fixes as notes only, and the brief puts
+  meeting transcription in Phase 2 (Loom). Notes and meeting notes run on one timeline by created time. New note is
+  tried three ways on one page, switched on a bar at the bottom left (`NotesTrialBar`, `useNotesVariant` in
+  `lib/notesTrial.ts`, kept in localStorage): A one New note that turns into meeting notes when a transcript is
+  pasted or a file attached (`detectTranscript` in `lib/noteKind.ts`: subtitle timecodes or timed speaker lines
+  switch at once with Keep as a note, untimed speaker lines ask first, label lines like "Sleep: …" never count),
+  B New note ▾ asking Note or Meeting notes, C a Note | Meeting notes toggle that detection flips. A meeting note
+  is a note with a transcript, so the kind follows where the text comes from. `NewNoteDialog` reuses the note
+  editor and `MeetingForm` (Add a meeting without its popup). There is no frame for the popup, the detection or the
+  bar.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for

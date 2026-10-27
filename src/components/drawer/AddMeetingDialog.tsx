@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import iconClipboardBrand from '../../assets/figma/icon-clipboard-brand.svg';
 import iconClipboard from '../../assets/figma/icon-clipboard.svg';
@@ -99,16 +99,54 @@ function TranscriptPreview({ text, reading, ext }: { text?: string; reading: boo
  * right after (`summarizeTranscript`).
  */
 export function AddMeetingDialog({ client, onClose }: { client: Client; onClose: () => void }) {
-  const { state, addMeeting } = useStore();
   const [title, setTitle] = useState('');
+  return (
+    <Modal title="Add a meeting" width={600} radius={12} onClose={onClose} header={<></>}>
+      <MeetingForm client={client} title={title} onTitle={setTitle} onCancel={onClose} onSaved={onClose} />
+    </Modal>
+  );
+}
+
+/**
+ * The Add a meeting form without its popup, so the Notes timeline trial's New note can turn into it: `seed` starts it
+ * on pasted text or a file, `onPasted` reports the pasted text (to turn it back into a note), `above` sits over the
+ * title (the kind chip or toggle) and `banner` over the transcript.
+ */
+export function MeetingForm({
+  client,
+  title,
+  onTitle,
+  seed,
+  onPasted,
+  above,
+  banner,
+  onCancel,
+  onSaved,
+}: {
+  client: Client;
+  title: string;
+  onTitle: (title: string) => void;
+  seed?: { pasted?: string; file?: File };
+  onPasted?: (text: string) => void;
+  above?: ReactNode;
+  banner?: ReactNode;
+  onCancel: () => void;
+  onSaved: () => void;
+}) {
+  const { state, addMeeting } = useStore();
+  const setTitle = onTitle;
   const [date, setDate] = useState(DEMO_TODAY);
   const [time, setTime] = useState(NOW);
-  const [mode, setMode] = useState<Mode>('upload');
+  const [mode, setMode] = useState<Mode>(seed?.pasted && !seed.file ? 'paste' : 'upload');
   // A meeting keeps one transcript: leaving a tab that has one asks first, and replacing clears it (the user's call).
   const [switching, setSwitching] = useState<Mode | null>(null);
   const [file, setFile] = useState<{ name: string; size: number; text?: string } | null>(null);
   const [reading, setReading] = useState(false);
-  const [pasted, setPasted] = useState('');
+  const [pasted, setPastedState] = useState(seed?.pasted ?? '');
+  const setPasted = (text: string) => {
+    setPastedState(text);
+    onPasted?.(text);
+  };
   const [dragging, setDragging] = useState(false);
   const [fileError, setFileError] = useState('');
   const [picker, setPicker] = useState<'date' | 'time' | null>(null);
@@ -160,6 +198,13 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
     });
   };
 
+  // A seeded file is read as if the coach had just picked it.
+  useEffect(() => {
+    if (seed?.file) pick(seed.file);
+    // Once, on the seed the form opened with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const save = () => {
     if (!transcript || reading) return;
     // The summary is written from whatever text there is (pasted, or a .txt / .srt / .docx file); a .pdf gets none.
@@ -176,12 +221,13 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
       summary,
       summaryPending: Boolean(summary),
     });
-    onClose();
+    onSaved();
   };
 
   return (
-    <Modal title="Add a meeting" width={600} radius={12} onClose={onClose} header={<></>}>
+    <>
       <NoteHeader
+        above={above}
         title={
           <input
             autoFocus
@@ -223,6 +269,7 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
       </NoteHeader>
 
       <div className="flex h-[440px] shrink-0 flex-col gap-2 px-8 pb-2 pt-5">
+        {banner}
         <p className="text-[12px] font-semibold leading-[18px] text-ink">Transcript</p>
         <div className="flex gap-2">
           <SourceButton
@@ -309,7 +356,7 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
           }}
         />
       </div>
-      <EditorFooter canSave={Boolean(transcript) && !reading} onCancel={onClose} onSave={save} />
+      <EditorFooter canSave={Boolean(transcript) && !reading} onCancel={onCancel} onSave={save} />
       {switching &&
         createPortal(
           <ConfirmDialog
@@ -325,6 +372,6 @@ export function AddMeetingDialog({ client, onClose }: { client: Client; onClose:
           />,
           document.body,
         )}
-    </Modal>
+    </>
   );
 }

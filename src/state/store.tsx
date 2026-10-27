@@ -8,6 +8,7 @@ import { DEFAULT_METRICS, METRICS } from '../components/metrics';
 import type { Assessment } from '../lib/checkin';
 import type { ClientTabKey } from '../components/drawer/ClientTabs';
 import type { DashboardTab } from '../lib/dashboard';
+import { NOTES_TIMELINE } from '../lib/flags';
 import { MIN_WEEK_OFFSET, seededReview } from '../lib/week';
 
 export type View = 'brief' | 'dashboard';
@@ -634,7 +635,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       addMeeting: (clientId, meeting) => {
         dispatch({ type: 'addMeeting', clientId, meeting });
-        showToast('Meeting added');
+        showToast(NOTES_TIMELINE ? 'Meeting notes added' : 'Meeting added');
         // The summary is written as soon as the transcript is in; the demo takes a moment, as the model would.
         if (meeting.summaryPending) {
           window.setTimeout(() => {

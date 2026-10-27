@@ -9,7 +9,9 @@ import { RightRail } from './components/RightRail';
 import { Sidebar } from './components/Sidebar';
 import { SidePanel } from './components/side/SidePanel';
 import { TodayBrief } from './components/TodayBrief';
+import { NotesTrialBar } from './components/NotesTrialBar';
 import { Toast } from './components/Toast';
+import { NOTES_TIMELINE } from './lib/flags';
 import { sideIsSidebar, useStore } from './state/store';
 
 const SLIDE_MS = 420;
@@ -78,6 +80,7 @@ export default function App() {
       <SessionDrawer />
       <SidePanel />
       {state.customize && <CustomizeCards initialTab={state.customize} />}
+      {NOTES_TIMELINE && <NotesTrialBar />}
       <Toast />
     </div>
   );

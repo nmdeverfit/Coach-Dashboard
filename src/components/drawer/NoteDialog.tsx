@@ -38,9 +38,11 @@ export function TimeLine({ children }: { children: ReactNode }) {
 }
 
 /** The popups' header: the title row, then the time lines, over a light border. */
-export function NoteHeader({ title, actions, children }: { title: ReactNode; actions?: ReactNode; children: ReactNode }) {
+export function NoteHeader({ title, actions, above, children }: { title: ReactNode; actions?: ReactNode; above?: ReactNode; children: ReactNode }) {
   return (
     <header className="flex shrink-0 flex-col gap-0.5 border-b border-black/[0.08] px-8 pb-3 pt-8">
+      {/* Notes timeline trial: the note's kind (chip or toggle) over the title. */}
+      {above && <div className="mb-3 flex">{above}</div>}
       <div className="flex items-center justify-between gap-4">
         {title}
         {actions}
@@ -59,9 +61,24 @@ const TOOLS = [
 
 /**
  * The note editor (Figma 5850:570122): Bold · Italic · Numbered list · Bulleted list over a writing area. The page's
- * own rich-text editing does the formatting; what it writes is cleaned on save (`cleanNoteHtml`).
+ * own rich-text editing does the formatting; what it writes is cleaned on save (`cleanNoteHtml`). The Notes timeline
+ * trial listens to what is pasted (`onPasteText`, after it is in) and to a file dropped on it (`onDropFile`).
  */
-function NoteEditor({ initial, placeholder, onChange }: { initial: string; placeholder: string; onChange: (html: string) => void }) {
+export function NoteEditor({
+  initial,
+  placeholder,
+  onChange,
+  onPasteText,
+  onDropFile,
+  height = 'h-[440px]',
+}: {
+  initial: string;
+  placeholder: string;
+  onChange: (html: string) => void;
+  onPasteText?: (text: string, html: string) => void;
+  onDropFile?: (file: File) => void;
+  height?: string;
+}) {
   const box = useRef<HTMLDivElement>(null);
   const [empty, setEmpty] = useState(!noteText(initial));
   const [active, setActive] = useState<Record<string, boolean>>({});
@@ -96,7 +113,7 @@ function NoteEditor({ initial, placeholder, onChange }: { initial: string; place
   };
 
   return (
-    <div className="flex h-[440px] shrink-0 flex-col gap-2.5 px-3 pb-5 pt-3">
+    <div className={`flex ${height} shrink-0 flex-col gap-2.5 px-3 pb-5 pt-3`}>
       <div
         role="toolbar"
         aria-label="Formatting"
@@ -141,8 +158,20 @@ function NoteEditor({ initial, placeholder, onChange }: { initial: string; place
           // Pasted text comes in plain, so a note never carries another page's styles.
           onPaste={(e) => {
             e.preventDefault();
-            document.execCommand('insertText', false, e.clipboardData.getData('text/plain'));
+            const text = e.clipboardData.getData('text/plain');
+            document.execCommand('insertText', false, text);
+            onPasteText?.(text, box.current?.innerHTML ?? '');
           }}
+          onDragOver={onDropFile && ((e) => e.dataTransfer.types.includes('Files') && e.preventDefault())}
+          onDrop={
+            onDropFile &&
+            ((e) => {
+              const f = e.dataTransfer.files[0];
+              if (!f) return;
+              e.preventDefault();
+              onDropFile(f);
+            })
+          }
           className="note-body min-h-full outline-none"
         />
       </div>
@@ -151,9 +180,10 @@ function NoteEditor({ initial, placeholder, onChange }: { initial: string; place
 }
 
 /** Cancel · Save, as on Change Client Status; Save waits for some text. Add a meeting shares it. */
-export function EditorFooter({ canSave, onCancel, onSave }: { canSave: boolean; onCancel: () => void; onSave: () => void }) {
+export function EditorFooter({ canSave, onCancel, onSave, start }: { canSave: boolean; onCancel: () => void; onSave: () => void; start?: ReactNode }) {
   return (
-    <footer className="flex shrink-0 justify-end gap-[5px] px-8 pb-6 pt-4">
+    <footer className="flex shrink-0 items-center justify-end gap-[5px] px-8 pb-6 pt-4">
+      {start && <div className="mr-auto flex min-w-0 items-center">{start}</div>}
       <button
         type="button"
         onClick={onCancel}

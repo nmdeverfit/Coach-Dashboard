@@ -10,7 +10,9 @@ import { ISSUE_CREDITS_TOAST, buildPrepareView, buildUnblockView, reminderToast 
 import { useStore } from '../../state/store';
 import { Tooltip } from '../Tooltip';
 import { FormStatus } from './AssessedBodies';
+import { NOTES_TIMELINE } from '../../lib/flags';
 import { NotesTab } from './NotesTab';
+import { NotesTimeline } from './NotesTimeline';
 import { NutritionTab } from './NutritionTab';
 import { DataArea, TabBar } from './PanelParts';
 import { CreditsCard, SessionsCard } from './SessionsBodies';
@@ -54,7 +56,10 @@ export function ClientTabs({
   /** The client detail page's per-tab buttons (Training: Deep analysis; Nutrition: Adjust meal plan). */
   withTabActions?: boolean;
 }) {
-  const tabs = CLIENT_TABS.filter((t) => (t.key !== 'booking' || getSessions(client.id)) && (t.key !== 'transcript' || withTranscript));
+  // The Notes timeline trial folds Meetings into Notes, on every surface that has the Notes tab.
+  const tabs = CLIENT_TABS.filter(
+    (t) => (t.key !== 'booking' || getSessions(client.id)) && (t.key !== 'transcript' || (withTranscript && !NOTES_TIMELINE)),
+  );
   const [tab, setTab] = useState<ClientTabKey>(() => (initialTab && tabs.some((t) => t.key === initialTab) ? initialTab : profile.focus));
   return (
     <DataArea>
@@ -122,7 +127,7 @@ export function ClientTabContent({ tab, client, profile }: { tab: ClientTabKey; 
     case 'booking':
       return <BookingTab client={client} />;
     case 'notes':
-      return <NotesTab client={client} notes={profile.notes} />;
+      return NOTES_TIMELINE ? <NotesTimeline client={client} notes={profile.notes} /> : <NotesTab client={client} notes={profile.notes} />;
     case 'transcript':
       return <TranscriptTab client={client} />;
   }

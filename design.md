@@ -227,6 +227,21 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   fades in there from 24 px right (320 ms). Under reduced motion it shows the tick for 450 ms and moves without
   animation. Unticking puts it back
   in its ranked place. The user's call; the brief keeps a completed row in place.
+- **Notes timeline** (trial, only in the `build:artifact:notes` page; Figma `6049:170285`): one Notes tab for notes
+  and meeting notes, no Meetings tab. Card as the Notes tab (`ink/15` border, `elevated` well, 44 px white header
+  "Notes (N)" + "+ New note", 38 px search). Day headers 13 px semibold uppercase `ink-muted`, `py-2` ("Today",
+  "Aug 27"), Sort by on the first. Each entry: a 32 px ring (0.842 px `line-light`, no fill) with the kind's 16.84 px
+  icon (`icon-note-sticky.svg` / `icon-note-video.svg`) on a 1 px `line-light` rail above and below, 12 px gap, then
+  the card `py-2` around it: border `line`, rounded 8, `p-4`; "Note • Aug 21 - 6:40 PM" 13 px `#636f7a` with the 4 px
+  `dot-note-meta.svg`, then the title 15 px semibold `ink`. Hover: white + `0 0 10px rgba(0,0,0,0.05)`. Meeting
+  notes add "Generating summary…" to the meta line while pending. New note (no frame): the kind sits over the
+  title, a chip (28 px, rounded full, `line-light` border, 14 px icon, 12 px semibold; A's has × "Change to a
+  note") or C's segmented toggle (`surface-secondary` track, white thumb) with "Detected: …" 12 px `ink-tertiary`.
+  A's suggestion banner: `brand/20` border on `brand/[0.04]`, sparkle, 13 px text, then Save as meeting notes
+  (28 px brand) and Keep as note; the editor drops to 344 px under it. A's auto-switch line: `surface-secondary`,
+  12 px. Attach transcript (lucide paperclip, 13 px semibold `ink-secondary`) sits at the footer's left. B's menu:
+  260 px, two items with a 28 px ring icon, name and a 12 px line. The trial bar: `ink` bar, rounded 12, bottom
+  16 px, left 80 px, z 45 (over the panels, under popups), `data-keep-open`.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one card in the list (option B, the user's pick over a dashed-line tree and a "+N to-dos" hybrid), at the place of
   its highest-ranked to-do, BL3 order inside it. `TodoGroupCard`: `py-1.5` around it, border `line`, rounded 8, a

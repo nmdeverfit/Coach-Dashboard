@@ -5,7 +5,10 @@ import { readFileSync, writeFileSync } from 'node:fs';
 
 const name = process.argv[2] ?? 'coach-dashboard';
 // The trial's page gets its own title, so its artifact never reads as the layout's.
-const TITLES = { 'coach-dashboard-grouped': 'Check-in Dashboard v2 · Grouped to-dos' };
+const TITLES = {
+  'coach-dashboard-grouped': 'Check-in Dashboard v2 · Grouped to-dos',
+  'coach-dashboard-notes': 'Check-in Dashboard v2 · Notes timeline',
+};
 
 const html = readFileSync('dist-single/index.html', 'utf8');
 const fragment = html
