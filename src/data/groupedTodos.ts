@@ -14,8 +14,11 @@ import type { Todo, TodoDetail, TodoType } from './types';
  */
 export { GROUPED_TODOS };
 
-/** Spec 4 BL3's type priority, which orders a client's to-dos and the groups themselves. */
-export const TYPE_PRIORITY: TodoType[] = ['respond', 'checkin', 'build', 'remind', 'unblock', 'prepare', 'acknowledge', 'congratulate', 'kudos', 'adjust'];
+/**
+ * The type priority that orders a client's to-dos: the first is the group's main to-do. Check-in ranks first in this
+ * trial (the user's call); Spec 4 BL3 puts Respond above it.
+ */
+export const TYPE_PRIORITY: TodoType[] = ['checkin', 'respond', 'build', 'remind', 'unblock', 'prepare', 'acknowledge', 'congratulate', 'kudos', 'adjust'];
 export const byPriority = (a: Todo, b: Todo) => TYPE_PRIORITY.indexOf(a.type) - TYPE_PRIORITY.indexOf(b.type);
 
 /** Unblock and Prepare panels read the client's own bookings and credits, so every surface agrees (AC4). */
@@ -60,15 +63,15 @@ function withGroups(base: Todo[]): Todo[] {
 
 export const seedTodos: Todo[] = GROUPED_TODOS ? withGroups(baseTodos) : baseTodos;
 
-/**
- * The card header as a sentence, "3 to-dos with [avatar] Wade Warren", in the to-do rows' own wording, tried on these
- * clients beside the name-and-pill header (Ethan) for comparison (the user's call).
- */
-export const SENTENCE_HEADERS = new Set(['wade-warren', 'penelope-brooks']);
+/** A group is one main to-do and at most this many related ones (the user's call). */
+export const MAX_RELATED = 4;
 
-/** A section's to-dos as client groups: in the order each client first appears, each group sorted by BL3. */
+/**
+ * A section's to-dos as client groups: in the order each client first appears, each sorted by `TYPE_PRIORITY`, the
+ * first its main to-do, then up to `MAX_RELATED` related ones (no client in the demo has more than three to-dos).
+ */
 export function groupByClient(todos: Todo[]): { key: string; todos: Todo[] }[] {
   const groups = new Map<string, Todo[]>();
   for (const t of todos) groups.set(t.clientId, [...(groups.get(t.clientId) ?? []), t]);
-  return [...groups].map(([clientId, list]) => ({ key: `client:${clientId}`, todos: list.sort(byPriority) }));
+  return [...groups].map(([clientId, list]) => ({ key: `client:${clientId}`, todos: list.sort(byPriority).slice(0, 1 + MAX_RELATED) }));
 }

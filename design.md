@@ -261,22 +261,16 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "Meeting notes": `surface-secondary` pill, 24 px, 12 px semibold `ink-secondary`, no icon). The title row carries
   Note details' Delete · Edit (`DetailActions`, 16 px, muted until hovered); Edit is the New note form titled with the meeting's name, without the tabs.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
-  one card in the list (option B, the user's pick over a dashed-line tree and a "+N to-dos" hybrid), at the place of
-  its highest-ranked to-do, BL3 order inside it. `TodoGroupCard`: `py-1.5` around it, border `line`, rounded 8, a
-  faint brand tint `brand/[0.04]` so a group reads apart from the single rows (the user's call); white with `shadow-row` on hover, and white while one of its to-dos is open (the user's
-  call). Header button `px-2 py-2.5`: the 24 px avatar (in the checkbox column), the name 13 px semibold, a pill
-  "3 to-dos" / "1 of 3 done" (11 px semibold `ink-secondary`, white, border `line-light`, rounded full) and a 16 px
-  chevron that collapses it. Sentence header (`SENTENCE_HEADERS`: Wade and Penelope, tried beside Ethan's for
-  comparison): the 16 px chevron sits in the rows' 24 px checkbox column, so the sentence starts on the rows' text
-  edge (40 px); "2 to-dos left with Wade Warren" / "1 to-do left with …" / "All done with …" in one style, 13 px
-  semibold `ink`, the rows' action colour (the user's call); no pill, no right chevron. Open, no avatar, since its rows keep the full
-  action and the client chip ("Issue credit for [avatar] Wade Warren"), as in the flat list; collapsed, the 24 px
-  avatar comes back before the name, then the list of what is left (the user's call). In these cards a ticked row drops to the
-  bottom of the card after 450 ms (at once with reduced motion; an unticked one goes straight back). Collapsed, the header lists what is left ("Issue credit · Prepare for the session", 12 px
-  `ink-tertiary`). Rows under a top border, divided by `line`: no client chip, the type's short action
-  (`SHORT_ACTION`), hover `surface-secondary/60`, selected = 4 px brand edge on `brand/[0.03]`. Each row keeps its own
-  checkbox, Dismiss and panel; a done row greys in place, and the card sinks once all its rows are done. "Show N
-  more" never splits a card.
+  one card in the list, at the place the client first appears. `TodoGroupCard`: `py-1.5` around it, border `line`,
+  rounded 8, a faint brand tint `brand/[0.04]` so a group reads apart from the single rows; white with `shadow-row` on
+  hover and while one of its to-dos is open (the user's call). No header (the user's call): the main to-do, the
+  highest by `TYPE_PRIORITY` (Check-in first), is a full row (`pb-1.5`): checkbox, action + client chip, reason. Under
+  it up to four related to-dos (`MAX_RELATED`), each `py-0.5 pl-10` so the checkbox sits under the main row's text:
+  20 px checkbox, the short action 13 px semibold (`SHORT_ACTION`), no client chip, no reason; the card ends on
+  `pb-1.5`. No dividers inside. Hover `surface-secondary/60`, selected = 4 px brand edge on `brand/[0.03]`. Each row
+  keeps its own checkbox, Dismiss and panel; a ticked row dims and strikes through in place (it never moves inside the
+  card), and the card slides out and sinks to the bottom of its section once all its rows are done. On Previous the
+  main row carries the age. "Show N more" never splits a card.
 - **Related to-dos** (same trial): under the panel's title block, `px-[30px] pb-2.5`, a white card (border `line`,
   rounded 8): a `surface-secondary` header "Related to-dos" 13 px semibold + count chip, then one row per other
   to-do of the client (border-top `line`, `px-4 py-2.5`): an 18 px read-only checkbox, the short action 13 px

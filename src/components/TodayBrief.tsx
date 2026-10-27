@@ -10,7 +10,7 @@ import { getClient, useStore } from '../state/store';
 import { reducedMotion } from './ClientListParts';
 import { ConfirmDialog } from './ConfirmDialog';
 import { CountChip } from './CountChip';
-import { TodoGroupCard } from './TodoGroupCard';
+import { TodoGroupCard, type CardRole } from './TodoGroupCard';
 import { TodoRow } from './TodoRow';
 
 /** Rows shown before "Show N more" (brief: INITIAL_ROWS = 7). */
@@ -203,24 +203,21 @@ export function TodayBrief() {
 
   const rowsOf = (items: Item[], past: boolean) =>
     items.map(({ key, todos }) => {
-      const row = (todo: Todo, inCard?: boolean, fullAction?: boolean) => (
+      const row = (todo: Todo, inCard?: CardRole) => (
         <TodoRow
           key={todo.id}
           todo={todo}
-          age={past && !inCard ? ageLabel(todo.raisedOn, DEMO_TODAY) : undefined}
+          age={past && inCard !== 'related' ? ageLabel(todo.raisedOn, DEMO_TODAY) : undefined}
           selected={state.selectedTodoId === todo.id}
           onOpen={() => selectTodo(todo.id)}
           onToggle={() => toggleComplete(todo.id)}
           onDismiss={() => setPending({ kind: 'one', todo })}
           inCard={inCard}
-          fullAction={fullAction}
         />
       );
       if (todos.length === 1) return row(todos[0]);
-      // A client's to-dos (grouped to-dos trial): one card, the client named in its header.
-      return (
-        <TodoGroupCard key={key} groupKey={key} todos={todos} renderRow={(t, full) => row(t, true, full)} />
-      );
+      // A client's to-dos (grouped to-dos trial): one card, the main to-do over its related ones.
+      return <TodoGroupCard key={key} groupKey={key} todos={todos} renderRow={(t, role) => row(t, role)} />;
     });
 
   const confirmDismiss = () => {

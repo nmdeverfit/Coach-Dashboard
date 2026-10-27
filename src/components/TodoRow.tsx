@@ -5,6 +5,7 @@ import iconTrash from '../assets/figma/icon-trash.svg';
 import type { Todo, TodoType } from '../data/types';
 import { getClient } from '../state/store';
 import { Avatar } from './Avatar';
+import type { CardRole } from './TodoGroupCard';
 import { Tooltip } from './Tooltip';
 
 interface TodoRowProps {
@@ -16,15 +17,14 @@ interface TodoRowProps {
   onToggle: () => void;
   onDismiss: () => void;
   /**
-   * Grouped to-dos (trial): a row in a client's card (`TodoGroupCard`). It drops the client chip for the type's short
-   * action, since the card's header names the client, and draws no bottom border of its own.
+   * Grouped to-dos (trial): a row in a client's card (`TodoGroupCard`), with no bottom border of its own. The main
+   * row reads like a single one; a related row is the type's short action only, indented under the main row's text,
+   * with no client chip and no reason (the user's call).
    */
-  inCard?: boolean;
-  /** In a card, keep the full action and the client chip (the sentence-header cards, the user's call). */
-  fullAction?: boolean;
+  inCard?: CardRole;
 }
 
-/** A row's action inside a client's card: the client is named once, in the card's header. */
+/** A related row's action inside a client's card: the client is named once, on the main row. */
 export const SHORT_ACTION: Record<TodoType, string> = {
   checkin: 'Check in',
   respond: 'Reply to the form',
@@ -42,7 +42,7 @@ export const SHORT_ACTION: Record<TodoType, string> = {
  * To-do item (Figma component 3925:6908): Default, Hover, Selected and Completed states, each in a
  * Current and a Past (Previous to-dos) variant.
  */
-export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCard, fullAction }: TodoRowProps) {
+export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCard }: TodoRowProps) {
   const client = getClient(todo.clientId);
   const done = todo.state === 'completed';
   const strike = done ? 'line-through' : '';
@@ -58,7 +58,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
     }
   };
 
-  const nested = Boolean(inCard) && !fullAction;
+  const nested = inCard === 'related';
   // Inside a card the selected row keeps the brand edge but not the lifted white surface (the card turns white).
   const surface = selected
     ? inCard
@@ -78,7 +78,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
       aria-label={`${todo.action} ${client.name}`}
       onClick={onOpen}
       onKeyDown={onKeyDown}
-      className={`group flex cursor-pointer gap-2 px-2 pb-[14px] pt-[10px] outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${age ? 'items-center' : 'items-start'} ${surface}`}
+      className={`group flex cursor-pointer gap-2 outline-none ${nested ? 'py-0.5 pl-10 pr-2' : inCard ? 'px-2 pb-1.5 pt-[10px]' : 'px-2 pb-[14px] pt-[10px]'} focus-visible:ring-2 focus-visible:ring-brand/40 ${age || nested ? 'items-center' : 'items-start'} ${surface}`}
     >
       <div className="flex min-w-0 flex-1 items-start gap-2">
         <div className="relative h-8 w-6 shrink-0">
@@ -101,7 +101,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
           </button>
         </div>
         <div className={`flex min-w-0 flex-1 flex-col gap-1 ${done ? 'opacity-60' : ''}`}>
-          <div className={`flex min-w-0 items-center gap-1.5 ${nested ? 'pt-1.5' : ''}`}>
+          <div className="flex min-w-0 items-center gap-1.5">
             <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{nested ? SHORT_ACTION[todo.type] : todo.action}</span>
             {!nested && <span className={`flex min-w-0 items-center gap-1.5 rounded-full py-0.5 pl-0.5 ${age ? 'pr-2' : ''}`}>
               <Avatar name={client.name} src={client.avatar} />
@@ -111,7 +111,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
               <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{todo.actionAfter}</span>
             )}
           </div>
-          <p className={`text-[12px] leading-normal text-ink-tertiary ${strike}`}>{todo.reason}</p>
+          {!nested && <p className={`text-[12px] leading-normal text-ink-tertiary ${strike}`}>{todo.reason}</p>}
         </div>
       </div>
 
