@@ -59,13 +59,13 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
   };
 
   const nested = inCard === 'related';
-  // Inside a card the selected row keeps the brand edge but not the lifted white surface (the card turns white).
+  // In a group the brand edge is drawn over the row, so the checkbox stays on the connect line.
   const surface = selected
     ? inCard
-      ? 'border-l-4 border-l-brand bg-brand/[0.03]'
+      ? 'relative rounded-r-lg bg-white shadow-row before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-brand'
       : 'rounded-r-lg border-l-4 border-l-brand bg-white shadow-row'
     : inCard
-      ? 'hover:bg-surface-secondary/60'
+      ? 'hover:rounded-lg hover:bg-white hover:shadow-row'
       : 'border-b border-line hover:rounded-lg hover:border-transparent hover:bg-white hover:shadow-row';
 
   return (

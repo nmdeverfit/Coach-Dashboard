@@ -261,16 +261,18 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "Meeting notes": `surface-secondary` pill, 24 px, 12 px semibold `ink-secondary`, no icon). The title row carries
   Note details' Delete · Edit (`DetailActions`, 16 px, muted until hovered); Edit is the New note form titled with the meeting's name, without the tabs.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
-  one card in the list, at the place the client first appears. `TodoGroupCard`: `py-1.5` around it, border `line`,
-  rounded 8, a faint brand tint `brand/[0.04]` so a group reads apart from the single rows; white with `shadow-row` on
-  hover and while one of its to-dos is open (the user's call). No header (the user's call): the main to-do, the
-  highest by `TYPE_PRIORITY` (Check-in first), is a full row (`pb-1.5`): checkbox, action + client chip, reason. Under
-  it up to four related to-dos (`MAX_RELATED`), each `py-0.5 pl-10` so the checkbox sits under the main row's text:
-  20 px checkbox, the short action 13 px semibold (`SHORT_ACTION`), no client chip, no reason; the card ends on
-  `pb-1.5`. No dividers inside. Hover `surface-secondary/60`, selected = 4 px brand edge on `brand/[0.03]`. Each row
-  keeps its own checkbox, Dismiss and panel; a ticked row dims and strikes through in place (it never moves inside the
-  card), and the card slides out and sinks to the bottom of its section once all its rows are done. On Previous the
-  main row carries the age. "Show N more" never splits a card.
+  one group in the list, at the place the client first appears. `TodoGroupCard`: no card, border or tint (the user's
+  call); it sits on the list's grey like the single rows, one `line` divider under the whole group. The main to-do,
+  the highest by `TYPE_PRIORITY` (Check-in first), is a full row (`pb-1.5`): checkbox, action + client chip, reason.
+  Under it up to four related to-dos (`MAX_RELATED`), each `py-0.5 pl-10` so the checkbox sits under the main row's
+  text: 20 px checkbox, the short action 13 px semibold (`SHORT_ACTION`), no client chip, no reason; the group ends on
+  `pb-1.5`. A connect line, as in Linear's sub-issues (the user's call): 1 px `line-light`, at the main checkbox's
+  centre (x 20), from 38 px down (just under that checkbox) to the last related row's middle, drawn over the rows.
+  Each row hovers like a single one (white, rounded, `shadow-row`); selected is white with `shadow-row` and a 4 px
+  brand edge drawn over the row, so the checkbox stays on the line. Each row keeps its own checkbox, Dismiss and
+  panel; a ticked row dims and strikes through in place (it never moves inside the group), and the group slides out
+  and sinks to the bottom of its section once all its rows are done. On Previous the main row carries the age.
+  "Show N more" never splits a group.
 - **Related to-dos** (same trial): under the panel's title block, `px-[30px] pb-2.5`, a white card (border `line`,
   rounded 8): a `surface-secondary` header "Related to-dos" 13 px semibold + count chip, then one row per other
   to-do of the client (border-top `line`, `px-4 py-2.5`): an 18 px read-only checkbox, the short action 13 px
