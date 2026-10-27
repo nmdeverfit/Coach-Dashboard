@@ -409,8 +409,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
   the notes are empty they fold into "+ Add your notes (optional)"; a transcript pasted into the notes offers Move
   to transcript; the title is suggested from the transcript's heading or file name (`titleFrom`). A paste that makes
   a note into meeting notes keeps the typed text as notes and only the pasted text as the transcript. Meetings carry
-  `notes` (shown as "Your notes" at the top of the popup's Summary) and may have no transcript. There is no frame
-  for the popup, the detection or the bar.
+  `notes` and may have no transcript. On this page the meeting popup has no Summary (the user's call): tabs Notes |
+  Transcript when the coach wrote notes, else the transcript alone with no tab bar (`tabsFor` in
+  `TranscriptDialog`); meeting notes get no summary, no "Generating summary…" and no summary toast, and search
+  skips summaries. There is no frame for the popup, the detection or the bar.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for

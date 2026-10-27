@@ -2,10 +2,9 @@ import { Paperclip, Plus } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import iconClipboard from '../../assets/figma/icon-clipboard.svg';
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
-import { COACH_FIRST_NAME, DEMO_TODAY } from '../../data/mock';
+import { DEMO_TODAY } from '../../data/mock';
 import type { Client, Transcript } from '../../data/types';
 import { TRANSCRIPT_TYPES, fileSize } from '../../lib/meetings';
-import { summarizeTranscript } from '../../lib/meetingSummary';
 import { detectTranscript, statsLine, titleFrom, transcriptStats, type Detection } from '../../lib/noteKind';
 import { cleanNoteHtml, noteText } from '../../lib/notes';
 import { useStore } from '../../state/store';
@@ -75,7 +74,7 @@ function TranscriptCard({ attached, reading, onReplace, onRemove }: { attached: 
         ) : (
           <p className="text-ink-tertiary">
             {attached.kind === 'file' && fileExtension(attached.name) === 'pdf'
-              ? 'No preview for .pdf files in the demo. The file is kept with the meeting notes, without a summary.'
+              ? 'No preview for .pdf files in the demo. The file is kept with the meeting notes.'
               : 'No text found in this file.'}
           </p>
         )}
@@ -108,7 +107,7 @@ function MoveBanner({ detection, onMove, onKeep }: { detection: Detection; onMov
  * form) adds the transcript, shown as a card with what it holds and a scrolling preview. Once one is attached and the
  * notes are empty, the notes fold into "Add your notes (optional)" so the transcript takes the room; notes already
  * typed stay open above it. A transcript pasted into the notes offers Move to transcript. Save needs notes or a
- * transcript; the summary is written from the transcript's text (none for a .pdf or without a transcript).
+ * transcript. Meeting notes get no summary on this trial (the user's call).
  */
 export function MeetingNotesForm({
   client,
@@ -181,8 +180,6 @@ export function MeetingNotesForm({
 
   const save = () => {
     if (reading || (!hasNotes && !attached)) return;
-    const text = textOf(attached);
-    const summary = text ? summarizeTranscript(text, client.firstName, COACH_FIRST_NAME) : undefined;
     const transcript: Transcript | undefined = attached ?? undefined;
     addMeeting(client.id, {
       id: `${client.id}-added-${Date.now()}`,
@@ -193,8 +190,6 @@ export function MeetingNotesForm({
       transcript,
       notes: hasNotes ? cleanNoteHtml(notes) : undefined,
       createdAt: `${DEMO_TODAY}T${NOW}`,
-      summary,
-      summaryPending: Boolean(summary),
     });
     onSaved();
   };

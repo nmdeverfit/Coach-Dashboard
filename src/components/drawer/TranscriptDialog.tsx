@@ -4,6 +4,7 @@ import iconSearch from '../../assets/figma/icon-search-note.svg';
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import { COACH_FIRST_NAME } from '../../data/mock';
 import type { Client, Meeting } from '../../data/types';
+import { NOTES_TIMELINE } from '../../lib/flags';
 import { fieldTime, fileSize, meetingDate } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
@@ -18,10 +19,19 @@ interface Line {
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const TABS = [
+type TabKey = 'summary' | 'notes' | 'transcript';
+
+const TABS: { key: TabKey; label: string }[] = [
   { key: 'summary', label: 'Summary' },
   { key: 'transcript', label: 'Transcript' },
-] as const;
+];
+
+/**
+ * The Notes timeline trial drops Summary (the user's call): meeting notes show the coach's notes, when there are
+ * any, and the transcript; with one tab the bar is left out.
+ */
+const tabsFor = (m: Meeting): { key: TabKey; label: string }[] =>
+  NOTES_TIMELINE ? [...(m.notes ? [{ key: 'notes' as const, label: 'Notes' }] : []), { key: 'transcript', label: 'Transcript' }] : TABS;
 
 /** One list section of the Summary tab (Figma 5925:146302): 16 px title, 13 px bullets, "Topic:" in bold; `ruled` adds the rule under it. */
 function SummaryList({ title, items, ruled = false }: { title: string; items: string[]; ruled?: boolean }) {
@@ -68,7 +78,8 @@ export function TranscriptDialog({
 }) {
   const { showToast } = useStore();
   const summary = meeting.summary;
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>(initialTab ?? (summary || meeting.notes || meeting.summaryPending ? 'summary' : 'transcript'));
+  const tabs = tabsFor(meeting);
+  const [tab, setTab] = useState<TabKey>(() => (NOTES_TIMELINE ? tabs[0].key : (initialTab ?? (summary ? 'summary' : 'transcript'))));
   const [query, setQuery] = useState('');
   const [current, setCurrent] = useState(0);
   const body = useRef<HTMLDivElement>(null);
@@ -137,24 +148,26 @@ export function TranscriptDialog({
       <div ref={body} className="min-h-[640px]">
         {/* Tabs, and on Transcript the search, stay pinned while the body scrolls. */}
         <div className="sticky top-0 z-[1] bg-white">
-          <div role="tablist" aria-label="Meeting" className="flex items-center border-b border-line px-5">
-            {TABS.map((t) => (
-              <button
-                key={t.key}
-                type="button"
-                role="tab"
-                aria-selected={tab === t.key}
-                onClick={() => setTab(t.key)}
-                className={
-                  tab === t.key
-                    ? '-mb-px border-b-2 border-brand px-5 pb-2 pt-1.5 text-[13px] font-semibold text-brand'
-                    : 'px-5 py-1.5 text-[13px] font-semibold tracking-[-0.26px] text-ink/40 hover:text-ink/70'
-                }
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          {tabs.length > 1 && (
+            <div role="tablist" aria-label="Meeting" className="flex items-center border-b border-line px-5">
+              {tabs.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === t.key}
+                  onClick={() => setTab(t.key)}
+                  className={
+                    tab === t.key
+                      ? '-mb-px border-b-2 border-brand px-5 pb-2 pt-1.5 text-[13px] font-semibold text-brand'
+                      : 'px-5 py-1.5 text-[13px] font-semibold tracking-[-0.26px] text-ink/40 hover:text-ink/70'
+                  }
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
           {tab === 'transcript' && lines && (
             <div className="px-5 pb-3 pt-4">
               {/* The Notes tab's search field. */}
@@ -205,16 +218,7 @@ export function TranscriptDialog({
         </div>
         {tab === 'summary' && (
           <div className="flex flex-col gap-4 px-5 pb-5 pt-5">
-            {/* Notes timeline trial: the coach's own notes on the call come first, apart from what the AI wrote. */}
-            {meeting.notes && (
-              <section className={`flex flex-col gap-2 px-2 pb-4 ${t ? 'border-b border-line' : ''}`}>
-                <h4 className="text-[16px] font-semibold tracking-[-0.32px] text-ink">Your notes</h4>
-                <div className="note-body text-[13px]" dangerouslySetInnerHTML={{ __html: meeting.notes }} />
-              </section>
-            )}
-            {!t ? (
-              !meeting.notes && <p className="text-[13px] leading-[1.5] text-ink-tertiary">No transcript attached, so there is no summary.</p>
-            ) : meeting.summaryPending ? (
+            {meeting.summaryPending ? (
               <div role="status" className="flex flex-col gap-3 px-2">
                 <p className="flex items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary">
                   <img src={iconSparkle} alt="" width={14} height={14} />
@@ -237,8 +241,12 @@ export function TranscriptDialog({
             )}
           </div>
         )}
+        {tab === 'notes' && (
+          // Notes timeline trial: the coach's own notes on the call.
+          <div className="note-body px-[30px] py-5" dangerouslySetInnerHTML={{ __html: meeting.notes ?? '' }} />
+        )}
         {tab === 'transcript' && (
-          <div className={`px-[30px] pb-[30px] ${lines ? 'pt-2' : 'pt-5'}`}>
+          <div className={`px-[30px] pb-[30px] ${lines && tabs.length > 1 ? 'pt-2' : 'pt-5'}`}>
             {t?.kind === 'file' && (
               <div className="mb-4 flex items-center gap-3 rounded-lg border border-[#e0e0e0] p-3">
                 <FileTypeIcon name={t.name} />

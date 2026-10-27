@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import iconChevronDown from '../../assets/figma/icon-chevron-down.svg';
 import dotMeta from '../../assets/figma/dot-note-meta.svg';
 import iconPlus from '../../assets/figma/icon-plus-brand.svg';
@@ -17,11 +16,11 @@ import { TranscriptDialog } from './TranscriptDialog';
 
 type Entry = { kind: 'note'; key: string; title: string; at: string; note: ClientNote } | { kind: 'meeting'; key: string; title: string; at: string; meeting: Meeting };
 
-/** Everything a meeting's search reads: its title, the coach's notes, the transcript and the summary. */
+/** Everything a meeting's search reads: its title, the coach's notes and the transcript (the trial shows no summary). */
 function meetingText(m: Meeting) {
   const t = m.transcript;
   const body = !t ? '' : t.kind === 'lines' ? t.lines.map((l) => l.text).join(' ') : (t.text ?? '');
-  return [m.title, noteText(m.notes ?? ''), body, ...(m.summary?.discuss ?? []), ...(m.summary?.followUp ?? [])].join(' ');
+  return [m.title, noteText(m.notes ?? ''), body].join(' ');
 }
 
 /** Notes and meeting notes in one list, by created time, split by day. */
@@ -67,12 +66,6 @@ function EntryRow({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
             {KIND_LABEL[entry.kind]}
             <img src={dotMeta} alt="" width={4} height={4} />
             {noteStamp(entry.at)}
-            {entry.kind === 'meeting' && entry.meeting.summaryPending && (
-              <span className="ml-1.5 flex animate-pulse items-center gap-1 text-ink-tertiary">
-                <img src={iconSparkle} alt="" width={12} height={12} />
-                Generating summary…
-              </span>
-            )}
           </span>
           <span className="w-full truncate text-[15px] font-semibold leading-[1.5] text-ink">{entry.title}</span>
         </button>
@@ -150,8 +143,9 @@ function NewMenu({ firstName, onPick }: { firstName: string; onPick: (k: NoteKin
 /**
  * Notes timeline trial (the user's call; Figma 6049:170285): Notes and Meetings as one Notes tab. Notes and meeting
  * notes (a meeting with its transcript) run in one list by created time, split by day ("Today", "Aug 27"), each on a
- * timeline with its kind's icon. Search reads notes' text and meetings' transcripts and summaries. A note opens Note
- * details, meeting notes their Summary | Transcript popup. New note works the way the trial bar picks (A, B or C).
+ * timeline with its kind's icon. Search reads notes' text and meetings' notes and transcripts. A note opens Note
+ * details, meeting notes their Notes | Transcript popup (no Summary on this trial). New note works the way the trial
+ * bar picks (A, B or C).
  */
 export function NotesTimeline({ client, notes: profileNotes }: { client: Client; notes: ClientNote[] }) {
   const { state } = useStore();

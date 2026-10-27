@@ -246,8 +246,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   the lines on `#f9fafa`, speakers semibold, scrolling) takes the room, under a 176 px editor when notes are typed
   or "+ Add your notes (optional)" (13 px semibold brand, "(optional)" regular `ink-tertiary`) when not. Dragging a
   file over the form draws a dashed brand frame, "Drop the transcript to attach it". Move to transcript: a one-line
-  `brand/20` banner, 12 px, a 28 px brand button and Keep in notes. The meeting popup's Summary starts with
-  "Your notes" (16 px semibold, the note's own body), ruled off from the AI's Discuss. B's menu:
+  `brand/20` banner, 12 px, a 28 px brand button and Keep in notes. The meeting popup drops Summary on this page:
+  Notes (the coach's notes, `note-body`, 30 px sides) | Transcript, or the transcript alone without a tab bar. B's menu:
   260 px, two items with a 28 px ring icon, name and a 12 px line. The trial bar: `ink` bar, rounded 12, bottom
   16 px, left 80 px, z 45 (over the panels, under popups), `data-keep-open`.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
