@@ -70,7 +70,7 @@ export function NoteEditor({
   onChange,
   onPasteText,
   onDropFile,
-  height = 'h-[440px]',
+  height = 'h-[440px] shrink-0',
 }: {
   initial: string;
   placeholder: string;
@@ -113,7 +113,7 @@ export function NoteEditor({
   };
 
   return (
-    <div className={`flex ${height} shrink-0 flex-col gap-2.5 px-3 pb-5 pt-3`}>
+    <div className={`flex ${height} flex-col gap-2.5 px-3 pb-5 pt-3`}>
       <div
         role="toolbar"
         aria-label="Formatting"

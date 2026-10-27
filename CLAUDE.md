@@ -403,8 +403,14 @@ one column. The Upcoming bookings session list is shared with the main branch to
   switch at once with Keep as a note, untimed speaker lines ask first, label lines like "Sleep: …" never count),
   B New note ▾ asking Note or Meeting notes, C a Note | Meeting notes toggle that detection flips. A meeting note
   is a note with a transcript, so the kind follows where the text comes from. `NewNoteDialog` reuses the note
-  editor and `MeetingForm` (Add a meeting without its popup). There is no frame for the popup, the detection or the
-  bar.
+  editor; its meeting notes are `MeetingNotesForm` (the user's call: no Upload / Paste tabs): the coach's notes in
+  the note editor, Attach transcript (or a file dropped on the form) for the transcript, shown as a card with
+  "61 lines · Long and Malcom · ~30 min" (`transcriptStats`) and a scrolling preview; once a transcript is in and
+  the notes are empty they fold into "+ Add your notes (optional)"; a transcript pasted into the notes offers Move
+  to transcript; the title is suggested from the transcript's heading or file name (`titleFrom`). A paste that makes
+  a note into meeting notes keeps the typed text as notes and only the pasted text as the transcript. Meetings carry
+  `notes` (shown as "Your notes" at the top of the popup's Summary) and may have no transcript. There is no frame
+  for the popup, the detection or the bar.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for

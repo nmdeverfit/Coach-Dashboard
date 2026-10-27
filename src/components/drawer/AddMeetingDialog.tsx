@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import iconClipboardBrand from '../../assets/figma/icon-clipboard-brand.svg';
 import iconClipboard from '../../assets/figma/icon-clipboard.svg';
@@ -24,9 +24,64 @@ import { DatePicker, TimePicker } from './Pickers';
 /** The demo's "now" (the brief is generated at 06:00): the form starts on it, and a meeting can't start later. */
 const NOW = '06:00';
 /** Meetings the coach adds keep the generated calls' time zone; the form no longer asks for one. */
-const TIME_ZONE = 'UTC-7';
+export const TIME_ZONE = 'UTC-7';
 /** .txt and .srt are read as text and .docx through its XML, so the transcript can be previewed and summarised; .pdf is kept as a file. */
 const READABLE = ['.txt', '.srt'];
+
+/** Why a file can't be a transcript, or null when it can. */
+export function transcriptFileError(f: File) {
+  const ext = f.name.slice(f.name.lastIndexOf('.')).toLowerCase();
+  return !TRANSCRIPT_TYPES.includes(ext) || f.size > TRANSCRIPT_MAX_BYTES ? 'Use a .txt, .docx, .srt or .pdf file up to 10 MB.' : null;
+}
+
+/** The file's text, read in the page: .txt and .srt as they are, .docx through its XML; null for a .pdf. */
+export function transcriptFileText(f: File): Promise<string | null> | null {
+  const ext = f.name.slice(f.name.lastIndexOf('.')).toLowerCase();
+  return READABLE.includes(ext) ? f.text() : ext === '.docx' ? docxText(f) : null;
+}
+
+/**
+ * The meeting's date and time line with its edit icon: the date calendar (up to today), then the time list (on
+ * today, up to now). Shared by Add a meeting and the Notes timeline trial's meeting notes.
+ */
+export function MeetingWhen({ date, time, onDate, onTime }: { date: string; time: string; onDate: (d: string) => void; onTime: (t: string) => void }) {
+  const [picker, setPicker] = useState<'date' | 'time' | null>(null);
+  // Picking a day goes straight on to its start time; the date picker closes itself after its pick.
+  const next = useRef<'time' | null>(null);
+  const closePicker = () => {
+    setPicker(next.current);
+    next.current = null;
+  };
+  const when = useRef<HTMLDivElement>(null);
+  return (
+    <>
+      <div ref={when} className="w-fit">
+        <TimeLine>
+          {noteStamp(`${date}T${time}`)}
+          <IconAction label="Edit date and time" onClick={() => setPicker((p) => (p ? null : 'date'))}>
+            <img src={iconEditMuted} alt="" className={`absolute inset-0 block size-full max-w-none opacity-60 group-hover:hidden ${picker ? '!hidden' : ''}`} />
+            <img src={iconEdit} alt="" className={`absolute inset-0 hidden size-full max-w-none group-hover:block ${picker ? '!block' : ''}`} />
+          </IconAction>
+        </TimeLine>
+      </div>
+      {picker === 'date' && (
+        <DatePicker
+          anchor={when}
+          value={date}
+          max={DEMO_TODAY}
+          onPick={(v) => {
+            onDate(v);
+            // Today allows a start up to now only.
+            if (v === DEMO_TODAY && time > NOW) onTime(NOW);
+            next.current = 'time';
+          }}
+          onClose={closePicker}
+        />
+      )}
+      {picker === 'time' && <TimePicker anchor={when} value={time} latest={date === DEMO_TODAY ? NOW : undefined} onPick={onTime} onClose={closePicker} />}
+    </>
+  );
+}
 
 type Mode = 'upload' | 'paste';
 
@@ -48,7 +103,7 @@ function SourceButton({ on, icon, label, semibold, onClick }: { on: boolean; ico
 }
 
 /** "Long (04:12):" or "Malcom:" at the start of a line, set in bold like the meeting popup's speakers. */
-const SPEAKER = /^([^():\n]{1,40}?(?:\s*\([^)]*\))?\s*:)(\s.*)$/;
+export const SPEAKER = /^([^():\n]{1,40}?(?:\s*\([^)]*\))?\s*:)(\s.*)$/;
 
 /**
  * What the chosen file says, read in the page before Save: one row per line, speakers in bold. A .pdf can't be read
@@ -99,64 +154,18 @@ function TranscriptPreview({ text, reading, ext }: { text?: string; reading: boo
  * right after (`summarizeTranscript`).
  */
 export function AddMeetingDialog({ client, onClose }: { client: Client; onClose: () => void }) {
-  const [title, setTitle] = useState('');
-  return (
-    <Modal title="Add a meeting" width={600} radius={12} onClose={onClose} header={<></>}>
-      <MeetingForm client={client} title={title} onTitle={setTitle} onCancel={onClose} onSaved={onClose} />
-    </Modal>
-  );
-}
-
-/**
- * The Add a meeting form without its popup, so the Notes timeline trial's New note can turn into it: `seed` starts it
- * on pasted text or a file, `onPasted` reports the pasted text (to turn it back into a note), `above` sits over the
- * title (the kind chip or toggle) and `banner` over the transcript.
- */
-export function MeetingForm({
-  client,
-  title,
-  onTitle,
-  seed,
-  onPasted,
-  above,
-  banner,
-  onCancel,
-  onSaved,
-}: {
-  client: Client;
-  title: string;
-  onTitle: (title: string) => void;
-  seed?: { pasted?: string; file?: File };
-  onPasted?: (text: string) => void;
-  above?: ReactNode;
-  banner?: ReactNode;
-  onCancel: () => void;
-  onSaved: () => void;
-}) {
   const { state, addMeeting } = useStore();
-  const setTitle = onTitle;
+  const [title, setTitle] = useState('');
   const [date, setDate] = useState(DEMO_TODAY);
   const [time, setTime] = useState(NOW);
-  const [mode, setMode] = useState<Mode>(seed?.pasted && !seed.file ? 'paste' : 'upload');
+  const [mode, setMode] = useState<Mode>('upload');
   // A meeting keeps one transcript: leaving a tab that has one asks first, and replacing clears it (the user's call).
   const [switching, setSwitching] = useState<Mode | null>(null);
   const [file, setFile] = useState<{ name: string; size: number; text?: string } | null>(null);
   const [reading, setReading] = useState(false);
-  const [pasted, setPastedState] = useState(seed?.pasted ?? '');
-  const setPasted = (text: string) => {
-    setPastedState(text);
-    onPasted?.(text);
-  };
+  const [pasted, setPasted] = useState('');
   const [dragging, setDragging] = useState(false);
   const [fileError, setFileError] = useState('');
-  const [picker, setPicker] = useState<'date' | 'time' | null>(null);
-  // Picking a day goes straight on to its start time; the date picker closes itself after its pick.
-  const next = useRef<'time' | null>(null);
-  const closePicker = () => {
-    setPicker(next.current);
-    next.current = null;
-  };
-  const when = useRef<HTMLDivElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const added = state.meetings[client.id] ?? [];
   const newTitle = `New Meeting ${1 + added.filter((m) => /^New Meeting \d+$/.test(m.title)).length}`;
@@ -182,14 +191,14 @@ export function MeetingForm({
 
   const pick = (f: File | undefined) => {
     if (!f) return;
-    const ext = f.name.slice(f.name.lastIndexOf('.')).toLowerCase();
-    if (!TRANSCRIPT_TYPES.includes(ext) || f.size > TRANSCRIPT_MAX_BYTES) {
-      setFileError('Use a .txt, .docx, .srt or .pdf file up to 10 MB.');
+    const error = transcriptFileError(f);
+    if (error) {
+      setFileError(error);
       return;
     }
     setFileError('');
     setFile({ name: f.name, size: f.size });
-    const read = READABLE.includes(ext) ? f.text() : ext === '.docx' ? docxText(f) : null;
+    const read = transcriptFileText(f);
     if (!read) return;
     setReading(true);
     read.then((text) => {
@@ -197,13 +206,6 @@ export function MeetingForm({
       if (text) setFile((cur) => (cur?.name === f.name ? { ...cur, text } : cur));
     });
   };
-
-  // A seeded file is read as if the coach had just picked it.
-  useEffect(() => {
-    if (seed?.file) pick(seed.file);
-    // Once, on the seed the form opened with.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const save = () => {
     if (!transcript || reading) return;
@@ -221,13 +223,12 @@ export function MeetingForm({
       summary,
       summaryPending: Boolean(summary),
     });
-    onSaved();
+    onClose();
   };
 
   return (
-    <>
+    <Modal title="Add a meeting" width={600} radius={12} onClose={onClose} header={<></>}>
       <NoteHeader
-        above={above}
         title={
           <input
             autoFocus
@@ -240,36 +241,10 @@ export function MeetingForm({
           />
         }
       >
-        <div ref={when} className="w-fit">
-          <TimeLine>
-            {noteStamp(`${date}T${time}`)}
-            <IconAction label="Edit date and time" onClick={() => setPicker((p) => (p ? null : 'date'))}>
-              <img src={iconEditMuted} alt="" className={`absolute inset-0 block size-full max-w-none opacity-60 group-hover:hidden ${picker ? '!hidden' : ''}`} />
-              <img src={iconEdit} alt="" className={`absolute inset-0 hidden size-full max-w-none group-hover:block ${picker ? '!block' : ''}`} />
-            </IconAction>
-          </TimeLine>
-        </div>
-        {picker === 'date' && (
-          <DatePicker
-            anchor={when}
-            value={date}
-            max={DEMO_TODAY}
-            onPick={(v) => {
-              setDate(v);
-              // Today allows a start up to now only.
-              if (v === DEMO_TODAY && time > NOW) setTime(NOW);
-              next.current = 'time';
-            }}
-            onClose={closePicker}
-          />
-        )}
-        {picker === 'time' && (
-          <TimePicker anchor={when} value={time} latest={date === DEMO_TODAY ? NOW : undefined} onPick={setTime} onClose={closePicker} />
-        )}
+        <MeetingWhen date={date} time={time} onDate={setDate} onTime={setTime} />
       </NoteHeader>
 
       <div className="flex h-[440px] shrink-0 flex-col gap-2 px-8 pb-2 pt-5">
-        {banner}
         <p className="text-[12px] font-semibold leading-[18px] text-ink">Transcript</p>
         <div className="flex gap-2">
           <SourceButton
@@ -356,7 +331,7 @@ export function MeetingForm({
           }}
         />
       </div>
-      <EditorFooter canSave={Boolean(transcript) && !reading} onCancel={onCancel} onSave={save} />
+      <EditorFooter canSave={Boolean(transcript) && !reading} onCancel={onClose} onSave={save} />
       {switching &&
         createPortal(
           <ConfirmDialog
@@ -372,6 +347,6 @@ export function MeetingForm({
           />,
           document.body,
         )}
-    </>
+    </Modal>
   );
 }

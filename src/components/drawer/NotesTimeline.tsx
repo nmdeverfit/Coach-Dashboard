@@ -17,11 +17,11 @@ import { TranscriptDialog } from './TranscriptDialog';
 
 type Entry = { kind: 'note'; key: string; title: string; at: string; note: ClientNote } | { kind: 'meeting'; key: string; title: string; at: string; meeting: Meeting };
 
-/** Everything a meeting's search reads: its title, transcript and summary. */
+/** Everything a meeting's search reads: its title, the coach's notes, the transcript and the summary. */
 function meetingText(m: Meeting) {
   const t = m.transcript;
-  const body = t.kind === 'lines' ? t.lines.map((l) => l.text).join(' ') : (t.text ?? '');
-  return [m.title, body, ...(m.summary?.discuss ?? []), ...(m.summary?.followUp ?? [])].join(' ');
+  const body = !t ? '' : t.kind === 'lines' ? t.lines.map((l) => l.text).join(' ') : (t.text ?? '');
+  return [m.title, noteText(m.notes ?? ''), body, ...(m.summary?.discuss ?? []), ...(m.summary?.followUp ?? [])].join(' ');
 }
 
 /** Notes and meeting notes in one list, by created time, split by day. */

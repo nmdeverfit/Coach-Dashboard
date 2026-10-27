@@ -1,18 +1,18 @@
 import { Paperclip, X } from 'lucide-react';
-import { useRef, useState, type ReactNode } from 'react';
+import { useCallback, useRef, useState, type ReactNode } from 'react';
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import iconSticky from '../../assets/figma/icon-note-sticky.svg';
 import iconVideo from '../../assets/figma/icon-note-video.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import type { Client, ClientNote } from '../../data/types';
 import { TRANSCRIPT_TYPES } from '../../lib/meetings';
-import { detectTranscript, htmlToText, textToHtml, type Detection } from '../../lib/noteKind';
+import { detectTranscript, textToHtml, type Detection } from '../../lib/noteKind';
 import { cleanNoteHtml, noteStamp, noteText } from '../../lib/notes';
 import type { NotesVariant } from '../../lib/notesTrial';
 import { useStore } from '../../state/store';
 import { Modal } from '../Modal';
 import { Tooltip } from '../Tooltip';
-import { MeetingForm } from './AddMeetingDialog';
+import { MeetingNotesForm } from './MeetingNotesForm';
 import { EditorFooter, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
 
 export type NoteKind = 'note' | 'meeting';
@@ -83,8 +83,8 @@ function SuggestBanner({ detection, onKeep, onSwitch }: { detection: Detection; 
       <img src={iconSparkle} alt="" width={16} height={16} className="mt-0.5 shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <p className="text-[13px] leading-[1.5] text-ink">
-          <span className="font-semibold">This looks like a meeting transcript</span> ({detection.reason}). Save it as meeting notes to keep
-          the transcript and get a summary.
+          <span className="font-semibold">This looks like a meeting transcript</span> ({detection.reason}). Save as meeting notes to attach
+          it as the transcript, keep the rest as your notes and get a summary.
         </p>
         <div className="flex items-center gap-3">
           <button type="button" onClick={onSwitch} className="h-7 rounded-[6px] bg-brand px-3 text-[12px] font-semibold text-white hover:bg-brand/90">
@@ -115,13 +115,15 @@ function SwitchedNotice({ why, onUndo }: { why: string; onUndo: () => void }) {
 /**
  * New note on the Notes timeline trial (the user's call; no frame), one popup for the three ways being compared
  * (`NotesVariant`). As a note it is the editor (Figma 5850:570122); as meeting notes it is the Add a meeting form
- * (`MeetingForm`). A meeting note is a note with a transcript, so the kind follows where the text comes from:
+ * (`MeetingNotesForm`: the notes, then the attached transcript). A meeting note is a note with a transcript, so the
+ * kind follows where the text comes from; the note's own text always stays the coach's notes:
  * - A: one New note. A file (Attach transcript, or dropped on the editor) or a paste with subtitle timecodes or timed
  *   speaker lines makes it meeting notes at once, with a line saying why and Keep as a note; a paste of untimed
  *   speaker lines asks first (`SuggestBanner`).
  * - B: the coach picked the kind on New note ▾ (`start`); nothing is detected.
  * - C: a Note | Meeting notes toggle; a file or any detected transcript flips it, saying what was detected.
- * Turning meeting notes back into a note restores the note as it was, or the pasted text if the coach changed it.
+ * A transcript found in a paste leaves the note's text and becomes the attached transcript. Turning meeting notes back
+ * into a note restores the note as it was, or the notes plus the pasted transcript if the coach changed either.
  */
 export function NewNoteDialog({
   client,
@@ -142,20 +144,22 @@ export function NewNoteDialog({
   const [html, setHtml] = useState('');
   // The editor sets its text once, so a note coming back from meeting notes remounts it.
   const [editorKey, setEditorKey] = useState(0);
-  const [seed, setSeed] = useState<{ key: number; pasted?: string; file?: File }>({ key: 0 });
-  const pasted = useRef('');
-  // The note as it was when it turned into meeting notes, and the text it handed over.
-  const before = useRef<{ html: string; text: string } | null>(null);
+  const [seed, setSeed] = useState<{ key: number; notes: string; pasted?: string; file?: File }>({ key: 0, notes: '' });
+  // The meeting notes form as it stands (its notes and pasted transcript), and what the note handed it.
+  const current = useRef({ notes: '', pasted: '' });
+  const before = useRef<{ html: string; notes: string; text: string } | null>(null);
   const [why, setWhy] = useState<string | null>(null);
-  const [suggestion, setSuggestion] = useState<Detection | null>(null);
+  // A paste the coach is asked about (A): the text, and the note before and after it.
+  const [suggestion, setSuggestion] = useState<{ detection: Detection; text: string; before: string; after: string } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const detects = variant !== 'B';
   const newTitle = `New Note ${1 + notes.filter((n) => /^New Note \d+$/.test(n.title)).length}`;
 
-  const toMeeting = (from: { pasted?: string; file?: File }, reason: string | null, noteHtml = html) => {
-    before.current = { html: noteHtml, text: from.pasted ?? '' };
-    pasted.current = from.pasted ?? '';
-    setSeed((s) => ({ key: s.key + 1, ...from }));
+  /** `notes`: the note's text that stays the coach's notes; `whole`: the note as it was, for the way back. */
+  const toMeeting = (from: { pasted?: string; file?: File }, reason: string | null, notes = html, whole = html) => {
+    before.current = { html: whole, notes, text: from.pasted ?? '' };
+    current.current = { notes, pasted: from.pasted ?? '' };
+    setSeed((s) => ({ key: s.key + 1, notes, ...from }));
     setKind('meeting');
     setWhy(reason);
     setSuggestion(null);
@@ -163,24 +167,29 @@ export function NewNoteDialog({
 
   const toNote = () => {
     const b = before.current;
-    setHtml(b && pasted.current === b.text ? b.html : textToHtml(pasted.current) || (b?.html ?? ''));
+    const now = current.current;
+    setHtml(b && now.notes === b.notes && now.pasted === b.text ? b.html : now.notes + textToHtml(now.pasted));
     setEditorKey((k) => k + 1);
     setKind('note');
     setWhy(null);
   };
 
-  const onPasteText = (text: string, noteHtml: string) => {
+  // `html` is still the note from before the paste: it stays the notes, the pasted text becomes the transcript.
+  const onPasteText = (text: string, after: string) => {
     const found = detectTranscript(text);
     if (!found) return;
-    if (variant === 'A' && found.level === 'likely') return setSuggestion(found);
-    toMeeting({ pasted: htmlToText(noteHtml) }, variant === 'A' ? `the pasted text has ${found.reason}` : found.reason, noteHtml);
+    if (variant === 'A' && found.level === 'likely') return setSuggestion({ detection: found, text: text.trim(), before: html, after });
+    toMeeting({ pasted: text.trim() }, variant === 'A' ? `the pasted text has ${found.reason}` : found.reason, html, after);
   };
 
   const attach = (file: File) => toMeeting({ file }, variant === 'A' ? 'a transcript file is attached' : 'transcript file attached');
+  const track = useCallback((s: { notes: string; pasted: string }) => {
+    current.current = s;
+  }, []);
 
   const above: ReactNode =
     variant === 'C' ? (
-      <KindToggle kind={kind} hint={why} onChange={(k) => (k === 'meeting' ? toMeeting({ pasted: htmlToText(html) || undefined }, null) : toNote())} />
+      <KindToggle kind={kind} hint={why} onChange={(k) => (k === 'meeting' ? toMeeting({}, null) : toNote())} />
     ) : variant === 'B' ? (
       <KindChip kind={kind} />
     ) : kind === 'meeting' ? (
@@ -196,15 +205,16 @@ export function NewNoteDialog({
   return (
     <Modal title={kind === 'note' ? 'New note' : 'New meeting notes'} width={600} radius={12} onClose={onClose} header={<></>}>
       {kind === 'meeting' ? (
-        <MeetingForm
+        <MeetingNotesForm
           key={seed.key}
           client={client}
           title={title}
           onTitle={setTitle}
+          initialNotes={seed.notes}
           seed={seed}
-          onPasted={(t) => (pasted.current = t)}
+          onChange={track}
           above={above}
-          banner={variant === 'A' && why ? <SwitchedNotice why={why} onUndo={toNote} /> : undefined}
+          notice={variant === 'A' && why ? <SwitchedNotice why={why} onUndo={toNote} /> : undefined}
           onCancel={onClose}
           onSaved={onClose}
         />
@@ -226,7 +236,11 @@ export function NewNoteDialog({
             <TimeLine>Created: {noteStamp(NOW)}</TimeLine>
           </NoteHeader>
           {suggestion && (
-            <SuggestBanner detection={suggestion} onKeep={() => setSuggestion(null)} onSwitch={() => toMeeting({ pasted: htmlToText(html) }, null)} />
+            <SuggestBanner
+              detection={suggestion.detection}
+              onKeep={() => setSuggestion(null)}
+              onSwitch={() => toMeeting({ pasted: suggestion.text }, null, suggestion.before, suggestion.after)}
+            />
           )}
           <NoteEditor
             key={editorKey}
@@ -235,7 +249,7 @@ export function NewNoteDialog({
             onChange={setHtml}
             onPasteText={detects ? onPasteText : undefined}
             onDropFile={detects ? attach : undefined}
-            height={suggestion ? 'h-[344px]' : 'h-[440px]'}
+            height={suggestion ? 'h-[344px] shrink-0' : 'h-[440px] shrink-0'}
           />
           <EditorFooter
             canSave={Boolean(noteText(html)) || /<li/i.test(html)}

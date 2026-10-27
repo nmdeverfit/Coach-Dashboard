@@ -239,7 +239,15 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   note") or C's segmented toggle (`surface-secondary` track, white thumb) with "Detected: …" 12 px `ink-tertiary`.
   A's suggestion banner: `brand/20` border on `brand/[0.04]`, sparkle, 13 px text, then Save as meeting notes
   (28 px brand) and Keep as note; the editor drops to 344 px under it. A's auto-switch line: `surface-secondary`,
-  12 px. Attach transcript (lucide paperclip, 13 px semibold `ink-secondary`) sits at the footer's left. B's menu:
+  12 px. Attach transcript (lucide paperclip, 13 px semibold `ink-secondary`) sits at the footer's left. Meeting notes
+  (`MeetingNotesForm`): the note editor fills the 440 px body until a transcript is attached; then the transcript
+  card (1.5 px `#e0e0e0`, rounded 8: a white head with the file icon or a clipboard tile, name 13 px semibold, a
+  12 px `ink-tertiary` line "5 KB · TXT · 61 lines · Long and Malcom · ~30 min", Replace in brand · Remove; then
+  the lines on `#f9fafa`, speakers semibold, scrolling) takes the room, under a 176 px editor when notes are typed
+  or "+ Add your notes (optional)" (13 px semibold brand, "(optional)" regular `ink-tertiary`) when not. Dragging a
+  file over the form draws a dashed brand frame, "Drop the transcript to attach it". Move to transcript: a one-line
+  `brand/20` banner, 12 px, a 28 px brand button and Keep in notes. The meeting popup's Summary starts with
+  "Your notes" (16 px semibold, the note's own body), ruled off from the AI's Discuss. B's menu:
   260 px, two items with a 28 px ring icon, name and a 12 px line. The trial bar: `ink` bar, rounded 12, bottom
   16 px, left 80 px, z 45 (over the panels, under popups), `data-keep-open`.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets

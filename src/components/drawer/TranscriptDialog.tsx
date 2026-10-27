@@ -68,14 +68,15 @@ export function TranscriptDialog({
 }) {
   const { showToast } = useStore();
   const summary = meeting.summary;
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>(initialTab ?? (summary ? 'summary' : 'transcript'));
+  const [tab, setTab] = useState<(typeof TABS)[number]['key']>(initialTab ?? (summary || meeting.notes || meeting.summaryPending ? 'summary' : 'transcript'));
   const [query, setQuery] = useState('');
   const [current, setCurrent] = useState(0);
   const body = useRef<HTMLDivElement>(null);
   const t = meeting.transcript;
 
-  const lines: Line[] | null =
-    t.kind === 'lines'
+  const lines: Line[] | null = !t
+    ? null
+    : t.kind === 'lines'
       ? t.lines.map((l) => ({ speaker: l.from === 'coach' ? COACH_FIRST_NAME : client.firstName, at: l.at, text: l.text }))
       : t.kind === 'text' || t.text !== undefined
         ? (t.kind === 'text' ? t.text : t.text!).split('\n').map((text) => ({ text }))
@@ -204,7 +205,16 @@ export function TranscriptDialog({
         </div>
         {tab === 'summary' && (
           <div className="flex flex-col gap-4 px-5 pb-5 pt-5">
-            {meeting.summaryPending ? (
+            {/* Notes timeline trial: the coach's own notes on the call come first, apart from what the AI wrote. */}
+            {meeting.notes && (
+              <section className={`flex flex-col gap-2 px-2 pb-4 ${t ? 'border-b border-line' : ''}`}>
+                <h4 className="text-[16px] font-semibold tracking-[-0.32px] text-ink">Your notes</h4>
+                <div className="note-body text-[13px]" dangerouslySetInnerHTML={{ __html: meeting.notes }} />
+              </section>
+            )}
+            {!t ? (
+              !meeting.notes && <p className="text-[13px] leading-[1.5] text-ink-tertiary">No transcript attached, so there is no summary.</p>
+            ) : meeting.summaryPending ? (
               <div role="status" className="flex flex-col gap-3 px-2">
                 <p className="flex items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary">
                   <img src={iconSparkle} alt="" width={14} height={14} />
@@ -229,7 +239,7 @@ export function TranscriptDialog({
         )}
         {tab === 'transcript' && (
           <div className={`px-[30px] pb-[30px] ${lines ? 'pt-2' : 'pt-5'}`}>
-            {t.kind === 'file' && (
+            {t?.kind === 'file' && (
               <div className="mb-4 flex items-center gap-3 rounded-lg border border-[#e0e0e0] p-3">
                 <FileTypeIcon name={t.name} />
                 <div className="flex min-w-0 flex-1 flex-col">
@@ -243,7 +253,9 @@ export function TranscriptDialog({
                 </button>
               </div>
             )}
-            {!lines ? (
+            {!t ? (
+              <p className="text-[13px] leading-[1.5] text-ink-tertiary">No transcript attached to these meeting notes.</p>
+            ) : !lines ? (
               <p className="text-[13px] leading-[1.5] text-ink-tertiary">There’s no preview for this file type. Download it to read the transcript.</p>
             ) : t.kind === 'lines' ? (
               <ol className="flex flex-col gap-4">
