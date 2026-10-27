@@ -1,6 +1,6 @@
-import { Paperclip } from 'lucide-react';
 import { useRef, useState, type ReactNode } from 'react';
 import iconClipboard from '../../assets/figma/icon-clipboard.svg';
+import iconUpload from '../../assets/figma/icon-upload.svg';
 import type { Transcript } from '../../data/types';
 import { fileSize } from '../../lib/meetings';
 import { statsLine, transcriptStats } from '../../lib/noteKind';
@@ -8,11 +8,11 @@ import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Glyph } from '../Glyph';
 import { SPEAKER, transcriptFileError, transcriptFileText } from './AddMeetingDialog';
 
-/** A file attached to a note or meeting notes (Notes timeline trial): read in the page when it can be. */
+/** A transcript file attached to meeting notes (Notes timeline trial): read in the page when it can be. */
 export type AttachedFile = Extract<Transcript, { kind: 'file' }>;
 
-/** Attach file on the note editor's toolbar, beside the formatting tools (the user's call). */
-export function AttachFileButton({ onClick }: { onClick: () => void }) {
+/** Upload transcript on the note editor's toolbar, beside the formatting tools, on the Meeting notes tab only (the user's call). */
+export function UploadTranscriptButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
@@ -21,16 +21,16 @@ export function AttachFileButton({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       className="flex h-[26px] items-center gap-1.5 rounded-[4px] px-2 text-[12px] font-semibold leading-none text-ink-secondary hover:bg-black/[0.05] hover:text-ink"
     >
-      <Paperclip size={14} aria-hidden />
-      Attach file
+      <img src={iconUpload} alt="" width={16} height={16} className="opacity-70" />
+      Upload transcript
     </button>
   );
 }
 
 /**
  * A file as a preview (no frame): a white head with the file's icon, name and what it holds, its actions at the
- * right, then the lines on `#f9fafa`, speakers semibold, scrolling inside. Used by New note (Replace · Remove), the
- * note popup and the meeting popup (Download, capped height).
+ * right, then the lines on `#f9fafa`, speakers semibold, scrolling inside. Used by New note's Meeting notes tab
+ * (Replace · Remove) and the meeting popup (Download, capped height).
  */
 export function TranscriptFileCard({
   icon,
@@ -110,7 +110,7 @@ export function AttachedFileCard({ file, reading, actions, className }: { file: 
       meta={[fileSize(file.size), fileExtension(file.name).toUpperCase(), stats].filter(Boolean).join(' · ')}
       lines={file.text?.split(/\r?\n/).filter((l) => l.trim()) ?? []}
       reading={reading}
-      empty={fileExtension(file.name) === 'pdf' ? 'No preview for .pdf files in the demo. The file is kept with the note.' : 'No text found in this file.'}
+      empty={fileExtension(file.name) === 'pdf' ? 'No preview for .pdf files in the demo. The file is kept with the meeting notes.' : 'No text found in this file.'}
       actions={actions}
       className={className}
     />

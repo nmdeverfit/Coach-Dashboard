@@ -29,7 +29,7 @@ function timeline(notes: ClientNote[], meetings: Meeting[], newestFirst: boolean
     ...notes.map((n): Entry => ({ kind: 'note', key: `note:${n.id}`, title: n.title, at: n.at, note: n })),
     ...meetings.map((m): Entry => ({ kind: 'meeting', key: `meeting:${m.id}`, title: m.title, at: createdAt(m), meeting: m })),
   ]
-    .filter((e) => !q || (e.kind === 'note' ? `${e.title} ${noteText(e.note.body)} ${e.note.attachment?.text ?? ''}` : meetingText(e.meeting)).toLowerCase().includes(q))
+    .filter((e) => !q || (e.kind === 'note' ? `${e.title} ${noteText(e.note.body)}` : meetingText(e.meeting)).toLowerCase().includes(q))
     .sort((a, b) => (newestFirst ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at)));
   const days: { date: string; entries: Entry[] }[] = [];
   for (const e of entries) {

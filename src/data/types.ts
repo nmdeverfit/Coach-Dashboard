@@ -259,8 +259,6 @@ export interface ClientNote {
   editedAt?: string;
   /** The note's text as the editor writes it: p, b, i, ul, ol and li only (`cleanNoteHtml` in lib/notes.ts). */
   body: string;
-  /** A file attached in New note (the Notes timeline trial). */
-  attachment?: Extract<Transcript, { kind: 'file' }>;
 }
 
 /**

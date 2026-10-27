@@ -398,15 +398,14 @@ one column. The Upcoming bookings session list is shared with the main branch to
   notes also show on the Check-in panel's Notes tab, which Spec 4 BL1 fixes as notes only, and the brief puts
   meeting transcription in Phase 2 (Loom). Notes and meeting notes run on one timeline by created time. New note is
   one form for every note (`NewNoteDialog`, the user's call after trying three ways side by side): the note editor
-  with Attach file on its toolbar (`AttachFileButton` in `NoteAttachment.tsx`; a file dropped on the form attaches
-  too) and the note type under the time line (`NoteTypePicker`: a chip "[icon] Note ▾" with no label, tooltip "Note
-  type", a menu of Note · Meeting notes with a line each; the user's pick over a footer chip), chosen by the coach.
-  The type only classifies it: a note shows
-  "Created: …", meeting notes the meeting's date and start (editable, `MeetingWhen`); the title placeholder is "New
-  Note N", or for meeting notes the file's heading or name (`titleFrom`) or "New Meeting N". A file shows under the
-  text as a preview card (`AttachedFileCard`: "5 KB · TXT · 61 lines · Long and Malcom · ~30 min" from
-  `transcriptStats`, Replace · Remove). Save needs text or a file; a note keeps the file as `ClientNote.attachment`
-  (shown in Note details under the text, with Download), meeting notes as their transcript. Nothing detects a pasted
+  with Note | Meeting notes tabs over the title (`KindTabs`; a chip and a label row were tried first). A note is text
+  only, "Created: …". Meeting notes carry the meeting's date and start (editable, `MeetingWhen`) and an Upload
+  transcript button on the editor's toolbar (`UploadTranscriptButton` in `NoteAttachment.tsx`; a file dropped on the
+  form works too; the Note tab has neither). The file shows under the text as a preview card (`AttachedFileCard`:
+  "5 KB · TXT · 61 lines · Long and Malcom · ~30 min" from `transcriptStats`, Replace · Remove). The text stays when
+  the tab changes; leaving Meeting notes with a file in asks "Switch to a note?" (the file goes, the text stays,
+  Cancel keeps Meeting notes). The title placeholder is "New Note N", or for meeting notes the file's heading or name
+  (`titleFrom`) or "New Meeting N". Save needs text or, on Meeting notes, a file. Nothing detects a pasted
   transcript: the team can't build auto-detect yet (the user's call). Meetings carry
   `notes` and may have no transcript. On this page the meeting popup is one plain page (the user's call): no tabs,
   Summary, headings, rule or search; the coach's notes first, then the transcript as a file preview

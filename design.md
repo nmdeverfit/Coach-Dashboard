@@ -235,15 +235,15 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   the card `py-2` around it: border `line`, rounded 8, `p-4`; "Note • Aug 21 - 6:40 PM" 13 px `#636f7a` with the 4 px
   `dot-note-meta.svg`, then the title 15 px semibold `ink`. Hover: white + `0 0 10px rgba(0,0,0,0.05)`. Meeting
   notes add "Generating summary…" to the meta line while pending. New note (no frame) is one form for every note:
-  the note type sits under the time line, no label: a 28 px chip (rounded full, `line-light` border, brand while
-  open, the kind's 14 px icon, 12 px semibold `ink`, a 14 px chevron), tooltip "Note type"; its menu (280 px,
-  `line` border, rounded 8, `0 4px 16px rgba(32,35,83,0.12)`) lists Note · Meeting notes, each with a 28 px ring
-  icon, the name 13 px semibold and a 12 px `ink-tertiary` line, a brand ✓ on the chosen one. Note shows "Created: …"; Meeting notes shows the meeting's date and start with the edit icon.
-  Attach file sits on the editor's toolbar after a 1 px `black/10` divider (lucide paperclip 14, 12 px semibold
-  `ink-secondary`, 26 px, hover `black/[0.05]`) and hides once a file is in. The editor fills the 440 px body; with a
+  Note | Meeting notes tabs over the title (`surface-secondary` track, `p-0.5`, 28 px tabs, 14 px icon, 12 px
+  semibold; the chosen one white with a `0 1px 2px rgba(32,35,83,0.12)` shadow, the other `ink-secondary`). Note shows
+  "Created: …"; Meeting notes shows the meeting's date and start with the edit icon, and Upload transcript on the
+  editor's toolbar after a 1 px `black/10` divider (Figma `icon-upload.svg` 16 px at 70 %, 12 px semibold
+  `ink-secondary`, 26 px, hover `black/[0.05]`), hidden once a file is in. The editor fills the 440 px body; with a
   file it drops to 176 px and the file card (`AttachedFileCard`: 1.5 px `#e0e0e0`, rounded 8, a white head with
   the file icon, name 13 px semibold, a 12 px `ink-tertiary` line "5 KB · TXT · 61 lines · Long and Malcom · ~30
-  min", Replace in brand · Remove; then the lines on `#f9fafa`, speakers semibold, scrolling) fills the rest. A file
+  min", Replace in brand · Remove; then the lines on `#f9fafa`, speakers semibold, scrolling) fills the rest. Leaving
+  Meeting notes with a file opens the `ConfirmDialog` "Switch to a note?" · "Switch to note". On Meeting notes a file
   dragged over the form draws a dashed brand frame, "Drop the file to attach it". The meeting popup is one plain page on this trial: the
   notes (`note-body`, 30 px sides, no heading), then 16 px down the transcript in the same card
   (`TranscriptFileCard`, capped at 300 px, Download in brand for a file); no tabs, headings, rule or search, and a
