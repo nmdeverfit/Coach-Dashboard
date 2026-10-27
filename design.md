@@ -247,7 +247,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   dragged over the form draws a dashed brand frame, "Drop the file to attach it". The meeting popup is one plain page on this trial: the
   notes (`note-body`, 30 px sides, no heading), then 16 px down the transcript in the same card
   (`TranscriptFileCard`, capped at 300 px, Download in brand for a file); no tabs, headings, rule or search, and a
-  part shows only when the meeting has it. Note details shows an attached file the same way under the note's text.
+  part shows only when the meeting has it.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one card in the list (option B, the user's pick over a dashed-line tree and a "+N to-dos" hybrid), at the place of
   its highest-ranked to-do, BL3 order inside it. `TodoGroupCard`: `py-1.5` around it, border `line`, rounded 8, a
