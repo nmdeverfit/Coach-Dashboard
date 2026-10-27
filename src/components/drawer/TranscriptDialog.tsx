@@ -245,7 +245,7 @@ export function TranscriptDialog({
             actions={<DetailActions what="meeting notes" onDelete={() => setConfirmingDelete(true)} onEdit={onEdit} />}
           >
             <TimeLine>Meeting date: {noteStamp(`${meeting.date}T${meeting.start}`)}</TimeLine>
-            {meeting.editedAt && <TimeLine>Last Edited: {noteStamp(meeting.editedAt)}</TimeLine>}
+            {meeting.editedAt && <TimeLine>Last edited: {noteStamp(meeting.editedAt)}</TimeLine>}
           </NoteHeader>
         ) : undefined
       }

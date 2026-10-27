@@ -5,7 +5,7 @@ const clock12 = (hhmm: string) => {
   return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
 };
 
-/** "Apr 10 - 11:25 AM", the notes list and the note popup's Created / Last Edited lines. */
+/** "Apr 10 - 11:25 AM", the notes list and the note popup's Created / Last edited lines. */
 export const noteStamp = (at: string) => `${formatMonthDay(parseDay(at.slice(0, 10)))} - ${clock12(at.slice(11, 16))}`;
 
 const ENTITIES: Record<string, string> = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&nbsp;': ' ' };

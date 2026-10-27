@@ -251,7 +251,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   note, Note details and the meeting popup share one size, 720 × 800 capped at the window's height (`NOTE_POPUP`,
   the user's call; the main build keeps 600 px notes and the 620 px meeting popup); no tabs, headings, rule or search, and a
   part shows only when the meeting has it. Its header is Note details' (`NoteHeader`): no client name, the clock lines
-  "Meeting date: …" and, once edited, "Last Edited: …"; both details popups put a `KindTag` over the title ("Note" /
+  "Meeting date: …" and, once edited, "Last edited: …"; both details popups put a `KindTag` over the title ("Note" /
   "Meeting notes": `surface-secondary` pill, 24 px, 12 px semibold `ink-secondary`, no icon). The title row carries
   Note details' Delete · Edit (`DetailActions`, 16 px, muted until hovered); Edit is the New note form titled with the meeting's name, without the tabs.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
@@ -374,7 +374,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   12, with its own header (`header` prop): `px-8 pt-8 pb-3`, bottom border `black/8`; title 19 px semibold
   `#1a1a1a` (`-0.57px`); at its right, `gap-5`, Delete (16 px, 60 % until hovered) and Edit (16 px, 60 % black,
   brand on hover as drawn), each with the dark tooltip ("Delete note", "Edit note"); under it `py-2 gap-1.5`, a 16 px
-  clock at 50 % + "Created: Aug 21 - 6:40 PM" and, once edited, "Last Edited: …" (12 px `ink-tertiary`). Body
+  clock at 50 % + "Created: Aug 21 - 6:40 PM" and, once edited, "Last edited: …" (sentence case, the user's call; the frame reads "Last Edited") (12 px `ink-tertiary`). Body
   440 px high, `px-8 py-5`, scrolls inside: `.note-body` 14 px / 1.75 ink, bold section heads, lists indented
   21 px, 10 px between a list and the next paragraph. Then the frame's empty 32 px action strip. Delete asks first
   (`ConfirmDialog`, "Delete this note?") and toasts "Note deleted"; Esc there only cancels the confirmation.
@@ -385,7 +385,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "Type your note for {first}..." (14 px `ink-secondary`), focused on open. Footer `px-8 pt-4 pb-6`, `gap-[5px]`:
   Cancel (66 × 30, `#e0e0e0` border, `#4d4d4d`) · Save (107 × 30, brand, 50 % until there is text). Save toasts
   "Note added"; Edit in Note details opens the same editor filled in (Cancel goes back to the details, Save toasts
-  "Note saved" and shows "Last Edited"). Pasted text comes in plain.
+  "Note saved" and shows "Last edited"). Pasted text comes in plain.
 - **Change Client Status** (Figma `5829:551881` / `551995` / `552126`, `ChangeStatusDialog`): 480 px `Modal`, no
   rules, subtitle 20 px avatar + name 12 px; labels 12 px semibold `#1a1a1a`; Current status pill (border
   `line-light`, rounded 4, 6 px status dot); New status select 40 px, `#fafbfc`, rounded 5, `line-light` border

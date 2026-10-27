@@ -331,7 +331,7 @@ export function NoteDialog({
               actions={<DetailActions what="note" onDelete={() => setConfirming(true)} onEdit={startEdit} />}
             >
               <TimeLine>Created: {noteStamp(note.at)}</TimeLine>
-              {note.editedAt && <TimeLine>Last Edited: {noteStamp(note.editedAt)}</TimeLine>}
+              {note.editedAt && <TimeLine>Last edited: {noteStamp(note.editedAt)}</TimeLine>}
             </NoteHeader>
             <div className={`scroll-thin ${NOTES_TIMELINE ? 'min-h-0 flex-1' : 'h-[440px] shrink-0'} overflow-y-auto px-8 py-5`}>
               <div className="note-body" dangerouslySetInnerHTML={{ __html: note.body }} />
