@@ -69,37 +69,42 @@ function DropStrip({ dragging, error, onBrowse }: { dragging: boolean; error: bo
 }
 
 /** The attached transcript (no frame): what it is and what is in it, then the lines, speakers in bold, scrolling. */
-function TranscriptCard({ attached, reading, onReplace, onRemove }: { attached: Attached; reading: boolean; onReplace: () => void; onRemove: () => void }) {
-  const text = textOf(attached);
-  const lines = text?.split(/\r?\n/).filter((l) => l.trim()) ?? [];
-  const stats = text ? statsLine(transcriptStats(text)) : '';
-  const meta = attached.kind === 'file' ? [fileSize(attached.size), fileExtension(attached.name).toUpperCase(), stats].filter(Boolean).join(' · ') : stats;
+/**
+ * A transcript as a file preview (no frame): a white head with the file's icon, name and what it holds, its actions
+ * at the right, then the lines on `#f9fafa`, speakers semibold, scrolling inside. Shared by the meeting notes form
+ * (Replace · Remove, filling the form) and the trial's meeting popup (Download, capped height).
+ */
+export function TranscriptFileCard({
+  icon,
+  name,
+  meta,
+  lines,
+  reading = false,
+  empty,
+  actions,
+  className = 'min-h-0 flex-1',
+}: {
+  icon: ReactNode;
+  name: string;
+  meta: string;
+  lines: string[];
+  reading?: boolean;
+  /** What the preview says when there is no text to show. */
+  empty: string;
+  actions?: ReactNode;
+  className?: string;
+}) {
   return (
-    <section aria-label="Transcript" className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border-[1.5px] border-[#e0e0e0]">
+    <section aria-label="Transcript" className={`flex flex-col overflow-hidden rounded-lg border-[1.5px] border-[#e0e0e0] ${className}`}>
       <div className="flex shrink-0 items-center gap-3 border-b border-[#e0e0e0] bg-white px-3 py-2.5 text-[13px] leading-[1.5]">
-        {attached.kind === 'file' ? (
-          <FileTypeIcon name={attached.name} />
-        ) : (
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-secondary">
-            <Glyph src={iconClipboard} size={20} inset="15.13% 15.43% 14.87% 20.43%" bleed="-4.78% -5.22%" />
-          </span>
-        )}
+        {icon}
         <div className="flex min-w-0 flex-1 flex-col">
-          <p className="truncate font-semibold text-ink" title={attached.kind === 'file' ? attached.name : undefined}>
-            {attached.kind === 'file' ? attached.name : 'Pasted transcript'}
+          <p className="truncate font-semibold text-ink" title={name}>
+            {name}
           </p>
           <p className="truncate text-[12px] leading-[18px] text-ink-tertiary">{reading ? 'Reading the file…' : meta}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-3 font-semibold">
-          {attached.kind === 'file' && (
-            <button type="button" onClick={onReplace} className="text-brand hover:underline">
-              Replace
-            </button>
-          )}
-          <button type="button" onClick={onRemove} className="text-ink-secondary hover:text-ink">
-            Remove
-          </button>
-        </div>
+        {actions && <div className="flex shrink-0 items-center gap-3 font-semibold">{actions}</div>}
       </div>
       <div className="scroll-thin min-h-0 flex-1 overflow-y-auto bg-[#f9fafa] px-3 py-2.5 text-[13px] leading-[1.6] text-ink">
         {reading ? (
@@ -121,14 +126,48 @@ function TranscriptCard({ attached, reading, onReplace, onRemove }: { attached: 
             );
           })
         ) : (
-          <p className="text-ink-tertiary">
-            {attached.kind === 'file' && fileExtension(attached.name) === 'pdf'
-              ? 'No preview for .pdf files in the demo. The file is kept with the meeting notes.'
-              : 'No text found in this file.'}
-          </p>
+          <p className="text-ink-tertiary">{empty}</p>
         )}
       </div>
     </section>
+  );
+}
+
+/** A tile for a transcript that is not a file (pasted, or a recorded call's). */
+export function TranscriptTile({ src = iconClipboard }: { src?: string }) {
+  return (
+    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-secondary">
+      <Glyph src={src} size={20} inset="15.13% 15.43% 14.87% 20.43%" bleed="-4.78% -5.22%" />
+    </span>
+  );
+}
+
+/** The form's card: the attached file or pasted text, with Replace (a file) and Remove. */
+function TranscriptCard({ attached, reading, onReplace, onRemove }: { attached: Attached; reading: boolean; onReplace: () => void; onRemove: () => void }) {
+  const text = textOf(attached);
+  const stats = text ? statsLine(transcriptStats(text)) : '';
+  const file = attached.kind === 'file' ? attached : null;
+  return (
+    <TranscriptFileCard
+      icon={file ? <FileTypeIcon name={file.name} /> : <TranscriptTile />}
+      name={file ? file.name : 'Pasted transcript'}
+      meta={file ? [fileSize(file.size), fileExtension(file.name).toUpperCase(), stats].filter(Boolean).join(' · ') : stats}
+      lines={text?.split(/\r?\n/).filter((l) => l.trim()) ?? []}
+      reading={reading}
+      empty={file && fileExtension(file.name) === 'pdf' ? 'No preview for .pdf files in the demo. The file is kept with the meeting notes.' : 'No text found in this file.'}
+      actions={
+        <>
+          {file && (
+            <button type="button" onClick={onReplace} className="text-brand hover:underline">
+              Replace
+            </button>
+          )}
+          <button type="button" onClick={onRemove} className="text-ink-secondary hover:text-ink">
+            Remove
+          </button>
+        </>
+      }
+    />
   );
 }
 

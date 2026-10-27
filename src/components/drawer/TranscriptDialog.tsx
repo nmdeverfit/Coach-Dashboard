@@ -6,6 +6,8 @@ import { COACH_FIRST_NAME } from '../../data/mock';
 import type { Client, Meeting } from '../../data/types';
 import { NOTES_TIMELINE } from '../../lib/flags';
 import { statsLine, transcriptStats } from '../../lib/noteKind';
+import { KindIcon } from './NewNoteDialog';
+import { TranscriptFileCard, TranscriptTile } from './MeetingNotesForm';
 import { fieldTime, fileSize, meetingDate } from '../../lib/meetings';
 import { useStore } from '../../state/store';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
@@ -128,8 +130,7 @@ export function TranscriptDialog({
         </span>
       </span>
       <input
-        // On the trial's page the coach's notes come first, so the search waits for a click there.
-        autoFocus={!(NOTES_TIMELINE && meeting.notes)}
+        autoFocus
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => {
@@ -238,26 +239,36 @@ export function TranscriptDialog({
       headerBorder={false}
     >
       {NOTES_TIMELINE ? (
-        // Notes timeline trial (the user's call): one page, no tabs and no Summary. The coach's notes come first, the
-        // transcript under them with its search pinned while it scrolls; each shows only when the meeting has it.
-        <div ref={body} className="min-h-[480px] pb-[30px]">
-          {meeting.notes && (
-            <section className={`px-[30px] pb-5 pt-2 ${t ? 'border-b border-line' : ''}`}>
-              <h4 className="mb-2 text-[16px] font-semibold tracking-[-0.32px] text-ink">Your notes</h4>
-              <div className="note-body" dangerouslySetInnerHTML={{ __html: meeting.notes }} />
-            </section>
-          )}
+        // Notes timeline trial (the user's call): one plain page, no tabs, headings, rule or search. The coach's notes
+        // come first; under them the transcript as a file preview, each only when the meeting has it.
+        <div ref={body} className="flex flex-col gap-4 px-[30px] pb-[30px] pt-2">
+          {meeting.notes && <div className="note-body" dangerouslySetInnerHTML={{ __html: meeting.notes }} />}
           {t && (
-            <section>
-              <div className="sticky top-0 z-[1] flex flex-col gap-3 bg-white px-[30px] pb-3 pt-4">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h4 className="text-[16px] font-semibold tracking-[-0.32px] text-ink">Transcript</h4>
-                  <span className="truncate text-[12px] leading-[18px] text-ink-tertiary">{transcriptMeta}</span>
-                </div>
-                {search}
-              </div>
-              <div className="px-[30px] pt-1">{transcriptLines}</div>
-            </section>
+            <TranscriptFileCard
+              icon={
+                t.kind === 'file' ? (
+                  <FileTypeIcon name={t.name} />
+                ) : t.kind === 'lines' ? (
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-secondary">
+                    <KindIcon kind="meeting" size={18} />
+                  </span>
+                ) : (
+                  <TranscriptTile />
+                )
+              }
+              name={t.kind === 'file' ? t.name : t.kind === 'lines' ? 'Call transcript' : 'Pasted transcript'}
+              meta={t.kind === 'file' ? [fileSize(t.size), fileExtension(t.name).toUpperCase(), transcriptMeta].filter(Boolean).join(' · ') : transcriptMeta}
+              lines={lines ? lines.map((l) => (l.speaker ? `${l.speaker} (${l.at}): ${l.text}` : l.text)).filter((l) => l.trim()) : []}
+              empty="No preview for this file type in the demo. Download it to read the transcript."
+              actions={
+                t.kind === 'file' && (
+                  <button type="button" onClick={() => showToast(`${t.name} downloads`)} className="text-brand hover:underline">
+                    Download
+                  </button>
+                )
+              }
+              className="max-h-[560px]"
+            />
           )}
         </div>
       ) : (
