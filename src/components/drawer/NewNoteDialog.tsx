@@ -1,5 +1,6 @@
 import { Paperclip, X } from 'lucide-react';
 import { useCallback, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import iconSticky from '../../assets/figma/icon-note-sticky.svg';
 import iconVideo from '../../assets/figma/icon-note-video.svg';
@@ -10,9 +11,10 @@ import { detectTranscript, textToHtml, type Detection } from '../../lib/noteKind
 import { cleanNoteHtml, noteStamp, noteText } from '../../lib/notes';
 import type { NotesVariant } from '../../lib/notesTrial';
 import { useStore } from '../../state/store';
+import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { Tooltip } from '../Tooltip';
-import { MeetingNotesForm } from './MeetingNotesForm';
+import { MeetingNotesForm, type MeetingDraft } from './MeetingNotesForm';
 import { EditorFooter, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
 
 export type NoteKind = 'note' | 'meeting';
@@ -125,7 +127,9 @@ function SwitchedNotice({ why, onUndo }: { why: string; onUndo: () => void }) {
  *   (`SuggestBanner`), then flips it saying what was detected. The Meeting notes tab asks nothing: there the notes
  *   and the transcript are one thing (the user's call).
  * A transcript found in a paste leaves the note's text and becomes the attached transcript. Turning meeting notes back
- * into a note restores the note as it was, or the notes plus the pasted transcript if the coach changed either.
+ * into a note restores the note as it was, or the notes plus the pasted transcript if the coach changed either; with
+ * a file attached it asks first (Switch to a note?), since a note keeps no transcript. The meeting's date and start
+ * survive the trip, so switching back finds them as they were.
  */
 export function NewNoteDialog({
   client,
@@ -146,9 +150,12 @@ export function NewNoteDialog({
   const [html, setHtml] = useState('');
   // The editor sets its text once, so a note coming back from meeting notes remounts it.
   const [editorKey, setEditorKey] = useState(0);
-  const [seed, setSeed] = useState<{ key: number; notes: string; pasted?: string; file?: File }>({ key: 0, notes: '' });
-  // The meeting notes form as it stands (its notes and pasted transcript), and what the note handed it.
-  const current = useRef({ notes: '', pasted: '' });
+  const [seed, setSeed] = useState<{ key: number; notes: string; pasted?: string; file?: File; date?: string; time?: string }>({ key: 0, notes: '' });
+  // The meeting notes form as it stands (its notes, transcript and time), and what the note handed it. The time
+  // outlives a trip to the Note side, so switching back keeps the meeting's date and start.
+  const current = useRef<MeetingDraft>({ notes: '', pasted: '', date: DEMO_TODAY, time: '06:00' });
+  // Turning meeting notes with an attached file into a note asks first: a note keeps no transcript.
+  const [confirmNote, setConfirmNote] = useState(false);
   const before = useRef<{ html: string; notes: string; text: string } | null>(null);
   const [why, setWhy] = useState<string | null>(null);
   // A paste the coach is asked about (A and C): the text, and the note before and after it.
@@ -160,16 +167,21 @@ export function NewNoteDialog({
   /** `notes`: the note's text that stays the coach's notes; `whole`: the note as it was, for the way back. */
   const toMeeting = (from: { pasted?: string; file?: File }, reason: string | null, notes = html, whole = html) => {
     before.current = { html: whole, notes, text: from.pasted ?? '' };
-    current.current = { notes, pasted: from.pasted ?? '' };
-    setSeed((s) => ({ key: s.key + 1, notes, ...from }));
+    const { date, time } = current.current;
+    current.current = { notes, pasted: from.pasted ?? '', file: from.file?.name, date, time };
+    setSeed((s) => ({ key: s.key + 1, notes, ...from, date, time }));
     setKind('meeting');
     setWhy(reason);
     setSuggestion(null);
   };
 
-  const toNote = () => {
+  const toNote = () => (current.current.file ? setConfirmNote(true) : switchToNote());
+
+  const switchToNote = () => {
+    setConfirmNote(false);
     const b = before.current;
     const now = current.current;
+    current.current = { ...now, file: undefined };
     setHtml(b && now.notes === b.notes && now.pasted === b.text ? b.html : now.notes + textToHtml(now.pasted));
     setEditorKey((k) => k + 1);
     setKind('note');
@@ -186,7 +198,7 @@ export function NewNoteDialog({
   };
 
   const attach = (file: File) => toMeeting({ file }, variant === 'A' ? 'a transcript file is attached' : 'transcript file attached');
-  const track = useCallback((s: { notes: string; pasted: string }) => {
+  const track = useCallback((s: MeetingDraft) => {
     current.current = s;
   }, []);
 
@@ -286,6 +298,17 @@ export function NewNoteDialog({
           />
         </>
       )}
+      {confirmNote &&
+        createPortal(
+          <ConfirmDialog
+            title="Switch to a note?"
+            body={`“${current.current.file}” will be removed. A note keeps no transcript; your notes stay.`}
+            confirmLabel="Switch to note"
+            onCancel={() => setConfirmNote(false)}
+            onConfirm={switchToNote}
+          />,
+          document.body,
+        )}
     </Modal>
   );
 }

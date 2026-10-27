@@ -247,7 +247,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   or "+ Add your notes (optional)" (13 px semibold brand, "(optional)" regular `ink-tertiary`) when not. Dragging a
   file over the form draws a dashed brand frame, "Drop the transcript to attach it". The transcript banner only
   shows on the Note side (A's unsure pastes, every paste on C's Note tab): "Switch to meeting notes" · "Keep as
-  note"; Meeting notes never asks. The meeting popup drops Summary on this page:
+  note"; Meeting notes never asks. Switching to Note with a file attached opens the `ConfirmDialog` "Switch to a
+  note?" · "Switch to note". The meeting popup drops Summary on this page:
   Notes (the coach's notes, `note-body`, 30 px sides) | Transcript, or the transcript alone without a tab bar. B's menu:
   260 px, two items with a 28 px ring icon, name and a 12 px line. The trial bar: `ink` bar, rounded 12, bottom
   16 px, left 80 px, z 45 (over the panels, under popups), `data-keep-open`.

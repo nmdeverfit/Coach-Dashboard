@@ -409,7 +409,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   "61 lines · Long and Malcom · ~30 min" (`transcriptStats`) and a scrolling preview; once a transcript is in and
   the notes are empty they fold into "+ Add your notes (optional)"; on Meeting notes a pasted transcript just stays in
   the notes, with no question (meeting notes and transcript are one thing, the user's call); the title is suggested from the transcript's heading or file name (`titleFrom`). A paste that makes
-  a note into meeting notes keeps the typed text as notes and only the pasted text as the transcript. Meetings carry
+  a note into meeting notes keeps the typed text as notes and only the pasted text as the transcript. Going back to
+  a note with a file attached asks "Switch to a note?" (the file is removed, the notes stay; Cancel stays on Meeting
+  notes); a pasted transcript moves into the note instead. The meeting's date and start survive the round trip. Meetings carry
   `notes` and may have no transcript. On this page the meeting popup has no Summary (the user's call): tabs Notes |
   Transcript when the coach wrote notes, else the transcript alone with no tab bar (`tabsFor` in
   `TranscriptDialog`); meeting notes get no summary, no "Generating summary…" and no summary toast, and search

@@ -14,6 +14,17 @@ import { EditorFooter, NoteEditor, NoteHeader, TITLE } from './NoteDialog';
 
 const NOW = '06:00';
 
+/** Where the form stands, so New note can turn it back into a note and back again without losing the meeting's time. */
+export interface MeetingDraft {
+  notes: string;
+  /** The pasted transcript's text, '' when none. */
+  pasted: string;
+  /** The attached file's name, when the transcript is a file. */
+  file?: string;
+  date: string;
+  time: string;
+}
+
 type Attached = { kind: 'text'; text: string } | { kind: 'file'; name: string; size: number; text?: string };
 
 const textOf = (t: Attached | null) => t?.text;
@@ -107,19 +118,19 @@ export function MeetingNotesForm({
   title: string;
   onTitle: (title: string) => void;
   initialNotes?: string;
-  seed?: { pasted?: string; file?: File };
+  seed?: { pasted?: string; file?: File; date?: string; time?: string };
   /** The kind chip or toggle over the title. */
   above?: ReactNode;
   /** A line over the form, e.g. why a note became meeting notes. */
   notice?: ReactNode;
   /** The notes and the pasted transcript as they stand, so the form can turn back into a note. */
-  onChange?: (s: { notes: string; pasted: string }) => void;
+  onChange?: (draft: MeetingDraft) => void;
   onCancel: () => void;
   onSaved: () => void;
 }) {
   const { state, addMeeting } = useStore();
-  const [date, setDate] = useState(DEMO_TODAY);
-  const [time, setTime] = useState(NOW);
+  const [date, setDate] = useState(seed?.date ?? DEMO_TODAY);
+  const [time, setTime] = useState(seed?.time ?? NOW);
   const [notes, setNotes] = useState(initialNotes);
   const [attached, setAttached] = useState<Attached | null>(seed?.pasted ? { kind: 'text', text: seed.pasted } : null);
   const [reading, setReading] = useState(false);
@@ -133,8 +144,8 @@ export function MeetingNotesForm({
   const hasNotes = Boolean(noteText(notes)) || /<li/i.test(notes);
 
   useEffect(() => {
-    onChange?.({ notes, pasted: attached?.kind === 'text' ? attached.text : '' });
-  }, [notes, attached, onChange]);
+    onChange?.({ notes, pasted: attached?.kind === 'text' ? attached.text : '', file: attached?.kind === 'file' ? attached.name : undefined, date, time });
+  }, [notes, attached, date, time, onChange]);
 
   const attach = (f: File) => {
     const error = transcriptFileError(f);
