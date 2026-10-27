@@ -109,7 +109,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   first, then Respond · Build · Remind · Unblock · Prepare, the user's call), as a full row (action, client, reason),
   then up to `MAX_RELATED` = 4 related to-dos, each its short action only (`SHORT_ACTION`), indented under the main
   row's text, no client chip and no reason; no card or tint (the user's call): the group sits on the list like single
-  rows, with a Linear-style connect line from the main row's checkbox down past the related rows. A
+  rows, with a Linear-style connect line from the main row's checkbox down past the related rows, a branch to each related
+  checkbox, which is centred on its text. A
   ticked row dims in place; the card sinks to the bottom of its section only once every row is done. The panel lists
   the others as Related to-dos (`RelatedTodos` in `TodoDrawer`), each completed or dismissed on its own. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).

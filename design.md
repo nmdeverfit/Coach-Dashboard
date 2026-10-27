@@ -267,7 +267,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Under it up to four related to-dos (`MAX_RELATED`), each `py-0.5 pl-10` so the checkbox sits under the main row's
   text: 20 px checkbox, the short action 13 px semibold (`SHORT_ACTION`), no client chip, no reason; the group ends on
   `pb-1.5`. A connect line, as in Linear's sub-issues (the user's call): 1 px `line-light`, at the main checkbox's
-  centre (x 20), from 38 px down (just under that checkbox) to the last related row's middle, drawn over the rows.
+  centre (x 20), from 38 px down (just under that checkbox) to the last related row's middle, drawn over the rows,
+  with a 22 px branch at each related row's middle to its checkbox. A related row centres its checkbox on its one
+  line of text (`items-center`, the checkbox at `top-1/2`).
   Each row hovers like a single one (white, rounded, `shadow-row`); selected is white with `shadow-row` and a 4 px
   brand edge drawn over the row, so the checkbox stays on the line. Each row keeps its own checkbox, Dismiss and
   panel; a ticked row dims and strikes through in place (it never moves inside the group), and the group slides out

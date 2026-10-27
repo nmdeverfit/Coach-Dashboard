@@ -78,9 +78,11 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
       aria-label={`${todo.action} ${client.name}`}
       onClick={onOpen}
       onKeyDown={onKeyDown}
-      className={`group flex cursor-pointer gap-2 outline-none ${nested ? 'py-0.5 pl-10 pr-2' : inCard ? 'px-2 pb-1.5 pt-[10px]' : 'px-2 pb-[14px] pt-[10px]'} focus-visible:ring-2 focus-visible:ring-brand/40 ${age || nested ? 'items-center' : 'items-start'} ${surface}`}
+      className={`group flex cursor-pointer gap-2 outline-none ${nested ? 'relative py-0.5 pl-10 pr-2' : inCard ? 'px-2 pb-1.5 pt-[10px]' : 'px-2 pb-[14px] pt-[10px]'} focus-visible:ring-2 focus-visible:ring-brand/40 ${age || nested ? 'items-center' : 'items-start'} ${surface}`}
     >
-      <div className="flex min-w-0 flex-1 items-start gap-2">
+      {/* A related row's branch off the group's connect line (x 20) to its checkbox (`TodoGroupCard`). */}
+      {nested && <span aria-hidden className="pointer-events-none absolute left-5 top-1/2 z-[1] h-px w-[22px] -translate-x-px bg-line-light" />}
+      <div className={`flex min-w-0 flex-1 gap-2 ${nested ? 'items-center' : 'items-start'}`}>
         <div className="relative h-8 w-6 shrink-0">
           <button
             type="button"
@@ -88,7 +90,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
             aria-checked={done}
             aria-label={`Mark "${todo.action} ${client.name}" as done`}
             onClick={stop(onToggle)}
-            className={`group/tip absolute left-1/2 top-[5.75px] flex size-5 -translate-x-1/2 items-center justify-center rounded-full border-[0.938px] border-black/15 ${
+            className={`group/tip absolute left-1/2 flex size-5 -translate-x-1/2 items-center ${nested ? 'top-1/2 -translate-y-1/2' : 'top-[5.75px]'} justify-center rounded-full border-[0.938px] border-black/15 ${
               done ? 'bg-checked' : 'bg-white hover:border-brand'
             }`}
           >
