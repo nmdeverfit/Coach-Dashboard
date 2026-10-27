@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
+import iconChevronLeft from '../../assets/figma/icon-chevron-left.svg';
 import iconClipboard from '../../assets/figma/icon-clipboard.svg';
 import iconSticky from '../../assets/figma/icon-note-sticky.svg';
 import iconVideo from '../../assets/figma/icon-note-video.svg';
@@ -17,6 +18,21 @@ export const KIND_LABEL: Record<NoteKind, string> = { note: 'Note', meeting: 'Me
 /** The timeline's two icons (Figma 6049:170285: energy-icons sticky-note, carbon video-chat), drawn at 16.84 px. */
 export function KindIcon({ kind, size = 16.842 }: { kind: NoteKind; size?: number }) {
   return <img src={kind === 'note' ? iconSticky : iconVideo} alt="" width={size} height={size} className="block shrink-0" />;
+}
+
+/** The Notes card's 44 px white header: Notes (N) + New note on the list; ‹ Back or Cancel · Save in the section (option B). */
+export function NotesCardBar({ children }: { children: ReactNode }) {
+  return <div className="flex h-11 shrink-0 items-center justify-between gap-3 rounded-t-lg border-b border-ink/10 bg-white px-3">{children}</div>;
+}
+
+/** ‹ Back on the Notes card's header, from a note's details to the list (option B, the user's call). */
+export function BackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="-ml-1 flex items-center gap-0.5 text-[14px] font-semibold leading-[18px] text-ink hover:text-brand">
+      <img src={iconChevronLeft} alt="" width={20} height={20} />
+      Back
+    </button>
+  );
 }
 
 /** A transcript file attached to meeting notes (Notes timeline trial): read in the page when it can be. */

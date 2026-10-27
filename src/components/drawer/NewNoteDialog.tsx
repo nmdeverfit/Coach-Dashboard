@@ -9,8 +9,8 @@ import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { MeetingWhen, TIME_ZONE } from './AddMeetingDialog';
-import { KIND_LABEL, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
-import { EditorFooter, NOTE_POPUP, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
+import { KIND_LABEL, NotesCardBar, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
+import { EditorButtons, EditorFooter, NOTE_POPUP, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
 
 /** The demo's clock reads 06:00, as for a message sent from the dashboard. */
 const NOW = '06:00';
@@ -44,13 +44,29 @@ function KindTabs({ kind, onChange }: { kind: NoteKind; onChange: (k: NoteKind) 
  * the file shows under the text as a preview card (Replace · Remove). The text stays when the tab changes; leaving
  * Meeting notes with a file in asks first, since a note keeps no transcript. Save needs text, or on Meeting notes a
  * file. Nothing reads what is pasted. With `editing` it is Edit meeting notes (the user's call, like a note's Edit):
- * the meeting's own title, time, notes and transcript (a recorded call's lines included), no tabs.
+ * the meeting's own title, time, notes and transcript (a recorded call's lines included), no tabs; with `editingNote`
+ * it is Edit note. With `inline` (option B, the user's call) the same form fills the Notes card instead of a popup,
+ * its header reading the form's name with Cancel · Save.
  */
-export function NewNoteDialog({ client, notes, editing, onClose }: { client: Client; notes: ClientNote[]; editing?: Meeting; onClose: () => void }) {
+export function NewNoteDialog({
+  client,
+  notes,
+  editing,
+  editingNote,
+  inline = false,
+  onClose,
+}: {
+  client: Client;
+  notes: ClientNote[];
+  editing?: Meeting;
+  editingNote?: ClientNote;
+  inline?: boolean;
+  onClose: () => void;
+}) {
   const { state, setNotes, addMeeting, editMeeting } = useStore();
   const [kind, setKind] = useState<NoteKind>(editing ? 'meeting' : 'note');
-  const [title, setTitle] = useState(editing?.title ?? '');
-  const [html, setHtml] = useState(editing?.notes ?? '');
+  const [title, setTitle] = useState(editing?.title ?? editingNote?.title ?? '');
+  const [html, setHtml] = useState(editing?.notes ?? editingNote?.body ?? '');
   const [date, setDate] = useState(editing?.date ?? DEMO_TODAY);
   const [time, setTime] = useState(editing?.start ?? NOW);
   const [dragging, setDragging] = useState(false);
@@ -76,7 +92,9 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
   const meetings = state.meetings[client.id] ?? [];
   const placeholder = editing
     ? editing.title
-    : kind === 'meeting'
+    : editingNote
+      ? editingNote.title
+      : kind === 'meeting'
       ? (file && titleFrom(file.text, file.name)) || `New Meeting ${1 + meetings.filter((m) => /^New Meeting \d+$/.test(m.title)).length}`
       : `New Note ${1 + notes.filter((n) => /^New Note \d+$/.test(n.title)).length}`;
 
@@ -86,7 +104,10 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
     if (reading || (!hasText && !transcript)) return;
     const body = hasText ? cleanNoteHtml(html) : '';
     const name = title.trim() || placeholder;
-    if (editing) {
+    if (editingNote) {
+      const edited: ClientNote = { ...editingNote, title: name, body, editedAt: `${DEMO_TODAY}T${NOW}` };
+      setNotes(client.id, notes.map((n) => (n.id === editingNote.id ? edited : n)), 'Note saved');
+    } else if (editing) {
       editMeeting({ ...editing, title: name, date, start: time, notes: body || undefined, transcript: transcript ?? undefined });
     } else if (kind === 'note') {
       const added: ClientNote = { id: `c${Date.now()}`, title: name, at: `${DEMO_TODAY}T${NOW}`, body };
@@ -106,10 +127,13 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
     onClose();
   };
 
-  return (
-    <Modal title={editing ? 'Edit meeting notes' : kind === 'note' ? 'New note' : 'New meeting notes'} {...NOTE_POPUP} radius={12} onClose={onClose} header={<></>}>
+  const heading = editing ? 'Edit meeting notes' : editingNote ? 'Edit note' : kind === 'note' ? 'New note' : 'New meeting notes';
+  const canSave = (hasText || Boolean(transcript)) && !reading;
+
+  const form = (
+    <>
       <NoteHeader
-        above={!editing && <KindTabs kind={kind} onChange={switchTo} />}
+        above={!editing && !editingNote && <KindTabs kind={kind} onChange={switchTo} />}
         title={
           <input
             autoFocus
@@ -125,7 +149,7 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
         {kind === 'meeting' ? (
           <MeetingWhen date={date} time={time} onDate={setDate} onTime={setTime} />
         ) : (
-          <TimeLine>Created: {noteStamp(`${DEMO_TODAY}T${NOW}`)}</TimeLine>
+          <TimeLine>Created: {noteStamp(editingNote?.at ?? `${DEMO_TODAY}T${NOW}`)}</TimeLine>
         )}
       </NoteHeader>
 
@@ -146,7 +170,7 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
         }}
       >
         <NoteEditor
-          initial={editing?.notes ?? ''}
+          initial={editing?.notes ?? editingNote?.body ?? ''}
           placeholder={kind === 'meeting' ? `Type your notes from the meeting with ${client.firstName}...` : `Type your note for ${client.firstName}...`}
           onChange={setHtml}
           toolbarEnd={meeting && !transcript && <UploadTranscriptButton onClick={browse} />}
@@ -177,7 +201,11 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
           </div>
         )}
       </div>
-      <EditorFooter canSave={(hasText || Boolean(transcript)) && !reading} onCancel={onClose} onSave={save} />
+    </>
+  );
+
+  const extras = (
+    <>
       {confirmNote &&
         file &&
         createPortal(
@@ -205,6 +233,28 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
           if (f) takeFile(f);
         }}
       />
+    </>
+  );
+
+  if (inline)
+    return (
+      <>
+        <NotesCardBar>
+          <h4 className="min-w-0 truncate text-[15px] font-semibold leading-[18px] text-ink">{heading}</h4>
+          <div className="flex shrink-0 items-center gap-[5px]">
+            <EditorButtons canSave={canSave} onCancel={onClose} onSave={save} />
+          </div>
+        </NotesCardBar>
+        <div className="flex h-[620px] flex-col rounded-b-lg bg-white">{form}</div>
+        {extras}
+      </>
+    );
+
+  return (
+    <Modal title={heading} {...NOTE_POPUP} radius={12} onClose={onClose} header={<></>}>
+      {form}
+      <EditorFooter canSave={canSave} onCancel={onClose} onSave={save} />
+      {extras}
     </Modal>
   );
 }

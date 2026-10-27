@@ -423,7 +423,11 @@ one column. The Upcoming bookings session list is shared with the main branch to
   meeting notes?"; Edit opens New note on those meeting notes with no tabs (`NewNoteDialog` `editing`: title, date
   and start, notes, transcript, a recorded call's lines kept or removed) and returns to the details. Edits and deletes
   of any meeting, the demo's too, live in `meetingEdits` in the store (session only; `meetingsFor` applies them).
-  New note, Note details and the meeting popup are one size on this page, 720 × 800 capped at the window (`NOTE_POPUP` in `NoteDialog.tsx`, the user's call, so the content has more room). There is no frame for the popup, its edit or the tabs.
+  A dark trial bar at the bottom left (`NotesTrialBar`, `lib/notesTrial.ts`, kept in localStorage, the user's
+  call) switches between two options and opens Clint's notes: A · Popup (below) and B · In the section, where New
+  note, Edit and both details open in the Notes card itself (`InlineDetails` in `NotesTimeline.tsx`, `NewNoteDialog`
+  `inline`): on details the card's header reads ‹ Back with Delete · Edit, on the form its name with Cancel · Save;
+  Save or Cancel on an edit returns to the details, on a new note to the list. New note, Note details and the meeting popup are one size on this page, 720 × 800 capped at the window (`NOTE_POPUP` in `NoteDialog.tsx`, the user's call, so the content has more room). There is no frame for the popup, its edit or the tabs.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for

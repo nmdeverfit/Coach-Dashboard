@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import iconChevronDown from '../../assets/figma/icon-chevron-down.svg';
 import dotMeta from '../../assets/figma/dot-note-meta.svg';
 import iconPlus from '../../assets/figma/icon-plus-brand.svg';
@@ -8,10 +9,12 @@ import type { Client, ClientNote, Meeting } from '../../data/types';
 import { formatMonthDay, parseDay } from '../../lib/dates';
 import { createdAt, meetingsFor } from '../../lib/meetings';
 import { noteStamp, noteText } from '../../lib/notes';
+import { useNotesLayout } from '../../lib/notesTrial';
 import { useStore } from '../../state/store';
+import { ConfirmDialog } from '../ConfirmDialog';
 import { NewNoteDialog } from './NewNoteDialog';
-import { KIND_LABEL, KindIcon } from './NoteAttachment';
-import { NoteDialog } from './NoteDialog';
+import { BackButton, KIND_LABEL, KindIcon, NotesCardBar, TranscriptFileCard, transcriptCard } from './NoteAttachment';
+import { DetailActions, KindTag, NoteDialog, NoteHeader, TITLE, TimeLine } from './NoteDialog';
 import { TranscriptDialog } from './TranscriptDialog';
 
 type Entry = { kind: 'note'; key: string; title: string; at: string; note: ClientNote } | { kind: 'meeting'; key: string; title: string; at: string; meeting: Meeting };
@@ -75,14 +78,78 @@ function EntryRow({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
 }
 
 /**
+ * Option B (the user's call, no frame): a note's details in the Notes card itself. The header turns into ‹ Back (to
+ * the list) with Delete · Edit; under it the details popup's content: the kind, the title, its times, the text and
+ * any transcript.
+ */
+function InlineDetails({ client, entry, onBack, onEdit, onDelete }: { client: Client; entry: Entry; onBack: () => void; onEdit: () => void; onDelete: () => void }) {
+  const { showToast } = useStore();
+  const [confirming, setConfirming] = useState(false);
+  const what = entry.kind === 'note' ? 'note' : 'meeting notes';
+  const body = entry.kind === 'note' ? entry.note.body : entry.meeting.notes;
+  const t = entry.kind === 'meeting' ? entry.meeting.transcript : undefined;
+  return (
+    <>
+      <NotesCardBar>
+        <BackButton onClick={onBack} />
+        <DetailActions what={what} onDelete={() => setConfirming(true)} onEdit={onEdit} />
+      </NotesCardBar>
+      <div className="scroll-thin flex max-h-[620px] flex-col overflow-y-auto rounded-b-lg bg-white">
+        <NoteHeader above={<KindTag label={KIND_LABEL[entry.kind]} />} title={<h2 className={`${TITLE} min-w-0 break-words`}>{entry.title}</h2>}>
+          {entry.kind === 'note' ? (
+            <>
+              <TimeLine>Created: {noteStamp(entry.note.at)}</TimeLine>
+              {entry.note.editedAt && <TimeLine>Last edited: {noteStamp(entry.note.editedAt)}</TimeLine>}
+            </>
+          ) : (
+            <>
+              <TimeLine>Meeting date: {noteStamp(`${entry.meeting.date}T${entry.meeting.start}`)}</TimeLine>
+              {entry.meeting.editedAt && <TimeLine>Last edited: {noteStamp(entry.meeting.editedAt)}</TimeLine>}
+            </>
+          )}
+        </NoteHeader>
+        <div className="flex flex-col gap-4 px-8 pb-8 pt-5">
+          {body && <div className="note-body" dangerouslySetInnerHTML={{ __html: body }} />}
+          {t && entry.kind === 'meeting' && (
+            <TranscriptFileCard
+              {...transcriptCard(t, client, entry.meeting.minutes)}
+              actions={
+                t.kind === 'file' && (
+                  <button type="button" onClick={() => showToast(`${t.name} downloads`)} className="text-brand hover:underline">
+                    Download
+                  </button>
+                )
+              }
+              className="h-[300px] shrink-0"
+            />
+          )}
+        </div>
+      </div>
+      {confirming &&
+        createPortal(
+          <ConfirmDialog
+            title={entry.kind === 'note' ? 'Delete this note?' : 'Delete these meeting notes?'}
+            body={`“${entry.title}” will be removed from ${client.firstName}’s notes.`}
+            confirmLabel="Delete"
+            onCancel={() => setConfirming(false)}
+            onConfirm={onDelete}
+          />,
+          document.body,
+        )}
+    </>
+  );
+}
+
+/**
  * Notes timeline trial (the user's call; Figma 6049:170285): Notes and Meetings as one Notes tab. Notes and meeting
  * notes (a meeting with its transcript) run in one list by created time, split by day ("Today", "Aug 27"), each on a
  * timeline with its kind's icon. Search reads the text and any attached file. A note opens Note details, meeting
  * notes their one-page popup (no Summary on this trial) with Delete and Edit. New note is one form with Note |
- * Meeting notes tabs; Edit opens it on the meeting notes.
+ * Meeting notes tabs; Edit opens it on the meeting notes. The trial bar's option B opens all of it in the card itself.
  */
 export function NotesTimeline({ client, notes: profileNotes }: { client: Client; notes: ClientNote[] }) {
-  const { state, deleteMeeting } = useStore();
+  const { state, deleteMeeting, setNotes } = useStore();
+  const inline = useNotesLayout() === 'inline';
   const notes = state.notes[client.id] ?? profileNotes;
   const meetings = meetingsFor(client.id, state.meetings[client.id], state.meetingEdits);
   const [query, setQuery] = useState('');
@@ -92,13 +159,54 @@ export function NotesTimeline({ client, notes: profileNotes }: { client: Client;
   // The meeting notes being edited; closing the editor goes back to their details, as a note's Edit does.
   const [editingId, setEditingId] = useState<string | null>(null);
   const editing = editingId ? meetings.find((m) => m.id === editingId) : undefined;
+  // Option B's Edit note (option A edits a note inside its popup).
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const editingNote = editingNoteId ? notes.find((n) => n.id === editingNoteId) : undefined;
+  // Switching the option starts again from the list.
+  useEffect(() => {
+    setOpen(null);
+    setAdding(false);
+    setEditingId(null);
+    setEditingNoteId(null);
+  }, [inline]);
   const days = timeline(notes, meetings, newestFirst, query);
   const total = notes.length + meetings.length;
   // Looked up in the whole list, so a search never closes what is open.
   const opened = open ? timeline(notes, meetings, true, '').flatMap((d) => d.entries).find((e) => e.key === open) : undefined;
 
+  const card = 'flex w-full flex-col overflow-hidden rounded-lg border border-ink/15 bg-elevated p-px';
+  const deleteEntry = (e: Entry) => {
+    if (e.kind === 'note') setNotes(client.id, notes.filter((n) => n.id !== e.note.id), 'Note deleted');
+    else deleteMeeting(e.meeting.id);
+    setOpen(null);
+  };
+
+  if (inline && (adding || editing || editingNote || opened))
+    return (
+      <div className={card}>
+        {adding ? (
+          <NewNoteDialog inline client={client} notes={notes} onClose={() => setAdding(false)} />
+        ) : editing ? (
+          <NewNoteDialog inline client={client} notes={notes} editing={editing} onClose={() => setEditingId(null)} />
+        ) : editingNote ? (
+          <NewNoteDialog inline client={client} notes={notes} editingNote={editingNote} onClose={() => setEditingNoteId(null)} />
+        ) : (
+          opened && (
+            <InlineDetails
+              key={opened.key}
+              client={client}
+              entry={opened}
+              onBack={() => setOpen(null)}
+              onEdit={() => (opened.kind === 'note' ? setEditingNoteId(opened.note.id) : setEditingId(opened.meeting.id))}
+              onDelete={() => deleteEntry(opened)}
+            />
+          )
+        )}
+      </div>
+    );
+
   return (
-    <div className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/15 bg-elevated p-px">
+    <div className={card}>
       <div className="flex h-11 items-center justify-between rounded-t-lg border-b border-ink/10 bg-white p-3">
         <h4 className="text-[15px] font-semibold leading-[18px] text-ink">Notes ({total})</h4>
         <button type="button" onClick={() => setAdding(true)} className="flex items-center gap-1 text-[14px] font-semibold leading-[18px] text-brand hover:underline">

@@ -201,6 +201,15 @@ export function EditorFooter({ canSave, onCancel, onSave, start }: { canSave: bo
   return (
     <footer className="flex shrink-0 items-center justify-end gap-[5px] px-8 pb-6 pt-4">
       {start && <div className="mr-auto flex min-w-0 items-center">{start}</div>}
+      <EditorButtons canSave={canSave} onCancel={onCancel} onSave={onSave} />
+    </footer>
+  );
+}
+
+/** Cancel · Save, in the editor's footer or (Notes timeline trial, In the section) on the Notes card's header. */
+export function EditorButtons({ canSave, onCancel, onSave }: { canSave: boolean; onCancel: () => void; onSave: () => void }) {
+  return (
+    <>
       <button
         type="button"
         onClick={onCancel}
@@ -216,7 +225,7 @@ export function EditorFooter({ canSave, onCancel, onSave, start }: { canSave: bo
       >
         Save
       </button>
-    </footer>
+    </>
   );
 }
 
