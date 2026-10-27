@@ -3,16 +3,17 @@ import { useSyncExternalStore } from 'react';
 /**
  * Notes timeline trial: which way New note works, picked on the trial bar (`NotesTrialBar`) so the three can be
  * compared on one page (the user's call). Remembered in this browser only.
- * - A: one New note; a pasted transcript or an attached file turns it into meeting notes (auto-detect).
- * - B: New note ▾ asks first: Note or Meeting notes. No detection.
- * - C: Note | Meeting notes toggle in the popup; detection picks it, the coach can flip it.
+ * - A: one New note; attaching a transcript file turns it into meeting notes.
+ * - B: New note ▾ asks first: Note or Meeting notes.
+ * - C: Note | Meeting notes toggle in the popup, which the coach flips.
+ * Nothing detects a pasted transcript (the team can't yet, the user's call).
  */
 export type NotesVariant = 'A' | 'B' | 'C';
 
 export const NOTES_VARIANTS: { key: NotesVariant; label: string; hint: string }[] = [
-  { key: 'A', label: 'A · Auto-detect', hint: 'One New note; a pasted transcript or a file makes it meeting notes' },
-  { key: 'B', label: 'B · Choose first', hint: 'New note ▾ asks Note or Meeting notes; nothing is detected' },
-  { key: 'C', label: 'C · Type toggle', hint: 'Note | Meeting notes in the popup; detection picks, the coach can flip' },
+  { key: 'A', label: 'A · One button', hint: 'One New note; attaching a transcript file makes it meeting notes' },
+  { key: 'B', label: 'B · Choose first', hint: 'New note ▾ asks Note or Meeting notes' },
+  { key: 'C', label: 'C · Type toggle', hint: 'Note | Meeting notes in the popup; the coach flips it' },
 ];
 
 const KEY = 'cid-notes-variant';

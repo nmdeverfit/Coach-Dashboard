@@ -62,20 +62,18 @@ const TOOLS = [
 /**
  * The note editor (Figma 5850:570122): Bold · Italic · Numbered list · Bulleted list over a writing area. The page's
  * own rich-text editing does the formatting; what it writes is cleaned on save (`cleanNoteHtml`). The Notes timeline
- * trial listens to what is pasted (`onPasteText`, after it is in) and to a file dropped on it (`onDropFile`).
+ * trial listens for a file dropped on it (`onDropFile`).
  */
 export function NoteEditor({
   initial,
   placeholder,
   onChange,
-  onPasteText,
   onDropFile,
   height = 'h-[440px] shrink-0',
 }: {
   initial: string;
   placeholder: string;
   onChange: (html: string) => void;
-  onPasteText?: (text: string, html: string) => void;
   onDropFile?: (file: File) => void;
   height?: string;
 }) {
@@ -158,9 +156,7 @@ export function NoteEditor({
           // Pasted text comes in plain, so a note never carries another page's styles.
           onPaste={(e) => {
             e.preventDefault();
-            const text = e.clipboardData.getData('text/plain');
-            document.execCommand('insertText', false, text);
-            onPasteText?.(text, box.current?.innerHTML ?? '');
+            document.execCommand('insertText', false, e.clipboardData.getData('text/plain'));
           }}
           onDragOver={onDropFile && ((e) => e.dataTransfer.types.includes('Files') && e.preventDefault())}
           onDrop={

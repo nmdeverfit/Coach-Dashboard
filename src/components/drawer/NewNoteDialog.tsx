@@ -7,7 +7,6 @@ import iconVideo from '../../assets/figma/icon-note-video.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import type { Client, ClientNote } from '../../data/types';
 import { TRANSCRIPT_TYPES } from '../../lib/meetings';
-import { detectTranscript, textToHtml, type Detection } from '../../lib/noteKind';
 import { cleanNoteHtml, noteStamp, noteText } from '../../lib/notes';
 import type { NotesVariant } from '../../lib/notesTrial';
 import { useStore } from '../../state/store';
@@ -47,8 +46,8 @@ function KindChip({ kind, onClear }: { kind: NoteKind; onClear?: () => void }) {
   );
 }
 
-/** C: Note | Meeting notes, and what detection read when it picked meeting notes. */
-function KindToggle({ kind, hint, onChange }: { kind: NoteKind; hint: string | null; onChange: (k: NoteKind) => void }) {
+/** C: Note | Meeting notes, which the coach flips. */
+function KindToggle({ kind, onChange }: { kind: NoteKind; onChange: (k: NoteKind) => void }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
       <div role="radiogroup" aria-label="Kind" className="flex shrink-0 rounded-lg bg-surface-secondary p-0.5">
@@ -68,40 +67,11 @@ function KindToggle({ kind, hint, onChange }: { kind: NoteKind; hint: string | n
           </button>
         ))}
       </div>
-      {hint && kind === 'meeting' && (
-        <span className="flex min-w-0 items-center gap-1 text-[12px] leading-[18px] text-ink-tertiary">
-          <img src={iconSparkle} alt="" width={12} height={12} />
-          <span className="truncate">Detected: {hint}</span>
-        </span>
-      )}
     </div>
   );
 }
 
-/** A: a transcript was likely pasted into a note; the coach says which it is. */
-function SuggestBanner({ detection, onKeep, onSwitch }: { detection: Detection; onKeep: () => void; onSwitch: () => void }) {
-  return (
-    <div className="mx-8 mt-4 flex items-start gap-2.5 rounded-lg border border-brand/20 bg-brand/[0.04] px-3 py-2.5">
-      <img src={iconSparkle} alt="" width={16} height={16} className="mt-0.5 shrink-0" />
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <p className="text-[13px] leading-[1.5] text-ink">
-          <span className="font-semibold">This looks like a meeting transcript</span> ({detection.reason}). Switch to meeting notes to attach
-          it as the transcript and keep the rest as your notes.
-        </p>
-        <div className="flex items-center gap-3">
-          <button type="button" onClick={onSwitch} className="h-7 rounded-[6px] bg-brand px-3 text-[12px] font-semibold text-white hover:bg-brand/90">
-            Switch to meeting notes
-          </button>
-          <button type="button" onClick={onKeep} className="text-[12px] font-semibold text-ink-secondary hover:text-ink">
-            Keep as note
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** A: why the note became meeting notes on its own, with the way back. */
+/** A: why the note became meeting notes (a transcript file was attached), with the way back. */
 function SwitchedNotice({ why, onUndo }: { why: string; onUndo: () => void }) {
   return (
     <div className="flex shrink-0 items-center gap-2 rounded-lg bg-surface-secondary px-3 py-2 text-[12px] leading-[18px] text-ink-tertiary">
@@ -118,18 +88,14 @@ function SwitchedNotice({ why, onUndo }: { why: string; onUndo: () => void }) {
  * New note on the Notes timeline trial (the user's call; no frame), one popup for the three ways being compared
  * (`NotesVariant`). As a note it is the editor (Figma 5850:570122); as meeting notes it is the Add a meeting form
  * (`MeetingNotesForm`: the notes, then the attached transcript). A meeting note is a note with a transcript, so the
- * kind follows where the text comes from; the note's own text always stays the coach's notes:
- * - A: one New note. A file (Attach transcript, or dropped on the editor) or a paste with subtitle timecodes or timed
- *   speaker lines makes it meeting notes at once, with a line saying why and Keep as a note; a paste of untimed
- *   speaker lines asks first (`SuggestBanner`).
- * - B: the coach picked the kind on New note ▾ (`start`); nothing is detected.
- * - C: a Note | Meeting notes toggle; a file flips it, and a transcript pasted on the Note tab asks first
- *   (`SuggestBanner`), then flips it saying what was detected. The Meeting notes tab asks nothing: there the notes
- *   and the transcript are one thing (the user's call).
- * A transcript found in a paste leaves the note's text and becomes the attached transcript. Turning meeting notes back
- * into a note restores the note as it was, or the notes plus the pasted transcript if the coach changed either; with
- * a file attached it asks first (Switch to a note?), since a note keeps no transcript. The meeting's date and start
- * survive the trip, so switching back finds them as they were.
+ * kind follows the transcript file; the note's own text always stays the coach's notes. Nothing reads what is pasted:
+ * the team can't detect a transcript yet (the user's call), so a paste stays where it lands.
+ * - A: one New note. Attaching a transcript file (Attach transcript, or dropped on the editor) makes it meeting notes,
+ *   with a line saying why and Keep as a note.
+ * - B: the coach picked the kind on New note ▾ (`start`).
+ * - C: a Note | Meeting notes toggle the coach flips; attaching a file flips it too.
+ * Turning meeting notes back into a note keeps the notes; with a file attached it asks first (Switch to a note?),
+ * since a note keeps no transcript. The meeting's date and start survive the trip.
  */
 export function NewNoteDialog({
   client,
@@ -156,55 +122,41 @@ export function NewNoteDialog({
   const current = useRef<MeetingDraft>({ notes: '', pasted: '', date: DEMO_TODAY, time: '06:00' });
   // Turning meeting notes with an attached file into a note asks first: a note keeps no transcript.
   const [confirmNote, setConfirmNote] = useState(false);
-  const before = useRef<{ html: string; notes: string; text: string } | null>(null);
   const [why, setWhy] = useState<string | null>(null);
-  // A paste the coach is asked about (A and C): the text, and the note before and after it.
-  const [suggestion, setSuggestion] = useState<{ detection: Detection; text: string; before: string; after: string } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
-  const detects = variant !== 'B';
+  // A and C take a transcript file on the Note side; B's note is a note.
+  const attaches = variant !== 'B';
   const newTitle = `New Note ${1 + notes.filter((n) => /^New Note \d+$/.test(n.title)).length}`;
 
-  /** `notes`: the note's text that stays the coach's notes; `whole`: the note as it was, for the way back. */
-  const toMeeting = (from: { pasted?: string; file?: File }, reason: string | null, notes = html, whole = html) => {
-    before.current = { html: whole, notes, text: from.pasted ?? '' };
+  /** The note's text goes along as the meeting's notes. */
+  const toMeeting = (file: File | undefined, reason: string | null) => {
     const { date, time } = current.current;
-    current.current = { notes, pasted: from.pasted ?? '', file: from.file?.name, date, time };
-    setSeed((s) => ({ key: s.key + 1, notes, ...from, date, time }));
+    current.current = { notes: html, pasted: '', file: file?.name, date, time };
+    setSeed((s) => ({ key: s.key + 1, notes: html, file, date, time }));
     setKind('meeting');
     setWhy(reason);
-    setSuggestion(null);
   };
 
   const toNote = () => (current.current.file ? setConfirmNote(true) : switchToNote());
 
   const switchToNote = () => {
     setConfirmNote(false);
-    const b = before.current;
     const now = current.current;
     current.current = { ...now, file: undefined };
-    setHtml(b && now.notes === b.notes && now.pasted === b.text ? b.html : now.notes + textToHtml(now.pasted));
+    setHtml(now.notes);
     setEditorKey((k) => k + 1);
     setKind('note');
     setWhy(null);
   };
 
-  // `html` is still the note from before the paste: it stays the notes, the pasted text becomes the transcript.
-  const onPasteText = (text: string, after: string) => {
-    const found = detectTranscript(text);
-    if (!found) return;
-    // C asks on the Note tab for any transcript; A asks only when it is not sure.
-    if (variant === 'C' || found.level === 'likely') return setSuggestion({ detection: found, text: text.trim(), before: html, after });
-    toMeeting({ pasted: text.trim() }, `the pasted text has ${found.reason}`, html, after);
-  };
-
-  const attach = (file: File) => toMeeting({ file }, variant === 'A' ? 'a transcript file is attached' : 'transcript file attached');
+  const attach = (file: File) => toMeeting(file, variant === 'A' ? 'a transcript file is attached' : null);
   const track = useCallback((s: MeetingDraft) => {
     current.current = s;
   }, []);
 
   const above: ReactNode =
     variant === 'C' ? (
-      <KindToggle kind={kind} hint={why} onChange={(k) => (k === 'meeting' ? toMeeting({}, null) : toNote())} />
+      <KindToggle kind={kind} onChange={(k) => (k === 'meeting' ? toMeeting(undefined, null) : toNote())} />
     ) : variant === 'B' ? (
       <KindChip kind={kind} />
     ) : kind === 'meeting' ? (
@@ -250,30 +202,19 @@ export function NewNoteDialog({
           >
             <TimeLine>Created: {noteStamp(NOW)}</TimeLine>
           </NoteHeader>
-          {suggestion && (
-            <SuggestBanner
-              detection={suggestion.detection}
-              onKeep={() => setSuggestion(null)}
-              onSwitch={() =>
-                toMeeting({ pasted: suggestion.text }, variant === 'C' ? suggestion.detection.reason : null, suggestion.before, suggestion.after)
-              }
-            />
-          )}
           <NoteEditor
             key={editorKey}
             initial={html}
-            placeholder={detects ? `Type your note for ${client.firstName}, or paste a meeting transcript...` : `Type your note for ${client.firstName}...`}
+            placeholder={`Type your note for ${client.firstName}...`}
             onChange={setHtml}
-            onPasteText={detects ? onPasteText : undefined}
-            onDropFile={detects ? attach : undefined}
-            height={suggestion ? 'h-[344px] shrink-0' : 'h-[440px] shrink-0'}
+            onDropFile={attaches ? attach : undefined}
           />
           <EditorFooter
             canSave={Boolean(noteText(html)) || /<li/i.test(html)}
             onCancel={onClose}
             onSave={save}
             start={
-              detects && (
+              attaches && (
                 <button
                   type="button"
                   onClick={() => fileInput.current?.click()}

@@ -398,24 +398,22 @@ one column. The Upcoming bookings session list is shared with the main branch to
   notes also show on the Check-in panel's Notes tab, which Spec 4 BL1 fixes as notes only, and the brief puts
   meeting transcription in Phase 2 (Loom). Notes and meeting notes run on one timeline by created time. New note is
   tried three ways on one page, switched on a bar at the bottom left (`NotesTrialBar`, `useNotesVariant` in
-  `lib/notesTrial.ts`, kept in localStorage): A one New note that turns into meeting notes when a transcript is
-  pasted or a file attached (`detectTranscript` in `lib/noteKind.ts`: subtitle timecodes or timed speaker lines
-  switch at once with Keep as a note, untimed speaker lines ask first, label lines like "Sleep: …" never count),
-  B New note ▾ asking Note or Meeting notes, C a Note | Meeting notes toggle; a transcript pasted on its Note tab
-  asks first (Switch to meeting notes · Keep as note), then flips it. A meeting note
-  is a note with a transcript, so the kind follows where the text comes from. `NewNoteDialog` reuses the note
+  `lib/notesTrial.ts`, kept in localStorage): A one New note that turns into meeting notes when a transcript file is
+  attached (a line says why, with Keep as a note), B New note ▾ asking Note or Meeting notes, C a Note | Meeting
+  notes toggle the coach flips (attaching a file flips it too). Nothing detects a pasted transcript: the team can't
+  build auto-detect yet (the user's call), so a paste stays where it lands on either side. A meeting note
+  is a note with a transcript. `NewNoteDialog` reuses the note
   editor; its meeting notes are `MeetingNotesForm` (the user's call: no Upload / Paste tabs): the coach's notes in
   the note editor, Attach transcript (or a file dropped on the form) for the transcript, shown as a card with
   "61 lines · Long and Malcom · ~30 min" (`transcriptStats`) and a scrolling preview; once a transcript is in and
-  the notes are empty they fold into "+ Add your notes (optional)"; on Meeting notes a pasted transcript just stays in
-  the notes, with no question (meeting notes and transcript are one thing, the user's call); the title is suggested from the transcript's heading or file name (`titleFrom`). A paste that makes
-  a note into meeting notes keeps the typed text as notes and only the pasted text as the transcript. Going back to
+  the notes are empty they fold into "+ Add your notes (optional)"; the title is suggested from the transcript's
+  heading or file name (`titleFrom`). Switching kinds carries the text across as notes. Going back to
   a note with a file attached asks "Switch to a note?" (the file is removed, the notes stay; Cancel stays on Meeting
-  notes); a pasted transcript moves into the note instead. The meeting's date and start survive the round trip. Meetings carry
+  notes). The meeting's date and start survive the round trip. Meetings carry
   `notes` and may have no transcript. On this page the meeting popup has no Summary (the user's call): tabs Notes |
   Transcript when the coach wrote notes, else the transcript alone with no tab bar (`tabsFor` in
   `TranscriptDialog`); meeting notes get no summary, no "Generating summary…" and no summary toast, and search
-  skips summaries. There is no frame for the popup, the detection or the bar.
+  skips summaries. There is no frame for the popup or the bar.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for
