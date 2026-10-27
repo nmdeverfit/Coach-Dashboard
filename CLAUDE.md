@@ -413,14 +413,14 @@ one column. The Upcoming bookings session list is shared with the main branch to
   of the call summary's points, topic in bold) and "Next steps" (its follow-ups), so they only name what the call got
   through. On this page the meeting popup is one plain page (the user's call): no tabs,
   Summary, headings, rule or search; the coach's notes first, then the transcript as a file preview
-  (`TranscriptFileCard`, icon, name, meta, Download, the lines scrolling inside, capped at 300 px; a recorded call
+  (`TranscriptFileCard`, icon, name, meta, Download, the lines scrolling inside, filling the rest of the popup, at least 240 px; a recorded call
   reads "Call transcript" with its length), each only when the meeting has it; meeting notes get no summary, no
   "Generating summary…" and no summary toast, and search skips summaries. The popup's title row carries Delete ·
   Edit, as Note details does (`DetailActions` in `NoteDialog.tsx`, the user's call): Delete asks "Delete these
   meeting notes?"; Edit opens New note on those meeting notes with no tabs (`NewNoteDialog` `editing`: title, date
   and start, notes, transcript, a recorded call's lines kept or removed) and returns to the details. Edits and deletes
   of any meeting, the demo's too, live in `meetingEdits` in the store (session only; `meetingsFor` applies them).
-  There is no frame for the popup, its edit or the tabs.
+  New note, Note details and the meeting popup are one size on this page, 720 × 800 capped at the window (`NOTE_POPUP` in `NoteDialog.tsx`, the user's call, so the content has more room). There is no frame for the popup, its edit or the tabs.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. `TODO_CAP` would count to-dos. There is no frame for the group or for

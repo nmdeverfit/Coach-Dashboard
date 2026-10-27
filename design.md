@@ -247,7 +247,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   dragged over the form draws a dashed brand frame, "Drop the file to attach it". The meeting popup is one plain page on this trial: the
   notes (`note-body`, 30 px sides, no heading; a recorded call's read "What we covered" and "Next steps", bold
   paragraphs over bullet lists), then 16 px down the transcript in the same card
-  (`TranscriptFileCard`, capped at 300 px, Download in brand for a file); no tabs, headings, rule or search, and a
+  (`TranscriptFileCard`, filling the rest of the popup, at least 240 px, Download in brand for a file). On this page New
+  note, Note details and the meeting popup share one size, 720 × 800 capped at the window's height (`NOTE_POPUP`,
+  the user's call; the main build keeps 600 px notes and the 620 px meeting popup); no tabs, headings, rule or search, and a
   part shows only when the meeting has it. Its title row carries Note details' Delete · Edit (`DetailActions`, 16 px,
   muted until hovered); Edit is the New note form titled with the meeting's name, without the tabs.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets

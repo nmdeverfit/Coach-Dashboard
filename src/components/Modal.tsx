@@ -12,6 +12,7 @@ export function Modal({
   title,
   subtitle,
   width = 500,
+  height,
   onClose,
   closeOnBackdrop = false,
   footer,
@@ -24,6 +25,8 @@ export function Modal({
   title: string;
   subtitle?: ReactNode;
   width?: number;
+  /** A fixed height (Notes timeline trial: every note popup the same size); the body then fills it as a column. */
+  height?: string;
   onClose: () => void;
   /** Off for forms, so a stray click never throws away what the coach typed. */
   closeOnBackdrop?: boolean;
@@ -62,7 +65,7 @@ export function Modal({
         aria-labelledby={header ? undefined : titleId}
         aria-label={header ? title : undefined}
         className="relative flex max-h-full animate-pop-in flex-col bg-white shadow-[0_-8px_40px_rgba(0,0,0,0.05),0_8px_70px_rgba(0,0,0,0.2)]"
-        style={{ width, borderRadius: radius }}
+        style={{ width, height, borderRadius: radius }}
       >
         <button
           type="button"
@@ -80,7 +83,7 @@ export function Modal({
             {subtitle && <div className="mt-1 text-[13px] leading-[1.5] text-ink-tertiary">{subtitle}</div>}
           </header>
         )}
-        <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+        <div className={`min-h-0 flex-1 overflow-y-auto ${height ? 'flex flex-col' : ''}`}>{children}</div>
         {footer && <footer className={`flex shrink-0 justify-end gap-2 px-[30px] ${footerBorder ? 'border-t border-line py-5' : 'pb-6 pt-4'}`}>{footer}</footer>}
       </div>
     </div>,

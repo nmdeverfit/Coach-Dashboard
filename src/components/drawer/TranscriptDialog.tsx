@@ -7,7 +7,7 @@ import { COACH_FIRST_NAME } from '../../data/mock';
 import type { Client, Meeting } from '../../data/types';
 import { NOTES_TIMELINE } from '../../lib/flags';
 import { ConfirmDialog } from '../ConfirmDialog';
-import { DetailActions } from './NoteDialog';
+import { DetailActions, NOTE_POPUP } from './NoteDialog';
 import { TranscriptFileCard, transcriptCard } from './NoteAttachment';
 import { fieldTime, fileSize, meetingDate } from '../../lib/meetings';
 import { useStore } from '../../state/store';
@@ -246,7 +246,7 @@ export function TranscriptDialog({
           </header>
         ) : undefined
       }
-      width={620}
+      {...(NOTES_TIMELINE ? NOTE_POPUP : { width: 620 })}
       onClose={onClose}
       closeOnBackdrop
       headerBorder={false}
@@ -254,8 +254,8 @@ export function TranscriptDialog({
       {NOTES_TIMELINE ? (
         // Notes timeline trial (the user's call): one plain page, no tabs, headings, rule or search. The coach's notes
         // come first; under them the transcript as a file preview, each only when the meeting has it.
-        <div ref={body} className="flex flex-col gap-4 px-[30px] pb-[30px] pt-2">
-          {meeting.notes && <div className="note-body" dangerouslySetInnerHTML={{ __html: meeting.notes }} />}
+        <div ref={body} className="scroll-thin flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-[30px] pb-[30px] pt-2">
+          {meeting.notes && <div className="note-body shrink-0" dangerouslySetInnerHTML={{ __html: meeting.notes }} />}
           {t && (
             <TranscriptFileCard
               {...transcriptCard(t, client, meeting.minutes)}
@@ -266,7 +266,7 @@ export function TranscriptDialog({
                   </button>
                 )
               }
-              className="max-h-[300px]"
+              className="min-h-[240px] flex-1"
             />
           )}
         </div>

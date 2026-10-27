@@ -10,7 +10,7 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { MeetingWhen, TIME_ZONE } from './AddMeetingDialog';
 import { KIND_LABEL, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
-import { EditorFooter, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
+import { EditorFooter, NOTE_POPUP, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
 
 /** The demo's clock reads 06:00, as for a message sent from the dashboard. */
 const NOW = '06:00';
@@ -107,7 +107,7 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
   };
 
   return (
-    <Modal title={editing ? 'Edit meeting notes' : kind === 'note' ? 'New note' : 'New meeting notes'} width={600} radius={12} onClose={onClose} header={<></>}>
+    <Modal title={editing ? 'Edit meeting notes' : kind === 'note' ? 'New note' : 'New meeting notes'} {...NOTE_POPUP} radius={12} onClose={onClose} header={<></>}>
       <NoteHeader
         above={!editing && <KindTabs kind={kind} onChange={switchTo} />}
         title={
@@ -130,7 +130,7 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
       </NoteHeader>
 
       <div
-        className={`relative flex h-[440px] shrink-0 flex-col ${dragging ? 'bg-brand/[0.03]' : ''}`}
+        className={`relative flex min-h-0 flex-1 flex-col ${dragging ? 'bg-brand/[0.03]' : ''}`}
         onDragOver={(e) => {
           if (!meeting || !e.dataTransfer.types.includes('Files')) return;
           e.preventDefault();
@@ -150,7 +150,7 @@ export function NewNoteDialog({ client, notes, editing, onClose }: { client: Cli
           placeholder={kind === 'meeting' ? `Type your notes from the meeting with ${client.firstName}...` : `Type your note for ${client.firstName}...`}
           onChange={setHtml}
           toolbarEnd={meeting && !transcript && <UploadTranscriptButton onClick={browse} />}
-          height={transcript ? 'h-[176px] shrink-0' : 'min-h-0 flex-1'}
+          height={transcript ? 'h-[240px] shrink-0' : 'min-h-0 flex-1'}
         />
         {meeting && transcript && (
           <div className="flex min-h-0 flex-1 flex-col px-8 pb-2 pt-1">

@@ -11,6 +11,7 @@ import iconOrdered from '../../assets/figma/icon-rte-ordered.svg';
 import { DEMO_TODAY } from '../../data/mock';
 import type { Client, ClientNote } from '../../data/types';
 import { cleanNoteHtml, noteStamp, noteText } from '../../lib/notes';
+import { NOTES_TIMELINE } from '../../lib/flags';
 import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
@@ -18,6 +19,13 @@ import { Tooltip } from '../Tooltip';
 
 /** A note written or edited now: the demo's clock reads 06:00, as for a message sent from the dashboard. */
 const NOW = `${DEMO_TODAY}T06:00`;
+
+/**
+ * Notes timeline trial (the user's call): New note, Note details and the meeting notes popup share one size, larger
+ * than the design's 600 px note popup, so the text and the transcript get more room. Capped at the window's height.
+ */
+export const NOTE_POPUP = { width: 720, height: 'min(800px, calc(100vh - 80px))' } as const;
+const NOTE_SIZE = NOTES_TIMELINE ? NOTE_POPUP : { width: 600, height: undefined };
 
 export const TITLE = 'text-[19px] font-semibold leading-[1.5] tracking-[-0.57px] text-[#1a1a1a]';
 
@@ -284,7 +292,7 @@ export function NoteDialog({
   if (noteId && !note) return null;
 
   return (
-    <Modal title={note ? note.title : 'New note'} width={600} radius={12} onClose={onClose} header={<></>}>
+    <Modal title={note ? note.title : 'New note'} {...NOTE_SIZE} radius={12} onClose={onClose} header={<></>}>
       {editing ? (
         <>
           <NoteHeader
@@ -301,7 +309,12 @@ export function NoteDialog({
           >
             <TimeLine>Created: {noteStamp(note?.at ?? NOW)}</TimeLine>
           </NoteHeader>
-          <NoteEditor initial={note?.body ?? ''} placeholder={`Type your note for ${client.firstName}...`} onChange={setHtml} />
+          <NoteEditor
+            initial={note?.body ?? ''}
+            placeholder={`Type your note for ${client.firstName}...`}
+            onChange={setHtml}
+            height={NOTES_TIMELINE ? 'min-h-0 flex-1' : undefined}
+          />
           <EditorFooter canSave={canSave} onCancel={note ? () => setEditing(false) : onClose} onSave={save} />
         </>
       ) : (
@@ -314,7 +327,7 @@ export function NoteDialog({
               <TimeLine>Created: {noteStamp(note.at)}</TimeLine>
               {note.editedAt && <TimeLine>Last Edited: {noteStamp(note.editedAt)}</TimeLine>}
             </NoteHeader>
-            <div className="scroll-thin h-[440px] shrink-0 overflow-y-auto px-8 py-5">
+            <div className={`scroll-thin ${NOTES_TIMELINE ? 'min-h-0 flex-1' : 'h-[440px] shrink-0'} overflow-y-auto px-8 py-5`}>
               <div className="note-body" dangerouslySetInnerHTML={{ __html: note.body }} />
             </div>
             <div className="h-8 shrink-0" />
