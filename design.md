@@ -277,7 +277,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "Show N more" never splits a group.
 - **Related to-dos** (same trial): under the panel's title block, `px-[30px] pb-2.5`, a white card (border `line`,
   rounded 8). Plain header (the user's call: no fill, no divider), `px-4 pb-1 pt-3`: "Related to-dos" 13 px
-  semibold + count chip. Then one compact row per other to-do of the client, `px-4 py-1.5`, no dividers, the list
+  semibold `ink-secondary`, no count (the user's call). Then one compact row per other to-do of the client, `px-4 py-1.5`, no dividers, the list
   ending on `pb-2`: an 18 px read-only checkbox and the short action 13 px semibold (brand on hover), nothing else
   (the user's call: no reason, no chevron). A click opens that to-do's panel in place; a done one reads struck
   through at 60 %.

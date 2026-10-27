@@ -20,7 +20,6 @@ import { buildClientAssessment } from '../../lib/client';
 import { buildAcknowledgeView, buildBuildView, buildPrepareView, buildRemindView, buildRespondView, buildUnblockView } from '../../lib/todos';
 import { getClient, useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
-import { CountChip } from '../CountChip';
 import { SHORT_ACTION } from '../TodoRow';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { StatusChip } from '../StatusChip';
@@ -169,10 +168,7 @@ function RelatedTodos({ todo }: { todo: Todo }) {
   return (
     <div className="px-[30px] pb-2.5">
       <section aria-label="Related to-dos" className="overflow-hidden rounded-lg border border-line bg-white">
-        <h3 className="flex items-center gap-2 px-4 pb-1 pt-3 text-[13px] font-semibold leading-[1.5] text-ink">
-          Related to-dos
-          <CountChip value={related.length} />
-        </h3>
+        <h3 className="px-4 pb-1 pt-3 text-[13px] font-semibold leading-[1.5] text-ink-secondary">Related to-dos</h3>
         <ul className="pb-2">
           {related.map((t) => {
             const done = t.state === 'completed';
