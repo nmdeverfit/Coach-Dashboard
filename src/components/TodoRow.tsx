@@ -19,7 +19,7 @@ interface TodoRowProps {
   /**
    * Grouped to-dos (trial): a row in a client's card (`TodoGroupCard`), with no bottom border of its own. The main
    * row reads like a single one; a related row is the type's short action only, indented under the main row's text,
-   * with no client chip and no reason (the user's call).
+   * with no client chip and no reason, in regular weight (the user's call).
    */
   inCard?: CardRole;
 }
@@ -110,12 +110,11 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
         </div>
         <div className={`flex min-w-0 flex-1 flex-col gap-1 ${done ? 'opacity-60' : ''}`}>
           {title && !nested ? (
-            // Regular weight; only the client's name stays semibold (the user's call).
-            <div className="flex min-w-0 items-center gap-1.5 text-[13px] leading-[1.5] text-ink">
+            <div className="flex min-w-0 items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink">
               <span className={`whitespace-nowrap ${strike}`}>{title.lead}</span>
               <span className="flex shrink-0 items-center gap-1.5 py-0.5 pl-0.5">
                 <Avatar name={client.name} src={client.avatar} />
-                <span className={`whitespace-nowrap font-semibold ${strike}`}>
+                <span className={`whitespace-nowrap ${strike}`}>
                   {client.name}
                   {glue?.[1]}
                 </span>
@@ -124,7 +123,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
             </div>
           ) : (
           <div className="flex min-w-0 items-center gap-1.5">
-            <span className={`whitespace-nowrap text-[13px] leading-[1.5] text-ink ${title ? '' : 'font-semibold'} ${strike}`}>{nested ? (title?.short ?? SHORT_ACTION[todo.type]) : todo.action}</span>
+            <span className={`whitespace-nowrap text-[13px] leading-[1.5] text-ink ${nested ? '' : 'font-semibold'} ${strike}`}>{nested ? (title?.short ?? SHORT_ACTION[todo.type]) : todo.action}</span>
             {!nested && <span className={`flex min-w-0 items-center gap-1.5 rounded-full py-0.5 pl-0.5 ${age ? 'pr-2' : ''}`}>
               <Avatar name={client.name} src={client.avatar} />
               <span className={`truncate text-[13px] font-semibold text-ink ${strike}`}>{client.name}</span>
