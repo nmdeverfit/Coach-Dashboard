@@ -291,6 +291,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   py-1.5`, no dividers, hover `black/[0.03]`, the list ending on `pb-2`: an 18 px read-only checkbox (white) and the
   row's short sentence 13 px semibold (brand on hover); on hover a 16 px chevron right fades in at the row's end. A
   click opens that to-do's panel in place. A done one reads struck through at 60 %.
+- **Back to the previous to-do** (same trial, back at the user's call): on a to-do reached from another one, the
+  header's "TO-DO DETAILS" becomes a back button, a 24 px chevron left before it, as on ‹ CLIENT DETAILS; each click
+  goes one to-do back. Opening a to-do from its row or closing the panel clears it.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
   `ink-secondary`). Title block: name 18 px bold with the 20 px External icon (`icon-external`, `#838d9f`) 6 px after it

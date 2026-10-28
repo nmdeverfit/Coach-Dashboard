@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import iconChevronLeft from '../../assets/figma/icon-chevron-left.svg';
 import iconChevronRight from '../../assets/figma/icon-chevron-right-small.svg';
 import iconCheckTitle from '../../assets/figma/icon-check-title.svg';
 import iconCheckWhite from '../../assets/figma/icon-check-white.svg';
@@ -353,18 +354,32 @@ export function TodoDrawer() {
   const [clientOpen, setClientOpen] = useState(false);
   const close = useCallback(() => selectTodo(null), [selectTodo]);
   useCloseOnOutside(Boolean(state.selectedTodoId), close);
-  // Grouped to-dos: whether this to-do was reached from another one, which is when the group trail shows.
+  // Grouped to-dos: whether this to-do was reached from another one, which is when the group trail shows, and the
+  // to-dos left on the way, newest last, for ‹ back on the header (the user's call). Opening a to-do from its row, or
+  // closing the panel, starts again.
   const [fromTodo, setFromTodo] = useState(false);
+  const [trail, setTrail] = useState<string[]>([]);
   const viaTodo = useRef(false);
   const openFromTodo = (id: string) => {
     viaTodo.current = true;
+    setTrail((t) => [...t, state.selectedTodoId!]);
     selectTodo(id);
+  };
+  const back = () => {
+    // A to-do dismissed meanwhile is skipped.
+    const left = trail.filter((id) => state.todos.find((t) => t.id === id)?.state !== 'dismissed');
+    const prev = left.pop();
+    setTrail(left);
+    if (!prev) return;
+    viaTodo.current = true;
+    selectTodo(prev);
   };
 
   useEffect(() => {
     setConfirmDismiss(false);
     setClientOpen(false);
     setFromTodo(viaTodo.current);
+    if (!viaTodo.current) setTrail([]);
     viaTodo.current = false;
   }, [state.selectedTodoId]);
 
@@ -381,7 +396,14 @@ export function TodoDrawer() {
       {/* Kept mounted behind client details so ‹ returns to the same tab and scroll (AC1.11). */}
       <div className={`relative flex min-h-0 flex-1 flex-col ${clientOpen ? 'hidden' : ''}`}>
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-5 pb-2.5 pt-[15px]">
-          <p className="text-[13px] font-semibold leading-[1.5] text-ink-secondary">TO-DO DETAILS</p>
+          {trail.length > 0 ? (
+            <button type="button" aria-label="Back to the previous to-do" onClick={back} className="-ml-1.5 flex items-center gap-0.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:text-ink">
+              <img src={iconChevronLeft} alt="" width={24} height={24} />
+              TO-DO DETAILS
+            </button>
+          ) : (
+            <p className="text-[13px] font-semibold leading-[1.5] text-ink-secondary">TO-DO DETAILS</p>
+          )}
           <button type="button" aria-label="Close to-do details" onClick={() => selectTodo(null)} className="relative size-5 overflow-hidden rounded hover:opacity-70">
             <img src={iconClose} alt="" className="absolute left-1/2 top-1/2 size-6 max-w-none -translate-x-1/2 -translate-y-1/2" />
           </button>

@@ -122,7 +122,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   three: a back button, a parent link, this): every to-do's short action in priority order, split by small chevrons,
   the open one plain, the others links that open their panel in place, a done one struck through; it shows only on
   a to-do reached from another one (the trail or Related to-dos; `fromTodo` in `TodoDrawer`), never on one opened
-  from its row (the user's call); each is still
+  from its row (the user's call). A to-do reached that way also gets ‹ back on its "TO-DO DETAILS" header, one
+  step back per click (`trail` in `TodoDrawer`, back at the user's call); each is still
   completed or dismissed on its own. Under the title the Related to-dos box is back (the user's call): `RelatedTodos`, the client's
   other to-dos, checkbox and short title on `surface-secondary`, a chevron on hover. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
