@@ -25,8 +25,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - Commands: `npm run dev`, `npm run typecheck`, `npm run build`,
   `npm run build:artifact` (single-file page in `dist-single/coach-dashboard.html`, published as a claude.ai Artifact),
   `npm run build:artifact:grouped` (the grouped to-dos trial, `VITE_GROUPED_TODOS=1`, written to
-  `dist-single/coach-dashboard-grouped.html` and published as its own artifact, "Check-in Dashboard v2 · Grouped
-  to-dos"; the default builds drop its code). `npm run build:artifact:notes` (the Notes timeline trial
+  `dist-single/coach-dashboard-grouped.html`; its own artifact, "Check-in Dashboard v2 · Grouped to-dos", was deleted
+  at the user's request, so the grouped to-dos now publish only inside "Notes & Grouped To-dos"; the default builds
+  drop its code). `npm run build:artifact:notes` (the Notes timeline trial
   with the grouped to-dos trial on too, `VITE_NOTES_TIMELINE=1 VITE_GROUPED_TODOS=1`,
   `dist-single/coach-dashboard-notes.html`, its own artifact, renamed "Notes & Grouped To-dos" so both trials show on
   one page, the user's call; built from this branch). Each build empties `dist-single/`, so publish right after building.
