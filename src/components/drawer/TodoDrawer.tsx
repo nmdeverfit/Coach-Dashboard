@@ -168,14 +168,14 @@ function RelatedTodos({ todo }: { todo: Todo }) {
   if (!related.length) return null;
   return (
     <div className="px-[30px] pb-2.5">
-      <section aria-label="Related to-dos" className="overflow-hidden rounded-lg border border-line bg-white">
+      <section aria-label="Related to-dos" className="overflow-hidden rounded-lg bg-surface-secondary">
         <h3 className="px-4 pb-1 pt-3 text-[13px] font-semibold leading-[1.5] text-ink-secondary">Related to-dos</h3>
         <ul className="pb-2">
           {related.map((t) => {
             const done = t.state === 'completed';
             return (
               <li key={t.id}>
-                <button type="button" onClick={() => selectTodo(t.id)} className="group flex w-full items-center gap-3 px-4 py-1.5 text-left hover:bg-surface-secondary/60">
+                <button type="button" onClick={() => selectTodo(t.id)} className="group flex w-full items-center gap-3 px-4 py-1.5 text-left hover:bg-black/[0.03]">
                   {/* The row checkbox's look, read-only here: the to-do is ticked in its own panel or on its row. */}
                   <span
                     aria-hidden
@@ -188,7 +188,7 @@ function RelatedTodos({ todo }: { todo: Todo }) {
                     </span>
                   </span>
                   <span className={`min-w-0 flex-1 truncate text-[13px] font-semibold leading-[1.5] text-ink group-hover:text-brand ${done ? 'opacity-60 line-through' : ''}`}>
-                    {SHORT_ACTION[t.type]}
+                    {t.title?.short ?? SHORT_ACTION[t.type]}
                   </span>
                   <img src={iconChevronRight} alt="" width={16} height={16} className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
                 </button>

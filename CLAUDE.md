@@ -108,13 +108,16 @@ one column. The Upcoming bookings session list is shared with the main branch to
   Penelope (Unblock + Prepare), all raised by their data under BL7, with panel data from `sessions.ts`; `TYPE_PRIORITY` / `byPriority`
   (BL3), `groupByClient`. Today's Brief draws a client's to-dos as one card (`TodayBrief` `itemsOf`,
   `TodoGroupCard`, `TodoRow` `inCard`, the user's call): the main to-do, the highest by `TYPE_PRIORITY` (Check-in
-  first, then Respond · Build · Remind · Unblock · Prepare, the user's call), as a full row (action, client, reason),
-  then up to `MAX_RELATED` = 4 related to-dos, each its short action only (`SHORT_ACTION`), indented under the main
-  row's text, no client chip and no reason; no card or tint (the user's call): the group sits on the list like single
+  first, then Respond · Build · Remind · Unblock · Prepare, the user's call), then up to `MAX_RELATED` = 4 related
+  to-dos indented under it. No row shows a reason line (the user's call): each reads one sentence that folds the
+  reason into the action (`Todo.title`, a `RowTitle` from `rowTitleFor` in `lib/todos.ts` or `checkinTitle` in
+  `lib/client.ts`, from the same builders as the reason, so the figures agree; `TITLES` in `groupedTodos.ts` for
+  the carried rows with design copy): "Review [Sidney]’s Weekly Check-in, waiting 3 days"; a related row, and the
+  panel's Related to-dos, read its `short` form with no client ("Issue credits, 1 PT session credit left"); no card or tint (the user's call): the group sits on the list like single
   rows, with a Linear-style connect line from the main row's checkbox down past the related rows, a branch to each related
   checkbox, which is centred on its text. A
   ticked row dims in place; the card sinks to the bottom of its section only once every row is done. The panel lists
-  the others as Related to-dos (`RelatedTodos` in `TodoDrawer`, checkbox and title only, a chevron on hover), each completed or
+  the others as Related to-dos (`RelatedTodos` in `TodoDrawer`, checkbox and title only on `surface-secondary`, no border, a chevron on hover), each completed or
   dismissed on its own; opening one swaps the panel in place, with no back button (the user's call). A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
@@ -438,7 +441,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   `NoteHeader` and `NoteEditor`). New note, Note details and the meeting popup are one size on this page, 720 × 800 capped at the window (`NOTE_POPUP` in `NoteDialog.tsx`, the user's call, so the content has more room). There is no frame for the popup, its edit or the tabs.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
-  by client and lists them in the panel. The trial ranks Check-in above Respond, where Spec 4 BL3 has respond → check_in (the user's
+  by client and lists them in the panel. Its rows drop the brief's greyed sentence of why for one sentence that
+  carries it (the panel keeps the title and the reason line, BL1 part B). The trial ranks Check-in above Respond, where Spec 4 BL3 has respond → check_in (the user's
   call), and caps a group at one main and four related to-dos. `TODO_CAP` would count to-dos. There is no frame for the group or for
   Related to-dos.
 - The vertical row expand (rows open the client detail

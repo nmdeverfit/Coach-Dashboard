@@ -262,26 +262,28 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Note details' Delete · Edit (`DetailActions`, 16 px, muted until hovered); Edit is the New note form titled with the meeting's name, without the tabs.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one group in the list, at the place the client first appears. `TodoGroupCard`: no card, border or tint (the user's
-  call); it sits on the list's grey like the single rows, one `line` divider under the whole group. The main to-do,
-  the highest by `TYPE_PRIORITY` (Check-in first), is a full row (`pb-1.5`): checkbox, action + client chip, reason.
-  Under it up to four related to-dos (`MAX_RELATED`), each `py-0.5 pl-10` so the checkbox sits under the main row's
-  text: 20 px checkbox, the short action 13 px semibold (`SHORT_ACTION`), no client chip, no reason; the group ends on
-  `pb-1.5`. A connect line, as in Linear's sub-issues (the user's call): 1 px `line-light`, at the main checkbox's
-  centre (x 20), from 38 px down (just under that checkbox) to the last related row's middle, drawn over the rows,
-  with a 22 px branch at each related row's middle to its checkbox. A related row centres its checkbox on its one
-  line of text (`items-center`, the checkbox at `top-1/2`).
-  Each row hovers like a single one (white, rounded, `shadow-row`); selected is white with `shadow-row` and a 4 px
-  brand edge drawn over the row, so the checkbox stays on the line. Each row keeps its own checkbox, Dismiss and
-  panel; a ticked row dims and strikes through in place (it never moves inside the group), and the group slides out
-  and sinks to the bottom of its section once all its rows are done. On Previous the main row carries the age.
+  call); it sits on the list's grey like the single rows, one `line` divider under the whole group. Every row on this
+  page is one line with no reason under it (the user's call): a sentence that folds the reason into the action,
+  13 px semibold `ink`, lead + 24 px avatar + name (a "’s" or "," after the name sticks to it) + the rest, truncated
+  at the row's end ("Issue credits for [Wendy Kurtz], 3 Pilates credits expiring in 5 days"). Single rows are
+  `px-2 py-2.5`, the checkbox centred on the line. The main to-do, the highest by `TYPE_PRIORITY` (Check-in first),
+  is `pt-[10px] pb-1.5`. Under it up to four related to-dos (`MAX_RELATED`), each `py-0.5 pl-10` so the checkbox
+  sits under the main row's text: 20 px checkbox, the sentence without the client (`short`); the group ends on
+  `pb-1.5`. No dividers inside. A connect line, as in Linear's sub-issues (the user's call): 1 px `line-light`, at
+  the main checkbox's centre (x 20), from 38 px down (just under that checkbox) to the last related row's middle,
+  drawn over the rows, with a 22 px branch at each related row's middle to its checkbox, centred on its text. Each
+  row hovers like a single one (white, rounded, `shadow-row`); selected is white with `shadow-row` and a 4 px brand
+  edge drawn over the row, so the checkbox stays on the line. Each row keeps its own checkbox, Dismiss and panel; a
+  ticked row dims and strikes through in place (it never moves inside the group), and the group slides out and
+  sinks to the bottom of its section once all its rows are done. On Previous the main row carries the age.
   "Show N more" never splits a group.
-- **Related to-dos** (same trial): under the panel's title block, `px-[30px] pb-2.5`, a white card (border `line`,
-  rounded 8). Plain header (the user's call: no fill, no divider), `px-4 pb-1 pt-3`: "Related to-dos" 13 px
-  semibold `ink-secondary`, no count (the user's call). Then one compact row per other to-do of the client, `px-4 py-1.5`, no dividers, the list
-  ending on `pb-2`: an 18 px read-only checkbox and the short action 13 px semibold (brand on hover), nothing else
-  (the user's call: no reason); on hover a 16 px chevron right fades in at the row's end, since a click goes to
-  another to-do. A click opens that to-do's panel in place, with no back button (tried, then dropped: the user's
-  call). A done one reads struck through at 60 %.
+- **Related to-dos** (same trial): under the panel's title block, `px-[30px] pb-2.5`, a `surface-secondary` card
+  with no border (the user's call), rounded 8. Plain header, `px-4 pb-1 pt-3`: "Related to-dos" 13 px semibold
+  `ink-secondary`, no count (the user's call). Then one compact row per other to-do of the client, `px-4 py-1.5`,
+  no dividers, hover `black/[0.03]`, the list ending on `pb-2`: an 18 px read-only checkbox (white) and the row's
+  short sentence 13 px semibold (brand on hover), nothing else (the user's call: no reason); on hover a 16 px
+  chevron right fades in at the row's end, since a click goes to another to-do. A click opens that to-do's panel in
+  place, with no back button (tried, then dropped: the user's call). A done one reads struck through at 60 %.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
   `ink-secondary`). Title block: name 18 px bold with the 20 px External icon (`icon-external`, `#838d9f`) 6 px after it

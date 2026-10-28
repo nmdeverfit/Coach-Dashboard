@@ -59,6 +59,12 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
   };
 
   const nested = inCard === 'related';
+  // Grouped to-dos trial: one line, the action and its reason in one sentence (`todo.title`), no reason line under it.
+  const title = todo.title;
+  const oneLine = nested || Boolean(title);
+  // "’s" or "," right after the client sticks to the name: "Sidney Goyette-Kihn’s Weekly Check-in".
+  const glue = title?.tail.match(/^(’s|,)\s*/);
+  const rest = title ? title.tail.slice(glue?.[0].length ?? 0) : '';
   // In a group the brand edge is drawn over the row, so the checkbox stays on the connect line.
   const surface = selected
     ? inCard
@@ -75,14 +81,14 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
       data-todo-id={inCard ? undefined : todo.id}
       tabIndex={0}
       aria-current={selected ? 'true' : undefined}
-      aria-label={`${todo.action} ${client.name}`}
+      aria-label={title ? `${title.lead} ${client.name}${glue?.[1] ?? ''} ${rest}` : `${todo.action} ${client.name}`}
       onClick={onOpen}
       onKeyDown={onKeyDown}
-      className={`group flex cursor-pointer gap-2 outline-none ${nested ? 'relative py-0.5 pl-10 pr-2' : inCard ? 'px-2 pb-1.5 pt-[10px]' : 'px-2 pb-[14px] pt-[10px]'} focus-visible:ring-2 focus-visible:ring-brand/40 ${age || nested ? 'items-center' : 'items-start'} ${surface}`}
+      className={`group flex cursor-pointer gap-2 outline-none ${nested ? 'relative py-0.5 pl-10 pr-2' : inCard ? 'px-2 pb-1.5 pt-[10px]' : title ? 'px-2 py-2.5' : 'px-2 pb-[14px] pt-[10px]'} focus-visible:ring-2 focus-visible:ring-brand/40 ${age || oneLine ? 'items-center' : 'items-start'} ${surface}`}
     >
       {/* A related row's branch off the group's connect line (x 20) to its checkbox (`TodoGroupCard`). */}
       {nested && <span aria-hidden className="pointer-events-none absolute left-5 top-1/2 z-[1] h-px w-[22px] -translate-x-px bg-line-light" />}
-      <div className={`flex min-w-0 flex-1 gap-2 ${nested ? 'items-center' : 'items-start'}`}>
+      <div className={`flex min-w-0 flex-1 gap-2 ${oneLine ? 'items-center' : 'items-start'}`}>
         <div className="relative h-8 w-6 shrink-0">
           <button
             type="button"
@@ -90,7 +96,7 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
             aria-checked={done}
             aria-label={`Mark "${todo.action} ${client.name}" as done`}
             onClick={stop(onToggle)}
-            className={`group/tip absolute left-1/2 flex size-5 -translate-x-1/2 items-center ${nested ? 'top-1/2 -translate-y-1/2' : 'top-[5.75px]'} justify-center rounded-full border-[0.938px] border-black/15 ${
+            className={`group/tip absolute left-1/2 flex size-5 -translate-x-1/2 items-center ${oneLine ? 'top-1/2 -translate-y-1/2' : 'top-[5.75px]'} justify-center rounded-full border-[0.938px] border-black/15 ${
               done ? 'bg-checked' : 'bg-white hover:border-brand'
             }`}
           >
@@ -103,8 +109,21 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
           </button>
         </div>
         <div className={`flex min-w-0 flex-1 flex-col gap-1 ${done ? 'opacity-60' : ''}`}>
+          {title && !nested ? (
+            <div className="flex min-w-0 items-center gap-1.5 text-[13px] font-semibold leading-[1.5] text-ink">
+              <span className={`whitespace-nowrap ${strike}`}>{title.lead}</span>
+              <span className="flex shrink-0 items-center gap-1.5 py-0.5 pl-0.5">
+                <Avatar name={client.name} src={client.avatar} />
+                <span className={`whitespace-nowrap ${strike}`}>
+                  {client.name}
+                  {glue?.[1]}
+                </span>
+              </span>
+              <span className={`min-w-0 truncate ${strike}`}>{rest}</span>
+            </div>
+          ) : (
           <div className="flex min-w-0 items-center gap-1.5">
-            <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{nested ? SHORT_ACTION[todo.type] : todo.action}</span>
+            <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{nested ? (title?.short ?? SHORT_ACTION[todo.type]) : todo.action}</span>
             {!nested && <span className={`flex min-w-0 items-center gap-1.5 rounded-full py-0.5 pl-0.5 ${age ? 'pr-2' : ''}`}>
               <Avatar name={client.name} src={client.avatar} />
               <span className={`truncate text-[13px] font-semibold text-ink ${strike}`}>{client.name}</span>
@@ -113,7 +132,8 @@ export function TodoRow({ todo, age, selected, onOpen, onToggle, onDismiss, inCa
               <span className={`whitespace-nowrap text-[13px] font-semibold leading-[1.5] text-ink ${strike}`}>{todo.actionAfter}</span>
             )}
           </div>
-          {!nested && <p className={`text-[12px] leading-normal text-ink-tertiary ${strike}`}>{todo.reason}</p>}
+          )}
+          {!oneLine && <p className={`text-[12px] leading-normal text-ink-tertiary ${strike}`}>{todo.reason}</p>}
         </div>
       </div>
 

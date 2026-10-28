@@ -1,11 +1,12 @@
 import { statusLine } from '../lib/dashboard';
 import { GROUPED_TODOS } from '../lib/flags';
-import { rowReasonFor } from '../lib/todos';
+import { checkinTitle } from '../lib/client';
+import { rowReasonFor, rowTitleFor } from '../lib/todos';
 import { todoDetails } from './details';
 import { DEMO_TODAY, findPerson, todos as baseTodos } from './mock';
 import { getProfile } from './profiles';
 import { getSessions } from './sessions';
-import type { Todo, TodoDetail, TodoType } from './types';
+import type { RowTitle, Todo, TodoDetail, TodoType } from './types';
 
 /**
  * Grouped to-dos, a trial outside the brief (the user's call): a client can have several to-dos on one day, shown as a
@@ -55,6 +56,21 @@ const EXTRA: { after: string; todos: (Omit<Todo, 'reason' | 'raisedOn' | 'state'
   },
 ];
 
+/** Titles for the carried rows with no panel data, in the same sentence form (their reasons are the design's copy). */
+const TITLES: Record<string, RowTitle> = {
+  p1: { lead: 'Check in with', tail: 'after 15 days with no activity or reply', short: 'Check in after 15 days with no activity or reply' },
+  p2: { lead: 'Send kudos to', tail: 'for getting back on track after two weeks at risk', short: 'Send kudos for getting back on track' },
+};
+
+/** Every row's title: the action and its reason in one sentence (`RowTitle`), the reason line no longer shown. */
+function titleOf(t: Todo): RowTitle | undefined {
+  const d = todoDetails[t.id];
+  const client = findPerson(t.clientId)!;
+  if (d) return rowTitleFor(d, client.firstName, DEMO_TODAY);
+  if (t.type === 'checkin' && !TITLES[t.id]) return checkinTitle(getProfile(client.id), DEMO_TODAY);
+  return TITLES[t.id];
+}
+
 function withGroups(base: Todo[]): Todo[] {
   const out = [...base];
   for (const { after, todos } of EXTRA) {
@@ -68,7 +84,7 @@ function withGroups(base: Todo[]): Todo[] {
     });
     out.splice(out.findIndex((t) => t.id === after) + 1, 0, ...made);
   }
-  return out;
+  return out.map((t) => ({ ...t, title: titleOf(t) }));
 }
 
 export const seedTodos: Todo[] = GROUPED_TODOS ? withGroups(baseTodos) : baseTodos;

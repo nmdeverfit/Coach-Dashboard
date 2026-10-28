@@ -47,6 +47,18 @@ export interface Todo {
   /** ISO date (YYYY-MM-DD) of the daily generation that raised it. */
   raisedOn: string;
   state: TodoState;
+  /** Grouped to-dos trial: the row's one-line title, the action and its reason in one sentence. */
+  title?: RowTitle;
+}
+
+/**
+ * Grouped to-dos trial (the user's call): a to-do row's title as one short sentence, `lead` [client] `tail`, e.g.
+ * "Review" [Sidney] "’s Weekly Check-in, waiting 3 days"; `short` is the same without the client, for a related row.
+ */
+export interface RowTitle {
+  lead: string;
+  tail: string;
+  short: string;
 }
 
 export type HighlightCategory = 'milestone' | 'birthday' | 'anniversary';

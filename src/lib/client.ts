@@ -1,4 +1,4 @@
-import type { CheckinDetail, Client, ClientNote, ClientProfile, ClientTask, Habit } from '../data/types';
+import type { CheckinDetail, Client, ClientNote, ClientProfile, ClientTask, Habit, RowTitle } from '../data/types';
 import { todoDetails } from '../data/details';
 import { DEMO_TODAY, generatedStatus } from '../data/mock';
 import { WEEKDAYS, addDays, buildCheckinView, summarizeNutrition, type Assessment } from './checkin';
@@ -29,6 +29,22 @@ export function formRows(profile: ClientProfile, today: string): FormStatusRow[]
  * The client's AI assessment: one summary with main_signal tagged, then up to 3 facts. Clint's is his Check-in
  * panel's, word for word, so the two surfaces never differ.
  */
+/**
+ * Grouped to-dos trial: a Check-in row's title for a client with no hand-written panel data, from the same figures
+ * as the client detail page's assessment: the profile's focus signal and its one fact.
+ */
+export function checkinTitle(profile: ClientProfile, today: string): RowTitle {
+  let rest: string;
+  if (profile.focus === 'nutrition') {
+    const n = summarizeNutrition(profile.nutrition, today);
+    rest = n.daysLogged === 0 ? 'on nutrition, nothing logged in 7 days' : `on nutrition, ${n.daysLogged} of 7 days logged`;
+  } else {
+    const t = summarizeTraining(profile.training, today);
+    rest = t.adherence2w === null ? 'on training, no workouts scheduled' : `on training, ${t.adherence2w}% of workouts done`;
+  }
+  return { lead: 'Check in with', tail: rest, short: `Check in ${rest}` };
+}
+
 export function buildClientAssessment(client: Client, profile: ClientProfile, today: string): Assessment {
   // Clint's current week is his Check-in panel's, word for word; past weeks are computed like everyone's.
   if (client.id === 'clint-jacobi' && today === DEMO_TODAY) return buildCheckinView(todoDetails.t3 as CheckinDetail, today).assessment;
