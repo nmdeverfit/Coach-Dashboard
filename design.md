@@ -281,7 +281,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 - **Breadcrumb** (same trial, `GroupTrail`, the user's call, no frame): on a to-do opened from another to-do (not
   from its row), one line at `px-[30px] pt-4` above the title block, kept quiet: the to-dos visited, from the first
   one opened to this one, and only those (the user's call), each its `SHORT_ACTION`, 12 px / 18 px, split by 14 px
-  chevron-right at 50 %. The open one is semibold `ink` (`aria-current`); earlier ones are `ink-secondary`, brand and
+  chevron-right at 50 %. The open one is regular `ink-tertiary`, not bold (`aria-current`, the user's call); earlier ones are `ink-secondary`, brand and
   underlined on hover, and a click goes back to that to-do, dropping the crumbs after it. Going to a to-do already
   on the way does the same, so the path never loops. A done one is struck through. Back at the first to-do there is
   no breadcrumb.

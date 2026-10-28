@@ -162,7 +162,7 @@ function ProfileCheckinBody({ client }: { client: Client }) {
  * The way the coach came (grouped to-dos, a trial; the user's call): one quiet breadcrumb line above the title, only
  * once a to-do has been opened from another one. It holds the to-dos visited, from the first one opened to this one,
  * and no others: "Check in › Issue credit". Earlier ones are `ink-secondary` links that go back to them (dropping
- * what came after); the open one is plain `ink`. A done one is struck through.
+ * what came after); the open one is plain `ink-tertiary` text, regular weight (the user's call). A done one is struck through.
  */
 function GroupTrail({ path, onCrumb }: { path: Todo[]; onCrumb: (index: number) => void }) {
   return (
@@ -174,7 +174,7 @@ function GroupTrail({ path, onCrumb }: { path: Todo[]; onCrumb: (index: number) 
             <li key={t.id} className="flex items-center gap-1">
               {i > 0 && <img src={iconChevronRight} alt="" width={14} height={14} className="shrink-0 opacity-50" />}
               {i === path.length - 1 ? (
-                <span aria-current="page" className={`font-semibold text-ink ${done}`}>
+                <span aria-current="page" className={`text-ink-tertiary ${done}`}>
                   {SHORT_ACTION[t.type]}
                 </span>
               ) : (
