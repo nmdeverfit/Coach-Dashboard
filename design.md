@@ -289,7 +289,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `px-[30px] pb-2.5`, a `surface-secondary` card with no border, rounded 8. Plain header, `px-4 pb-1 pt-3`: "Related
   to-dos" 13 px semibold `ink-secondary`, no count. Then one compact row per other to-do of the client, `px-4
   py-1.5`, no dividers, hover `black/[0.03]`, the list ending on `pb-2`: an 18 px read-only checkbox (white) and the
-  row's short sentence 13 px regular (the user's call; brand on hover); on hover a 16 px chevron right fades in at the row's end. A
+  row's short sentence 13 px semibold (brand on hover); on hover a 16 px chevron right fades in at the row's end. A
   click opens that to-do's panel in place. A done one reads struck through at 60 %.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,

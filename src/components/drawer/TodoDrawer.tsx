@@ -224,7 +224,7 @@ function RelatedTodos({ todo, onOpen }: { todo: Todo; onOpen: (id: string) => vo
                       </span>
                     </span>
                   </span>
-                  <span className={`min-w-0 flex-1 truncate text-[13px] leading-[1.5] text-ink group-hover:text-brand ${done ? 'opacity-60 line-through' : ''}`}>
+                  <span className={`min-w-0 flex-1 truncate text-[13px] font-semibold leading-[1.5] text-ink group-hover:text-brand ${done ? 'opacity-60 line-through' : ''}`}>
                     {t.title?.short ?? SHORT_ACTION[t.type]}
                   </span>
                   <img src={iconChevronRight} alt="" width={16} height={16} className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
