@@ -7,7 +7,8 @@ const name = process.argv[2] ?? 'coach-dashboard';
 // The trial's page gets its own title, so its artifact never reads as the layout's.
 const TITLES = {
   'coach-dashboard-grouped': 'Check-in Dashboard v2 · Grouped to-dos',
-  'coach-dashboard-notes': 'Check-in Dashboard v2 · Notes timeline',
+  // The notes trial carries the grouped to-dos too, so both show on one page (the user's call).
+  'coach-dashboard-notes': 'Notes & Grouped To-dos',
 };
 
 const html = readFileSync('dist-single/index.html', 'utf8');

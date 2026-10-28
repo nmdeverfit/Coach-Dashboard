@@ -26,9 +26,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
   `npm run build:artifact` (single-file page in `dist-single/coach-dashboard.html`, published as a claude.ai Artifact),
   `npm run build:artifact:grouped` (the grouped to-dos trial, `VITE_GROUPED_TODOS=1`, written to
   `dist-single/coach-dashboard-grouped.html` and published as its own artifact, "Check-in Dashboard v2 · Grouped
-  to-dos"; the default builds drop its code). `npm run build:artifact:notes` (the Notes timeline trial,
-  `VITE_NOTES_TIMELINE=1`, `dist-single/coach-dashboard-notes.html`, its own artifact "Check-in Dashboard v2 · Notes
-  timeline", built from this branch). Each build empties `dist-single/`, so publish right after building.
+  to-dos"; the default builds drop its code). `npm run build:artifact:notes` (the Notes timeline trial
+  with the grouped to-dos trial on too, `VITE_NOTES_TIMELINE=1 VITE_GROUPED_TODOS=1`,
+  `dist-single/coach-dashboard-notes.html`, its own artifact, renamed "Notes & Grouped To-dos" so both trials show on
+  one page, the user's call; built from this branch). Each build empties `dist-single/`, so publish right after building.
   Keep the page small: the artifact service rejected the page once it passed about 3.5 MB (it read it as a
   "review page, too large"). Photos go in as JPEG (the banner `hero-2.jpg` is 177 KB), and `mock.ts` globs every
   PNG in `src/assets/figma/`, so a large PNG there is embedded even when nothing imports it.
