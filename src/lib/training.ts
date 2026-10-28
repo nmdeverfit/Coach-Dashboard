@@ -66,15 +66,39 @@ function adherence(log: TrainingLog, start: string, end: string) {
   return planned ? Math.round((done / planned) * 100) : null;
 }
 
+/** One session-log week, Monday first. */
+function weekCells(log: TrainingLog, monday: string, today: string): SessionCell[] {
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = addDays(monday, i);
+    const day = log.days[date];
+    return { date, state: cellState(day, date, today), assigned: Boolean(day), day: day?.kind === 'workout' ? day : undefined };
+  });
+}
+
+/**
+ * Training chart trial: the last `count` weeks, oldest first, this week last, each with its cells and its finished
+ * days' workouts done / assigned (adherence is null while nothing of the week is finished).
+ */
+export function sessionWeeks(log: TrainingLog, today: string, count: number) {
+  const thisMonday = mondayOf(today);
+  return Array.from({ length: count }, (_, i) => {
+    const monday = addDays(thisMonday, -7 * (count - 1 - i));
+    const sunday = addDays(monday, 6);
+    const end = sunday < today ? sunday : addDays(today, -1);
+    const counts = end >= monday ? workoutCounts(log, monday, end) : { done: 0, planned: 0 };
+    return {
+      monday,
+      sunday,
+      cells: weekCells(log, monday, today),
+      ...counts,
+      pct: counts.planned ? Math.round((counts.done / counts.planned) * 100) : null,
+    };
+  });
+}
+
 export function summarizeTraining(log: TrainingLog, today: string): TrainingSummary {
   const thisMonday = mondayOf(today);
-  const weeks = [addDays(thisMonday, -7), thisMonday].map((monday) =>
-    Array.from({ length: 7 }, (_, i) => {
-      const date = addDays(monday, i);
-      const day = log.days[date];
-      return { date, state: cellState(day, date, today), assigned: Boolean(day), day: day?.kind === 'workout' ? day : undefined };
-    }),
-  );
+  const weeks = [addDays(thisMonday, -7), thisMonday].map((monday) => weekCells(log, monday, today));
 
   const past = Object.keys(log.days)
     .filter((d) => d < today)

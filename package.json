@@ -11,6 +11,7 @@
     "typecheck": "tsc -b",
     "build:artifact": "npm run build:single && node scripts/make-artifact.mjs",
     "build:artifact:grouped": "tsc -b && VITE_GROUPED_TODOS=1 vite build --mode single && node scripts/make-artifact.mjs coach-dashboard-grouped",
+    "build:artifact:charts": "tsc -b && VITE_CHART_TRIAL=1 vite build --mode single && node scripts/make-artifact.mjs coach-dashboard-charts",
     "build:artifact:notes": "tsc -b && VITE_NOTES_TIMELINE=1 VITE_GROUPED_TODOS=1 vite build --mode single && node scripts/make-artifact.mjs coach-dashboard-notes"
   },
   "dependencies": {

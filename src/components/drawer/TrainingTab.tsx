@@ -10,11 +10,13 @@ import { doneOf, summarizeTraining, type SessionCell, type SessionState, type Tr
 
 type WorkoutDay = Extract<TrainingDay, { kind: 'workout' }>;
 import { CardHeader } from './NutritionTab';
+import { CHART_TRIAL } from '../../lib/flags';
+import { TrainingChartOption, useChartOption } from './TrainingChartTrial';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 /** Session-log cell styles from Figma node 5645:520935. */
-const CELL: Record<SessionState, { box: string; ring: string; label: string; text: string; tone: string }> = {
+export const CELL: Record<SessionState, { box: string; ring: string; label: string; text: string; tone: string }> = {
   completed: { box: 'border-brand bg-brand', ring: 'ring-brand/35', label: 'Completed', text: 'text-white', tone: 'text-[#e3ecff]' },
   partial: { box: 'border-[#e3eaff] bg-brand/[0.12]', ring: 'ring-brand/20', label: 'Partial', text: 'text-brand', tone: 'text-[#4a4d56]' },
   missed: { box: 'border-[#feeff2] bg-[#f2617d]/10', ring: 'ring-[#f2617d]/20', label: 'Missed', text: 'text-[#f03358]', tone: '' },
@@ -67,7 +69,7 @@ function Cell({ cell, today }: { cell: SessionCell; today: string }) {
  * A training day's hover (Figma 4899:687161): the date, the day's state with done / assigned workouts, then each
  * workout with ✓ (done) or × (not done). Today and upcoming days list theirs with no mark yet.
  */
-function DayTooltip({ cell, day }: { cell: SessionCell; day: WorkoutDay }) {
+export function DayTooltip({ cell, day }: { cell: SessionCell; day: WorkoutDay }) {
   const date = parseDay(cell.date);
   const ahead = cell.state === 'today' || cell.state === 'upcoming';
   const label = ahead ? 'Assigned' : CELL[cell.state].label;
@@ -173,6 +175,8 @@ export function Row({ label, value, muted, last }: { label: React.ReactNode; val
 }
 
 export function TrainingTab({ log, today }: { log: TrainingLog; today: string }) {
+  const chart = useChartOption();
+  if (CHART_TRIAL && chart !== 'current') return <TrainingChartOption option={chart} log={log} today={today} />;
   const s = summarizeTraining(log, today);
   return (
     <div className="flex w-full flex-col gap-[15px]">

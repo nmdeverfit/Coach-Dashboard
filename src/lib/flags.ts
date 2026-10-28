@@ -7,3 +7,5 @@
  */
 export const GROUPED_TODOS = import.meta.env.VITE_GROUPED_TODOS === '1';
 export const NOTES_TIMELINE = import.meta.env.VITE_NOTES_TIMELINE === '1';
+/** Training chart options (the user's call: a lighter, icon-led session log), on only with `VITE_CHART_TRIAL=1`. */
+export const CHART_TRIAL = import.meta.env.VITE_CHART_TRIAL === '1';

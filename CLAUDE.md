@@ -30,7 +30,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   drop its code). `npm run build:artifact:notes` (the Notes timeline trial
   with the grouped to-dos trial on too, `VITE_NOTES_TIMELINE=1 VITE_GROUPED_TODOS=1`,
   `dist-single/coach-dashboard-notes.html`, its own artifact, renamed "Notes & Grouped To-dos" so both trials show on
-  one page, the user's call; built from this branch). Each build empties `dist-single/`, so publish right after building.
+  one page, the user's call; built from this branch). `npm run build:artifact:charts` (the training chart trial,
+  `VITE_CHART_TRIAL=1`, `dist-single/coach-dashboard-charts.html`, its own artifact "Training chart options"). Each build empties `dist-single/`, so publish right after building.
   Keep the page small: the artifact service rejected the page once it passed about 3.5 MB (it read it as a
   "review page, too large"). Photos go in as JPEG (the banner `hero-2.jpg` is 177 KB), and `mock.ts` globs every
   PNG in `src/assets/figma/`, so a large PNG there is embedded even when nothing imports it.
@@ -127,6 +128,13 @@ one column. The Upcoming bookings session list is shared with the main branch to
   the panel clears both; each to-do is still completed or dismissed on its own. Under the title the Related to-dos box is back (the user's call): `RelatedTodos`, the client's
   other to-dos, checkbox and short title on `surface-secondary`, a chevron on hover. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
+- `src/components/drawer/TrainingChartTrial.tsx`: the training chart trial (the user's call, on only with
+  `CHART_TRIAL`): the Training tab's session log drawn with icons (`DayIcon`: ✓ completed, a ring filled to the share
+  done for partial, × missed, a dash for rest, a ringed dot for today, a dashed ring upcoming, pause bars, a grey disc
+  for nothing assigned), each with the current log's hover (`DayTooltip`). A dark bar at the bottom left
+  (`ChartTrialBar`, kept in localStorage) switches Current · A · Icon calendar (the same two weeks as 28 px icons,
+  dates under them, the three figures as tiles) · B · Weekly rows (five weeks, `sessionWeeks` in `lib/training.ts`,
+  one row each with done / assigned and its %, replacing the 4-week trend chart), and opens Clint's training.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights in two views, the user's call: Need attention | History, each with the

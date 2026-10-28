@@ -9,6 +9,7 @@ const TITLES = {
   'coach-dashboard-grouped': 'Check-in Dashboard v2 · Grouped to-dos',
   // The notes trial carries the grouped to-dos too, so both show on one page (the user's call).
   'coach-dashboard-notes': 'Notes & Grouped To-dos',
+  'coach-dashboard-charts': 'Training chart options',
 };
 
 const html = readFileSync('dist-single/index.html', 'utf8');

@@ -6,12 +6,13 @@ import { SessionDrawer } from './components/drawer/SessionDetails';
 import { TodoDrawer } from './components/drawer/TodoDrawer';
 import { Header } from './components/Header';
 import { NotesTrialBar } from './components/NotesTrialBar';
+import { ChartTrialBar } from './components/drawer/TrainingChartTrial';
 import { RightRail } from './components/RightRail';
 import { Sidebar } from './components/Sidebar';
 import { SidePanel } from './components/side/SidePanel';
 import { TodayBrief } from './components/TodayBrief';
 import { Toast } from './components/Toast';
-import { NOTES_TIMELINE } from './lib/flags';
+import { CHART_TRIAL, NOTES_TIMELINE } from './lib/flags';
 import { sideIsSidebar, useStore } from './state/store';
 
 const SLIDE_MS = 420;
@@ -80,6 +81,7 @@ export default function App() {
       <SessionDrawer />
       <SidePanel />
       {NOTES_TIMELINE && <NotesTrialBar />}
+      {CHART_TRIAL && <ChartTrialBar />}
       {state.customize && <CustomizeCards initialTab={state.customize} />}
       <Toast />
     </div>

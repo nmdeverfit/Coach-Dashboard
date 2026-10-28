@@ -278,6 +278,17 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   ticked row dims and strikes through in place (it never moves inside the group), and the group slides out and
   sinks to the bottom of its section once all its rows are done. On Previous the main row carries the age.
   "Show N more" never splits a group.
+- **Training chart options** (trial, `build:artifact:charts` only, no frame, the user's call: the session log reads
+  as busy and wordy, and the boss prefers icons for the day states). One icon set (`DayIcon`): completed = brand disc
+  with a white ✓; partial = `#e8eeff` disc with a brand ring filled to the share of workouts done; missed = `#fdecef`
+  disc with a red × (`#f03358`); rest = `#f1f2f4` disc with a grey dash; today = white disc, 1.5 px brand ring, brand
+  dot; upcoming = dashed `ink-muted` ring; paused = grey disc with two bars; not assigned = plain `#eaeef1` disc. A
+  legend of 14 px icons, 11 px `ink-tertiary`, shows only what the chart can hold (Paused / Not assigned when they
+  occur). Every icon keeps the current log's hover. A · Icon calendar: the two weeks as 28 px icons on a 7-column grid
+  under M–S initials, the date 10 px `ink-muted` under each (today's brand), then three tiles in a row (Last workout,
+  2-week adherence, 4-week trend with four 6 px bars). B · Weekly rows: one line of figures (Last workout · 2-week ·
+  4-week adherence), then five weeks as rows: the week ("Aug 3 – 9", "This week" in `ink` semibold), seven 22 px
+  icons, then done / assigned and its % right-aligned; it replaces the 4-week chart.
 - **Breadcrumb** (same trial, `GroupTrail`, the user's call, no frame): on a to-do opened from another to-do (not
   from its row), the panel's header drops "TO-DO DETAILS" for a 24 px chevron-left back icon (80 %, full on hover;
   one to-do back per click) and the breadcrumb beside it, 6 px apart, on one line: the to-dos visited, from the first
