@@ -13,7 +13,7 @@ import iconDuplicateWhite from '../../assets/figma/icon-duplicate-white.svg';
 import iconTrashHover from '../../assets/figma/icon-trash-hover.svg';
 import iconTrash from '../../assets/figma/icon-trash.svg';
 import { todoDetails } from '../../data/details';
-import { GROUPED_TODOS, MAX_RELATED, byPriority } from '../../data/groupedTodos';
+import { GROUPED_TODOS, byPriority } from '../../data/groupedTodos';
 import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { CheckinDetail, Client, Todo, TodoDetail } from '../../data/types';
@@ -159,31 +159,26 @@ function ProfileCheckinBody({ client }: { client: Client }) {
 }
 
 /**
- * The client's to-dos (grouped to-dos, a trial; option B of three, the user's pick): one quiet line above the title,
- * drawn like a breadcrumb, with every to-do of the group in `TYPE_PRIORITY` order, the main one first, split by small
- * chevrons. The open one is plain `ink` text; the others are `ink-secondary` links that open their panel in this one's
- * place, so the coach can go back to the main to-do or across to any other. A done one is struck through. It shows
- * only on a to-do reached from another one (the trail or Related to-dos), not on one opened from its row (the user's
- * call).
+ * The way the coach came (grouped to-dos, a trial; the user's call): one quiet breadcrumb line above the title, only
+ * once a to-do has been opened from another one. It holds the to-dos visited, from the first one opened to this one,
+ * and no others: "Check in › Issue credit". Earlier ones are `ink-secondary` links that go back to them (dropping
+ * what came after); the open one is plain `ink`. A done one is struck through.
  */
-function GroupTrail({ todo, onOpen }: { todo: Todo; onOpen: (id: string) => void }) {
-  const { suggested, previous } = useStore();
-  const group = [...suggested, ...previous].filter((t) => t.clientId === todo.clientId).sort(byPriority).slice(0, 1 + MAX_RELATED);
-  if (group.length < 2) return null;
+function GroupTrail({ path, onCrumb }: { path: Todo[]; onCrumb: (index: number) => void }) {
   return (
-    <nav aria-label="This client’s to-dos" className="px-[30px] pt-4">
+    <nav aria-label="Breadcrumb" className="px-[30px] pt-4">
       <ol className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[12px] leading-[18px]">
-        {group.map((t, i) => {
+        {path.map((t, i) => {
           const done = t.state === 'completed' ? 'line-through' : '';
           return (
             <li key={t.id} className="flex items-center gap-1">
               {i > 0 && <img src={iconChevronRight} alt="" width={14} height={14} className="shrink-0 opacity-50" />}
-              {t.id === todo.id ? (
+              {i === path.length - 1 ? (
                 <span aria-current="page" className={`font-semibold text-ink ${done}`}>
                   {SHORT_ACTION[t.type]}
                 </span>
               ) : (
-                <button type="button" onClick={() => onOpen(t.id)} className={`text-ink-secondary hover:text-brand hover:underline ${done}`}>
+                <button type="button" onClick={() => onCrumb(i)} className={`text-ink-secondary hover:text-brand hover:underline ${done}`}>
                   {SHORT_ACTION[t.type]}
                 </button>
               )}
@@ -354,31 +349,28 @@ export function TodoDrawer() {
   const [clientOpen, setClientOpen] = useState(false);
   const close = useCallback(() => selectTodo(null), [selectTodo]);
   useCloseOnOutside(Boolean(state.selectedTodoId), close);
-  // Grouped to-dos: whether this to-do was reached from another one, which is when the group trail shows, and the
-  // to-dos left on the way, newest last, for ‹ back on the header (the user's call). Opening a to-do from its row, or
-  // closing the panel, starts again.
-  const [fromTodo, setFromTodo] = useState(false);
+  // Grouped to-dos: the to-dos visited on the way to this one, first opened first (the user's call). The breadcrumb
+  // shows them with this one; ‹ back on the header goes one step back. Opening a to-do from its row, or closing the
+  // panel, starts again. Going to a to-do already on the way goes back to it, so the path never loops.
   const [trail, setTrail] = useState<string[]>([]);
   const viaTodo = useRef(false);
-  const openFromTodo = (id: string) => {
+  const go = (id: string, nextTrail: string[]) => {
     viaTodo.current = true;
-    setTrail((t) => [...t, state.selectedTodoId!]);
+    setTrail(nextTrail);
     selectTodo(id);
   };
-  const back = () => {
-    // A to-do dismissed meanwhile is skipped.
-    const left = trail.filter((id) => state.todos.find((t) => t.id === id)?.state !== 'dismissed');
-    const prev = left.pop();
-    setTrail(left);
-    if (!prev) return;
-    viaTodo.current = true;
-    selectTodo(prev);
+  const openFromTodo = (id: string) => {
+    const at = trail.indexOf(id);
+    go(id, at >= 0 ? trail.slice(0, at) : [...trail, state.selectedTodoId!]);
   };
+  // A to-do dismissed meanwhile drops off the way.
+  const way = trail.filter((id) => state.todos.find((t) => t.id === id && t.state !== 'dismissed'));
+  const toCrumb = (i: number) => go(way[i], way.slice(0, i));
+  const back = () => way.length && toCrumb(way.length - 1);
 
   useEffect(() => {
     setConfirmDismiss(false);
     setClientOpen(false);
-    setFromTodo(viaTodo.current);
     if (!viaTodo.current) setTrail([]);
     viaTodo.current = false;
   }, [state.selectedTodoId]);
@@ -396,7 +388,7 @@ export function TodoDrawer() {
       {/* Kept mounted behind client details so ‹ returns to the same tab and scroll (AC1.11). */}
       <div className={`relative flex min-h-0 flex-1 flex-col ${clientOpen ? 'hidden' : ''}`}>
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-5 pb-2.5 pt-[15px]">
-          {trail.length > 0 ? (
+          {way.length > 0 ? (
             <button type="button" aria-label="Back to the previous to-do" onClick={back} className="-ml-1.5 flex items-center gap-0.5 text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:text-ink">
               <img src={iconChevronLeft} alt="" width={24} height={24} />
               TO-DO DETAILS
@@ -409,7 +401,7 @@ export function TodoDrawer() {
           </button>
         </header>
         <div key={todo.id} data-panel-scroll className="flex-1 overflow-y-auto">
-          {GROUPED_TODOS && fromTodo && <GroupTrail todo={todo} onOpen={openFromTodo} />}
+          {GROUPED_TODOS && way.length > 0 && <GroupTrail path={[...way.map((id) => state.todos.find((t) => t.id === id)!), todo]} onCrumb={toCrumb} />}
           <TitleBlock todo={todo} client={client} onComplete={complete} onDismiss={() => setConfirmDismiss(true)} onOpenClient={() => setClientOpen(true)} />
           {GROUPED_TODOS && <RelatedTodos todo={todo} onOpen={openFromTodo} />}
           {detail ? (

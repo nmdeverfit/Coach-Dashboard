@@ -278,13 +278,13 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   ticked row dims and strikes through in place (it never moves inside the group), and the group slides out and
   sinks to the bottom of its section once all its rows are done. On Previous the main row carries the age.
   "Show N more" never splits a group.
-- **Group trail** (same trial, `GroupTrail`, the user's call over a back button and a parent link, no frame): on
-  the panel of a to-do reached from another to-do of the group (Related to-dos or the trail itself; not when opened
-  from its row, the user's call), one line at `px-[30px] pt-4` above the title block, drawn
-  like a breadcrumb and kept quiet: every to-do of the group by `TYPE_PRIORITY` (main first, at most five), each its
-  `SHORT_ACTION`, 12 px / 18 px, split by 14 px chevron-right at 50 %. The open one is semibold `ink`
-  (`aria-current`), the others `ink-secondary`, brand and underlined on hover; a click opens that to-do's panel in
-  place. A done one is struck through. It wraps if it must.
+- **Breadcrumb** (same trial, `GroupTrail`, the user's call, no frame): on a to-do opened from another to-do (not
+  from its row), one line at `px-[30px] pt-4` above the title block, kept quiet: the to-dos visited, from the first
+  one opened to this one, and only those (the user's call), each its `SHORT_ACTION`, 12 px / 18 px, split by 14 px
+  chevron-right at 50 %. The open one is semibold `ink` (`aria-current`); earlier ones are `ink-secondary`, brand and
+  underlined on hover, and a click goes back to that to-do, dropping the crumbs after it. Going to a to-do already
+  on the way does the same, so the path never loops. A done one is struck through. Back at the first to-do there is
+  no breadcrumb.
 - **Related to-dos** (same trial, back at the user's call, beside the trail): under the panel's title block,
   `px-[30px] pb-2.5`, a `surface-secondary` card with no border, rounded 8. Plain header, `px-4 pb-1 pt-3`: "Related
   to-dos" 13 px semibold `ink-secondary`, no count. Then one compact row per other to-do of the client, `px-4

@@ -117,14 +117,13 @@ one column. The Upcoming bookings session list is shared with the main branch to
   rows of the group read its `short` form with no client ("Issue credits, 1 PT session credit left"); no card or tint (the user's call): the group sits on the list like single
   rows, with a Linear-style connect line from the main row's checkbox down past the related rows, a branch to each related
   checkbox, which is centred on its text. A
-  ticked row dims in place; the card sinks to the bottom of its section only once every row is done. The panel names
-  the whole group in one quiet breadcrumb-like line over the title (`GroupTrail` in `TodoDrawer`, the user's pick of
-  three: a back button, a parent link, this): every to-do's short action in priority order, split by small chevrons,
-  the open one plain, the others links that open their panel in place, a done one struck through; it shows only on
-  a to-do reached from another one (the trail or Related to-dos; `fromTodo` in `TodoDrawer`), never on one opened
-  from its row (the user's call). A to-do reached that way also gets ‹ back on its "TO-DO DETAILS" header, one
-  step back per click (`trail` in `TodoDrawer`, back at the user's call); each is still
-  completed or dismissed on its own. Under the title the Related to-dos box is back (the user's call): `RelatedTodos`, the client's
+  ticked row dims in place; the card sinks to the bottom of its section only once every row is done. Once a to-do
+  is opened from another one (Related to-dos), the panel shows the way the coach came in one quiet breadcrumb over
+  the title (`GroupTrail` in `TodoDrawer`, the user's call): only the to-dos visited, from the first one opened to
+  this one ("Check in › Issue credit"), never the unvisited ones; an earlier crumb goes back to that to-do and drops
+  what came after, and going to a to-do already on the way does the same, so it never loops. The header's
+  "TO-DO DETAILS" gets ‹ back, one step per click (`trail` in `TodoDrawer`). Opening a to-do from its row or closing
+  the panel clears both; each to-do is still completed or dismissed on its own. Under the title the Related to-dos box is back (the user's call): `RelatedTodos`, the client's
   other to-dos, checkbox and short title on `surface-secondary`, a chevron on hover. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
