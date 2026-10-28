@@ -279,21 +279,19 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   sinks to the bottom of its section once all its rows are done. On Previous the main row carries the age.
   "Show N more" never splits a group.
 - **Breadcrumb** (same trial, `GroupTrail`, the user's call, no frame): on a to-do opened from another to-do (not
-  from its row), one line at `px-[30px] pt-4` above the title block, kept quiet: the to-dos visited, from the first
-  one opened to this one, and only those (the user's call), each its `SHORT_ACTION`, 12 px / 18 px, split by 14 px
-  chevron-right at 50 %. The open one is regular `ink-tertiary`, not bold (`aria-current`, the user's call); earlier ones are `ink-secondary`, brand and
-  underlined on hover, and a click goes back to that to-do, dropping the crumbs after it. Going to a to-do already
-  on the way does the same, so the path never loops. A done one is struck through. Back at the first to-do there is
-  no breadcrumb.
+  from its row), the panel's header drops "TO-DO DETAILS" for a 24 px chevron-left back icon (80 %, full on hover;
+  one to-do back per click) and the breadcrumb beside it, 6 px apart, on one line: the to-dos visited, from the first
+  one opened to this one, and only those (the user's call), each its `SHORT_ACTION`, 13 px / 1.5, split by 14 px
+  chevron-right at 50 %. The open one is regular `ink-tertiary`, not bold (`aria-current`, the user's call); earlier
+  ones are `ink-secondary`, brand and underlined on hover, and a click goes back to that to-do, dropping the crumbs
+  after it. Going to a to-do already on the way does the same, so the path never loops. A done one is struck
+  through. Back at the first to-do the header reads "TO-DO DETAILS" again.
 - **Related to-dos** (same trial, back at the user's call, beside the trail): under the panel's title block,
   `px-[30px] pb-2.5`, a `surface-secondary` card with no border, rounded 8. Plain header, `px-4 pb-1 pt-3`: "Related
   to-dos" 13 px semibold `ink-secondary`, no count. Then one compact row per other to-do of the client, `px-4
   py-1.5`, no dividers, hover `black/[0.03]`, the list ending on `pb-2`: an 18 px read-only checkbox (white) and the
   row's short sentence 13 px semibold (brand on hover); on hover a 16 px chevron right fades in at the row's end. A
   click opens that to-do's panel in place. A done one reads struck through at 60 %.
-- **Back to the previous to-do** (same trial, back at the user's call): on a to-do reached from another one, the
-  header's "TO-DO DETAILS" becomes a back button, a 24 px chevron left before it, as on ‹ CLIENT DETAILS; each click
-  goes one to-do back. Opening a to-do from its row or closing the panel clears it.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
   `ink-secondary`). Title block: name 18 px bold with the 20 px External icon (`icon-external`, `#838d9f`) 6 px after it
