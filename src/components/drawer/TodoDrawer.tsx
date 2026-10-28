@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import iconChevronRight from '../../assets/figma/icon-chevron-right-small.svg';
 import iconCheckTitle from '../../assets/figma/icon-check-title.svg';
 import iconCheckWhite from '../../assets/figma/icon-check-white.svg';
+import iconCheck from '../../assets/figma/icon-check.svg';
 import iconAddWhite from '../../assets/figma/icon-add-white.svg';
 import iconAlarmWhite from '../../assets/figma/icon-alarm-white.svg';
 import iconCircleCheck from '../../assets/figma/icon-circle-check-fill.svg';
@@ -191,6 +192,50 @@ function GroupTrail({ todo }: { todo: Todo }) {
   );
 }
 
+/**
+ * Related to-dos (grouped to-dos, a trial): the client's other to-dos today, by `TYPE_PRIORITY`, each only its checkbox
+ * and title (the user's call), on a plain header; hover adds a chevron, since a click goes to that to-do. Each opens
+ * its own panel in this one's place; each is completed or dismissed on its own.
+ */
+function RelatedTodos({ todo }: { todo: Todo }) {
+  const { suggested, previous, selectTodo } = useStore();
+  const related = [...suggested, ...previous].filter((t) => t.clientId === todo.clientId && t.id !== todo.id).sort(byPriority);
+  if (!related.length) return null;
+  return (
+    <div className="px-[30px] pb-2.5">
+      <section aria-label="Related to-dos" className="overflow-hidden rounded-lg bg-surface-secondary">
+        <h3 className="px-4 pb-1 pt-3 text-[13px] font-semibold leading-[1.5] text-ink-secondary">Related to-dos</h3>
+        <ul className="pb-2">
+          {related.map((t) => {
+            const done = t.state === 'completed';
+            return (
+              <li key={t.id}>
+                <button type="button" onClick={() => selectTodo(t.id)} className="group flex w-full items-center gap-3 px-4 py-1.5 text-left hover:bg-black/[0.03]">
+                  {/* The row checkbox's look, read-only here: the to-do is ticked in its own panel or on its row. */}
+                  <span
+                    aria-hidden
+                    className={`flex size-[18px] shrink-0 items-center justify-center rounded-full border-[0.938px] border-black/15 ${done ? 'bg-checked' : 'bg-white'}`}
+                  >
+                    <span className="relative size-[9px]">
+                      <span className="absolute bottom-[25.73%] left-[16.64%] right-[16.67%] top-1/4">
+                        <img src={done ? iconCheckWhite : iconCheck} alt="" className="block size-full max-w-none" />
+                      </span>
+                    </span>
+                  </span>
+                  <span className={`min-w-0 flex-1 truncate text-[13px] font-semibold leading-[1.5] text-ink group-hover:text-brand ${done ? 'opacity-60 line-through' : ''}`}>
+                    {t.title?.short ?? SHORT_ACTION[t.type]}
+                  </span>
+                  <img src={iconChevronRight} alt="" width={16} height={16} className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    </div>
+  );
+}
+
 /** One footer per type: primary action plus at most two secondary controls (Spec 4 BL1 G). */
 function Footer({ todo, client, detail, onComplete }: { todo: Todo; client: Client; detail?: TodoDetail; onComplete: () => void }) {
   const { showToast } = useStore();
@@ -332,7 +377,8 @@ export function TodoDrawer() {
         <div key={todo.id} data-panel-scroll className="flex-1 overflow-y-auto">
           {GROUPED_TODOS && <GroupTrail todo={todo} />}
           <TitleBlock todo={todo} client={client} onComplete={complete} onDismiss={() => setConfirmDismiss(true)} onOpenClient={() => setClientOpen(true)} />
-                    {detail ? (
+          {GROUPED_TODOS && <RelatedTodos todo={todo} />}
+          {detail ? (
             <Body todo={todo} client={client} detail={detail} />
           ) : todo.type === 'checkin' && GROUPED_TODOS ? (
             <ProfileCheckinBody client={client} />

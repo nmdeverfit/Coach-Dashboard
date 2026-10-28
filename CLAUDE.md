@@ -121,7 +121,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   the whole group in one quiet breadcrumb-like line over the title (`GroupTrail` in `TodoDrawer`, the user's pick of
   three: a back button, a parent link, this): every to-do's short action in priority order, split by small chevrons,
   the open one plain, the others links that open their panel in place, a done one struck through; each is still
-  completed or dismissed on its own. The Related to-dos box it replaces is gone. A Check-in without panel data (Wade) reads the client detail
+  completed or dismissed on its own. Under the title the Related to-dos box is back (the user's call): `RelatedTodos`, the client's
+  other to-dos, checkbox and short title on `surface-secondary`, a chevron on hover. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,

@@ -283,7 +283,13 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   like a breadcrumb and kept quiet: every to-do of the group by `TYPE_PRIORITY` (main first, at most five), each its
   `SHORT_ACTION`, 12 px / 18 px, split by 14 px chevron-right at 50 %. The open one is semibold `ink`
   (`aria-current`), the others `ink-secondary`, brand and underlined on hover; a click opens that to-do's panel in
-  place. A done one is struck through. It wraps if it must. It replaces the Related to-dos box.
+  place. A done one is struck through. It wraps if it must.
+- **Related to-dos** (same trial, back at the user's call, beside the trail): under the panel's title block,
+  `px-[30px] pb-2.5`, a `surface-secondary` card with no border, rounded 8. Plain header, `px-4 pb-1 pt-3`: "Related
+  to-dos" 13 px semibold `ink-secondary`, no count. Then one compact row per other to-do of the client, `px-4
+  py-1.5`, no dividers, hover `black/[0.03]`, the list ending on `pb-2`: an 18 px read-only checkbox (white) and the
+  row's short sentence 13 px semibold (brand on hover); on hover a 16 px chevron right fades in at the row's end. A
+  click opens that to-do's panel in place. A done one reads struck through at 60 %.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
   `ink-secondary`). Title block: name 18 px bold with the 20 px External icon (`icon-external`, `#838d9f`) 6 px after it
