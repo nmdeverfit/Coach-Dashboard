@@ -288,7 +288,14 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   under M–S initials, the date 10 px `ink-muted` under each (today's brand), then three tiles in a row (Last workout,
   2-week adherence, 4-week trend with four 6 px bars). B · Weekly rows: one line of figures (Last workout · 2-week ·
   4-week adherence), then five weeks as rows: the week ("Aug 3 – 9", "This week" in `ink` semibold), seven 22 px
-  icons, then done / assigned and its % right-aligned; it replaces the 4-week chart. C · Compact tiles: the current
+  icons, then done / assigned and its % right-aligned; it replaces the 4-week chart. 1 · Icon tiles (Figma
+  `6116:553518`): 56 px tiles, 4 px apart, centred under 56 px weekday labels, padding 6 / 8, the date 12 px over a
+  24 px icon (the frame's exports, `icon-day-*.svg`): completed = green 10 % fill, date semibold `#059669`, green
+  check disc; partial = brand 12 % fill, brand progress disc (fixed, not filled to the share); missed = pink fill,
+  date semibold `#f03358`, red × disc; rest = white with a `line` border and a grey burst icon; today = white, the
+  date on a 20 px brand disc in white, no icon; upcoming = white, dashed border, no icon; paused = the striped grey
+  with a grey pause disc; not assigned (no frame) = `#eaeef1`, no icon. Its legend uses the same icons at 16 px. The
+  figures and 4-week chart stay as now. C · Compact tiles: the current
   calendar with its tile fills and borders (`CELL`), 44 px tall, the date 11 px top left (today's on its brand-subtle
   dot) and a 16 px glyph bottom right in the state's colour (white ✓ on completed, brand ring filled to the share done
   on partial, red × on missed, grey dash on rest and pause bars on paused, a brand dot on today, none on upcoming or
