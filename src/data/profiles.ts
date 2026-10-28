@@ -1,5 +1,6 @@
 import { addDays } from '../lib/checkin';
 import { dayAt, todoDetails } from './details';
+import { GROUPED_TODOS } from '../lib/flags';
 import { DEMO_TODAY, findPerson, generatedStatus } from './mock';
 import { noteBody } from './notes';
 import { dayWorkouts } from './workouts';
@@ -286,6 +287,9 @@ function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
       return { ...base, forms: respond(todoDetails.t2 as RespondDetail) };
     case 'jenny-wilson':
       return { ...base, forms: respond(todoDetails.p3 as RespondDetail) };
+    case 'aisha-doyle':
+      // Grouped to-dos trial: her submitted form raises the Respond beside her Check-in.
+      return GROUPED_TODOS ? { ...base, forms: respond(todoDetails.g9 as RespondDetail) } : base;
     case 'aima-ansari':
       // Last reply 16 days ago; the coach has written twice since without an answer.
       return {

@@ -101,7 +101,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   photos in order; `*_REUSE` gives the few people beyond 20, who only show when a card is scrolled, a highlight
   person's photo. The coach avatar stays the Figma export.
 - `src/data/groupedTodos.ts`: the grouped to-dos trial (the user's call, outside the brief), on only with
-  `GROUPED_TODOS` (`lib/flags.ts`). `seedTodos` (the store's to-dos) adds Wade, the three-to-do case (Check-in +
+  `GROUPED_TODOS` (`lib/flags.ts`). `seedTodos` (the store's to-dos) adds Aisha near the top (at risk: Check-in, with her Weekly Check-in
+  sent Sun 30 Aug and not reviewed: Respond `g9` in `details.ts`, read by her profile's forms in this trial only),
+  Wade, the three-to-do case (Check-in +
   Unblock + Prepare, his PT session tomorrow at 7:30 AM booked in `sessions.ts` for the trial only), Ethan and
   Penelope (Unblock + Prepare), all raised by their data under BL7, with panel data from `sessions.ts`; `TYPE_PRIORITY` / `byPriority`
   (BL3), `groupByClient`. Today's Brief draws a client's to-dos as one card (`TodayBrief` `itemsOf`,

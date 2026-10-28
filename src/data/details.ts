@@ -183,6 +183,30 @@ export const todoDetails: Record<string, TodoDetail> = {
       { kind: 'scale', question: 'How is your stress level?', min: 0, max: 5, value: 1 },
     ],
   },
+  // Grouped to-dos trial only: Aisha (at risk) sent her form on Sun 30 Aug, so she has a Check-in and a Respond.
+  g9: {
+    kind: 'respond',
+    form: 'Weekly Check-in',
+    submittedOn: '2026-08-30',
+    responseCount: 4,
+    answers: [
+      { kind: 'scale', question: 'How well have you stuck to your nutrition plan this week?', min: 0, max: 5, value: 1 },
+      {
+        kind: 'text',
+        question: 'If answer was not a 5, explain what was not on track and consider why! Help me understand what happened so I can help!',
+        answer: 'Work has been really busy and I skipped logging most days. Ate whatever was quick, mostly takeaway in the evenings.',
+      },
+      { kind: 'choice', question: 'How is your water intake?', selected: ['Not great, need to drink more'] },
+      { kind: 'scale', question: 'How is your sleep?', min: 0, max: 5, value: 2 },
+      {
+        kind: 'text',
+        question: 'What is your training like? How is your energy during your workouts or physical activity?',
+        answer: 'Got some sessions in but skipped a few. I felt tired and cut a couple short.',
+      },
+      { kind: 'text', question: 'How are your energy levels and motivation?', answer: 'Low. Hoping next week is calmer.' },
+      { kind: 'scale', question: 'How is your stress level?', min: 0, max: 5, value: 4 },
+    ],
+  },
   // Carried over from Wed 26 Aug: Jenny's form is still waiting.
   p3: {
     kind: 'respond',

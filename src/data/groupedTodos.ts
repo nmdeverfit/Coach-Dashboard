@@ -29,9 +29,18 @@ const prepare = (clientId: string): TodoDetail => ({ kind: 'prepare', sessions: 
  * The extra to-dos: clients whose own data raises more than one to-do under BL7. Ethan and Penelope have credits
  * expiring within 7 days and a session today or tomorrow (Unblock + Prepare). Wade, the three-to-do case, needs
  * attention (Check-in), has one PT credit left (Unblock) and, in this trial only, a PT session tomorrow (Prepare;
- * `sessions.ts`). Each sits after the to-do it ranks below, so the list keeps BL3's order.
+ * `sessions.ts`). Aisha, at risk, sent a form that waits for review (Check-in + Respond). Each group sits where its
+ * client should rank in the list.
  */
 const EXTRA: { after: string; todos: (Omit<Todo, 'reason' | 'raisedOn' | 'state'> & { detail?: TodoDetail })[] }[] = [
+  // Aisha, near the top: at risk (Check-in) with her Weekly Check-in sent Sun 30 Aug and not reviewed (Respond, `g9`).
+  {
+    after: 't2',
+    todos: [
+      { id: 'g8', clientId: 'aisha-doyle', type: 'checkin', action: 'Check in with' },
+      { id: 'g9', clientId: 'aisha-doyle', type: 'respond', action: 'Reply to' },
+    ],
+  },
   { after: 't3', todos: [{ id: 'g1', clientId: 'wade-warren', type: 'checkin', action: 'Check in with' }] },
   {
     after: 't5',
@@ -52,8 +61,9 @@ function withGroups(base: Todo[]): Todo[] {
     const made = todos.map(({ detail, ...t }): Todo => {
       const client = findPerson(t.clientId)!;
       if (detail) todoDetails[t.id] = detail;
+      const d = todoDetails[t.id];
       // A Check-in with no hand-written panel data reads the client detail page's assessment, as the list does.
-      const reason = detail ? rowReasonFor(detail, client.firstName, DEMO_TODAY) : statusLine(client, getProfile(client.id), DEMO_TODAY);
+      const reason = d ? rowReasonFor(d, client.firstName, DEMO_TODAY) : statusLine(client, getProfile(client.id), DEMO_TODAY);
       return { ...t, reason, raisedOn: DEMO_TODAY, state: 'open' };
     });
     out.splice(out.findIndex((t) => t.id === after) + 1, 0, ...made);
