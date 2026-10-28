@@ -29,7 +29,7 @@ export const CELL: Record<SessionState, { box: string; ring: string; label: stri
 const pad = (d: string) => String(parseDay(d).getUTCDate()).padStart(2, '0');
 
 /** A date with no calendar entry: nothing was assigned (Build's "Not assigned" grey, Figma 5647:133017). */
-const UNASSIGNED = { box: 'border-line bg-[#eaeef1]', ring: 'ring-black/[0.08]', label: 'Not assigned', text: 'text-ink-secondary', tone: '' };
+export const UNASSIGNED = { box: 'border-line bg-[#eaeef1]', ring: 'ring-black/[0.08]', label: 'Not assigned', text: 'text-ink-secondary', tone: '' };
 
 function Cell({ cell, today }: { cell: SessionCell; today: string }) {
   const s = cell.assigned ? CELL[cell.state] : UNASSIGNED;
@@ -129,7 +129,7 @@ function Legend({ unassigned }: { unassigned: boolean }) {
 }
 
 /** 4-week trend columns, drawn to scale: the top grid line is 100%, the middle 50%. */
-function TrendChart({ trend }: { trend: TrainingSummary['trend'] }) {
+export function TrendChart({ trend }: { trend: TrainingSummary['trend'] }) {
   const baseline = 78.65;
   const full = 73.9;
   const centers = [15.53, 60.59, 105.65, 150.71];

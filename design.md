@@ -288,7 +288,12 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   under M–S initials, the date 10 px `ink-muted` under each (today's brand), then three tiles in a row (Last workout,
   2-week adherence, 4-week trend with four 6 px bars). B · Weekly rows: one line of figures (Last workout · 2-week ·
   4-week adherence), then five weeks as rows: the week ("Aug 3 – 9", "This week" in `ink` semibold), seven 22 px
-  icons, then done / assigned and its % right-aligned; it replaces the 4-week chart.
+  icons, then done / assigned and its % right-aligned; it replaces the 4-week chart. C · Compact tiles: the current
+  calendar with its tile fills and borders (`CELL`), 44 px tall, the date 11 px top left (today's on its brand-subtle
+  dot) and a 16 px glyph bottom right in the state's colour (white ✓ on completed, brand ring filled to the share done
+  on partial, red × on missed, grey dash on rest and pause bars on paused, a brand dot on today, none on upcoming or
+  not assigned); no state word or count, the hover gives them. Its legend draws each state as a 16 px tile with its
+  glyph. The figures and 4-week chart stay as now.
 - **Breadcrumb** (same trial, `GroupTrail`, the user's call, no frame): on a to-do opened from another to-do (not
   from its row), the panel's header drops "TO-DO DETAILS" for a 24 px chevron-left back icon (80 %, full on hover;
   one to-do back per click) and the breadcrumb beside it, 6 px apart, on one line: the to-dos visited, from the first

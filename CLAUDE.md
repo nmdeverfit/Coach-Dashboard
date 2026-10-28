@@ -134,7 +134,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   for nothing assigned), each with the current log's hover (`DayTooltip`). A dark bar at the bottom left
   (`ChartTrialBar`, kept in localStorage) switches Current · A · Icon calendar (the same two weeks as 28 px icons,
   dates under them, the three figures as tiles) · B · Weekly rows (five weeks, `sessionWeeks` in `lib/training.ts`,
-  one row each with done / assigned and its %, replacing the 4-week trend chart), and opens Clint's training.
+  one row each with done / assigned and its %, replacing the 4-week trend chart) · C · Compact tiles (the current
+  tiles, 44 px tall instead of 76, the date and a glyph in the tile's colour in place of the state's word, `TileGlyph`;
+  the figures and trend chart as now), and opens Clint's training.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights in two views, the user's call: Need attention | History, each with the

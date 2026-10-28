@@ -4,7 +4,7 @@ import { formatMonthDay, parseDay } from '../../lib/dates';
 import { doneOf, sessionWeeks, summarizeTraining, type SessionCell } from '../../lib/training';
 import { useStore } from '../../state/store';
 import { CardHeader } from './NutritionTab';
-import { DayTooltip, Row, ago, pct } from './TrainingTab';
+import { CELL, DayTooltip, Row, TrendChart, UNASSIGNED, ago, pct } from './TrainingTab';
 
 /**
  * Training chart trial (the user's call; no frame): the session log drawn with icons instead of labelled tiles, two
@@ -13,20 +13,22 @@ import { DayTooltip, Row, ago, pct } from './TrainingTab';
  * tab's do, so they cannot disagree.
  * - A · Icon calendar: the same two weeks, one icon per day, and the three figures as a row of small tiles.
  * - B · Weekly rows: five weeks, one row each with its done / assigned, which takes the 4-week trend's place.
+ * - C · Compact tiles: the current calendar's tiles, shorter, an icon in place of the state's word.
  */
-export type ChartOption = 'current' | 'icons' | 'weeks';
+export type ChartOption = 'current' | 'icons' | 'weeks' | 'tiles';
 
 export const CHART_OPTIONS: { key: ChartOption; label: string; hint: string }[] = [
   { key: 'current', label: 'Current', hint: 'The session log as it is now: labelled tiles, the legend and three rows' },
   { key: 'icons', label: 'A · Icon calendar', hint: 'The same two weeks as icons; the figures in one row of tiles' },
   { key: 'weeks', label: 'B · Weekly rows', hint: 'Five weeks of icons, a row each with its own done / assigned' },
+  { key: 'tiles', label: 'C · Compact tiles', hint: 'The current tiles, shorter, with an icon instead of the state’s word' },
 ];
 
 const KEY = 'cid-chart-option';
 const read = (): ChartOption => {
   try {
     const v = localStorage.getItem(KEY);
-    return v === 'icons' || v === 'weeks' ? v : 'current';
+    return v === 'icons' || v === 'weeks' || v === 'tiles' ? v : 'current';
   } catch {
     return 'current';
   }
@@ -309,12 +311,140 @@ function WeeklyRows({ log, today }: { log: TrainingLog; today: string }) {
   );
 }
 
+/**
+ * The icon drawn on a tile, whose own fill already says the state: only the glyph, in the tile's colour (white ✓ on
+ * the brand tile, a brand ring on the partial one, a red × on the missed one, and so on).
+ */
+function TileGlyph({ cell, size }: { cell: SessionCell; size: number }) {
+  const c = size / 2;
+  const w = size / 9;
+  const state = cell.assigned ? cell.state : 'unassigned';
+  let body: ReactNode = null;
+  switch (state) {
+    case 'completed':
+      body = <path d={`M${size * 0.2} ${size * 0.52} L${size * 0.4} ${size * 0.72} L${size * 0.8} ${size * 0.3}`} fill="none" stroke="#fff" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" />;
+      break;
+    case 'partial': {
+      const share = cell.day ? doneOf(cell.day) / cell.day.workouts.length : 0.5;
+      const r = c - w;
+      body = (
+        <>
+          <circle cx={c} cy={c} r={r} fill="none" stroke={BRAND} strokeOpacity={0.2} strokeWidth={w} />
+          <circle cx={c} cy={c} r={r} fill="none" stroke={BRAND} strokeWidth={w} pathLength={100} strokeDasharray={`${share * 100} 100`} strokeLinecap="round" transform={`rotate(-90 ${c} ${c})`} />
+        </>
+      );
+      break;
+    }
+    case 'missed':
+      body = <path d={`M${size * 0.25} ${size * 0.25} L${size * 0.75} ${size * 0.75} M${size * 0.75} ${size * 0.25} L${size * 0.25} ${size * 0.75}`} stroke={RED} strokeWidth={w} strokeLinecap="round" />;
+      break;
+    case 'rest':
+      body = <path d={`M${size * 0.25} ${c} L${size * 0.75} ${c}`} stroke={MUTED} strokeWidth={w} strokeLinecap="round" />;
+      break;
+    case 'today':
+      body = <circle cx={c} cy={c} r={size / 5} fill={BRAND} />;
+      break;
+    case 'paused':
+      body = <path d={`M${size * 0.38} ${size * 0.25} V${size * 0.75} M${size * 0.62} ${size * 0.25} V${size * 0.75}`} stroke={MUTED} strokeWidth={w} strokeLinecap="round" />;
+      break;
+  }
+  if (!body) return null;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden className="block shrink-0">
+      {body}
+    </svg>
+  );
+}
+
+/** C's legend: each state as a small tile with its glyph, as the calendar draws it. */
+function TileLegend({ cells }: { cells: SessionCell[] }) {
+  const items: SessionCell[] = (['completed', 'partial', 'missed', 'rest', 'today', 'upcoming'] as const).map((state) => ({ date: '', state, assigned: true }));
+  if (cells.some((c) => c.state === 'paused')) items.push({ date: '', state: 'paused', assigned: true });
+  if (cells.some((c) => !c.assigned)) items.push({ date: '', state: 'rest', assigned: false });
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 py-3 text-[11px] leading-4 text-ink-tertiary">
+      {items.map((c) => {
+        const st = c.assigned ? CELL[c.state] : UNASSIGNED;
+        return (
+          <span key={st.label} className="flex items-center gap-1.5">
+            <span className={`flex size-4 items-center justify-center rounded border ${st.box}`}>
+              <TileGlyph cell={c} size={10} />
+            </span>
+            {st.label}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+/** C: the current calendar, its tiles 44 px tall instead of 76: the date at the top left, the state as an icon. */
+function CompactTiles({ log, today }: { log: TrainingLog; today: string }) {
+  const s = summarizeTraining(log, today);
+  const cells = s.weeks.flat();
+  return (
+    <div className="flex flex-col overflow-visible rounded-lg border border-ink/15 bg-elevated p-px">
+      <CardHeader title="Session log" link="Workout history" />
+      <div className="flex flex-col gap-3 pt-4">
+        <p className="text-center text-[13px] font-semibold leading-[18px] text-ink">{s.rangeLabel}</p>
+        <div className="flex flex-col gap-1 px-10">
+          <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase leading-[18px] text-ink-tertiary">
+            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
+              <span key={d}>{d}</span>
+            ))}
+          </div>
+          {s.weeks.map((week) => (
+            <div key={week[0].date} className="grid grid-cols-7 gap-1">
+              {week.map((cell) => {
+                const st = cell.assigned ? CELL[cell.state] : UNASSIGNED;
+                const isToday = cell.date === today;
+                const day = String(parseDay(cell.date).getUTCDate()).padStart(2, '0');
+                return (
+                  <div
+                    key={cell.date}
+                    tabIndex={cell.day ? 0 : undefined}
+                    aria-label={`${day}: ${st.label}`}
+                    className={`group/cell relative flex h-11 min-w-0 items-start justify-between rounded-lg border px-1.5 pb-1.5 pt-1.5 outline-none transition-shadow duration-150 hover:z-10 hover:ring-[3px] focus-visible:z-10 focus-visible:ring-[3px] ${st.box} ${st.ring}`}
+                  >
+                    {isToday ? (
+                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-subtle text-[11px] font-semibold leading-[18px] text-brand">{day}</span>
+                    ) : (
+                      <span className={`text-[11px] leading-[18px] ${cell.state === 'completed' && cell.assigned ? 'text-white' : 'text-ink'}`}>{day}</span>
+                    )}
+                    <span className="self-end">
+                      <TileGlyph cell={cell} size={16} />
+                    </span>
+                    {cell.day && <DayTooltip cell={cell} day={cell.day} />}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+        <TileLegend cells={cells} />
+      </div>
+      <div className="flex flex-col px-3 pb-3">
+        <Row label="Last workout" value={ago(s.lastWorkoutDaysAgo)} />
+        <Row label="2-week adherence" value={pct(s.adherence2w)} />
+        <div className="flex items-center px-1 py-2.5 text-[13px] leading-[18px] text-ink">
+          <p className="w-[210px] shrink-0">
+            4-week trend
+            <br />
+            <span className="font-semibold">({pct(s.adherence4w)} adherence)</span>
+          </p>
+          <TrendChart trend={s.trend} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** The Training tab in the picked option, with the program card under it as now. */
 export function TrainingChartOption({ option, log, today }: { option: Exclude<ChartOption, 'current'>; log: TrainingLog; today: string }) {
   const s = summarizeTraining(log, today);
   return (
     <div className="flex w-full flex-col gap-[15px]">
-      {option === 'icons' ? <IconCalendar log={log} today={today} /> : <WeeklyRows log={log} today={today} />}
+      {option === 'icons' ? <IconCalendar log={log} today={today} /> : option === 'weeks' ? <WeeklyRows log={log} today={today} /> : <CompactTiles log={log} today={today} />}
       <div className="flex w-full flex-col overflow-hidden rounded-lg border border-ink/15 bg-elevated p-px">
         <CardHeader title="Program" link="View program" />
         <div className="flex flex-col p-3">
