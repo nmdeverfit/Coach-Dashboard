@@ -10,9 +10,8 @@ import dot from '../../assets/figma/dot-drawer.svg';
 import iconDuplicateWhite from '../../assets/figma/icon-duplicate-white.svg';
 import iconTrashHover from '../../assets/figma/icon-trash-hover.svg';
 import iconTrash from '../../assets/figma/icon-trash.svg';
-import iconCheck from '../../assets/figma/icon-check.svg';
 import { todoDetails } from '../../data/details';
-import { GROUPED_TODOS, byPriority } from '../../data/groupedTodos';
+import { GROUPED_TODOS, MAX_RELATED, byPriority } from '../../data/groupedTodos';
 import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { CheckinDetail, Client, Todo, TodoDetail } from '../../data/types';
@@ -158,46 +157,37 @@ function ProfileCheckinBody({ client }: { client: Client }) {
 }
 
 /**
- * Related to-dos (grouped to-dos, a trial): the client's other to-dos today, by `TYPE_PRIORITY`, each only its checkbox
- * and title (the user's call), on a plain header; hover adds a chevron, since a click goes to that to-do. Each opens
- * its own panel in this one's place; each is completed or dismissed on its own.
+ * The client's to-dos (grouped to-dos, a trial; option B of three, the user's pick): one quiet line above the title,
+ * drawn like a breadcrumb, with every to-do of the group in `TYPE_PRIORITY` order, the main one first, split by small
+ * chevrons. The open one is plain `ink` text; the others are `ink-secondary` links that open their panel in this one's
+ * place, so the coach can go back to the main to-do or across to any other. A done one is struck through.
  */
-function RelatedTodos({ todo }: { todo: Todo }) {
+function GroupTrail({ todo }: { todo: Todo }) {
   const { suggested, previous, selectTodo } = useStore();
-  const related = [...suggested, ...previous].filter((t) => t.clientId === todo.clientId && t.id !== todo.id).sort(byPriority);
-  if (!related.length) return null;
+  const group = [...suggested, ...previous].filter((t) => t.clientId === todo.clientId).sort(byPriority).slice(0, 1 + MAX_RELATED);
+  if (group.length < 2) return null;
   return (
-    <div className="px-[30px] pb-2.5">
-      <section aria-label="Related to-dos" className="overflow-hidden rounded-lg bg-surface-secondary">
-        <h3 className="px-4 pb-1 pt-3 text-[13px] font-semibold leading-[1.5] text-ink-secondary">Related to-dos</h3>
-        <ul className="pb-2">
-          {related.map((t) => {
-            const done = t.state === 'completed';
-            return (
-              <li key={t.id}>
-                <button type="button" onClick={() => selectTodo(t.id)} className="group flex w-full items-center gap-3 px-4 py-1.5 text-left hover:bg-black/[0.03]">
-                  {/* The row checkbox's look, read-only here: the to-do is ticked in its own panel or on its row. */}
-                  <span
-                    aria-hidden
-                    className={`flex size-[18px] shrink-0 items-center justify-center rounded-full border-[0.938px] border-black/15 ${done ? 'bg-checked' : 'bg-white'}`}
-                  >
-                    <span className="relative size-[9px]">
-                      <span className="absolute bottom-[25.73%] left-[16.64%] right-[16.67%] top-1/4">
-                        <img src={done ? iconCheckWhite : iconCheck} alt="" className="block size-full max-w-none" />
-                      </span>
-                    </span>
-                  </span>
-                  <span className={`min-w-0 flex-1 truncate text-[13px] font-semibold leading-[1.5] text-ink group-hover:text-brand ${done ? 'opacity-60 line-through' : ''}`}>
-                    {t.title?.short ?? SHORT_ACTION[t.type]}
-                  </span>
-                  <img src={iconChevronRight} alt="" width={16} height={16} className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
+    <nav aria-label="This client’s to-dos" className="px-[30px] pt-4">
+      <ol className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[12px] leading-[18px]">
+        {group.map((t, i) => {
+          const done = t.state === 'completed' ? 'line-through' : '';
+          return (
+            <li key={t.id} className="flex items-center gap-1">
+              {i > 0 && <img src={iconChevronRight} alt="" width={14} height={14} className="shrink-0 opacity-50" />}
+              {t.id === todo.id ? (
+                <span aria-current="page" className={`font-semibold text-ink ${done}`}>
+                  {SHORT_ACTION[t.type]}
+                </span>
+              ) : (
+                <button type="button" onClick={() => selectTodo(t.id)} className={`text-ink-secondary hover:text-brand hover:underline ${done}`}>
+                  {SHORT_ACTION[t.type]}
                 </button>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-    </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
   );
 }
 
@@ -340,9 +330,9 @@ export function TodoDrawer() {
           </button>
         </header>
         <div key={todo.id} data-panel-scroll className="flex-1 overflow-y-auto">
+          {GROUPED_TODOS && <GroupTrail todo={todo} />}
           <TitleBlock todo={todo} client={client} onComplete={complete} onDismiss={() => setConfirmDismiss(true)} onOpenClient={() => setClientOpen(true)} />
-          {GROUPED_TODOS && <RelatedTodos todo={todo} />}
-          {detail ? (
+                    {detail ? (
             <Body todo={todo} client={client} detail={detail} />
           ) : todo.type === 'checkin' && GROUPED_TODOS ? (
             <ProfileCheckinBody client={client} />

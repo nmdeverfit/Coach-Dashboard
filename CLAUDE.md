@@ -113,12 +113,14 @@ one column. The Upcoming bookings session list is shared with the main branch to
   reason into the action (`Todo.title`, a `RowTitle` from `rowTitleFor` in `lib/todos.ts` or `checkinTitle` in
   `lib/client.ts`, from the same builders as the reason, so the figures agree; `TITLES` in `groupedTodos.ts` for
   the carried rows with design copy): "Review [Sidney]’s Weekly Check-in, waiting 3 days"; a related row, and the
-  panel's Related to-dos, read its `short` form with no client ("Issue credits, 1 PT session credit left"); no card or tint (the user's call): the group sits on the list like single
+  rows of the group read its `short` form with no client ("Issue credits, 1 PT session credit left"); no card or tint (the user's call): the group sits on the list like single
   rows, with a Linear-style connect line from the main row's checkbox down past the related rows, a branch to each related
   checkbox, which is centred on its text. A
-  ticked row dims in place; the card sinks to the bottom of its section only once every row is done. The panel lists
-  the others as Related to-dos (`RelatedTodos` in `TodoDrawer`, checkbox and title only on `surface-secondary`, no border, a chevron on hover), each completed or
-  dismissed on its own; opening one swaps the panel in place, with no back button (the user's call). A Check-in without panel data (Wade) reads the client detail
+  ticked row dims in place; the card sinks to the bottom of its section only once every row is done. The panel names
+  the whole group in one quiet breadcrumb-like line over the title (`GroupTrail` in `TodoDrawer`, the user's pick of
+  three: a back button, a parent link, this): every to-do's short action in priority order, split by small chevrons,
+  the open one plain, the others links that open their panel in place, a done one struck through; each is still
+  completed or dismissed on its own. The Related to-dos box it replaces is gone. A Check-in without panel data (Wade) reads the client detail
   page's assessment (`ProfileCheckinBody`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,

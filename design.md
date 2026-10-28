@@ -278,13 +278,12 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   ticked row dims and strikes through in place (it never moves inside the group), and the group slides out and
   sinks to the bottom of its section once all its rows are done. On Previous the main row carries the age.
   "Show N more" never splits a group.
-- **Related to-dos** (same trial): under the panel's title block, `px-[30px] pb-2.5`, a `surface-secondary` card
-  with no border (the user's call), rounded 8. Plain header, `px-4 pb-1 pt-3`: "Related to-dos" 13 px semibold
-  `ink-secondary`, no count (the user's call). Then one compact row per other to-do of the client, `px-4 py-1.5`,
-  no dividers, hover `black/[0.03]`, the list ending on `pb-2`: an 18 px read-only checkbox (white) and the row's
-  short sentence 13 px semibold (brand on hover), nothing else (the user's call: no reason); on hover a 16 px
-  chevron right fades in at the row's end, since a click goes to another to-do. A click opens that to-do's panel in
-  place, with no back button (tried, then dropped: the user's call). A done one reads struck through at 60 %.
+- **Group trail** (same trial, `GroupTrail`, the user's call over a back button and a parent link, no frame): on
+  the panel of any to-do whose client has others today, one line at `px-[30px] pt-4` above the title block, drawn
+  like a breadcrumb and kept quiet: every to-do of the group by `TYPE_PRIORITY` (main first, at most five), each its
+  `SHORT_ACTION`, 12 px / 18 px, split by 14 px chevron-right at 50 %. The open one is semibold `ink`
+  (`aria-current`), the others `ink-secondary`, brand and underlined on hover; a click opens that to-do's panel in
+  place. A done one is struck through. It wraps if it must. It replaces the Related to-dos box.
 - **Client detail page** (Figma `5671:141948`): the Check-in panel's layout with "CLIENT DETAILS" in the header, no
   ✓ / Dismiss. Opened from a to-do's name link, the header starts with a 24 px back chevron (`icon-chevron-left`,
   `ink-secondary`). Title block: name 18 px bold with the 20 px External icon (`icon-external`, `#838d9f`) 6 px after it
