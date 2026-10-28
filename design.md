@@ -279,7 +279,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   sinks to the bottom of its section once all its rows are done. On Previous the main row carries the age.
   "Show N more" never splits a group.
 - **Group trail** (same trial, `GroupTrail`, the user's call over a back button and a parent link, no frame): on
-  the panel of any to-do whose client has others today, one line at `px-[30px] pt-4` above the title block, drawn
+  the panel of a to-do reached from another to-do of the group (Related to-dos or the trail itself; not when opened
+  from its row, the user's call), one line at `px-[30px] pt-4` above the title block, drawn
   like a breadcrumb and kept quiet: every to-do of the group by `TYPE_PRIORITY` (main first, at most five), each its
   `SHORT_ACTION`, 12 px / 18 px, split by 14 px chevron-right at 50 %. The open one is semibold `ink`
   (`aria-current`), the others `ink-secondary`, brand and underlined on hover; a click opens that to-do's panel in
