@@ -133,7 +133,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   done for partial, × missed, a dash for rest, a ringed dot for today, a dashed ring upcoming, pause bars, a grey disc
   for nothing assigned), each with the current log's hover (`DayTooltip`). A dark bar at the bottom left
   (`ChartTrialBar`, kept in localStorage) switches Current · 1 · Icon tiles (Figma `6116:553518`, the user's pick:
-  `FigmaTiles`, 56 px tiles, the date over the frame's 24 px icons `icon-day-*.svg`, completed in green; no legend,
+  `FigmaTiles`, 80 px tiles, the date over the frame's 24 px icons `icon-day-*.svg`, completed in green; no legend,
   today and upcoming tiles read "Today" / "Upcoming" in the icon's place, the user's call) · A · Icon calendar (the same two weeks as 28 px icons,
   dates under them, the three figures as tiles) · B · Weekly rows (five weeks, `sessionWeeks` in `lib/training.ts`,
   one row each with done / assigned and its %, replacing the 4-week trend chart) · C · Compact tiles (the current

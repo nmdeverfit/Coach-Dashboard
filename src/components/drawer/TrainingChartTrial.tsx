@@ -418,11 +418,13 @@ const FIGMA_TILE: Record<SessionState | 'unassigned', { box: string; date: strin
   partial: { box: 'border-transparent bg-brand/[0.12]', date: 'text-ink', icon: dayPartial },
   missed: { box: 'border-[#feeff2] bg-[#f2617d]/10', date: 'font-semibold text-[#f03358]', icon: dayMissed },
   rest: { box: 'border-line bg-white', date: 'text-ink', icon: dayRest },
-  today: { box: 'border-line bg-white', date: '', word: 'font-semibold text-brand' },
-  upcoming: { box: 'border-dashed border-ink-muted/40 bg-white', date: 'text-ink', word: 'text-ink-muted' },
+  today: { box: 'border-brand bg-white', date: '', word: 'font-semibold text-brand' },
+  upcoming: { box: 'border-dashed border-ink-muted/40 bg-white', date: 'text-ink', word: 'font-semibold text-ink-secondary' },
   paused: { box: 'border-[#f6f6f6] bg-[#f2f2f2]', date: 'text-ink', icon: dayPaused },
   unassigned: { box: 'border-line bg-[#eaeef1]', date: 'text-ink-secondary' },
 };
+/** Seven 80 px columns, 4 px apart (the frame's), narrowing evenly when the card is less wide. */
+const FIGMA_COLS = 'grid w-full max-w-[584px] grid-cols-[repeat(7,minmax(0,80px))] justify-center gap-1';
 // Read when drawn: `TrainingTab` imports this file, so its `CELL` is not set yet while this module loads.
 const figmaLabel = (k: SessionState | 'unassigned') => (k === 'unassigned' ? UNASSIGNED.label : CELL[k].label);
 
@@ -435,15 +437,13 @@ function FigmaTiles({ log, today }: { log: TrainingLog; today: string }) {
   return (
     <TileCard log={log} today={today}>
       <div className="flex flex-col items-center gap-1 px-10 pb-4">
-        <div className="flex gap-1 text-center text-[11px] font-semibold uppercase leading-[18px] text-ink-tertiary">
+        <div className={`${FIGMA_COLS} text-center text-[11px] font-semibold uppercase leading-[18px] text-ink-tertiary`}>
           {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-            <span key={d} className="w-14">
-              {d}
-            </span>
+            <span key={d}>{d}</span>
           ))}
         </div>
         {s.weeks.map((week) => (
-          <div key={week[0].date} className="flex gap-1">
+          <div key={week[0].date} className={FIGMA_COLS}>
             {week.map((cell) => {
               const key = cell.assigned ? cell.state : 'unassigned';
               const t = FIGMA_TILE[key];
@@ -453,18 +453,18 @@ function FigmaTiles({ log, today }: { log: TrainingLog; today: string }) {
                   key={cell.date}
                   tabIndex={cell.day ? 0 : undefined}
                   aria-label={`${day}: ${figmaLabel(key)}`}
-                  className={`group/cell relative flex w-14 flex-col items-center gap-1 rounded-lg border pb-2 pt-1.5 outline-none transition-shadow duration-150 hover:z-10 hover:ring-[3px] hover:ring-black/[0.06] focus-visible:z-10 focus-visible:ring-[3px] focus-visible:ring-black/[0.06] ${t.box}`}
+                  className={`group/cell relative flex min-w-0 flex-col items-center gap-1 rounded-lg border pb-2 pt-1.5 outline-none transition-shadow duration-150 hover:z-10 hover:ring-[3px] hover:ring-black/[0.06] focus-visible:z-10 focus-visible:ring-[3px] focus-visible:ring-black/[0.06] ${t.box}`}
                 >
                   {key === 'paused' && <img src={pausedPattern} alt="" className="pointer-events-none absolute inset-0 size-full rounded-lg object-cover opacity-40" />}
                   {cell.date === today ? (
-                    <span className="relative flex size-5 items-center justify-center rounded-full bg-brand text-[12px] font-semibold leading-none text-white">{day}</span>
+                    <span className="relative my-[-1px] flex size-5 items-center justify-center rounded-full bg-brand-subtle text-[11px] font-semibold leading-none text-brand">{day}</span>
                   ) : (
                     <span className={`relative text-[12px] leading-[18px] ${t.date}`}>{day}</span>
                   )}
                   {t.icon ? (
                     <img src={t.icon} alt="" width={24} height={24} className="relative block size-6" />
                   ) : t.word ? (
-                    <span className={`relative flex h-6 items-center text-[10px] leading-none ${t.word}`}>{figmaLabel(key)}</span>
+                    <span className={`relative flex h-6 items-center text-[11px] leading-none tracking-[-0.22px] ${t.word}`}>{figmaLabel(key)}</span>
                   ) : (
                     <span aria-hidden className="block size-6" />
                   )}

@@ -289,12 +289,14 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   2-week adherence, 4-week trend with four 6 px bars). B · Weekly rows: one line of figures (Last workout · 2-week ·
   4-week adherence), then five weeks as rows: the week ("Aug 3 – 9", "This week" in `ink` semibold), seven 22 px
   icons, then done / assigned and its % right-aligned; it replaces the 4-week chart. 1 · Icon tiles (Figma
-  `6116:553518`): 56 px tiles, 4 px apart, centred under 56 px weekday labels, padding 6 / 8, the date 12 px over a
+  `6116:553518`, updated): 80 px tiles, 4 px apart (`FIGMA_COLS`, narrowing evenly if the card is narrower),
+  centred under 80 px weekday labels, padding 6 / 8, the date 12 px over a
   24 px icon (the frame's exports, `icon-day-*.svg`): completed = green 10 % fill, date semibold `#059669`, green
   check disc; partial = brand 12 % fill, brand progress disc (fixed, not filled to the share); missed = pink fill,
-  date semibold `#f03358`, red × disc; rest = white with a `line` border and a grey burst icon; today = white, the
-  date on a 20 px brand disc in white and "Today" (10 px semibold brand) in the icon's place; upcoming = white,
-  dashed border, "Upcoming" (10 px `ink-muted`) in the icon's place; paused = the striped grey
+  date semibold `#f03358`, red × disc; rest = white with a `line` border and a grey burst icon; today = white with a
+  brand border, the date 11 px semibold brand on a 20 px `brand-subtle` disc and "Today" (11 px semibold brand,
+  -0.22 px tracking) in the icon's place; upcoming = white, dashed border, "Upcoming" (11 px semibold `ink-secondary`,
+  -0.22 px tracking) in the icon's place; paused = the striped grey
   with a grey pause disc; not assigned (no frame) = `#eaeef1`, no icon. No legend (the user's call); the grid keeps 16 px under it. The
   figures and 4-week chart stay as now. C · Compact tiles: the current
   calendar with its tile fills and borders (`CELL`), 44 px tall, the date 11 px top left (today's on its brand-subtle
