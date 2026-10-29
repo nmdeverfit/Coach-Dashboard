@@ -413,29 +413,28 @@ function TileCard({ log, today, children }: { log: TrainingLog; today: string; c
 }
 
 /** Option 1's tiles (Figma 6116:553518): fill, border and date colour per state; the icon is the frame's export. */
-const FIGMA_TILE: Record<SessionState | 'unassigned', { box: string; date: string; icon?: string }> = {
+const FIGMA_TILE: Record<SessionState | 'unassigned', { box: string; date: string; icon?: string; word?: string }> = {
   completed: { box: 'border-transparent bg-[#059669]/10', date: 'font-semibold text-[#059669]', icon: dayCompleted },
   partial: { box: 'border-transparent bg-brand/[0.12]', date: 'text-ink', icon: dayPartial },
   missed: { box: 'border-[#feeff2] bg-[#f2617d]/10', date: 'font-semibold text-[#f03358]', icon: dayMissed },
   rest: { box: 'border-line bg-white', date: 'text-ink', icon: dayRest },
-  today: { box: 'border-line bg-white', date: '' },
-  upcoming: { box: 'border-dashed border-ink-muted/40 bg-white', date: 'text-ink' },
+  today: { box: 'border-line bg-white', date: '', word: 'font-semibold text-brand' },
+  upcoming: { box: 'border-dashed border-ink-muted/40 bg-white', date: 'text-ink', word: 'text-ink-muted' },
   paused: { box: 'border-[#f6f6f6] bg-[#f2f2f2]', date: 'text-ink', icon: dayPaused },
   unassigned: { box: 'border-line bg-[#eaeef1]', date: 'text-ink-secondary' },
 };
 // Read when drawn: `TrainingTab` imports this file, so its `CELL` is not set yet while this module loads.
 const figmaLabel = (k: SessionState | 'unassigned') => (k === 'unassigned' ? UNASSIGNED.label : CELL[k].label);
 
-/** 1: the frame's 56 px tiles, the date over a 24 px icon (upcoming, today and not assigned have none). */
+/**
+ * 1: the frame's 56 px tiles, the date over a 24 px icon. No legend (the user's call): today and upcoming days, which
+ * have no icon, name themselves in the icon's place; not assigned stays blank.
+ */
 function FigmaTiles({ log, today }: { log: TrainingLog; today: string }) {
   const s = summarizeTraining(log, today);
-  const cells = s.weeks.flat();
-  const legend: (SessionState | 'unassigned')[] = ['completed', 'partial', 'missed', 'rest', 'today', 'upcoming'];
-  if (cells.some((c) => c.state === 'paused')) legend.push('paused');
-  if (cells.some((c) => !c.assigned)) legend.push('unassigned');
   return (
     <TileCard log={log} today={today}>
-      <div className="flex flex-col items-center gap-1 px-10">
+      <div className="flex flex-col items-center gap-1 px-10 pb-4">
         <div className="flex gap-1 text-center text-[11px] font-semibold uppercase leading-[18px] text-ink-tertiary">
           {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
             <span key={d} className="w-14">
@@ -462,30 +461,19 @@ function FigmaTiles({ log, today }: { log: TrainingLog; today: string }) {
                   ) : (
                     <span className={`relative text-[12px] leading-[18px] ${t.date}`}>{day}</span>
                   )}
-                  {t.icon ? <img src={t.icon} alt="" width={24} height={24} className="relative block size-6" /> : <span aria-hidden className="block size-6" />}
+                  {t.icon ? (
+                    <img src={t.icon} alt="" width={24} height={24} className="relative block size-6" />
+                  ) : t.word ? (
+                    <span className={`relative flex h-6 items-center text-[10px] leading-none ${t.word}`}>{figmaLabel(key)}</span>
+                  ) : (
+                    <span aria-hidden className="block size-6" />
+                  )}
                   {cell.day && <DayTooltip cell={cell} day={cell.day} />}
                 </div>
               );
             })}
           </div>
         ))}
-      </div>
-      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 pb-3 text-[11px] leading-4 text-ink-tertiary">
-        {legend.map((k) => {
-          const t = FIGMA_TILE[k];
-          return (
-            <span key={k} className="flex items-center gap-1.5">
-              {t.icon ? (
-                <img src={t.icon} alt="" width={24} height={24} className="block size-4" />
-              ) : k === 'today' ? (
-                <span className="size-3.5 rounded-full bg-brand" />
-              ) : (
-                <span className={`size-3.5 rounded border ${t.box}`} />
-              )}
-              {figmaLabel(k)}
-            </span>
-          );
-        })}
       </div>
     </TileCard>
   );

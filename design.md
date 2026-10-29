@@ -293,8 +293,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   24 px icon (the frame's exports, `icon-day-*.svg`): completed = green 10 % fill, date semibold `#059669`, green
   check disc; partial = brand 12 % fill, brand progress disc (fixed, not filled to the share); missed = pink fill,
   date semibold `#f03358`, red × disc; rest = white with a `line` border and a grey burst icon; today = white, the
-  date on a 20 px brand disc in white, no icon; upcoming = white, dashed border, no icon; paused = the striped grey
-  with a grey pause disc; not assigned (no frame) = `#eaeef1`, no icon. Its legend uses the same icons at 16 px. The
+  date on a 20 px brand disc in white and "Today" (10 px semibold brand) in the icon's place; upcoming = white,
+  dashed border, "Upcoming" (10 px `ink-muted`) in the icon's place; paused = the striped grey
+  with a grey pause disc; not assigned (no frame) = `#eaeef1`, no icon. No legend (the user's call); the grid keeps 16 px under it. The
   figures and 4-week chart stay as now. C · Compact tiles: the current
   calendar with its tile fills and borders (`CELL`), 44 px tall, the date 11 px top left (today's on its brand-subtle
   dot) and a 16 px glyph bottom right in the state's colour (white ✓ on completed, brand ring filled to the share done
