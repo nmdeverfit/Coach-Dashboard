@@ -8,6 +8,7 @@ import dayPaused from '../../assets/figma/icon-day-paused.svg';
 import dayRest from '../../assets/figma/icon-day-rest.svg';
 import pausedPattern from '../../assets/figma/training-paused.png';
 import { doneOf, sessionWeeks, summarizeTraining, type SessionCell, type SessionState } from '../../lib/training';
+import { TRIAL_PAUSE } from '../../data/profiles';
 import { useStore } from '../../state/store';
 import { CardHeader } from './NutritionTab';
 import { CELL, DayTooltip, Row, TrendChart, UNASSIGNED, ago, pct } from './TrainingTab';
@@ -446,7 +447,8 @@ function FigmaTiles({ log, today }: { log: TrainingLog; today: string }) {
           <div key={week[0].date} className={FIGMA_COLS}>
             {week.map((cell) => {
               const key = cell.assigned ? cell.state : 'unassigned';
-              const t = FIGMA_TILE[key];
+              // Today keeps its brand border on a rest or paused day too.
+              const t = cell.date === today && key !== 'today' ? { ...FIGMA_TILE[key], box: `${FIGMA_TILE[key].box} !border-brand` } : FIGMA_TILE[key];
               const day = String(parseDay(cell.date).getUTCDate()).padStart(2, '0');
               return (
                 <div
@@ -576,6 +578,13 @@ export function ChartTrialBar() {
           className="h-7 whitespace-nowrap rounded-md px-2 text-[12px] font-semibold text-white/80 hover:bg-white/10 hover:text-white"
         >
           Open Clint’s training
+        </button>
+        <button
+          type="button"
+          onClick={() => selectClient(TRIAL_PAUSE.clientId, 'training')}
+          className="h-7 whitespace-nowrap rounded-md px-2 text-[12px] font-semibold text-white/80 hover:bg-white/10 hover:text-white"
+        >
+          Open a paused week
         </button>
       </div>
       <p className="text-[11px] leading-4 text-white/70">{active.hint}</p>

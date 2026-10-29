@@ -1,6 +1,6 @@
 import { addDays } from '../lib/checkin';
 import { dayAt, todoDetails } from './details';
-import { GROUPED_TODOS } from '../lib/flags';
+import { CHART_TRIAL, GROUPED_TODOS } from '../lib/flags';
 import { DEMO_TODAY, findPerson, generatedStatus } from './mock';
 import { noteBody } from './notes';
 import { dayWorkouts } from './workouts';
@@ -255,6 +255,19 @@ function silenceSince(profile: ClientProfile, since: string): ClientProfile {
   };
 }
 
+/**
+ * Training chart trial: a pause from `from` to `to` (training paused, resumed the day after), so the session log has
+ * paused days to draw. Every day of the program in the range becomes paused; adherence skips them.
+ */
+export const TRIAL_PAUSE = { clientId: 'gabriella-clark', from: '2026-08-26', to: '2026-08-30' };
+function pausedBetween(profile: ClientProfile, from: string, to: string): ClientProfile {
+  const days = { ...profile.training.days };
+  dates(from, to).forEach((date) => {
+    if (days[date]) days[date] = { kind: 'paused' };
+  });
+  return { ...profile, training: { ...profile.training, days } };
+}
+
 /** Clients whose to-do panel has data: the profile reuses it so both surfaces agree. */
 function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
   const t3 = todoDetails.t3 as CheckinDetail;
@@ -287,6 +300,8 @@ function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
       return { ...base, forms: respond(todoDetails.t2 as RespondDetail) };
     case 'jenny-wilson':
       return { ...base, forms: respond(todoDetails.p3 as RespondDetail) };
+    case TRIAL_PAUSE.clientId:
+      return CHART_TRIAL ? pausedBetween(base, TRIAL_PAUSE.from, TRIAL_PAUSE.to) : base;
     case 'aisha-doyle':
       // Grouped to-dos trial: her submitted form raises the Respond beside her Check-in.
       return GROUPED_TODOS ? { ...base, forms: respond(todoDetails.g9 as RespondDetail) } : base;

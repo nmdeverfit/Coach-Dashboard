@@ -138,7 +138,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
   dates under them, the three figures as tiles) · B · Weekly rows (five weeks, `sessionWeeks` in `lib/training.ts`,
   one row each with done / assigned and its %, replacing the 4-week trend chart) · C · Compact tiles (the current
   tiles, 44 px tall instead of 76, the date and a glyph in the tile's colour in place of the state's word, `TileGlyph`;
-  the figures and trend chart as now), and opens Clint's training.
+  the figures and trend chart as now), and opens Clint's training or a paused week ("Open a paused week": in this
+  build only, Gabriella Clark's training is paused Wed 26 – Sun 30 Aug and resumed today, `TRIAL_PAUSE` /
+  `pausedBetween` in `profiles.ts`, so her figures and assessment read the same log; the user's call). On option 1
+  today keeps its brand border on a rest or paused day.
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights in two views, the user's call: Need attention | History, each with the
