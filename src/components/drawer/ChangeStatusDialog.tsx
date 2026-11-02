@@ -2,9 +2,8 @@ import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { Client, ClientStatus } from '../../data/types';
 import { useStore } from '../../state/store';
-import { Avatar } from '../Avatar';
 import { Modal } from '../Modal';
-import { STATUS_LABEL, StatusChip } from '../StatusChip';
+import { STATUS_LABEL } from '../StatusChip';
 
 export const STATUS_DOT: Record<ClientStatus, string> = {
   at_risk: 'bg-status-risk-dot',
@@ -84,8 +83,8 @@ function StatusSelect({ options, value, onChange }: { options: ClientStatus[]; v
 /**
  * Change Client Status (Figma 5829:551881 / 551995 / 552126), opened by Not quite under the AI assessment. Simplified
  * after coach feedback (the user's call): two questions, the reason first ("Why doesn't 'At risk' look right for
- * Clint?", optional), then the new status ("What status would you choose for Clint?", required); the current status
- * lives in the first question instead of its own row, and there is no note (the user's call). 600 px wide with a
+ * Clint?", optional), then the new status ("What status would you choose for Clint?", required), 16 px semibold; no
+ * title row, client line or note (the user's call): the first question names the client and the current status. 600 px wide with a
  * 140 px reason box, for more room to write. Update status sets it as the
  * client's status for this week everywhere.
  */
@@ -107,14 +106,8 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
       headerBorder={false}
       footerBorder={false}
       onClose={onClose}
-      subtitle={
-        // 12 px under the title (the Modal's 4 + 8), and the client detail page's status chip (the user's calls).
-        <span className="mt-2 flex items-center gap-2 text-[12px] leading-4 tracking-[0.12px] text-[#1a1a1a]">
-          <Avatar name={client.name} src={client.avatar} size={20} />
-          {client.name}
-          <StatusChip status={client.status} />
-        </span>
-      }
+      // No title row or client line (the user's call): the two questions carry it; `title` still names the dialog.
+      header={<></>}
       footer={
         <>
           <button
@@ -135,12 +128,12 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
         </>
       }
     >
-      <div className="flex flex-col gap-5 px-[30px] pb-6 pt-3 text-[13px] font-semibold leading-[18px] text-[#1a1a1a]">
+      <div className="flex flex-col gap-6 px-[30px] pb-6 pt-[30px] text-[16px] font-semibold leading-[22px] text-ink">
         {/* The reason first (the user's call): what the coach knows that the assessment missed. */}
-        <label className="flex flex-col gap-1.5">
+        <label className="flex flex-col gap-2">
           <span>
             Why doesn’t ‘{STATUS_LABEL[client.status]}’ look right for {client.firstName}?{' '}
-            <span className="font-normal text-ink-tertiary">(optional)</span>
+            <span className="text-[14px] font-normal text-ink-tertiary">(optional)</span>
           </span>
           <textarea
             autoFocus
@@ -150,7 +143,7 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
             className="h-[140px] resize-none rounded-lg border border-[#e0e0e0] px-3 py-2.5 text-[14px] font-normal leading-[22px] text-[#1a1a1a] outline-none placeholder:text-[#8c8c8c] focus:border-brand"
           />
         </label>
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           What status would you choose for {client.firstName}?
           <StatusSelect options={CHOICES.filter((s) => s !== client.status)} value={to} onChange={setTo} />
         </div>
