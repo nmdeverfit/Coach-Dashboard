@@ -128,7 +128,7 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
         </>
       }
     >
-      <div className="flex flex-col gap-6 px-[30px] pb-6 pt-[30px] text-[16px] font-semibold leading-[22px] text-ink">
+      <div className="flex flex-col gap-6 px-[30px] pb-6 pt-10 text-[16px] font-semibold leading-[22px] text-ink">
         {/* The reason first (the user's call): what the coach knows that the assessment missed. */}
         <label className="flex flex-col gap-2">
           <span>

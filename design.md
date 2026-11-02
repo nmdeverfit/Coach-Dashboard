@@ -461,7 +461,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "Note saved" and shows "Last edited"). Pasted text comes in plain.
 - **Change Client Status** (Figma `5829:551881` / `551995` / `552126`, `ChangeStatusDialog`): 600 px `Modal` (480 in the frame, widened for room, the user's call), no
   rules. Simplified after coach feedback (the user's call): no title row and no client line (the first question names
-  the client and the current status; the close × stays on the corner), 30 px in at the top; two questions, 16 px
+  the client and the current status; the close × stays on the corner), 40 px in at the top (the user's call); two questions, 16 px
   semibold `ink`, 24 px apart, 8 px over their field: first the reason, "Why doesn’t ‘At risk’ look right for Clint?"
   + "(optional)" 14 px regular `ink-tertiary`, a 140 px textarea that takes the focus (border `#e0e0e0`, rounded 8, 14 px,
   placeholder "E.g. Clint is travelling this week and told me in advance"); then "What status would you choose for
