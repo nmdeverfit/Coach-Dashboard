@@ -275,8 +275,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   at the row's end ("Help [Wendy Kurtz] book a session, 3 Pilates credits expire in 5 days"). Single rows are
   `px-2 py-2.5`, the checkbox centred on the line. A group (the user's reference "One-line Grouped To-dos") opens on a
   header row, `pt-[10px] pb-1.5`: a 20 px checkbox (Complete all, or Reopen all once all are done, with its tooltip),
-  the 24 px avatar, the name 13 px semibold and "has 2 to-dos to look at today" / "is all done for today" 13 px
-  regular `ink` (60 % once done). Under it every to-do, the highest by `TYPE_PRIORITY` first, each `py-0.5 pl-10` so
+  the 24 px avatar, the name and "has 2 to-dos to look at today" / "is all done for today", both 13 px semibold
+  `ink` (the user's call; 60 % once done). Under it every to-do, the highest by `TYPE_PRIORITY` first, each `py-0.5 pl-10` so
   the checkbox sits under the name: 20 px checkbox, the sentence without the client (`short`), regular weight; the
   group ends on `pb-1.5`. No dividers inside. A connect line, as in Linear's sub-issues (the user's call): 1 px
   `line-light`, at the header checkbox's centre (x 20), from 38 px down to the last row's middle, drawn over the

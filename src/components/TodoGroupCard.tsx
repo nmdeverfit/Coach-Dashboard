@@ -63,7 +63,7 @@ export function TodoGroupCard({
               <Avatar name={client.name} src={client.avatar} />
               <span className="whitespace-nowrap font-semibold text-ink">{client.name}</span>
             </span>
-            <span className="min-w-0 truncate text-ink">{summary}</span>
+            <span className="min-w-0 truncate font-semibold text-ink">{summary}</span>
           </div>
         </li>
         {todos.map((t) => renderRow(t, 'related'))}
