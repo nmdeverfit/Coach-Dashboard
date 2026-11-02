@@ -4,7 +4,7 @@ import type { Client, ClientStatus } from '../../data/types';
 import { useStore } from '../../state/store';
 import { Avatar } from '../Avatar';
 import { Modal } from '../Modal';
-import { STATUS_LABEL } from '../StatusChip';
+import { STATUS_LABEL, StatusChip } from '../StatusChip';
 
 export const STATUS_DOT: Record<ClientStatus, string> = {
   at_risk: 'bg-status-risk-dot',
@@ -108,13 +108,11 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
       footerBorder={false}
       onClose={onClose}
       subtitle={
-        <span className="flex items-center gap-2 text-[12px] leading-4 tracking-[0.12px] text-[#1a1a1a]">
+        // 12 px under the title (the Modal's 4 + 8), and the client detail page's status chip (the user's calls).
+        <span className="mt-2 flex items-center gap-2 text-[12px] leading-4 tracking-[0.12px] text-[#1a1a1a]">
           <Avatar name={client.name} src={client.avatar} size={20} />
           {client.name}
-          <span className="flex items-center gap-1.5 rounded-[4px] border border-line-light bg-white px-2 py-0.5 font-semibold">
-            <Dot status={client.status} />
-            {STATUS_LABEL[client.status]}
-          </span>
+          <StatusChip status={client.status} />
         </span>
       }
       footer={
