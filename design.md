@@ -459,16 +459,16 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Cancel (66 × 30, `#e0e0e0` border, `#4d4d4d`) · Save (107 × 30, brand, 50 % until there is text). Save toasts
   "Note added"; Edit in Note details opens the same editor filled in (Cancel goes back to the details, Save toasts
   "Note saved" and shows "Last edited"). Pasted text comes in plain.
-- **Change Client Status** (Figma `5829:551881` / `551995` / `552126`, `ChangeStatusDialog`): 480 px `Modal`, no
+- **Change Client Status** (Figma `5829:551881` / `551995` / `552126`, `ChangeStatusDialog`): 600 px `Modal` (480 in the frame, widened for room, the user's call), no
   rules. Simplified after coach feedback (the user's call): the subtitle holds the 20 px avatar, the name 12 px and
   the current status pill (border `line-light`, rounded 4, 6 px status dot, semibold), so there is no Current status
   row; then two questions, 13 px semibold `#1a1a1a`: first the reason, "Why doesn’t ‘At risk’ look right for Clint?"
-  + "(optional)" regular `ink-tertiary`, an 84 px textarea that takes the focus (border `#e0e0e0`, rounded 8, 14 px,
+  + "(optional)" regular `ink-tertiary`, a 140 px textarea that takes the focus (border `#e0e0e0`, rounded 8, 14 px,
   placeholder "E.g. Clint is travelling this week and told me in advance"); then "What status would you choose for
   Clint?" over the 40 px select ("Choose a status", `#fafbfc`, rounded 5, `line-light` border, brand while open),
   whose menu opens above it so the popup never clips it (border `#dadfea`, rounded 4, a soft shadow, rows
-  `px-3 py-2.5` 12 px, hover/selected `surface-secondary` + brand semibold); the note is one line, "Applies to this
-  week only." 12 px `ink-tertiary`; Cancel (white, `#e0e0e0`, 30 px) · Update status (brand; disabled `#eeedec` +
+  `px-3 py-2.5` 12 px, hover/selected `surface-secondary` + brand semibold); 20 px between the questions, no note
+  (the user's call); Cancel (white, `#e0e0e0`, 30 px) · Update status (brand; disabled `#eeedec` +
   `ink-muted` until a status is picked). After it: the feedback strip reads "Status changed to '{status}'. We'll use your correction to
   improve the status."; the list's Activity column reads "~~At risk~~ → **Needs attention**" (old in
   `ink-secondary`, struck) and "Reason: …" ("Reason:" `ink-secondary`); hovering the row's status dot shows a white

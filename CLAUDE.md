@@ -209,7 +209,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   `SessionsBodies` (`UnblockBody` credits card, `PrepareBody` Sessions card), `ChangeStatusDialog` (Not quite in
   `StatusFeedback` opens it; simplified after coach feedback, the user's call: the current status beside the name,
   then the reason first, "Why doesn’t ‘At risk’ look right for Clint?" (optional), then "What status would you choose
-  for Clint?", a select of the other classified statuses opening upward, and "Applies to this week only."; Update Status calls the store's `changeStatus`, which sets the client's effective status through
+  for Clint?", a select of the other classified statuses opening upward, no note; 600 px wide, the user's call); Update Status calls the store's `changeStatus`, which sets the client's effective status through
   `setEffectiveStatus` in `mock.ts` and records `statusChanges` (from = `generatedStatus`, the 06:00 one); the list
   shows "~~From~~ → To" + "Reason:" in the Activity column and a "Status changed:" hover on the row's dot), `AssessedBodies` (`BuildBody`, whose
   Training tab is Check-in's `TrainingTab`, per the user; `RemindBody` with the Form Status table). In the session

@@ -85,7 +85,8 @@ function StatusSelect({ options, value, onChange }: { options: ClientStatus[]; v
  * Change Client Status (Figma 5829:551881 / 551995 / 552126), opened by Not quite under the AI assessment. Simplified
  * after coach feedback (the user's call): two questions, the reason first ("Why doesn't 'At risk' look right for
  * Clint?", optional), then the new status ("What status would you choose for Clint?", required); the current status
- * lives in the first question instead of its own row, and the note is one line. Update status sets it as the
+ * lives in the first question instead of its own row, and there is no note (the user's call). 600 px wide with a
+ * 140 px reason box, for more room to write. Update status sets it as the
  * client's status for this week everywhere.
  */
 export function ChangeStatusDialog({ client, onClose }: { client: Client; onClose: () => void }) {
@@ -102,7 +103,7 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
   return (
     <Modal
       title="Change Client Status"
-      width={480}
+      width={600}
       headerBorder={false}
       footerBorder={false}
       onClose={onClose}
@@ -136,7 +137,7 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
         </>
       }
     >
-      <div className="flex flex-col gap-4 px-[30px] pb-4 pt-2 text-[13px] font-semibold leading-[18px] text-[#1a1a1a]">
+      <div className="flex flex-col gap-5 px-[30px] pb-6 pt-3 text-[13px] font-semibold leading-[18px] text-[#1a1a1a]">
         {/* The reason first (the user's call): what the coach knows that the assessment missed. */}
         <label className="flex flex-col gap-1.5">
           <span>
@@ -148,14 +149,13 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={`E.g. ${client.firstName} is travelling this week and told me in advance`}
-            className="h-[84px] resize-none rounded-lg border border-[#e0e0e0] px-3 py-2.5 text-[14px] font-normal leading-[22px] text-[#1a1a1a] outline-none placeholder:text-[#8c8c8c] focus:border-brand"
+            className="h-[140px] resize-none rounded-lg border border-[#e0e0e0] px-3 py-2.5 text-[14px] font-normal leading-[22px] text-[#1a1a1a] outline-none placeholder:text-[#8c8c8c] focus:border-brand"
           />
         </label>
         <div className="flex flex-col gap-1.5">
           What status would you choose for {client.firstName}?
           <StatusSelect options={CHOICES.filter((s) => s !== client.status)} value={to} onChange={setTo} />
         </div>
-        <p className="text-[12px] font-normal leading-[1.5] tracking-[0.12px] text-ink-tertiary">Applies to this week only.</p>
       </div>
     </Modal>
   );
