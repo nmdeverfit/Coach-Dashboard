@@ -207,8 +207,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   weeks; with nothing logged it shows the same cards in their empty state, per the user), `TrainingTab` (Session log: last week + this week in 7 states, Last workout, 2-week adherence, 4-week trend
   columns; `ProgramCard`), `PanelParts` (`TabBar`, `DataArea`, footer buttons), `RespondBody` (form Q&A),
   `SessionsBodies` (`UnblockBody` credits card, `PrepareBody` Sessions card), `ChangeStatusDialog` (Not quite in
-  `StatusFeedback` opens it: current status, a New status select of the other classified statuses, an optional
-  reason; Update Status calls the store's `changeStatus`, which sets the client's effective status through
+  `StatusFeedback` opens it; simplified after coach feedback, the user's call: the current status beside the name,
+  then the reason first, "Why doesn’t ‘At risk’ look right for Clint?" (optional), then "What status would you choose
+  for Clint?", a select of the other classified statuses opening upward, and "Applies to this week only."; Update Status calls the store's `changeStatus`, which sets the client's effective status through
   `setEffectiveStatus` in `mock.ts` and records `statusChanges` (from = `generatedStatus`, the 06:00 one); the list
   shows "~~From~~ → To" + "Reason:" in the Activity column and a "Status changed:" hover on the row's dot), `AssessedBodies` (`BuildBody`, whose
   Training tab is Check-in's `TrainingTab`, per the user; `RemindBody` with the Form Status table). In the session
@@ -438,7 +439,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   line, profile and today's to-dos stay as the 06:00 generation made them (`generatedStatus`), so an at-risk
   assessment can sit under a Needs attention chip, and a Check-in to-do stays for a client moved to On track. The
   reason box is free text, which AC9.5 rules out for the feedback control (it is the modal's, as drawn); it is
-  optional. The design's option reads "Need attention"; the demo keeps "Needs attention". No activities is not
+  optional, and now asked first (the user's call, after coach feedback; the frame orders New status, then Reason). The design's option reads "Need attention"; the demo keeps "Needs attention". No activities is not
   offered (deterministic). Past weeks keep their statuses, as the note says.
 - Deep analysis (the user's call, no frame): Phase 1's Olly answers only from the stored status, and the brief puts
   Olly reading program data in Phase 2; Deep analysis reads the training log and the program's week directly. It

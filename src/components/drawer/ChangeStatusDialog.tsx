@@ -18,7 +18,8 @@ const CHOICES: ClientStatus[] = ['at_risk', 'needs_attention', 'on_track'];
 
 const Dot = ({ status }: { status: ClientStatus }) => <span className={`size-1.5 shrink-0 rounded-full ${STATUS_DOT[status]}`} />;
 
-/** The New status select (Figma 5829:551995): 40 px box, brand border while open, a 4 px-rounded menu under it. */
+/** The New status select (Figma 5829:551995): 40 px box, brand border while open, a 4 px-rounded menu. Since the
+ * select is the popup's last field, the menu opens above it so the popup never clips it. */
 function StatusSelect({ options, value, onChange }: { options: ClientStatus[]; value: ClientStatus | null; onChange: (s: ClientStatus) => void }) {
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -47,14 +48,14 @@ function StatusSelect({ options, value, onChange }: { options: ClientStatus[]; v
             {STATUS_LABEL[value]}
           </span>
         ) : (
-          <span className="opacity-60">Choose new status</span>
+          <span className="opacity-60">Choose a status</span>
         )}
         <span className="flex size-6 items-center justify-center">
           <ChevronDown size={16} className={`text-ink-secondary transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
         </span>
       </button>
       {open && (
-        <ul role="listbox" className="absolute inset-x-0 top-full z-10 mt-1 overflow-hidden rounded-[4px] border border-[#dadfea] bg-white">
+        <ul role="listbox" className="absolute inset-x-0 bottom-full z-10 mb-1 overflow-hidden rounded-[4px] border border-[#dadfea] bg-white shadow-[0_4px_16px_rgba(32,35,83,0.12)]">
           {options.map((s) => (
             <li key={s}>
               <button
@@ -81,8 +82,11 @@ function StatusSelect({ options, value, onChange }: { options: ClientStatus[]; v
 }
 
 /**
- * Change Client Status (Figma 5829:551881 / 551995 / 552126), opened by Not quite under the AI assessment. The new
- * status is required, the reason optional; Update Status sets it as the client's status for this week everywhere.
+ * Change Client Status (Figma 5829:551881 / 551995 / 552126), opened by Not quite under the AI assessment. Simplified
+ * after coach feedback (the user's call): two questions, the reason first ("Why doesn't 'At risk' look right for
+ * Clint?", optional), then the new status ("What status would you choose for Clint?", required); the current status
+ * lives in the first question instead of its own row, and the note is one line. Update status sets it as the
+ * client's status for this week everywhere.
  */
 export function ChangeStatusDialog({ client, onClose }: { client: Client; onClose: () => void }) {
   const { changeStatus } = useStore();
@@ -106,6 +110,10 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
         <span className="flex items-center gap-2 text-[12px] leading-4 tracking-[0.12px] text-[#1a1a1a]">
           <Avatar name={client.name} src={client.avatar} size={20} />
           {client.name}
+          <span className="flex items-center gap-1.5 rounded-[4px] border border-line-light bg-white px-2 py-0.5 font-semibold">
+            <Dot status={client.status} />
+            {STATUS_LABEL[client.status]}
+          </span>
         </span>
       }
       footer={
@@ -123,37 +131,31 @@ export function ChangeStatusDialog({ client, onClose }: { client: Client; onClos
             onClick={submit}
             className="h-[30px] rounded-[6px] bg-brand px-4 text-[13px] font-semibold leading-[1.5] text-white hover:bg-brand/90 disabled:bg-[#eeedec] disabled:text-ink-muted"
           >
-            Update Status
+            Update status
           </button>
         </>
       }
     >
-      <div className="flex flex-col gap-4 px-[30px] pb-4 pt-2 text-[12px] font-semibold leading-[18px] text-[#1a1a1a]">
-        <div className="flex items-center gap-2">
-          Current status:
-          <span className="flex items-center gap-1.5 rounded-[4px] border border-line-light bg-white px-2 py-0.5">
-            <Dot status={client.status} />
-            {STATUS_LABEL[client.status]}
+      <div className="flex flex-col gap-4 px-[30px] pb-4 pt-2 text-[13px] font-semibold leading-[18px] text-[#1a1a1a]">
+        {/* The reason first (the user's call): what the coach knows that the assessment missed. */}
+        <label className="flex flex-col gap-1.5">
+          <span>
+            Why doesn’t ‘{STATUS_LABEL[client.status]}’ look right for {client.firstName}?{' '}
+            <span className="font-normal text-ink-tertiary">(optional)</span>
           </span>
-        </div>
-        <div className="flex flex-col gap-1">
-          New status
+          <textarea
+            autoFocus
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder={`E.g. ${client.firstName} is travelling this week and told me in advance`}
+            className="h-[84px] resize-none rounded-lg border border-[#e0e0e0] px-3 py-2.5 text-[14px] font-normal leading-[22px] text-[#1a1a1a] outline-none placeholder:text-[#8c8c8c] focus:border-brand"
+          />
+        </label>
+        <div className="flex flex-col gap-1.5">
+          What status would you choose for {client.firstName}?
           <StatusSelect options={CHOICES.filter((s) => s !== client.status)} value={to} onChange={setTo} />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="flex flex-col gap-1">
-            Reason
-            <textarea
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Describe why you're changing this client's status..."
-              className="h-[108px] resize-none rounded-lg border border-[#e0e0e0] px-3 py-2.5 text-[14px] font-normal leading-[22px] text-[#1a1a1a] outline-none placeholder:text-[#8c8c8c] focus:border-brand"
-            />
-          </label>
-          <p className="text-[12px] font-normal leading-[1.5] tracking-[0.12px] text-ink-tertiary">
-            Note: Status can only be changed for the current week. Past weeks are read-only to preserve historical accuracy.
-          </p>
-        </div>
+        <p className="text-[12px] font-normal leading-[1.5] tracking-[0.12px] text-ink-tertiary">Applies to this week only.</p>
       </div>
     </Modal>
   );
