@@ -4,7 +4,7 @@ import { DEMO_TODAY, generatedStatus } from '../data/mock';
 import { WEEKDAYS, addDays, buildCheckinView, summarizeNutrition, type Assessment } from './checkin';
 import { formatDayMonth, formatMonthDay, parseDay } from './dates';
 import { noteStamp, noteText } from './notes';
-import type { FormStatusRow } from './todos';
+import { nutritionTitle, type FormStatusRow } from './todos';
 import { summarizeTraining } from './training';
 
 /**
@@ -34,15 +34,10 @@ export function formRows(profile: ClientProfile, today: string): FormStatusRow[]
  * as the client detail page's assessment: the profile's focus signal and its one fact.
  */
 export function checkinTitle(profile: ClientProfile, today: string): RowTitle {
-  let rest: string;
-  if (profile.focus === 'nutrition') {
-    const n = summarizeNutrition(profile.nutrition, today);
-    rest = n.daysLogged === 0 ? 'on nutrition, nothing logged in 7 days' : `on nutrition, ${n.daysLogged} of 7 days logged`;
-  } else {
-    const t = summarizeTraining(profile.training, today);
-    rest = t.adherence2w === null ? 'on training, no workouts scheduled' : `on training, ${t.adherence2w}% of workouts done`;
-  }
-  return { lead: 'Check in with', tail: rest, short: `Check in ${rest}` };
+  if (profile.focus === 'nutrition') return nutritionTitle(summarizeNutrition(profile.nutrition, today).daysLogged);
+  const t = summarizeTraining(profile.training, today);
+  const rest = t.adherence2w === null ? 'no workouts are scheduled' : `${t.adherence2w}% of workouts were done in the last 2 weeks`;
+  return { lead: 'Check in with', tail: `on training, ${rest}`, short: `Check in on training, ${rest}` };
 }
 
 export function buildClientAssessment(client: Client, profile: ClientProfile, today: string): Assessment {

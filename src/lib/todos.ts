@@ -351,32 +351,47 @@ export function buildAcknowledgeView(d: AcknowledgeDetail, firstName: string, to
 // ---------------------------------------------------------------- Row reason for any type
 
 /** The greyed "why" on a to-do row, from the same builder the panel uses; the panel repeats it verbatim (BL4). */
+/** "today", "yesterday", "3 days ago". */
+const agoPhrase = (n: number) => (n === 0 ? 'today' : n === 1 ? 'yesterday' : `${plural(n, 'day')} ago`);
+/** A credit's type without "session": "PT session" → "PT". */
+const creditName = (type: { name: string }) => type.name.replace(/\s+session$/i, '');
+
+/** Check-in on nutrition: the reason as a clause, its window named ("in the last 7 days"). */
+export function nutritionTitle(daysLogged: number): RowTitle {
+  const rest = daysLogged === 0 ? 'no meals were logged in the last 7 days' : `meals were logged on ${daysLogged} of the last 7 days`;
+  return { lead: 'Check in with', tail: `on nutrition, ${rest}`, short: `Check in on nutrition, ${rest}` };
+}
+
 /**
- * Grouped to-dos trial: the row's title, the action and its reason in one sentence (the user's call), from the same
- * builders as the reason line and the panel, so every figure agrees (AC4).
+ * Grouped to-dos trial: the row's title, the action and its reason in one sentence, from the same builders as the
+ * reason line and the panel, so every figure agrees (AC4). Content rules from the user's reference ("One-line Grouped
+ * To-dos"): verb + client + what, then a comma and the reason as a full clause with its verb ("submitted 3 days ago",
+ * "now 2 days overdue", "only 1 is left"), relative days in words (today / yesterday / tomorrow / in N days), the
+ * window named ("in the last 7 days"), and an action that fits the case (expiring credits: help book a session; a low
+ * balance: issue more credits). The related row's `short` is the same sentence without the client.
  */
 export function rowTitleFor(detail: TodoDetail, firstName: string, today: string): RowTitle {
   switch (detail.kind) {
-    case 'checkin': {
-      const days = `${buildCheckinView(detail, today).summary.daysLogged} of 7 days logged`;
-      return { lead: 'Check in with', tail: `on nutrition, ${days}`, short: `Check in on nutrition, ${days}` };
-    }
+    case 'checkin':
+      return nutritionTitle(buildCheckinView(detail, today).summary.daysLogged);
     case 'respond': {
-      const v = buildRespondView(detail, firstName, today);
-      const rest = `${detail.form}, waiting ${plural(v.waitingDays, 'day')}`;
+      const rest = `${detail.form} form, submitted ${agoPhrase(daysBetween(detail.submittedOn, today))}`;
       return { lead: 'Review', tail: `’s ${rest}`, short: `Review the ${rest}` };
     }
     case 'unblock': {
       const { focus } = buildUnblockView(detail, firstName, today);
-      const name = `${focus.pool.type.name} credit`;
-      const rest = focus.expiringSoon
-        ? `${plural(focus.expiringSoon.count, name)} expiring ${inDays(focus.expiringSoon.inDays)}`
-        : `${plural(focus.balance, name)} left`;
-      return { lead: 'Issue credits for', tail: `, ${rest}`, short: `Issue credits, ${rest}` };
+      const type = creditName(focus.pool.type);
+      if (focus.expiringSoon) {
+        const { count, inDays: n } = focus.expiringSoon;
+        const rest = `${plural(count, `${type} credit`)} ${count === 1 ? 'expires' : 'expire'} ${inDays(n)}`;
+        return { lead: 'Help', tail: `book a session, ${rest}`, short: `Help book a session, ${rest}` };
+      }
+      const left = focus.balance === 0 ? 'none are left' : `only ${focus.balance} ${focus.balance === 1 ? 'is' : 'are'} left`;
+      return { lead: `Issue more ${type} credits to`, tail: `, ${left}`, short: `Issue more ${type} credits, ${left}` };
     }
     case 'prepare': {
       const next = buildPrepareView(detail, today).upcoming[0];
-      if (!next) return { lead: 'Prepare for', tail: '’s session', short: 'Prepare for the session' };
+      if (!next) return { lead: 'Prepare for', tail: '’s next session', short: 'Prepare for the next session' };
       const when = daysBetween(today, next.date);
       const day = when === 0 ? 'today' : when === 1 ? 'tomorrow' : `on ${weekdayDate(next.date)}`;
       const kind = /session|class/i.test(next.type.name) ? next.type.name : `${next.type.name} session`;
@@ -388,18 +403,18 @@ export function rowTitleFor(detail: TodoDetail, firstName: string, today: string
       const ends = v.training.program.endsInDays;
       const rest =
         ends < 0
-          ? `a new program, nothing assigned for ${plural(v.idleDays, 'day')}`
+          ? `a new program, nothing has been assigned for ${plural(v.idleDays, 'day')}`
           : `a new program, the current one ends ${ends === 0 ? 'today' : `in ${plural(ends, 'day')}`}`;
       return { lead: 'Assign', tail: rest, short: `Assign ${rest}` };
     }
     case 'remind': {
       const { overdue } = buildRemindView(detail, firstName, today);
-      const rest = `about the ${overdue.name} form, overdue ${plural(daysBetween(overdue.overdueSince!, today), 'day')}`;
+      const rest = `to submit the ${overdue.name} form, now ${plural(daysBetween(overdue.overdueSince!, today), 'day')} overdue`;
       return { lead: 'Remind', tail: rest, short: `Remind ${rest}` };
     }
     case 'acknowledge': {
       const { streak } = buildAcknowledgeView(detail, firstName, today);
-      const rest = `on ${plural(streak.days, 'day')} at the +${detail.goal.surplusKcal} kcal goal`;
+      const rest = `on ${plural(streak.days, 'day')} in a row at the +${detail.goal.surplusKcal} kcal goal`;
       return { lead: 'Congratulate', tail: rest, short: `Congratulate ${rest}` };
     }
   }

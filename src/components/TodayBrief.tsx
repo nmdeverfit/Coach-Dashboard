@@ -188,7 +188,7 @@ type PendingDismiss = { kind: 'one'; todo: Todo } | { kind: 'all'; count: number
 
 export function TodayBrief() {
   const store = useStore();
-  const { state, openSuggestedCount, toggleComplete, dismiss, dismissAllPrevious, selectTodo } = store;
+  const { state, openSuggestedCount, toggleComplete, completeAll, dismiss, dismissAllPrevious, selectTodo } = store;
   const suggestedList = useRef<HTMLUListElement>(null);
   const previousList = useRef<HTMLUListElement>(null);
   const { rows: suggested, motion: suggestedMotion } = useDoneLast(itemsOf(store.suggested), suggestedList);
@@ -216,8 +216,8 @@ export function TodayBrief() {
         />
       );
       if (todos.length === 1) return row(todos[0]);
-      // A client's to-dos (grouped to-dos trial): one card, the main to-do over its related ones.
-      return <TodoGroupCard key={key} groupKey={key} todos={todos} renderRow={(t, role) => row(t, role)} />;
+      // A client's to-dos (grouped to-dos trial): a header naming the client, then every to-do in its short form.
+      return <TodoGroupCard key={key} groupKey={key} todos={todos} renderRow={(t, role) => row(t, role)} onToggleAll={() => completeAll(todos.map((t) => t.id))} />;
     });
 
   const confirmDismiss = () => {

@@ -153,6 +153,7 @@ function saveMetrics(metrics: MetricKey[]) {
 
 type Action =
   | { type: 'toggleComplete'; id: string }
+  | { type: 'setTodoStates'; states: Record<string, Todo['state']> }
   | { type: 'dismiss'; id: string }
   | { type: 'dismissAllPrevious' }
   | { type: 'setView'; view: View }
@@ -256,6 +257,12 @@ function reducer(state: State, action: Action): State {
         // Ticking a Check-in row is the review; unticking it takes the review back.
         reviewed: todo?.type === 'checkin' ? { ...state.reviewed, [todo.clientId]: completing } : state.reviewed,
       };
+    }
+    case 'setTodoStates': {
+      // A Check-in's state is the client's review, as on a single tick.
+      const reviewed = { ...state.reviewed };
+      for (const t of state.todos) if (t.type === 'checkin' && action.states[t.id]) reviewed[t.clientId] = action.states[t.id] === 'completed';
+      return { ...state, todos: state.todos.map((t) => (action.states[t.id] ? { ...t, state: action.states[t.id] } : t)), reviewed };
     }
     case 'dismiss':
       return {
@@ -487,6 +494,8 @@ interface Store {
   previous: Todo[];
   openSuggestedCount: number;
   toggleComplete: (id: string) => void;
+  /** Grouped to-dos: the group's Complete all, or Reopen all once every one is done. */
+  completeAll: (ids: string[]) => void;
   dismiss: (id: string) => void;
   dismissAllPrevious: () => void;
   setView: (view: View) => void;
@@ -569,6 +578,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const done = state.todos.find((t) => t.id === id)?.state === 'completed';
         dispatch({ type: 'toggleComplete', id });
         showToast(done ? 'To-do has been reopened' : 'To-do has been completed');
+      },
+      completeAll: (ids) => {
+        const list = state.todos.filter((t) => ids.includes(t.id));
+        if (!list.length) return;
+        const reopen = list.every((t) => t.state === 'completed');
+        const changed = list.filter((t) => (t.state === 'completed') === reopen);
+        dispatch({ type: 'setTodoStates', states: Object.fromEntries(changed.map((t) => [t.id, reopen ? 'open' : 'completed'])) });
+        const n = changed.length;
+        showToast(`${n} to-do${n === 1 ? '' : 's'} ${reopen ? 'reopened' : 'completed'} for ${getClient(list[0].clientId).firstName}`);
       },
       dismiss: (id) => {
         dispatch({ type: 'dismiss', id });

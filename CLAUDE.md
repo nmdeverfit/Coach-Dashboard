@@ -115,9 +115,22 @@ one column. The Upcoming bookings session list is shared with the main branch to
   to-dos indented under it. No row shows a reason line (the user's call): each reads one sentence that folds the
   reason into the action (`Todo.title`, a `RowTitle` from `rowTitleFor` in `lib/todos.ts` or `checkinTitle` in
   `lib/client.ts`, from the same builders as the reason, so the figures agree; `TITLES` in `groupedTodos.ts` for
-  the carried rows with design copy): "Review [Sidney]’s Weekly Check-in, waiting 3 days"; a related row, and the
-  rows of the group read its `short` form with no client ("Issue credits, 1 PT session credit left"); no card or tint (the user's call): the group sits on the list like single
-  rows, with a Linear-style connect line from the main row's checkbox down past the related rows, a branch to each related
+  the carried rows with design copy), worded as the user's reference artifact "One-line Grouped To-dos" (the
+  user's call): verb + client + what, a comma, then the reason as a full clause with its verb; relative days in words
+  ("submitted 3 days ago", "yesterday", "tomorrow", "in 5 days"); the window named ("in the last 7 days", "in the
+  last 2 weeks", "in a row"); zero said in words ("no meals were logged", "none are left"); the credit type without
+  "session" ("PT credits"). Per type: "Check in with [Clint] on nutrition, meals were logged on 2 of the last 7
+  days" (`nutritionTitle`; training: "…, 78% of workouts were done in the last 2 weeks") · "Review [Sidney]’s Weekly
+  Check-in form, submitted 3 days ago" · "Assign [Glen] a new program, nothing has been assigned for 3 days" /
+  "…, the current one ends in 4 days" · "Remind [Leo] to submit the Weekly Check-in form, now 1 day overdue" ·
+  expiring credits "Help [Wendy] book a session, 3 Pilates credits expire in 5 days", a low balance "Issue more PT
+  credits to [Wade], only 1 is left" · "Prepare for [Malcom]’s PT session tomorrow at 2:00pm" · "Congratulate
+  [Darrell] on 6 days in a row at the +300 kcal goal"; the panel's title for a form review reads "Review the form
+  from [Sidney]" on this page. A group opens on a header row naming the client once ("[Aisha Doyle] has 2 to-dos to
+  look at today", "… is all done for today"), whose checkbox completes every open to-do in it or reopens them all
+  (`completeAll` / `setTodoStates` in the store; a Check-in in it marks the review), and every to-do under it reads
+  its `short` form with no client ("Issue more PT credits, only 1 is left"); no card or tint (the user's call): the group sits on the list like single
+  rows, with a Linear-style connect line from the header's checkbox down past the rows, a branch to each
   checkbox, which is centred on its text. A
   ticked row dims in place; the card sinks to the bottom of its section only once every row is done. Once a to-do
   is opened from another one (Related to-dos), the panel's header shows the way the coach came in a quiet breadcrumb
@@ -482,7 +495,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. Its rows drop the brief's greyed sentence of why for one sentence that
-  carries it (the panel keeps the title and the reason line, BL1 part B). The trial ranks Check-in above Respond, where Spec 4 BL3 has respond → check_in (the user's
+  carries it (the panel keeps the title and the reason line, BL1 part B). The reference artifact drops the panel's
+  Related to-dos box; the demo keeps it (the user asked for it back), and the reference's Undo on the Complete all
+  toast is not built. "Help … book a session" for expiring credits sits on an Unblock panel whose primary action is
+  Issue credits (Spec 4 AC8.4). The trial ranks Check-in above Respond, where Spec 4 BL3 has respond → check_in (the user's
   call), and caps a group at one main and four related to-dos. `TODO_CAP` would count to-dos. There is no frame for the group or for
   Related to-dos.
 - Meal Log options (trial page only): Spec 4 BL9 keeps Phase 1's Nutrition tab as CID v1 and the brief puts the new

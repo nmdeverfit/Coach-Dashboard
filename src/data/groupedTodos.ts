@@ -58,8 +58,8 @@ const EXTRA: { after: string; todos: (Omit<Todo, 'reason' | 'raisedOn' | 'state'
 
 /** Titles for the carried rows with no panel data, in the same sentence form (their reasons are the design's copy). */
 const TITLES: Record<string, RowTitle> = {
-  p1: { lead: 'Check in with', tail: 'after 15 days with no activity or reply', short: 'Check in after 15 days with no activity or reply' },
-  p2: { lead: 'Send kudos to', tail: 'for getting back on track after two weeks at risk', short: 'Send kudos for getting back on track' },
+  p1: { lead: 'Check in with', tail: ', there has been no activity or reply for 15 days', short: 'Check in, there has been no activity or reply for 15 days' },
+  p2: { lead: 'Send', tail: 'kudos for getting back on track after two weeks at risk', short: 'Send kudos for getting back on track after two weeks at risk' },
 };
 
 /** Every row's title: the action and its reason in one sentence (`RowTitle`), the reason line no longer shown. */
@@ -84,7 +84,9 @@ function withGroups(base: Todo[]): Todo[] {
     });
     out.splice(out.findIndex((t) => t.id === after) + 1, 0, ...made);
   }
-  return out.map((t) => ({ ...t, title: titleOf(t) }));
+  // The panel's title for a form review reads "Review the form from {client}", matching the row's verb (the user's
+  // reference "One-line Grouped To-dos"; the main build keeps the design's "Reply to").
+  return out.map((t) => ({ ...t, action: t.type === 'respond' ? 'Review the form from' : t.action, title: titleOf(t) }));
 }
 
 export const seedTodos: Todo[] = GROUPED_TODOS ? withGroups(baseTodos) : baseTodos;

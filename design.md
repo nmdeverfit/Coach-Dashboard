@@ -272,14 +272,18 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   call); it sits on the list's grey like the single rows, one `line` divider under the whole group. Every row on this
   page is one line with no reason under it (the user's call): a sentence that folds the reason into the action,
   13 px semibold `ink`, lead + 24 px avatar + name (a "’s" or "," after the name sticks to it) + the rest, truncated
-  at the row's end ("Issue credits for [Wendy Kurtz], 3 Pilates credits expiring in 5 days"). Single rows are
-  `px-2 py-2.5`, the checkbox centred on the line. The main to-do, the highest by `TYPE_PRIORITY` (Check-in first),
-  is `pt-[10px] pb-1.5`. Under it up to four related to-dos (`MAX_RELATED`), each `py-0.5 pl-10` so the checkbox
-  sits under the main row's text: 20 px checkbox, the sentence without the client (`short`), regular weight (the user's call: only the related rows
-  are light); the group ends on
-  `pb-1.5`. No dividers inside. A connect line, as in Linear's sub-issues (the user's call): 1 px `line-light`, at
-  the main checkbox's centre (x 20), from 38 px down (just under that checkbox) to the last related row's middle,
-  drawn over the rows, with a 22 px branch at each related row's middle to its checkbox, centred on its text. Each
+  at the row's end ("Help [Wendy Kurtz] book a session, 3 Pilates credits expire in 5 days"). Single rows are
+  `px-2 py-2.5`, the checkbox centred on the line. A group (the user's reference "One-line Grouped To-dos") opens on a
+  header row, `pt-[10px] pb-1.5`: a 20 px checkbox (Complete all, or Reopen all once all are done, with its tooltip),
+  the 24 px avatar, the name 13 px semibold and "has 2 to-dos to look at today" / "is all done for today" 13 px
+  regular `ink` (60 % once done). Under it every to-do, the highest by `TYPE_PRIORITY` first, each `py-0.5 pl-10` so
+  the checkbox sits under the name: 20 px checkbox, the sentence without the client (`short`), regular weight; the
+  group ends on `pb-1.5`. No dividers inside. A connect line, as in Linear's sub-issues (the user's call): 1 px
+  `line-light`, at the header checkbox's centre (x 20), from 38 px down to the last row's middle, drawn over the
+  rows, with a 22 px branch at each row's middle to its checkbox, centred on its text. Complete all toasts
+  "2 to-dos completed for Aisha" (the reference's Undo on that toast is not built: the demo's toast has no action).
+  Copy rules (`rowTitleFor` in `lib/todos.ts`): verb + client + what, a comma, then the reason as a full clause with
+  its verb, relative days in words, the window named, and the verb chosen by the case (see CLAUDE.md). Each
   row hovers like a single one (white, rounded, `shadow-row`); selected is white with `shadow-row` and a 4 px brand
   edge drawn over the row, so the checkbox stays on the line. Each row keeps its own checkbox, Dismiss and panel; a
   ticked row dims and strikes through in place (it never moves inside the group), and the group slides out and
