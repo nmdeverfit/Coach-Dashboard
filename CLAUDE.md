@@ -469,7 +469,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
   the times ("Created: …" or "Meeting date: …" • "Last edited: …"), 20 px all round; on the form its name with Cancel · Save;
   Save or Cancel on an edit returns to the details, on a new note to the list. The card keeps one height on the list,
   details and form (`INLINE_HEIGHT`, 580 px body), and the form's tabs, title and text start 20 px in (`compact` on
-  `NoteHeader` and `NoteEditor`). New note, Note details and the meeting popup are one size on this page, 720 × 800 capped at the window (`NOTE_POPUP` in `NoteDialog.tsx`, the user's call, so the content has more room). There is no frame for the popup, its edit or the tabs.
+  `NoteHeader` and `NoteEditor`). Once opened, the Notes card stays mounted while another tab shows (`keepNotes` in
+  `ClientTabs`, hidden, the user's call), so a note being read, written or edited, unsaved text, file and date
+  included, is still there on coming back to Notes. The form puts the kind tag ("Note" / "Meeting notes", `KindTag`)
+  before its time line, as the details do, on new notes and edits (the user's call). New note, Note details and the meeting popup are one size on this page, 720 × 800 capped at the window (`NOTE_POPUP` in `NoteDialog.tsx`, the user's call, so the content has more room). There is no frame for the popup, its edit or the tabs.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. Its rows drop the brief's greyed sentence of why for one sentence that

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import iconSparkle from '../../assets/figma/icon-ai-sparkle.svg';
 import iconMealPlan from '../../assets/figma/icon-meal-plan-edit.svg';
 import { DEMO_TODAY } from '../../data/mock';
@@ -61,10 +61,25 @@ export function ClientTabs({
     (t) => (t.key !== 'booking' || getSessions(client.id)) && (t.key !== 'transcript' || (withTranscript && !NOTES_TIMELINE)),
   );
   const [tab, setTab] = useState<ClientTabKey>(() => (initialTab && tabs.some((t) => t.key === initialTab) ? initialTab : profile.focus));
+  // Notes timeline trial: once opened, the Notes card stays mounted (hidden on the other tabs), so a note being read
+  // or written, its unsaved text and file included, is still there on coming back (the user's call).
+  const [keepNotes, setKeepNotes] = useState(NOTES_TIMELINE && tab === 'notes');
+  useEffect(() => {
+    if (NOTES_TIMELINE && tab === 'notes') setKeepNotes(true);
+  }, [tab]);
   return (
     <DataArea>
       <TabBar tabs={tabs} active={tab} onChange={setTab} />
-      <ClientTabContent tab={tab} client={client} profile={profile} />
+      {keepNotes ? (
+        <>
+          <div className={tab === 'notes' ? 'contents' : 'hidden'}>
+            <ClientTabContent tab="notes" client={client} profile={profile} />
+          </div>
+          {tab !== 'notes' && <ClientTabContent tab={tab} client={client} profile={profile} />}
+        </>
+      ) : (
+        <ClientTabContent tab={tab} client={client} profile={profile} />
+      )}
       {withTabActions && <TabActions tab={tab} client={client} />}
     </DataArea>
   );

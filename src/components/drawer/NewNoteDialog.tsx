@@ -10,7 +10,7 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { MeetingWhen, TIME_ZONE } from './AddMeetingDialog';
 import { INLINE_HEIGHT, KIND_LABEL, NotesCardBar, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
-import { EditorButtons, EditorFooter, NOTE_POPUP, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
+import { EditorButtons, EditorFooter, KindTag, NOTE_POPUP, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
 
 /** The demo's clock reads 06:00, as for a message sent from the dashboard. */
 const NOW = '06:00';
@@ -147,11 +147,15 @@ export function NewNoteDialog({
           />
         }
       >
-        {kind === 'meeting' ? (
-          <MeetingWhen date={date} time={time} onDate={setDate} onTime={setTime} />
-        ) : (
-          <TimeLine>Created: {noteStamp(editingNote?.at ?? `${DEMO_TODAY}T${NOW}`)}</TimeLine>
-        )}
+        {/* The kind beside the time, as the details show it (the user's call), on new notes and edits alike. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <KindTag label={KIND_LABEL[kind]} />
+          {kind === 'meeting' ? (
+            <MeetingWhen date={date} time={time} onDate={setDate} onTime={setTime} />
+          ) : (
+            <TimeLine>Created: {noteStamp(editingNote?.at ?? `${DEMO_TODAY}T${NOW}`)}</TimeLine>
+          )}
+        </div>
       </NoteHeader>
 
       <div
