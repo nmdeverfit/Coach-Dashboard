@@ -130,7 +130,9 @@ export function NewNoteDialog({
     onClose();
   };
 
-  const heading = editing ? 'Edit meeting notes' : editingNote ? 'Edit note' : kind === 'note' ? 'New note' : 'New meeting notes';
+  // One heading for a new note whichever tab is on: "New note" / "New meeting notes" read as the note's own title
+  // (the user's call).
+  const heading = editing ? 'Edit meeting notes' : editingNote ? 'Edit note' : 'Add new note';
   const canSave = (hasText || Boolean(transcript)) && !reading;
 
   const form = (

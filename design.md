@@ -249,7 +249,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   paragraphs over bullet lists), then 16 px down the transcript in the same card
   (`TranscriptFileCard`, filling the rest of the popup, at least 240 px, Download in brand for a file). Option B (trial bar, the user's call, no frame): the
   same content in the Notes card instead of a popup; the card's 44 px white header (`NotesCardBar`) turns into ‹ Back
-  (20 px chevron, 14 px semibold) + Delete · Edit on details, or the form's name (15 px semibold) + Cancel · Save
+  (20 px chevron, 14 px semibold) + Delete · Edit on details, or the form's name (15 px semibold: "Add new note"
+  whichever tab is on, "Edit note" / "Edit meeting notes" on an edit, the user's call) + Cancel · Save
   (the editor's buttons) on the form; the card's body is 580 px on the list, details and form alike (`INLINE_HEIGHT`, the user's call: a short note never
   shrinks it); details scroll inside, 20 px padding all round, the title then one line with the `KindTag` and one
   clock line, "Created: …" / "Meeting date: …" • "Last edited: …" (4 px `#d9d9d9` dot); the form's tabs, title, text and file card start 20 px in (`compact`), the editor 180 px

@@ -466,7 +466,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   call) switches between two options and opens Clint's notes: A · Popup (below) and B · In the section, where New
   note, Edit and both details open in the Notes card itself (`InlineDetails` in `NotesTimeline.tsx`, `NewNoteDialog`
   `inline`): on details the card's header reads ‹ Back with Delete · Edit, and under the title one line holds the kind tag and
-  the times ("Created: …" or "Meeting date: …" • "Last edited: …"), 20 px all round; on the form its name with Cancel · Save;
+  the times ("Created: …" or "Meeting date: …" • "Last edited: …"), 20 px all round; on the form its name with Cancel · Save
+  ("Add new note" on either tab, since "New note" / "New meeting notes" read as the note's title, the user's call;
+  "Edit note" / "Edit meeting notes" on an edit);
   Save or Cancel on an edit returns to the details, on a new note to the list. The card keeps one height on the list,
   details and form (`INLINE_HEIGHT`, 580 px body), and the form's tabs, title and text start 20 px in (`compact` on
   `NoteHeader` and `NoteEditor`). Once opened, the Notes card stays mounted while another tab shows (`keepNotes` in
