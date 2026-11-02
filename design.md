@@ -261,7 +261,11 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "Meeting notes": `surface-secondary` pill, 24 px, 12 px semibold `ink-secondary`, no icon). The title row carries
   Note details' Delete · Edit (`DetailActions`, 16 px, muted until hovered); Edit is the New note form titled with the meeting's name, without the tabs. The form (popup and option B, new and edit) puts the same `KindTag` on its time line,
   12 px before the clock line or the meeting's date and start (the user's call), so it reads like the details it saves
-  into. Switching tabs and back keeps the Notes card as it was (details, form and unsaved draft).
+  into. Switching tabs and back keeps the Notes card as it was (details, form and unsaved draft). Title field
+  (`TITLE_INPUT`, every note form): a new note opens with the caret in it (the user's call, since coaches did not
+  see it could be typed in), Enter moves to the text, and on hover it takes a `surface-secondary` fill, 6 px radius,
+  8 px either side with a matching negative margin so the text does not move; focused, the fill goes. An edit opens
+  at the end of the text, as before.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one group in the list, at the place the client first appears. `TodoGroupCard`: no card, border or tint (the user's
   call); it sits on the list's grey like the single rows, one `line` divider under the whole group. Every row on this

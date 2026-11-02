@@ -29,6 +29,13 @@ const NOTE_SIZE = NOTES_TIMELINE ? NOTE_POPUP : { width: 600, height: undefined 
 
 export const TITLE = 'text-[19px] font-semibold leading-[1.5] tracking-[-0.57px] text-[#1a1a1a]';
 
+/**
+ * The forms' title field. Coaches did not see that the title could be typed in, so a new note opens with the caret
+ * here (the user's call), and on hover the field shows a light fill, its text kept in line by a matching negative
+ * margin. Enter moves on to the note's text (`focusRef` on `NoteEditor`).
+ */
+export const TITLE_INPUT = `${TITLE} -mx-2 min-w-0 flex-1 cursor-text rounded-md bg-transparent px-2 outline-none transition-colors hover:bg-surface-secondary focus:bg-transparent placeholder:text-[#1a1a1a]/50`;
+
 /** "Created: Apr 10 - 11:25 AM" with the 16 px clock at half opacity. */
 export function TimeLine({ children }: { children: ReactNode }) {
   return (
@@ -98,6 +105,8 @@ export function NoteEditor({
   toolbarEnd,
   height = 'h-[440px] shrink-0',
   compact = false,
+  focusOnMount = true,
+  focusRef,
 }: {
   initial: string;
   placeholder: string;
@@ -107,6 +116,10 @@ export function NoteEditor({
   height?: string;
   /** The text starts 20 px in, under a compact header's title (option B). */
   compact?: boolean;
+  /** Takes the caret on opening; a new note leaves it to the title instead. */
+  focusOnMount?: boolean;
+  /** Set to a call that puts the caret at the end of the text (the title's Enter uses it). */
+  focusRef?: React.MutableRefObject<(() => void) | null>;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const [empty, setEmpty] = useState(!noteText(initial));
@@ -121,13 +134,17 @@ export function NoteEditor({
   useEffect(() => {
     const el = box.current!;
     el.innerHTML = initial;
-    el.focus();
     // The caret goes to the end of what is there.
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    range.collapse(false);
-    document.getSelection()?.removeAllRanges();
-    document.getSelection()?.addRange(range);
+    const focusEnd = () => {
+      el.focus();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      document.getSelection()?.removeAllRanges();
+      document.getSelection()?.addRange(range);
+    };
+    if (focusRef) focusRef.current = focusEnd;
+    if (focusOnMount) focusEnd();
     document.execCommand('defaultParagraphSeparator', false, 'p');
     document.addEventListener('selectionchange', refresh);
     return () => document.removeEventListener('selectionchange', refresh);
@@ -297,6 +314,7 @@ export function NoteDialog({
   const [title, setTitle] = useState(note?.title ?? '');
   const [html, setHtml] = useState(note?.body ?? '');
   const [confirming, setConfirming] = useState(false);
+  const toBody = useRef<(() => void) | null>(null);
   const newTitle = `New Note ${1 + notes.filter((n) => /^New Note \d+$/.test(n.title)).length}`;
   const canSave = Boolean(noteText(html)) || /<li/i.test(html);
 
@@ -328,12 +346,18 @@ export function NoteDialog({
           <NoteHeader
             title={
               <input
+                autoFocus={!note}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key !== 'Enter') return;
+                  e.preventDefault();
+                  toBody.current?.();
+                }}
                 placeholder={note?.title ?? newTitle}
                 aria-label="Note title"
                 maxLength={100}
-                className={`${TITLE} min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#1a1a1a]/50`}
+                className={TITLE_INPUT}
               />
             }
           >
@@ -344,6 +368,8 @@ export function NoteDialog({
             placeholder={`Type your note for ${client.firstName}...`}
             onChange={setHtml}
             height={NOTES_TIMELINE ? 'min-h-0 flex-1' : undefined}
+            focusOnMount={Boolean(note)}
+            focusRef={toBody}
           />
           <EditorFooter canSave={canSave} onCancel={note ? () => setEditing(false) : onClose} onSave={save} />
         </>

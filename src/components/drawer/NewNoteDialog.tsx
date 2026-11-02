@@ -10,7 +10,7 @@ import { ConfirmDialog } from '../ConfirmDialog';
 import { Modal } from '../Modal';
 import { MeetingWhen, TIME_ZONE } from './AddMeetingDialog';
 import { INLINE_HEIGHT, KIND_LABEL, NotesCardBar, TranscriptFileCard, UploadTranscriptButton, transcriptCard, useAttachedFile, type NoteKind } from './NoteAttachment';
-import { EditorButtons, EditorFooter, KindTag, NOTE_POPUP, NoteEditor, NoteHeader, TITLE, TimeLine } from './NoteDialog';
+import { EditorButtons, EditorFooter, KindTag, NOTE_POPUP, NoteEditor, NoteHeader, TITLE_INPUT, TimeLine } from './NoteDialog';
 
 /** The demo's clock reads 06:00, as for a message sent from the dashboard. */
 const NOW = '06:00';
@@ -87,6 +87,9 @@ export function NewNoteDialog({
   const meeting = kind === 'meeting';
   const takeFile = (f: File) => meeting && attach(f);
   const fileInput = useRef<HTMLInputElement>(null);
+  // A new note opens with the caret in its title (the user's call); an edit opens at the end of the text.
+  const isNew = !editing && !editingNote;
+  const toBody = useRef<(() => void) | null>(null);
   const browse = () => fileInput.current?.click();
   const hasText = Boolean(noteText(html)) || /<li/i.test(html);
   const meetings = state.meetings[client.id] ?? [];
@@ -137,13 +140,18 @@ export function NewNoteDialog({
         above={!editing && !editingNote && <KindTabs kind={kind} onChange={switchTo} />}
         title={
           <input
-            autoFocus
+            autoFocus={isNew}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter') return;
+              e.preventDefault();
+              toBody.current?.();
+            }}
             placeholder={placeholder}
             aria-label="Title"
             maxLength={100}
-            className={`${TITLE} min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#1a1a1a]/50`}
+            className={TITLE_INPUT}
           />
         }
       >
@@ -181,6 +189,8 @@ export function NewNoteDialog({
           toolbarEnd={meeting && !transcript && <UploadTranscriptButton onClick={browse} />}
           height={transcript ? (inline ? 'h-[180px] shrink-0' : 'h-[240px] shrink-0') : 'min-h-0 flex-1'}
           compact={inline}
+          focusOnMount={!isNew}
+          focusRef={toBody}
         />
         {meeting && transcript && (
           <div className={`flex min-h-0 flex-1 flex-col pb-2 pt-1 ${inline ? 'px-5' : 'px-8'}`}>
