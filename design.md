@@ -304,6 +304,21 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   on partial, red × on missed, grey dash on rest and pause bars on paused, a brand dot on today, none on upcoming or
   not assigned); no state word or count, the hover gives them. Its legend draws each state as a 16 px tile with its
   glyph. The figures and 4-week chart stay as now.
+- **Meal Log options** (same trial page, `NutritionChartTrial.tsx`, no frame, the user's call: the four blue shades
+  are hard to tell apart, worse for colour-blind coaches, and reading a day takes a hover per cell). Every option
+  carries its meaning in shape, position or text, never in hue alone, keeps the two weeks and the summary rows
+  ("Days logged … of 7 days · N entries", "Avg calories … of … Cal"), and a white hover card listing each meal's
+  foods and calories. A day is on goal within ±10 % of the calorie goal (`GOAL_BAND`, the demo's assumption).
+  A · Daily calories: an 18 px brand bar per day, 88 px tall at 130 % of the goal, the goal a dashed `ink-tertiary`
+  line labelled "Goal 2,000" on the left, the calories (10 px semibold, "1.5k") over each bar, "–" for a day with
+  nothing logged and a dashed stub for upcoming; under the dates four rows of 8 px meal dots (brand filled = logged,
+  `ink-muted` ring = not logged). B · Calorie grid: the current grid, each cell the meal's calories on `brand-subtle`
+  in brand semibold or "–" on 4 % black, upcoming dashed; the meal label carries its logged days ("1/7 days"); a
+  Total row (top rule) gives the day's calories and ↓ / ✓ / ↑ with its % of goal (✓ in brand). C · Summary first:
+  three `surface-secondary` figures (Days logged, Avg calories against goal with its %, Meal logged least with its
+  days; ties named together), then the days as 60 px tiles in a 7-column grid (logged = `brand-subtle` with four meal
+  pills filled or ringed and the calories; "No log" on white; upcoming dashed; today brand-bordered), and a click on a
+  day opens its meals in a white box under the tiles (the latest logged day at first).
 - **Breadcrumb** (same trial, `GroupTrail`, the user's call, no frame): on a to-do opened from another to-do (not
   from its row), the panel's header drops "TO-DO DETAILS" for a 24 px chevron-left back icon (80 %, full on hover;
   one to-do back per click) and the breadcrumb beside it, 6 px apart, on one line: the to-dos visited, from the first

@@ -4,7 +4,9 @@ import tooltipArrow from '../../assets/figma/tooltip-arrow.svg';
 import type { MealKey, NutritionLog } from '../../data/types';
 import { MEALS, addDays, foodCalories, weekdayLabel, type NutritionSummary, type WeekGridData } from '../../lib/checkin';
 import { formatMonthDay, parseDay } from '../../lib/dates';
+import { CHART_TRIAL } from '../../lib/flags';
 import { useStore } from '../../state/store';
+import { MealLogOption, useMealOption } from './NutritionChartTrial';
 
 const MACRO_FILL = { carb: 'bg-macro-carb', fat: 'bg-macro-fat', protein: 'bg-macro-protein' } as const;
 
@@ -262,7 +264,7 @@ function MealGrid({ weeks, log, today }: { weeks: WeekGridData[]; log: Nutrition
 
 function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSummary }) {
   return (
-    <div className="flex flex-col rounded-lg border border-ink/10 bg-elevated p-px shadow-card">
+    <div data-meal-card className="flex flex-col rounded-lg border border-ink/10 bg-elevated p-px shadow-card">
       <CardHeader title="Meal Log" link="View food log" />
       {/* The summary covers the 7 days before today, so today is the day after its window. */}
       <MealGrid weeks={summary.weeks} log={log} today={addDays(summary.window.end, 1)} />
@@ -303,10 +305,15 @@ function MealLogCard({ log, summary }: { log: NutritionLog; summary: NutritionSu
 export function NutritionTab({ log, summary }: { log: NutritionLog; summary: NutritionSummary }) {
   // With nothing logged the cards still render, in their empty state: empty ring and bars, every Meal Log cell
   // "Not logged", and the summary rows say so (Spec 4 AC2.4, AC10.5).
+  const mealOption = useMealOption();
   return (
     <div className="flex w-full flex-col gap-[15px]">
       <MacroCard summary={summary} />
-      <MealLogCard log={log} summary={summary} />
+      {CHART_TRIAL && mealOption !== 'current' ? (
+        <MealLogOption option={mealOption} log={log} summary={summary} />
+      ) : (
+        <MealLogCard log={log} summary={summary} />
+      )}
     </div>
   );
 }

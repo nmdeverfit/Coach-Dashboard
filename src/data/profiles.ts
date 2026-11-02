@@ -268,6 +268,21 @@ function pausedBetween(profile: ClientProfile, from: string, to: string): Client
   return { ...profile, training: { ...profile.training, days } };
 }
 
+/**
+ * Meal Log chart trial: a needs-attention client who logs most days but skips breakfast, so the options have a meal
+ * pattern to show (generated clients log all four meals or none). Her figures and assessment read the same log.
+ */
+export const TRIAL_MEALS = { clientId: 'emma-williams', skip: 'breakfast' as const, on: ['2026-08-25', '2026-08-28', '2026-08-29', '2026-08-30'] };
+function skippedMeal(profile: ClientProfile): ClientProfile {
+  const days = { ...profile.nutrition.days };
+  TRIAL_MEALS.on.forEach((date) => {
+    if (!days[date]) return;
+    const { [TRIAL_MEALS.skip]: _skipped, ...rest } = days[date];
+    days[date] = rest;
+  });
+  return { ...profile, nutrition: { ...profile.nutrition, days } };
+}
+
 /** Clients whose to-do panel has data: the profile reuses it so both surfaces agree. */
 function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
   const t3 = todoDetails.t3 as CheckinDetail;
@@ -300,6 +315,8 @@ function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
       return { ...base, forms: respond(todoDetails.t2 as RespondDetail) };
     case 'jenny-wilson':
       return { ...base, forms: respond(todoDetails.p3 as RespondDetail) };
+    case TRIAL_MEALS.clientId:
+      return CHART_TRIAL ? skippedMeal(base) : base;
     case TRIAL_PAUSE.clientId:
       return CHART_TRIAL ? pausedBetween(base, TRIAL_PAUSE.from, TRIAL_PAUSE.to) : base;
     case 'aisha-doyle':

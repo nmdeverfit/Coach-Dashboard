@@ -8,7 +8,8 @@ import dayPaused from '../../assets/figma/icon-day-paused.svg';
 import dayRest from '../../assets/figma/icon-day-rest.svg';
 import pausedPattern from '../../assets/figma/training-paused.png';
 import { doneOf, sessionWeeks, summarizeTraining, type SessionCell, type SessionState } from '../../lib/training';
-import { TRIAL_PAUSE } from '../../data/profiles';
+import { TRIAL_MEALS, TRIAL_PAUSE } from '../../data/profiles';
+import { MEAL_OPTIONS, setMealOption, useMealOption } from './NutritionChartTrial';
 import { useStore } from '../../state/store';
 import { CardHeader } from './NutritionTab';
 import { CELL, DayTooltip, Row, TrendChart, UNASSIGNED, ago, pct } from './TrainingTab';
@@ -551,12 +552,15 @@ const SHOWCASE = 'clint-jacobi';
 /** The trial's switcher, a dark bar at the bottom left like the Notes trial's (not product UI). */
 export function ChartTrialBar() {
   const option = useChartOption();
+  const meal = useMealOption();
   const { selectClient } = useStore();
   const active = CHART_OPTIONS.find((o) => o.key === option)!;
+  const activeMeal = MEAL_OPTIONS.find((o) => o.key === meal)!;
+  const link = 'h-7 whitespace-nowrap rounded-md px-2 text-[12px] font-semibold text-white/80 hover:bg-white/10 hover:text-white';
   return (
     <div data-keep-open className="fixed bottom-4 left-[80px] z-[45] flex flex-col items-start gap-1.5 rounded-xl bg-ink px-3 py-2.5 text-white shadow-[0_8px_24px_rgba(32,35,83,0.28)]">
       <div className="flex items-center gap-3">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-white/60">Training chart</span>
+        <span className="w-[98px] text-[11px] font-semibold uppercase tracking-[0.06em] text-white/60">Training chart</span>
         <div role="tablist" aria-label="Training chart option" className="flex rounded-lg bg-white/10 p-0.5">
           {CHART_OPTIONS.map((o) => (
             <button
@@ -588,6 +592,31 @@ export function ChartTrialBar() {
         </button>
       </div>
       <p className="text-[11px] leading-4 text-white/70">{active.hint}</p>
+      <div className="mt-1 flex items-center gap-3 border-t border-white/10 pt-2">
+        <span className="w-[98px] text-[11px] font-semibold uppercase tracking-[0.06em] text-white/60">Meal log</span>
+        <div role="tablist" aria-label="Meal log option" className="flex rounded-lg bg-white/10 p-0.5">
+          {MEAL_OPTIONS.map((o) => (
+            <button
+              key={o.key}
+              type="button"
+              role="tab"
+              aria-selected={meal === o.key}
+              onClick={() => setMealOption(o.key)}
+              className={`h-7 whitespace-nowrap rounded-md px-3 text-[12px] font-semibold ${meal === o.key ? 'bg-white text-ink' : 'text-white/80 hover:text-white'}`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+        <span className="h-5 w-px bg-white/20" />
+        <button type="button" onClick={() => selectClient(SHOWCASE, 'nutrition')} className={link}>
+          Open Clint’s nutrition
+        </button>
+        <button type="button" onClick={() => selectClient(TRIAL_MEALS.clientId, 'nutrition')} className={link}>
+          Open a skipped-meal week
+        </button>
+      </div>
+      <p className="text-[11px] leading-4 text-white/70">{activeMeal.hint}</p>
     </div>
   );
 }

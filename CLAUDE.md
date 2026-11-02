@@ -31,7 +31,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   with the grouped to-dos trial on too, `VITE_NOTES_TIMELINE=1 VITE_GROUPED_TODOS=1`,
   `dist-single/coach-dashboard-notes.html`, its own artifact, renamed "Notes & Grouped To-dos" so both trials show on
   one page, the user's call; built from this branch). `npm run build:artifact:charts` (the training chart trial,
-  `VITE_CHART_TRIAL=1`, `dist-single/coach-dashboard-charts.html`, its own artifact "Training chart options"). Each build empties `dist-single/`, so publish right after building.
+  `VITE_CHART_TRIAL=1`, `dist-single/coach-dashboard-charts.html`, its own artifact, renamed "Training & Nutrition chart options" once the Meal Log trial joined it). Each build empties `dist-single/`, so publish right after building.
   Keep the page small: the artifact service rejected the page once it passed about 3.5 MB (it read it as a
   "review page, too large"). Photos go in as JPEG (the banner `hero-2.jpg` is 177 KB), and `mock.ts` globs every
   PNG in `src/assets/figma/`, so a large PNG there is embedded even when nothing imports it.
@@ -142,6 +142,14 @@ one column. The Upcoming bookings session list is shared with the main branch to
   build only, Gabriella Clark's training is paused Wed 26 – Sun 30 Aug and resumed today, `TRIAL_PAUSE` /
   `pausedBetween` in `profiles.ts`, so her figures and assessment read the same log; the user's call). On option 1
   today keeps its brand border on a rest or paused day.
+- `src/components/drawer/NutritionChartTrial.tsx`: the Meal Log chart trial (the user's call, same `CHART_TRIAL`
+  build): `NutritionTab` swaps its Meal Log card for the picked option (`useMealOption`, kept in localStorage);
+  the bar's second row switches Current · A · Daily calories (a bar per day against the calorie goal, meal dots
+  under it) · B · Calorie grid (the grid in calories, a Total row against the goal, logged days by each meal) ·
+  C · Summary first (three figures, day tiles, a click lists the day's meals), and opens Clint's nutrition or
+  "a skipped-meal week" (in this build only Emma Williams logs no breakfast on Aug 25, 28, 29 and 30,
+  `TRIAL_MEALS` / `skippedMeal` in `profiles.ts`; generated clients log all four meals or none). Every figure comes
+  from the same log (`mealDay`); on goal = within ±10 % (`GOAL_BAND`).
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights in two views, the user's call: Need attention | History, each with the
@@ -467,6 +475,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   carries it (the panel keeps the title and the reason line, BL1 part B). The trial ranks Check-in above Respond, where Spec 4 BL3 has respond → check_in (the user's
   call), and caps a group at one main and four related to-dos. `TODO_CAP` would count to-dos. There is no frame for the group or for
   Related to-dos.
+- Meal Log options (trial page only): Spec 4 BL9 keeps Phase 1's Nutrition tab as CID v1 and the brief puts the new
+  Nutrition data area in Phase 2. The ±10 % "on goal" band has no spec. The log cannot tell a skipped meal from an
+  unlogged one, so every option says "Not logged", never "Skipped".
 - The vertical row expand (rows open the client detail
   drawer instead), the settings screens (the Dashboard Settings menu only toasts, except Customize), tour and What's New
   are not built yet.
