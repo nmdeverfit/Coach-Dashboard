@@ -13,23 +13,26 @@ import { CardHeader } from './NutritionTab';
  * - A · Daily calories: a bar per day against the calorie goal, and four meal dots (logged or not) under it.
  * - B · Calorie grid: the current grid, each cell the meal's calories or "–", a Total row marked against the goal and
  *   each meal's logged days by its label.
+ * - D · Grid + daily total (the user's pick of the grid direction): the current grid of entries per meal, its steps
+ *   told apart by lightness with text that passes contrast, and a row of each day's calories under it.
  * - C · Summary first: three figures (days logged, average against goal, the meal logged least), the days as tiles,
  *   and a click on a day lists its meals underneath.
  */
-export type MealOption = 'current' | 'bars' | 'grid' | 'summary';
+export type MealOption = 'current' | 'bars' | 'grid' | 'summary' | 'total';
 
 export const MEAL_OPTIONS: { key: MealOption; label: string; hint: string }[] = [
   { key: 'current', label: 'Current', hint: 'The Meal Log as it is now: entries per meal in four blue shades' },
   { key: 'bars', label: 'A · Daily calories', hint: 'Has the client eaten enough? A bar per day against the goal; meal dots show what was logged' },
   { key: 'grid', label: 'B · Calorie grid', hint: 'The current grid in calories, with a Total row against the goal and each meal’s logged days' },
   { key: 'summary', label: 'C · Summary first', hint: 'Three figures up top, the days as tiles; click a day to read its meals' },
+  { key: 'total', label: 'D · Grid + daily total', hint: 'The current grid in high-contrast steps, with each day’s calories under it' },
 ];
 
 const KEY = 'cid-meal-option';
 const read = (): MealOption => {
   try {
     const v = localStorage.getItem(KEY);
-    return v === 'bars' || v === 'grid' || v === 'summary' ? v : 'current';
+    return v === 'bars' || v === 'grid' || v === 'summary' || v === 'total' ? v : 'current';
   } catch {
     return 'current';
   }
@@ -495,9 +498,116 @@ function SummaryFirst({ log, summary }: { log: NutritionLog; summary: NutritionS
   );
 }
 
+/* ---------------------------------- D · Grid + daily total ---------------------------------- */
+
+/**
+ * Entries per meal in three steps far apart in lightness from white "not logged" and from each other (about 1.7, 2.9
+ * and 2.2 to 1 between neighbours), so they read without hue, each with text that passes WCAG AA at 12 px: ink on the
+ * light step (9:1), white on the mid (4.9:1) and on the dark (11:1).
+ */
+const STEP = {
+  1: 'bg-[#b3c5ff] text-ink',
+  2: 'bg-[#3b62f6] text-white',
+  3: 'bg-[#142f99] text-white',
+} as const;
+const step = (n: number) => STEP[Math.min(n, 3) as 1 | 2 | 3];
+
+function GridWithTotal({ log, summary }: { log: NutritionLog; summary: NutritionSummary }) {
+  const { today, weeks } = useWeeks(log, summary);
+  const columns = weeks.map(() => 'repeat(7, minmax(0, 1fr))').join(' 17px ');
+  const firstCol = (w: number) => 2 + w * 8;
+  const totalRow = 3 + MEALS.length;
+  return (
+    <MealCard summary={summary}>
+      <div className="grid gap-1 px-5 pb-3 pt-4" style={{ gridTemplateColumns: `68px ${columns}` }}>
+        {weeks.map((week, w) => (
+          <p key={`t-${week.start}`} className="pb-2 text-center text-[13px] font-semibold leading-[18px] text-ink" style={{ gridColumn: `${firstCol(w)} / span 7`, gridRow: 1 }}>
+            {weekRange(week.dates)}
+            {week.isCurrent && <span className="font-normal"> (This week)</span>}
+          </p>
+        ))}
+        {weeks.slice(1).map((week, w) => (
+          <span key={`div-${week.start}`} aria-hidden className="mx-auto w-px bg-line" style={{ gridColumn: firstCol(w + 1) - 1, gridRow: `1 / span ${totalRow}` }} />
+        ))}
+        {weeks.map((week, w) =>
+          week.days.map((day, i) => (
+            <span key={`d-${day.date}`} className="flex h-5 items-center justify-center text-[12px] text-ink-secondary tabular-nums" style={{ gridColumn: firstCol(w) + i, gridRow: 2 }}>
+              {day.date === today ? <span className="flex size-5 items-center justify-center rounded-full bg-brand-subtle font-semibold text-brand">{dayNum(day.date)}</span> : dayNum(day.date)}
+            </span>
+          )),
+        )}
+        {MEALS.map((m, r) => (
+          <span key={`l-${m.key}`} className="flex items-center text-[11px] font-semibold uppercase leading-[18px] text-ink-tertiary" style={{ gridColumn: 1, gridRow: 3 + r }}>
+            {m.label}
+          </span>
+        ))}
+        <span className="flex items-center text-[11px] font-semibold uppercase leading-[14px] text-ink" style={{ gridColumn: 1, gridRow: totalRow }}>
+          Total Cal
+        </span>
+        {MEALS.map((m, r) =>
+          weeks.map((week, w) =>
+            week.days.map((day, i) => {
+              const n = day.meals[m.key].foods.length;
+              return (
+                <div key={`${m.key}-${day.date}`} className="flex" style={{ gridColumn: firstCol(w) + i, gridRow: 3 + r }}>
+                  {day.upcoming ? (
+                    <span className="aspect-square flex-1 rounded-[4px] border border-dashed border-line-light" />
+                  ) : (
+                    <span
+                      tabIndex={0}
+                      className={`group/cell relative flex aspect-square min-w-0 flex-1 items-center justify-center rounded-[4px] text-[12px] leading-none tabular-nums outline-none ${
+                        n ? `font-semibold ${step(n)}` : 'border border-line bg-white text-ink-muted'
+                      }`}
+                    >
+                      {n ? (n >= 3 ? '3+' : n) : '–'}
+                      <HoverCard title={`${m.label} · ${weekdayLabel(day.date)}`}>
+                        <DayMeals day={day} only={m.key} />
+                      </HoverCard>
+                    </span>
+                  )}
+                </div>
+              );
+            }),
+          ),
+        )}
+        {weeks.map((week, w) =>
+          week.days.map((day, i) => (
+            <span
+              key={`tot-${day.date}`}
+              className="flex h-7 items-center justify-center border-t border-ink/15 text-[11px] leading-none tabular-nums"
+              style={{ gridColumn: firstCol(w) + i, gridRow: totalRow }}
+            >
+              {day.upcoming ? null : day.logged ? <span className="font-semibold text-ink">{fmt(day.kcal)}</span> : <span className="text-ink-muted">–</span>}
+            </span>
+          )),
+        )}
+      </div>
+      <div className="flex items-center justify-center gap-4 px-4 pb-3 text-[12px] leading-[18px] text-ink">
+        <span className="flex items-center gap-1.5">
+          Items logged per meal
+          {([1, 2, 3] as const).map((n) => (
+            <span key={n} className={`flex size-5 items-center justify-center rounded-[3px] text-[10px] font-semibold ${STEP[n]}`}>
+              {n === 3 ? '3+' : n}
+            </span>
+          ))}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="flex size-5 items-center justify-center rounded-[3px] border border-line bg-white text-[10px] text-ink-muted">–</span>
+          Not logged
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-5 rounded-[3px] border border-dashed border-ink-muted" />
+          Upcoming
+        </span>
+      </div>
+    </MealCard>
+  );
+}
+
 /** The Meal Log in the picked option. */
 export function MealLogOption({ option, log, summary }: { option: Exclude<MealOption, 'current'>; log: NutritionLog; summary: NutritionSummary }) {
   if (option === 'bars') return <DailyCalories log={log} summary={summary} />;
   if (option === 'grid') return <CalorieGrid log={log} summary={summary} />;
+  if (option === 'total') return <GridWithTotal log={log} summary={summary} />;
   return <SummaryFirst log={log} summary={summary} />;
 }

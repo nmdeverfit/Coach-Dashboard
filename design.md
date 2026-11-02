@@ -318,7 +318,12 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   three `surface-secondary` figures (Days logged, Avg calories against goal with its %, Meal logged least with its
   days; ties named together), then the days as 60 px tiles in a 7-column grid (logged = `brand-subtle` with four meal
   pills filled or ringed and the calories; "No log" on white; upcoming dashed; today brand-bordered), and a click on a
-  day opens its meals in a white box under the tiles (the latest logged day at first).
+  day opens its meals in a white box under the tiles (the latest logged day at first). D · Grid + daily total (the
+  user's pick of the grid direction): the current grid of entries per meal, its steps far apart in lightness so they
+  read without hue (1 = `#b3c5ff` with `ink` text, 2 = `#3b62f6` white, 3+ = `#142f99` white, all AA at 12 px
+  semibold; not logged = white with a `line` border and a muted "–"; upcoming dashed), and a TOTAL CAL row under a
+  15 % ink rule with each day's calories (11 px semibold, "–" when nothing was logged, blank when upcoming). Its
+  legend reads "Items logged per meal" with the three steps numbered, then Not logged and Upcoming.
 - **Breadcrumb** (same trial, `GroupTrail`, the user's call, no frame): on a to-do opened from another to-do (not
   from its row), the panel's header drops "TO-DO DETAILS" for a 24 px chevron-left back icon (80 %, full on hover;
   one to-do back per click) and the breadcrumb beside it, 6 px apart, on one line: the to-dos visited, from the first

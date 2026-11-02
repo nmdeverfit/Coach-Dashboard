@@ -146,7 +146,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   build): `NutritionTab` swaps its Meal Log card for the picked option (`useMealOption`, kept in localStorage);
   the bar's second row switches Current · A · Daily calories (a bar per day against the calorie goal, meal dots
   under it) · B · Calorie grid (the grid in calories, a Total row against the goal, logged days by each meal) ·
-  C · Summary first (three figures, day tiles, a click lists the day's meals), and opens Clint's nutrition or
+  C · Summary first (three figures, day tiles, a click lists the day's meals) · D · Grid + daily total (the user's
+  pick: the current grid in three high-contrast steps, `STEP`, with a TOTAL CAL row per day), and opens Clint's nutrition or
   "a skipped-meal week" (in this build only Emma Williams logs no breakfast on Aug 25, 28, 29 and 30,
   `TRIAL_MEALS` / `skippedMeal` in `profiles.ts`; generated clients log all four meals or none). Every figure comes
   from the same log (`mealDay`); on goal = within ±10 % (`GOAL_BAND`).
