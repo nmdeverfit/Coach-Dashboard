@@ -103,7 +103,8 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   (or a card's ⋯ menu), no trigger on the page (the user's call). In edit mode
   the page dims with `#0c0f2e` at 60 % (fade-in) and the section rises over it: `bg-surface-secondary`, rounded 16,
   `p-4`, `0 0 0 1px rgba(255,255,255,0.6), 0 12px 40px rgba(0,0,0,0.25)`, 4 px in from the column. Header: "Customize
-  cards" 14 px bold (no count), "Drag to reorder · Today’s Brief" 12 px `ink-secondary`;
+  cards" 18 px bold (no count), 4 px over one 13 px line: the view ("Today’s Brief" / "Dashboard view") semibold `ink`,
+  a 12 px `line-light` divider, "Drag to reorder" `ink-secondary` (the user's call);
   Cancel (32 px, white, `border-black/10`, rounded 5) · Save (32 px brand, `#e4e6ee` / muted text until something
   changes). Collapsed cards: white, rounded 12, `py-3 pl-2 pr-3`, gap 8 between, drag dots 16 + icon 20 + name 14 px
   bold (no count), ⊖ 16 px at the right; held = dashed `line-light` slot; the rail's stack one per line, the metric

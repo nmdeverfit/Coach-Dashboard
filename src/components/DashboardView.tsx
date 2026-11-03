@@ -118,7 +118,7 @@ export function DashboardView() {
           <CardsEditor
             row
             initial={state.metrics}
-            label="Dashboard"
+            label="Dashboard view"
             item={(key) => {
               const m = METRICS[key];
               return { title: m.label, description: m.description, icon: <Glyph src={m.icon.src} size={20} inset={m.icon.inset} bleed={m.icon.bleed} /> };

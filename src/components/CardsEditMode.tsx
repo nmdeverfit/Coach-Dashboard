@@ -143,8 +143,13 @@ export function CardsEditor({
     >
       <header className="flex items-center gap-3">
         <div className="min-w-0 flex-1">
-          <h2 className="text-[14px] font-bold leading-[1.5] text-ink">Customize cards</h2>
-          <p className="truncate text-[12px] leading-[1.5] text-ink-secondary">Drag to reorder · {label}</p>
+          <h2 className="text-[18px] font-bold leading-[1.4] text-ink">Customize cards</h2>
+          {/* The view first, a touch stronger, then the hint (the user's call). */}
+          <p className="mt-1 flex items-center gap-2 whitespace-nowrap text-[13px] leading-[1.5]">
+            <span className="font-semibold text-ink">{label}</span>
+            <span aria-hidden className="h-3 w-px bg-line-light" />
+            <span className="text-ink-secondary">Drag to reorder</span>
+          </p>
         </div>
         <button
           type="button"
