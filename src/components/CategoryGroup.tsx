@@ -30,7 +30,7 @@ export function GroupIcon({ group }: { group: GroupMeta }) {
 
 /** The ⋯ menu at a card's top-right (trial): Collapse / Expand, Remove group, Customize cards. */
 function CardMenu({ group, collapsed }: { group: GroupMeta; collapsed: boolean }) {
-  const { state, setRail, toggleCollapsed, openCustomize } = useStore();
+  const { state, setRail, toggleCollapsed, editCards } = useStore();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -78,7 +78,7 @@ function CardMenu({ group, collapsed }: { group: GroupMeta; collapsed: boolean }
             </button>
           )}
           <div className="my-1 border-t border-line" />
-          <button type="button" role="menuitem" onClick={run(() => openCustomize('brief'))} className={item}>
+          <button type="button" role="menuitem" onClick={run(() => editCards('brief'))} className={item}>
             Customize cards…
           </button>
         </div>

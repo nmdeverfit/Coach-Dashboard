@@ -18,16 +18,19 @@ import { sideIsSidebar, useStore } from './state/store';
 const SLIDE_MS = 420;
 
 /** One view on the slide track; off-screen it sits at `offset` and is hidden once the slide ends. */
-function ViewLayer({ active, offset, children }: { active: boolean; offset: string; children: ReactNode }) {
+function ViewLayer({ active, offset, lifted = false, children }: { active: boolean; offset: string; lifted?: boolean; children: ReactNode }) {
   return (
     <div
       aria-hidden={!active}
       data-view-layer={active ? 'active' : 'inactive'}
       className="absolute inset-0 overflow-y-auto"
       style={{
-        transform: active ? 'translateX(0)' : `translateX(${offset})`,
+        // In edit mode (Customize cards) the cards' section rises over the page's dim, which a transform would trap
+        // inside the layer, so the layer drops it while it rests.
+        transform: active ? (lifted ? 'none' : 'translateX(0)') : `translateX(${offset})`,
         visibility: active ? 'visible' : 'hidden',
-        transition: `transform ${SLIDE_MS}ms cubic-bezier(0.65, 0, 0.35, 1), visibility 0s linear ${active ? 0 : SLIDE_MS}ms`,
+        // Lifting is instant: a transition would keep the transform (and trap the section) for the slide's length.
+        transition: lifted ? 'none' : `transform ${SLIDE_MS}ms cubic-bezier(0.65, 0, 0.35, 1), visibility 0s linear ${active ? 0 : SLIDE_MS}ms`,
       }}
     >
       {children}
@@ -49,7 +52,7 @@ export default function App() {
           {/* Both views stay mounted side by side and slide as one track: the Dashboard comes in from the right, the
               brief from the left. The header stays put. Each view keeps its own scroll and state. */}
           <div className="relative flex-1 overflow-hidden">
-            <ViewLayer active={state.view === 'brief'} offset="-100%">
+            <ViewLayer active={state.view === 'brief'} offset="-100%" lifted={state.editCards === 'brief'}>
               {state.weekOffset === 0 ? (
                 // Layout test (branch claude/layout-3-columns): three parts, the brief takes two and the rail one.
                 // The stacked rail runs far longer than the brief, so each column scrolls on its own. The rail is
@@ -70,7 +73,7 @@ export default function App() {
                 </div>
               )}
             </ViewLayer>
-            <ViewLayer active={state.view === 'dashboard'} offset="100%">
+            <ViewLayer active={state.view === 'dashboard'} offset="100%" lifted={state.editCards === 'dashboard'}>
               <DashboardView />
             </ViewLayer>
           </div>
@@ -80,8 +83,9 @@ export default function App() {
       <ClientDrawer />
       <SessionDrawer />
       <SidePanel />
-      {NOTES_TIMELINE && <NotesTrialBar />}
-      {CHART_TRIAL && <ChartTrialBar />}
+      {/* Edit mode (Customize cards) keeps the page to the lit cards, so the trial bars step aside meanwhile. */}
+      {NOTES_TIMELINE && !state.editCards && <NotesTrialBar />}
+      {CHART_TRIAL && !state.editCards && <ChartTrialBar />}
       {state.customize && <CustomizeCards initialTab={state.customize} />}
       <Toast />
     </div>

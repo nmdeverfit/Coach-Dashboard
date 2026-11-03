@@ -289,6 +289,19 @@ one column. The Upcoming bookings session list is shared with the main branch to
   completed, No activities, Paused; members from `cardMembers` in `lib/groups.ts`, Paused is empty in the demo) and
   the same limit, `MAX_CARDS` = 8 (the user's call). Defaults stay the brief's four and the list's seven. Save and Continue saves both; Cancel / × / Esc drop both; Reset resets the open tab.
   State: `rail` (order + collapsed) and `metrics` in the store, kept in localStorage; `customize` opens the popup.
+  **Edit mode replaces the popup as the way in** (the user's call, no frame; `CardsEditMode.tsx`): a "Customize
+  cards" row with a gear under the rail's cards (`CustomizeTrigger`; on the Dashboard, a small one right-aligned
+  under the metric row), Dashboard Settings' item and the ⋯ menu's Customize cards… all call `editCards(view)` (the
+  store's `editCards`, which also closes any panel). The page dims (`EditOverlay`, a portal at `z-[46]`; the trial
+  bars hide) and only the cards' section stays lit (`CardsEditor`, `z-[47]`; the view's slide layer drops its
+  transform while `lifted`, with no transition, so the section can rise over the dim). The cards collapse to their
+  header: drag handle before the icon and name, count, ⊖ at the right; Cancel · Save (on once the draft differs) at the
+  top with "Customize cards 4/8"; under the cards, the ones not on the view as chips with a ⊕ (click or drag in; a
+  shown card dropped on the chips' area is removed, which lights it up). Dragging draws the same brand line in the
+  closest gap; Alt + arrows move a focused card. The rail's cards stack one per line (also on past weeks); the
+  metric row sits four to a line (`row`, eight in one line cut every name short). Save toasts "Cards updated";
+  Cancel and Esc drop the draft; clicks on the dim do nothing. Same nine cards, `MAX_CARDS` and the one-card floor;
+  no Reset. The popup (`CustomizeCards`) is kept but nothing opens it now.
 - `tailwind.config.js`: tokens mirror the Figma variables (see below). Use the tokens instead of raw hex values.
 
 ### Design source (Figma)

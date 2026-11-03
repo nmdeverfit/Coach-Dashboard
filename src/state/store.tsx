@@ -95,6 +95,8 @@ interface State {
   metrics: MetricKey[];
   /** The Customize cards popup, open on its Today's Brief or Dashboard tab. */
   customize: CustomizeTab | null;
+  /** The view whose cards are being customized in place (edit mode), or null. */
+  editCards: CustomizeTab | null;
 }
 
 export type CustomizeTab = 'brief' | 'dashboard';
@@ -163,6 +165,7 @@ type Action =
   | { type: 'setRail'; rail: RailLayout }
   | { type: 'setMetrics'; metrics: MetricKey[] }
   | { type: 'customize'; tab: CustomizeTab | null }
+  | { type: 'editCards'; view: CustomizeTab | null }
   | { type: 'toggleCollapsed'; key: CardKey }
   | { type: 'toast'; message: string | null }
   | { type: 'select'; id: string | null }
@@ -216,6 +219,7 @@ const initialState: State = {
   rail: loadRail(),
   metrics: loadMetrics(),
   customize: null,
+  editCards: null,
 };
 
 const isPrevious = (t: Todo) => t.raisedOn < DEMO_TODAY;
@@ -308,6 +312,11 @@ function reducer(state: State, action: Action): State {
       return { ...state, metrics: action.metrics };
     case 'customize':
       return { ...state, customize: action.tab };
+    case 'editCards':
+      // Edit mode dims the page, so nothing else stays open over or beside the cards.
+      return action.view
+        ? { ...state, editCards: action.view, selectedClientId: null, selectedTodoId: null, selectedSessionId: null, side: null }
+        : { ...state, editCards: null };
     case 'toggleCollapsed': {
       const { collapsed } = state.rail;
       const next = collapsed.includes(action.key) ? collapsed.filter((k) => k !== action.key) : [...collapsed, action.key];
@@ -507,6 +516,8 @@ interface Store {
   setMetrics: (metrics: MetricKey[]) => void;
   /** Opens Customize cards on a tab; null closes it. */
   openCustomize: (tab: CustomizeTab | null) => void;
+  /** Puts a view's cards into edit mode (Customize cards in place), or ends it. */
+  editCards: (view: CustomizeTab | null) => void;
   toggleCollapsed: (key: CardKey) => void;
   showToast: (message: string) => void;
   hideToast: () => void;
@@ -609,6 +620,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'setMetrics', metrics });
       },
       openCustomize: (tab) => dispatch({ type: 'customize', tab }),
+      editCards: (view) => dispatch({ type: 'editCards', view }),
       toggleCollapsed: (key) => {
         const { order, collapsed } = state.rail;
         saveRail({ order, collapsed: collapsed.includes(key) ? collapsed.filter((k) => k !== key) : [...collapsed, key] });

@@ -116,7 +116,7 @@ function OutlineButton({ icon, label, onClick }: { icon: string; label: string; 
  * from. The other three only toast.
  */
 function SettingsMenu() {
-  const { state, showToast, openCustomize } = useStore();
+  const { state, showToast, editCards } = useStore();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -135,7 +135,7 @@ function SettingsMenu() {
   const items = [
     { icon: iconSettingsHome, label: 'Home screen settings', run: () => showToast('Home screen settings open here') },
     { icon: iconSettingsStatus, label: 'About Client status & data', run: () => showToast('About Client status & data opens here') },
-    { icon: iconSettingsWidget, label: 'Customize cards', run: () => openCustomize(brief ? 'brief' : 'dashboard') },
+    { icon: iconSettingsWidget, label: 'Customize cards', run: () => editCards(brief ? 'brief' : 'dashboard') },
     { icon: iconSettingsUndo, label: 'Switch back to old dashboard', run: () => showToast('Switch back to the old dashboard happens here') },
   ];
   return (

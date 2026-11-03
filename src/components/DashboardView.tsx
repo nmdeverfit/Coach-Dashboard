@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import iconCalendarDays from '../assets/figma/icon-calendar-days.svg';
 import iconColumns from '../assets/figma/icon-columns.svg';
 import iconDownViews from '../assets/figma/icon-down-views.svg';
@@ -14,6 +14,7 @@ import { activityLine, byUrgency, hasFormToReview, inTab, lastActive, statusLine
 import { clientsInWeek, weekAsOf } from '../lib/week';
 import { sideIsSidebar, useStore } from '../state/store';
 import { AiPill } from './AiPill';
+import { CardsEditor, CustomizeTrigger, EditOverlay } from './CardsEditMode';
 import { BookingTable } from './BookingTable';
 import { ClientActions } from './ClientActions';
 import { ClientCell, HEAD, reducedMotion, rowProps, SectionHeader } from './ClientListParts';
@@ -72,7 +73,8 @@ function rowsInWeek(offset: number): Row[] {
 }
 
 export function DashboardView() {
-  const { state, setDashboardTab, reviewedNow } = useStore();
+  const { state, setDashboardTab, reviewedNow, setMetrics, editCards, showToast } = useStore();
+  const cancelEdit = useCallback(() => editCards(null), [editCards]);
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState({ need: true, done: true });
   // The client whose row just changed section, so its new row animates in once.
@@ -109,7 +111,29 @@ export function DashboardView() {
 
   return (
     <div className="flex min-h-full flex-col bg-surface-secondary">
-      <div className="flex gap-2 p-3">
+      {state.editCards === 'dashboard' ? (
+        // Edit mode (Customize cards in place): the metric row is the one lit section over the page's dim.
+        <div className="p-1">
+          <EditOverlay />
+          <CardsEditor
+            row
+            initial={state.metrics}
+            label="Dashboard"
+            item={(key) => {
+              const m = METRICS[key];
+              return { title: m.label, description: m.description, count: metricCount(key), icon: <Glyph src={m.icon.src} size={20} inset={m.icon.inset} bleed={m.icon.bleed} /> };
+            }}
+            onCancel={cancelEdit}
+            onSave={(keys) => {
+              setMetrics(keys);
+              editCards(null);
+              showToast('Cards updated');
+            }}
+          />
+        </div>
+      ) : (
+      <div className="flex flex-col px-3 pt-3">
+      <div className="flex gap-2">
         {state.metrics.map((key) => METRICS[key]).map((m) => (
           <button
             key={m.key}
@@ -127,6 +151,9 @@ export function DashboardView() {
           </button>
         ))}
       </div>
+      <CustomizeTrigger onClick={() => editCards('dashboard')} className="my-1 h-7 self-end px-2" />
+      </div>
+      )}
 
       <div className="flex flex-col gap-4 bg-white px-4 pb-4 pt-4">
         <Tabs current={state.dashboardTab} count={count} onSelect={setDashboardTab} />
