@@ -14,7 +14,7 @@ import { activityLine, byUrgency, hasFormToReview, inTab, lastActive, statusLine
 import { clientsInWeek, weekAsOf } from '../lib/week';
 import { sideIsSidebar, useStore } from '../state/store';
 import { AiPill } from './AiPill';
-import { CardsEditor, CustomizeTrigger, EditOverlay } from './CardsEditMode';
+import { CardsEditor, EditOverlay } from './CardsEditMode';
 import { BookingTable } from './BookingTable';
 import { ClientActions } from './ClientActions';
 import { ClientCell, HEAD, reducedMotion, rowProps, SectionHeader } from './ClientListParts';
@@ -121,7 +121,7 @@ export function DashboardView() {
             label="Dashboard"
             item={(key) => {
               const m = METRICS[key];
-              return { title: m.label, description: m.description, count: metricCount(key), icon: <Glyph src={m.icon.src} size={20} inset={m.icon.inset} bleed={m.icon.bleed} /> };
+              return { title: m.label, description: m.description, icon: <Glyph src={m.icon.src} size={20} inset={m.icon.inset} bleed={m.icon.bleed} /> };
             }}
             onCancel={cancelEdit}
             onSave={(keys) => {
@@ -132,8 +132,7 @@ export function DashboardView() {
           />
         </div>
       ) : (
-      <div className="flex flex-col px-3 pt-3">
-      <div className="flex gap-2">
+      <div className="flex gap-2 p-3">
         {state.metrics.map((key) => METRICS[key]).map((m) => (
           <button
             key={m.key}
@@ -150,8 +149,6 @@ export function DashboardView() {
             <span className="px-1 text-[20px] font-semibold leading-[1.2] tracking-[-0.4px] text-ink tabular-nums">{metricCount(m.key)}</span>
           </button>
         ))}
-      </div>
-      <CustomizeTrigger onClick={() => editCards('dashboard')} className="my-1 h-7 self-end px-2" />
       </div>
       )}
 

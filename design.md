@@ -99,18 +99,17 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   dashed brand border, rounded 12, 8 px outside the column, `bg-brand/5` behind the rows, and the hint turns brand
   semibold "Release to remove {card}". Footer: "Reset to default"
   (13 px semibold underlined) · Cancel (44 px, rounded 5) · Save and Continue (44 px brand). Toast "Cards updated".
-  **Edit mode** (the user's call, no frame; the way in now, the popup is unused): trigger = gear (`icon-settings`,
-  14 px) + "Customize cards" 13 px semibold `ink-secondary`, hover `ink` on white, rounded 8; under the rail's cards a
-  36 px full-width row 8 px below them, on the Dashboard a 28 px one right-aligned under the metric row. In edit mode
+  **Edit mode** (the user's call, no frame; the way in now, the popup is unused): opened from Dashboard Settings
+  (or a card's ⋯ menu), no trigger on the page (the user's call). In edit mode
   the page dims with `#0c0f2e` at 60 % (fade-in) and the section rises over it: `bg-surface-secondary`, rounded 16,
   `p-4`, `0 0 0 1px rgba(255,255,255,0.6), 0 12px 40px rgba(0,0,0,0.25)`, 4 px in from the column. Header: "Customize
-  cards" 14 px bold + "4/8" 12 px semibold `ink-tertiary`, "Drag to reorder · Today’s Brief" 12 px `ink-secondary`;
+  cards" 14 px bold (no count), "Drag to reorder · Today’s Brief" 12 px `ink-secondary`;
   Cancel (32 px, white, `border-black/10`, rounded 5) · Save (32 px brand, `#e4e6ee` / muted text until something
   changes). Collapsed cards: white, rounded 12, `py-3 pl-2 pr-3`, gap 8 between, drag dots 16 + icon 20 + name 14 px
-  bold + count chip, ⊖ 16 px at the right; held = dashed `line-light` slot; the rail's stack one per line, the metric
+  bold (no count), ⊖ 16 px at the right; held = dashed `line-light` slot; the rail's stack one per line, the metric
   row's four to a line. Chips area: 2 px dashed `line-light`, rounded 12, `p-3`, hint 12 px `ink-tertiary` ("Add a
   card", "Up to 8 cards. Remove one to add another.", "Every card is shown."); chips 32 px pills, white,
-  `border-line-light`, ⊕ 14 px + 13 px semibold name, hover brand border and text, disabled at 40 %. A shown card
+  `border-line-light`, `pl-2 pr-2`, the card's 20 px icon + 13 px semibold name + ⊕ 14 px at the right, hover brand border and text, disabled at 40 %. A shown card
   held over the area turns it brand dashed on `brand/5` with "Release to remove {card}".
   **Dashboard Settings** (`5749:521870`): open = `bg-brand/10`, `border-black/15`, brand text and gear; the menu
   hangs 4 px under it, right-aligned, 252 px, white, rounded 4, `0 0 2px #b0bac8, 0 4px 16px rgba(37,40,48,0.1)`,

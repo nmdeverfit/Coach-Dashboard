@@ -3,44 +3,27 @@ import { createPortal } from 'react-dom';
 import iconDrag from '../assets/figma/icon-drag-indicator.svg';
 import iconMinus from '../assets/figma/icon-circle-minus-fill.svg';
 import iconPlus from '../assets/figma/icon-circle-plus-fill-sm.svg';
-import iconSettings from '../assets/figma/icon-settings.svg';
 import type { CardKey } from '../data/types';
-import { CountChip } from './CountChip';
 import { MAX_CARDS } from './groups';
 import { METRIC_ORDER } from './metrics';
 
 /**
- * Customize cards, in place (the user's call, no frame; replaces the popup as the way in): a "Customize cards" row
- * under the cards puts that view into edit mode. The page dims (`EditOverlay`) and only the cards' section stays
+ * Customize cards, in place (the user's call, no frame; replaces the popup as the way in): Dashboard Settings'
+ * Customize cards (or a group card's ⋯ menu) puts the view on screen into edit mode. The page dims (`EditOverlay`) and only the cards' section stays
  * lit, raised over the dim (`z-[47]`, the view's slide transform lifted so it can). The cards collapse to their
- * header with a drag handle before the name and a ⊖ at the right; Cancel and Save sit at the top; the cards not on
- * the view sit under them as chips with a ⊕. Nothing changes until Save; Cancel or Esc throws the draft away.
+ * header with a drag handle before the icon and name (no count) and a ⊖ at the right; Cancel and Save sit at the
+ * top; the cards not on the view sit under them as chips: icon, name, then a ⊕. Nothing changes until Save; Cancel or Esc throws the draft away.
  */
 
 export interface EditItem {
   title: string;
   icon: ReactNode;
   description: string;
-  count: number;
 }
 
 /** The dim over the whole page while a view's cards are being edited. Clicks on it do nothing, so no draft is lost. */
 export function EditOverlay() {
   return createPortal(<div aria-hidden className="fixed inset-0 z-[46] animate-fade-in bg-[#0c0f2e]/60" />, document.body);
-}
-
-/** The way into edit mode: a gear and "Customize cards", under the cards. */
-export function CustomizeTrigger({ onClick, className = '' }: { onClick: () => void; className?: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex items-center justify-center gap-1.5 rounded-lg text-[13px] font-semibold leading-[1.5] text-ink-secondary hover:bg-white hover:text-ink ${className}`}
-    >
-      <img src={iconSettings} alt="" width={14} height={14} />
-      Customize cards
-    </button>
-  );
 }
 
 type Drag = { key: CardKey; from: 'shown' | 'chips' } | null;
@@ -160,12 +143,7 @@ export function CardsEditor({
     >
       <header className="flex items-center gap-3">
         <div className="min-w-0 flex-1">
-          <h2 className="flex items-center gap-2 text-[14px] font-bold leading-[1.5] text-ink">
-            Customize cards
-            <span className="text-[12px] font-semibold tabular-nums text-ink-tertiary">
-              {keys.length}/{MAX_CARDS}
-            </span>
-          </h2>
+          <h2 className="text-[14px] font-bold leading-[1.5] text-ink">Customize cards</h2>
           <p className="truncate text-[12px] leading-[1.5] text-ink-secondary">Drag to reorder · {label}</p>
         </div>
         <button
@@ -235,7 +213,6 @@ export function CardsEditor({
                 <img src={iconDrag} alt="" width={16} height={16} className="shrink-0" />
                 {it.icon}
                 <span className="min-w-0 truncate text-[14px] font-bold leading-[1.5] text-ink">{it.title}</span>
-                <CountChip value={it.count} />
                 <span className="flex-1" />
                 <button
                   type="button"
@@ -300,12 +277,13 @@ export function CardsEditor({
                       window.setTimeout(() => setDrag({ key, from: 'chips' }));
                     }}
                     onDragEnd={endDrag}
-                    className={`flex h-8 items-center gap-1.5 rounded-full border bg-white pl-2 pr-3 text-[13px] font-semibold leading-[1.5] text-ink hover:border-brand hover:text-brand disabled:cursor-default disabled:opacity-40 disabled:hover:border-line-light disabled:hover:text-ink ${
+                    className={`flex h-8 items-center gap-1.5 rounded-full border bg-white pl-2 pr-2 text-[13px] font-semibold leading-[1.5] text-ink hover:border-brand hover:text-brand disabled:cursor-default disabled:opacity-40 disabled:hover:border-line-light disabled:hover:text-ink ${
                       drag?.key === key ? 'border-dashed border-line-light opacity-40' : 'border-line-light'
                     }`}
                   >
-                    <img src={iconPlus} alt="" width={14} height={14} />
+                    {it.icon}
                     {it.title}
+                    <img src={iconPlus} alt="" width={14} height={14} className="ml-0.5" />
                   </button>
                 </li>
               );
