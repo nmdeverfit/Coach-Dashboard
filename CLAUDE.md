@@ -295,7 +295,7 @@ one column. The Upcoming bookings session list is shared with the main branch to
   bars hide) and only the cards' section stays lit (`CardsEditor`, `z-[47]`; the view's slide layer drops its
   transform while `lifted`, with no transition, so the section can rise over the dim). The cards collapse to their
   header: drag handle before the icon and name, no count, ⊖ at the right; Cancel · Save (on once the draft differs) at
-  the top with "Customize cards" (18 px, no "4/8") over "Today’s Brief • Drag to reorder" ("Dashboard view" on the list, the view semibold in the title's `ink`, the brief's dot between); under the cards, the ones not on the view as chips, icon · name · ⊕
+  the top with "Customize cards" (18 px, no "4/8") over "Today’s Brief • Drag to reorder" ("Dashboard view" on the list, the view in medium weight in the title's `ink`, the card names semibold, the brief's dot between); under the cards, the ones not on the view as chips, icon · name · ⊕
   (the user's call; click or drag in; a
   shown card dropped on the chips' area is removed, which lights it up). Dragging draws the same brand line in the
   closest gap; Alt + arrows move a focused card. The rail's cards stack one per line (also on past weeks); the

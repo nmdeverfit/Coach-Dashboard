@@ -147,7 +147,7 @@ export function CardsEditor({
           <h2 className="text-[18px] font-bold leading-[1.4] text-ink">Customize cards</h2>
           {/* The view first, a touch stronger, then the hint (the user's call). */}
           <p className="mt-1 flex items-center gap-2 whitespace-nowrap text-[13px] leading-[1.5]">
-            <span className="font-semibold text-ink">{label}</span>
+            <span className="font-medium text-ink">{label}</span>
             {/* The brief's "Updated at … • Refreshes daily" dot. */}
             <img src={dot} alt="" width={4} height={4} />
             <span className="text-ink-secondary">Drag to reorder</span>
@@ -219,7 +219,7 @@ export function CardsEditor({
               <span className={`flex min-w-0 flex-1 items-center gap-2 ${held ? 'invisible' : ''}`}>
                 <img src={iconDrag} alt="" width={16} height={16} className="shrink-0" />
                 {it.icon}
-                <span className="min-w-0 truncate text-[14px] font-bold leading-[1.5] text-ink">{it.title}</span>
+                <span className="min-w-0 truncate text-[14px] font-semibold leading-[1.5] text-ink">{it.title}</span>
                 <span className="flex-1" />
                 <button
                   type="button"

@@ -103,11 +103,11 @@ Figma file: `idT7h4wCHAIWQ9XQ5VrCvE` (AI Coach Dashboard). Node ids for each sur
   (or a card's ⋯ menu), no trigger on the page (the user's call). In edit mode
   the page dims with `#0c0f2e` at 60 % (fade-in) and the section rises over it: `bg-surface-secondary`, rounded 16,
   `p-4`, `0 0 0 1px rgba(255,255,255,0.6), 0 12px 40px rgba(0,0,0,0.25)`, 4 px in from the column. Header: "Customize
-  cards" 18 px bold (no count), 4 px over one 13 px line: the view ("Today’s Brief" / "Dashboard view") semibold `ink`, the title's colour (the user's call),
+  cards" 18 px bold (no count), 4 px over one 13 px line: the view ("Today’s Brief" / "Dashboard view") medium (500) `ink`, the title's colour (the user's call),
   the brief's 4 px dot (`dot.svg`, as in "Updated at … • Refreshes daily"), "Drag to reorder" `ink-secondary` (the user's call);
   Cancel (32 px, white, `border-black/10`, rounded 5) · Save (32 px brand, `#e4e6ee` / muted text until something
   changes). Collapsed cards: white, rounded 12, `py-3 pl-2 pr-3`, gap 8 between, drag dots 16 + icon 20 + name 14 px
-  bold (no count), ⊖ 16 px at the right; held = dashed `line-light` slot; the rail's stack one per line, the metric
+  semibold (no count; bold read too heavy, the user's call), ⊖ 16 px at the right; held = dashed `line-light` slot; the rail's stack one per line, the metric
   row's four to a line. Chips area: 2 px dashed `line-light`, rounded 12, `p-3`, hint 12 px `ink-tertiary` ("Add a
   card", "Up to 8 cards. Remove one to add another.", "Every card is shown."); chips 32 px pills, white,
   `border-line-light`, `pl-2 pr-2`, the card's 20 px icon + 13 px semibold name + ⊕ 14 px at the right, hover brand border and text, disabled at 40 %. A shown card
