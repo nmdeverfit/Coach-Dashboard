@@ -1,6 +1,6 @@
 import { ArrowRightLeft, ArrowUpRight, ChevronDown, ChevronUp, LayoutDashboard, LayoutGrid, ListTree, NotebookPen } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
-import { setNotesSwitchHidden, useNotesSwitchHidden } from '../lib/notesTrial';
+import { NOTES_LAYOUTS, RELATED_OPTIONS, setNotesLayout, setRelatedOption, useNotesLayout, useRelatedOption } from '../lib/notesTrial';
 import { useStore } from '../state/store';
 
 /** The client every shortcut lands on when it needs one: notes, meeting notes and an at-risk assessment all at once. */
@@ -41,10 +41,35 @@ const readOpen = () => {
   }
 };
 
+/** A trial option inside an entry: a label, then a small segmented control (selected in `ink`). */
+function Segmented<K extends string>({ label, value, options, onChange }: { label: string; value: K; options: { key: K; label: string }[]; onChange: (k: K) => void }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="min-w-0 truncate text-[12px] leading-[1.5] text-ink-secondary">{label}</span>
+      <div role="radiogroup" aria-label={label} className="flex shrink-0 rounded-md border border-line-light bg-white p-0.5">
+        {options.map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            role="radio"
+            aria-checked={value === o.key}
+            onClick={() => onChange(o.key)}
+            className={`h-6 whitespace-nowrap rounded px-2.5 text-[12px] font-semibold ${value === o.key ? 'bg-ink text-white' : 'text-ink-secondary hover:text-ink'}`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 interface Entry {
   key: string;
   icon: ReactNode;
   title: string;
+  /** A trial option this change can be seen in, picked here (the user's call). */
+  option?: ReactNode;
   go: () => void;
 }
 
@@ -58,7 +83,8 @@ interface Entry {
 export function ChangeLog() {
   const { state, setView, resetWeek, selectClient, selectTodo, editCards } = useStore();
   const [open, setOpenState] = useState(readOpen);
-  const switchHidden = useNotesSwitchHidden();
+  const notesLayout = useNotesLayout();
+  const related = useRelatedOption();
   const setOpen = (v: boolean) => {
     setOpenState(v);
     try {
@@ -80,6 +106,14 @@ export function ChangeLog() {
       key: 'notes',
       icon: <NotebookPen size={16} />,
       title: 'Notes | Meeting notes',
+      option: (
+        <Segmented
+          label="Opens in"
+          value={notesLayout}
+          options={NOTES_LAYOUTS.map((v) => ({ key: v.key, label: v.label }))}
+          onChange={setNotesLayout}
+        />
+      ),
       go: () => selectClient(SHOWCASE, 'notes'),
     },
     {
@@ -99,6 +133,7 @@ export function ChangeLog() {
       key: 'grouped',
       icon: <ListTree size={16} />,
       title: 'Grouped to-dos',
+      option: <Segmented label="Related to-dos in the panel" value={related} options={RELATED_OPTIONS} onChange={setRelatedOption} />,
       go: () => {
         toBrief();
         whenReady(() => document.querySelector<HTMLElement>('[data-view-layer="active"] li[data-todo-id^="client:"]'), reveal);
@@ -183,25 +218,10 @@ export function ChangeLog() {
                 <ArrowUpRight size={14} aria-hidden />
               </button>
             </div>
+            {e.option && <div className="mt-2 pl-[38px]">{e.option}</div>}
           </li>
         ))}
       </ol>
-      {/* The Notes option switch can be hidden for screenshots; this brings it back. */}
-      <footer className="flex shrink-0 items-center justify-between gap-2 border-t border-line px-4 py-2.5 text-[12px] leading-[1.5]">
-        <span className="text-ink-secondary">Notes option switch on the Notes tab</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={!switchHidden}
-          onClick={() => setNotesSwitchHidden(!switchHidden)}
-          className="flex items-center gap-2 font-semibold text-ink"
-        >
-          {switchHidden ? 'Hidden' : 'Shown'}
-          <span className={`relative h-4 w-7 rounded-full transition-colors ${switchHidden ? 'bg-line-light' : 'bg-brand'}`}>
-            <span className={`absolute top-0.5 size-3 rounded-full bg-white transition-[left] ${switchHidden ? 'left-0.5' : 'left-[14px]'}`} />
-          </span>
-        </button>
-      </footer>
     </section>
   );
 }

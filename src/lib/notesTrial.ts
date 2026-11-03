@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 /**
- * Notes timeline trial: where a note opens, picked on the switch over the Notes card (`NotesOptionSwitch` in `NotesTimeline`) so the two can be compared on
+ * Notes timeline trial: where a note opens, picked in the Changelog (`ChangeLog`) so the two can be compared on
  * one page (the user's call). Remembered in this browser only.
  * - popup: New note, Note details and the meeting notes open in a popup over the panel.
  * - inline: they open in the Notes card itself; its header turns into ‹ Back (details) or Cancel · Save (the form).
@@ -45,34 +45,39 @@ export const useNotesLayout = () =>
   );
 
 /**
- * Whether the Notes option switch shows over the Notes card. Hidden with its ×, so screenshots show the product only;
- * the Changelog brings it back (the user's call). Remembered in this browser only.
+ * Grouped to-dos trial: whether a to-do's panel lists the client's other to-dos (Related to-dos), picked in the
+ * Changelog so both can be compared (the user's call). Remembered in this browser only.
  */
-const HIDE_KEY = 'cid-notes-switch-hidden';
-let switchHidden = (() => {
+export type RelatedOption = 'show' | 'hide';
+export const RELATED_OPTIONS: { key: RelatedOption; label: string }[] = [
+  { key: 'show', label: 'Show' },
+  { key: 'hide', label: 'Hide' },
+];
+const RELATED_KEY = 'cid-related-todos';
+let related: RelatedOption = (() => {
   try {
-    return localStorage.getItem(HIDE_KEY) === '1';
+    return localStorage.getItem(RELATED_KEY) === 'hide' ? 'hide' : 'show';
   } catch {
-    return false;
+    return 'show';
   }
 })();
-const hideListeners = new Set<() => void>();
+const relatedListeners = new Set<() => void>();
 
-export function setNotesSwitchHidden(v: boolean) {
-  switchHidden = v;
+export function setRelatedOption(v: RelatedOption) {
+  related = v;
   try {
-    localStorage.setItem(HIDE_KEY, v ? '1' : '0');
+    localStorage.setItem(RELATED_KEY, v);
   } catch {
-    // Private windows: the choice lasts for the page only.
+    // Private windows: the pick lasts for the page only.
   }
-  hideListeners.forEach((l) => l());
+  relatedListeners.forEach((l) => l());
 }
 
-export const useNotesSwitchHidden = () =>
+export const useRelatedOption = () =>
   useSyncExternalStore(
     (l) => {
-      hideListeners.add(l);
-      return () => hideListeners.delete(l);
+      relatedListeners.add(l);
+      return () => relatedListeners.delete(l);
     },
-    () => switchHidden,
+    () => related,
   );

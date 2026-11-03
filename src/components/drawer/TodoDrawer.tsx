@@ -18,6 +18,7 @@ import { DEMO_TODAY } from '../../data/mock';
 import { getProfile } from '../../data/profiles';
 import type { CheckinDetail, Client, Todo, TodoDetail } from '../../data/types';
 import { buildCheckinView } from '../../lib/checkin';
+import { useRelatedOption } from '../../lib/notesTrial';
 import { buildClientAssessment } from '../../lib/client';
 import { buildAcknowledgeView, buildBuildView, buildPrepareView, buildRemindView, buildRespondView, buildUnblockView } from '../../lib/todos';
 import { getClient, useStore } from '../../state/store';
@@ -344,6 +345,7 @@ function PlaceholderBody() {
 /** To-do details drawer: slides in from the right over the right rail; the brief stays usable beside it. */
 export function TodoDrawer() {
   const { state, selectTodo, markReviewed, completeFromPanel, dismiss } = useStore();
+  const showRelated = useRelatedOption() === 'show';
   const { shown: shownId, closing } = useDrawerPresence(state.selectedTodoId);
   const [confirmDismiss, setConfirmDismiss] = useState(false);
   const [clientOpen, setClientOpen] = useState(false);
@@ -405,7 +407,8 @@ export function TodoDrawer() {
         </header>
         <div key={todo.id} data-panel-scroll className="flex-1 overflow-y-auto">
           <TitleBlock todo={todo} client={client} onComplete={complete} onDismiss={() => setConfirmDismiss(true)} onOpenClient={() => setClientOpen(true)} />
-          {GROUPED_TODOS && <RelatedTodos todo={todo} onOpen={openFromTodo} />}
+          {/* The Changelog can hide it, to compare the panel without it (the user's call). */}
+          {GROUPED_TODOS && showRelated && <RelatedTodos todo={todo} onOpen={openFromTodo} />}
           {detail ? (
             <Body todo={todo} client={client} detail={detail} />
           ) : todo.type === 'checkin' && GROUPED_TODOS ? (

@@ -495,11 +495,12 @@ one column. The Upcoming bookings session list is shared with the main branch to
   status (Clint's detail page, then clicks Not quite) · Grouped to-dos (the brief, scrolled to the first group, which a
   brand ring flashes) · Customize cards · Today's Brief and · Dashboard (that view in edit mode). The chevron collapses it
   to a dark "What’s changed 5" bar, open or collapsed kept in localStorage (`cid-changelog-open`, open by default).
-  Add an entry here when this page gains a change.
-  A switch over the Notes card (`NotesOptionSwitch` in `NotesTimeline.tsx`, moved off the bottom bar into the Notes
-  tab, the user's call; `lib/notesTrial.ts`, kept in localStorage; its × hides it for screenshots, and the Changelog's
-  footer switch "Notes option switch on the Notes tab · Shown / Hidden" brings it back, `cid-notes-switch-hidden`)
-  switches between two options: A · Popup (below) and B · In the section, where New
+  The trial options live in the Changelog too, under their entry (`Segmented`, the user's call): Notes | Meeting
+  notes has "Opens in A · Popup | B · In the section" (`lib/notesTrial.ts`, `cid-notes-layout`; the switch that sat
+  over the Notes card is gone, so the Notes tab shows only product UI), and Grouped to-dos has "Related to-dos in the
+  panel Show | Hide" (`useRelatedOption`, `cid-related-todos`; Hide drops the panel's Related to-dos box, so no
+  breadcrumb trail starts either). Add an entry here when this page gains a change.
+  The Notes option in the Changelog switches between two options: A · Popup (below) and B · In the section, where New
   note, Edit and both details open in the Notes card itself (`InlineDetails` in `NotesTimeline.tsx`, `NewNoteDialog`
   `inline`): on details the card's header reads ‹ Back with Delete · Edit, and under the title one line holds the kind tag and
   the times ("Created: …" or "Meeting date: …" • "Last edited: …"), 20 px all round; on the form its name with Cancel · Save
