@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import dot from '../assets/figma/dot.svg';
 import iconDrag from '../assets/figma/icon-drag-indicator.svg';
 import iconMinus from '../assets/figma/icon-circle-minus-fill.svg';
 import iconPlus from '../assets/figma/icon-circle-plus-fill-sm.svg';
@@ -146,8 +147,9 @@ export function CardsEditor({
           <h2 className="text-[18px] font-bold leading-[1.4] text-ink">Customize cards</h2>
           {/* The view first, a touch stronger, then the hint (the user's call). */}
           <p className="mt-1 flex items-center gap-2 whitespace-nowrap text-[13px] leading-[1.5]">
-            <span className="font-semibold text-ink">{label}</span>
-            <span aria-hidden className="h-3 w-px bg-line-light" />
+            <span className="font-semibold text-brand">{label}</span>
+            {/* The brief's "Updated at … • Refreshes daily" dot. */}
+            <img src={dot} alt="" width={4} height={4} />
             <span className="text-ink-secondary">Drag to reorder</span>
           </p>
         </div>
