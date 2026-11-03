@@ -9,7 +9,7 @@ import type { Client, ClientNote, Meeting } from '../../data/types';
 import { formatMonthDay, parseDay } from '../../lib/dates';
 import { createdAt, meetingsFor } from '../../lib/meetings';
 import { noteStamp, noteText } from '../../lib/notes';
-import { useNotesLayout } from '../../lib/notesTrial';
+import { NOTES_LAYOUTS, setNotesLayout, useNotesLayout } from '../../lib/notesTrial';
 import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { NewNoteDialog } from './NewNoteDialog';
@@ -149,9 +149,49 @@ function InlineDetails({ client, entry, onBack, onEdit, onDelete }: { client: Cl
  * notes (a meeting with its transcript) run in one list by created time, split by day ("Today", "Aug 27"), each on a
  * timeline with its kind's icon. Search reads the text and any attached file. A note opens Note details, meeting
  * notes their one-page popup (no Summary on this trial) with Delete and Edit. New note is one form with Note |
- * Meeting notes tabs; Edit opens it on the meeting notes. The trial bar's option B opens all of it in the card itself.
+ * Meeting notes tabs; Edit opens it on the meeting notes. Option B (the switch over the card) opens all of it in the card itself.
  */
-export function NotesTimeline({ client, notes: profileNotes }: { client: Client; notes: ClientNote[] }) {
+/**
+ * The trial's layout switch (the user's call, not product UI): sits over the Notes card, so the two options are
+ * compared where notes open. A dashed strip marks it as a trial control.
+ */
+function NotesOptionSwitch() {
+  const layout = useNotesLayout();
+  const active = NOTES_LAYOUTS.find((v) => v.key === layout)!;
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-dashed border-line-light bg-surface-secondary px-3 py-2">
+      <span className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-tertiary">Notes option</span>
+      <div role="tablist" aria-label="Notes option" className="flex shrink-0 rounded-md border border-line-light bg-white p-0.5">
+        {NOTES_LAYOUTS.map((v) => (
+          <button
+            key={v.key}
+            type="button"
+            role="tab"
+            aria-selected={layout === v.key}
+            onClick={() => setNotesLayout(v.key)}
+            className={`h-6 whitespace-nowrap rounded px-2.5 text-[12px] font-semibold ${layout === v.key ? 'bg-ink text-white' : 'text-ink-secondary hover:text-ink'}`}
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+      <p className="min-w-0 truncate text-[12px] leading-[1.5] text-ink-secondary" title={active.hint}>
+        {active.hint}
+      </p>
+    </div>
+  );
+}
+
+export function NotesTimeline(props: { client: Client; notes: ClientNote[] }) {
+  return (
+    <div className="flex w-full flex-col gap-3">
+      <NotesOptionSwitch />
+      <NotesCard {...props} />
+    </div>
+  );
+}
+
+function NotesCard({ client, notes: profileNotes }: { client: Client; notes: ClientNote[] }) {
   const { state, deleteMeeting, setNotes } = useStore();
   const inline = useNotesLayout() === 'inline';
   const notes = state.notes[client.id] ?? profileNotes;

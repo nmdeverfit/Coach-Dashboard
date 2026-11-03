@@ -5,7 +5,7 @@ import { ClientDrawer } from './components/drawer/ClientDetails';
 import { SessionDrawer } from './components/drawer/SessionDetails';
 import { TodoDrawer } from './components/drawer/TodoDrawer';
 import { Header } from './components/Header';
-import { NotesTrialBar } from './components/NotesTrialBar';
+import { ChangeLog } from './components/ChangeLog';
 import { ChartTrialBar } from './components/drawer/TrainingChartTrial';
 import { RightRail } from './components/RightRail';
 import { Sidebar } from './components/Sidebar';
@@ -84,7 +84,7 @@ export default function App() {
       <SessionDrawer />
       <SidePanel />
       {/* Edit mode (Customize cards) keeps the page to the lit cards, so the trial bars step aside meanwhile. */}
-      {NOTES_TIMELINE && !state.editCards && <NotesTrialBar />}
+      {NOTES_TIMELINE && !state.editCards && <ChangeLog />}
       {CHART_TRIAL && !state.editCards && <ChartTrialBar />}
       {state.customize && <CustomizeCards initialTab={state.customize} />}
       <Toast />

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 /**
- * Notes timeline trial: where a note opens, picked on the trial bar (`NotesTrialBar`) so the two can be compared on
+ * Notes timeline trial: where a note opens, picked on the switch over the Notes card (`NotesOptionSwitch` in `NotesTimeline`) so the two can be compared on
  * one page (the user's call). Remembered in this browser only.
  * - popup: New note, Note details and the meeting notes open in a popup over the panel.
  * - inline: they open in the Notes card itself; its header turns into ‹ Back (details) or Cancel · Save (the form).
