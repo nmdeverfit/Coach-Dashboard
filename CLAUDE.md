@@ -490,12 +490,12 @@ one column. The Upcoming bookings session list is shared with the main branch to
   and start, notes, transcript, a recorded call's lines kept or removed) and returns to the details. Edits and deletes
   of any meeting, the demo's too, live in `meetingEdits` in the store (session only; `meetingsFor` applies them).
   Changelog (the user's call, demo tooling; `ChangeLog.tsx`, pinned at the bottom left where the trial bar was):
-  "What’s changed" lists every change against the original demo in full (a bullet per change) under five entries, each
+  "What’s changed" lists the changes against the original demo as five titles only (no descriptions, the user's call), each
   with View, a shortcut to its UI that also folds the log away: Notes | Meeting notes (Clint's Notes tab) · Change client
   status (Clint's detail page, then clicks Not quite) · Grouped to-dos (the brief, scrolled to the first group, which a
   brand ring flashes) · Customize cards · Today's Brief and · Dashboard (that view in edit mode). The chevron collapses it
   to a dark "What’s changed 5" bar, open or collapsed kept in localStorage (`cid-changelog-open`, open by default).
-  Add an entry or a bullet here when this page gains a change.
+  Add an entry here when this page gains a change.
   A switch over the Notes card (`NotesOptionSwitch` in `NotesTimeline.tsx`, moved off the bottom bar into the Notes
   tab, the user's call; `lib/notesTrial.ts`, kept in localStorage) switches between two options: A · Popup (below) and B · In the section, where New
   note, Edit and both details open in the Notes card itself (`InlineDetails` in `NotesTimeline.tsx`, `NewNoteDialog`

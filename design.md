@@ -260,12 +260,12 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   dragged over the form draws a dashed brand frame, "Drop the file to attach it". The meeting popup is one plain page on this trial: the
   notes (`note-body`, 32 px sides, no heading; a recorded call's read "What we covered" and "Next steps", bold
   paragraphs over bullet lists), then 16 px down the transcript in the same card
-  (`TranscriptFileCard`, filling the rest of the popup, at least 240 px, Download in brand for a file). **Changelog** (demo tooling, the user's call, no frame): pinned at the bottom left (80 px in, 16 px up), 420 px,
+  (`TranscriptFileCard`, filling the rest of the popup, at least 240 px, Download in brand for a file). **Changelog** (demo tooling, the user's call, no frame): pinned at the bottom left (80 px in, 16 px up), 360 px,
   white, rounded 12, `0 0 2px rgba(176,186,200,0.9), 0 12px 40px rgba(32,35,83,0.25)`, up to the window less 120 px,
   the list scrolling inside: "What’s changed" 16 px bold + a count chip, a 12 px `ink-secondary` line, a chevron-down
-  collapse at the right, a `line` rule; entries divided by `line`, `py-3.5`: a 28 px `brand/10` tile with a 16 px lucide
-  icon in brand, the title 13 px semibold, View + ↗ (12 px semibold brand, hover `brand/10`) at the right, then the
-  changes as 12 px `ink-tertiary` bullets (4 px `ink-muted` dots) indented under the title. Collapsed: a 36 px `ink`
+  collapse at the right, a `line` rule; entries divided by `line`: a 28 px `brand/10` tile with a 16 px lucide
+  icon in brand, the title 13 px semibold, View + ↗ (12 px semibold brand, hover `brand/10`) at the right; titles only, no
+  description (the user's call), `py-2.5` per entry. Collapsed: a 36 px `ink`
   bar, "What’s changed" 12 px semibold white + count chip + chevron-up. A shortcut that lands on a spot (Grouped
   to-dos) flashes a 4 px `brand/35` ring for 2 s. The Notes option switch sits over the Notes card: a dashed
   `line-light` strip on `surface-secondary`, rounded 8, `px-3 py-2`: "NOTES OPTION" 11 px semibold `ink-tertiary`, a
