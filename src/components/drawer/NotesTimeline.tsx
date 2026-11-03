@@ -9,7 +9,8 @@ import type { Client, ClientNote, Meeting } from '../../data/types';
 import { formatMonthDay, parseDay } from '../../lib/dates';
 import { createdAt, meetingsFor } from '../../lib/meetings';
 import { noteStamp, noteText } from '../../lib/notes';
-import { NOTES_LAYOUTS, setNotesLayout, useNotesLayout } from '../../lib/notesTrial';
+import { X } from 'lucide-react';
+import { NOTES_LAYOUTS, setNotesLayout, setNotesSwitchHidden, useNotesLayout, useNotesSwitchHidden } from '../../lib/notesTrial';
 import { useStore } from '../../state/store';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { NewNoteDialog } from './NewNoteDialog';
@@ -153,11 +154,14 @@ function InlineDetails({ client, entry, onBack, onEdit, onDelete }: { client: Cl
  */
 /**
  * The trial's layout switch (the user's call, not product UI): sits over the Notes card, so the two options are
- * compared where notes open. A dashed strip marks it as a trial control.
+ * compared where notes open. A dashed strip marks it as a trial control; its × hides it for screenshots, and the
+ * Changelog brings it back.
  */
 function NotesOptionSwitch() {
   const layout = useNotesLayout();
+  const hidden = useNotesSwitchHidden();
   const active = NOTES_LAYOUTS.find((v) => v.key === layout)!;
+  if (hidden) return null;
   return (
     <div className="flex items-center gap-3 rounded-lg border border-dashed border-line-light bg-surface-secondary px-3 py-2">
       <span className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-tertiary">Notes option</span>
@@ -175,9 +179,18 @@ function NotesOptionSwitch() {
           </button>
         ))}
       </div>
-      <p className="min-w-0 truncate text-[12px] leading-[1.5] text-ink-secondary" title={active.hint}>
+      <p className="min-w-0 flex-1 truncate text-[12px] leading-[1.5] text-ink-secondary" title={active.hint}>
         {active.hint}
       </p>
+      <button
+        type="button"
+        aria-label="Hide Notes option"
+        title="Hide (bring it back from What’s changed)"
+        onClick={() => setNotesSwitchHidden(true)}
+        className="-mr-1 flex size-6 shrink-0 items-center justify-center rounded text-ink-tertiary hover:bg-white hover:text-ink"
+      >
+        <X size={14} />
+      </button>
     </div>
   );
 }

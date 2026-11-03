@@ -269,7 +269,9 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   bar, "What’s changed" 12 px semibold white + count chip + chevron-up. A shortcut that lands on a spot (Grouped
   to-dos) flashes a 4 px `brand/35` ring for 2 s. The Notes option switch sits over the Notes card: a dashed
   `line-light` strip on `surface-secondary`, rounded 8, `px-3 py-2`: "NOTES OPTION" 11 px semibold `ink-tertiary`, a
-  white segmented control (24 px, selected `ink` with white text), the option's hint 12 px `ink-secondary`. Option B (the switch over the Notes card, the user's call, no frame): the
+  white segmented control (24 px, selected `ink` with white text), the option's hint 12 px `ink-secondary`, a 24 px × at
+  the right that hides it (the user's call, for screenshots); the Changelog's footer (a `line` rule, 12 px
+  `ink-secondary` label, "Shown" / "Hidden" + a 28 × 16 switch in brand / `line-light`) brings it back. Option B (the switch over the Notes card, the user's call, no frame): the
   same content in the Notes card instead of a popup; the card's 44 px white header (`NotesCardBar`) turns into ‹ Back
   (20 px chevron, 14 px semibold) + Delete · Edit on details, or the form's name (15 px semibold: "Add new note"
   whichever tab is on, "Edit note" / "Edit meeting notes" on an edit, the user's call) + Cancel · Save

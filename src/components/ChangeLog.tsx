@@ -1,5 +1,6 @@
 import { ArrowRightLeft, ArrowUpRight, ChevronDown, ChevronUp, LayoutDashboard, LayoutGrid, ListTree, NotebookPen } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
+import { setNotesSwitchHidden, useNotesSwitchHidden } from '../lib/notesTrial';
 import { useStore } from '../state/store';
 
 /** The client every shortcut lands on when it needs one: notes, meeting notes and an at-risk assessment all at once. */
@@ -57,6 +58,7 @@ interface Entry {
 export function ChangeLog() {
   const { state, setView, resetWeek, selectClient, selectTodo, editCards } = useStore();
   const [open, setOpenState] = useState(readOpen);
+  const switchHidden = useNotesSwitchHidden();
   const setOpen = (v: boolean) => {
     setOpenState(v);
     try {
@@ -184,6 +186,22 @@ export function ChangeLog() {
           </li>
         ))}
       </ol>
+      {/* The Notes option switch can be hidden for screenshots; this brings it back. */}
+      <footer className="flex shrink-0 items-center justify-between gap-2 border-t border-line px-4 py-2.5 text-[12px] leading-[1.5]">
+        <span className="text-ink-secondary">Notes option switch on the Notes tab</span>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={!switchHidden}
+          onClick={() => setNotesSwitchHidden(!switchHidden)}
+          className="flex items-center gap-2 font-semibold text-ink"
+        >
+          {switchHidden ? 'Hidden' : 'Shown'}
+          <span className={`relative h-4 w-7 rounded-full transition-colors ${switchHidden ? 'bg-line-light' : 'bg-brand'}`}>
+            <span className={`absolute top-0.5 size-3 rounded-full bg-white transition-[left] ${switchHidden ? 'left-0.5' : 'left-[14px]'}`} />
+          </span>
+        </button>
+      </footer>
     </section>
   );
 }

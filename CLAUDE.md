@@ -497,7 +497,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   to a dark "What’s changed 5" bar, open or collapsed kept in localStorage (`cid-changelog-open`, open by default).
   Add an entry here when this page gains a change.
   A switch over the Notes card (`NotesOptionSwitch` in `NotesTimeline.tsx`, moved off the bottom bar into the Notes
-  tab, the user's call; `lib/notesTrial.ts`, kept in localStorage) switches between two options: A · Popup (below) and B · In the section, where New
+  tab, the user's call; `lib/notesTrial.ts`, kept in localStorage; its × hides it for screenshots, and the Changelog's
+  footer switch "Notes option switch on the Notes tab · Shown / Hidden" brings it back, `cid-notes-switch-hidden`)
+  switches between two options: A · Popup (below) and B · In the section, where New
   note, Edit and both details open in the Notes card itself (`InlineDetails` in `NotesTimeline.tsx`, `NewNoteDialog`
   `inline`): on details the card's header reads ‹ Back with Delete · Edit, and under the title one line holds the kind tag and
   the times ("Created: …" or "Meeting date: …" • "Last edited: …"), 20 px all round; on the form its name with Cancel · Save
