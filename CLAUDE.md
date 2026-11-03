@@ -489,6 +489,11 @@ one column. The Upcoming bookings session list is shared with the main branch to
   meeting notes?"; Edit opens New note on those meeting notes with no tabs (`NewNoteDialog` `editing`: title, date
   and start, notes, transcript, a recorded call's lines kept or removed) and returns to the details. Edits and deletes
   of any meeting, the demo's too, live in `meetingEdits` in the store (session only; `meetingsFor` applies them).
+  Changelog (the user's call, demo tooling; `ChangeLog.tsx`, first on the trial bar): "Changelog 5" opens "What’s
+  changed" above the bar, one entry per change against the original demo, each a shortcut to its UI: Notes | Meeting
+  notes (Clint's Notes tab) · Change client status (Clint's detail page, then clicks Not quite) · Grouped to-dos (the
+  brief, scrolled to the first group, which a brand ring flashes) · Customize cards · Today's Brief and · Dashboard
+  (that view in edit mode). × , Esc or a click outside closes it. Add an entry here when this page gains a change.
   A dark trial bar at the bottom left (`NotesTrialBar`, `lib/notesTrial.ts`, kept in localStorage, the user's
   call) switches between two options and opens Clint's notes: A · Popup (below) and B · In the section, where New
   note, Edit and both details open in the Notes card itself (`InlineDetails` in `NotesTimeline.tsx`, `NewNoteDialog`

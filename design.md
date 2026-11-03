@@ -260,7 +260,12 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   dragged over the form draws a dashed brand frame, "Drop the file to attach it". The meeting popup is one plain page on this trial: the
   notes (`note-body`, 32 px sides, no heading; a recorded call's read "What we covered" and "Next steps", bold
   paragraphs over bullet lists), then 16 px down the transcript in the same card
-  (`TranscriptFileCard`, filling the rest of the popup, at least 240 px, Download in brand for a file). Option B (trial bar, the user's call, no frame): the
+  (`TranscriptFileCard`, filling the rest of the popup, at least 240 px, Download in brand for a file). **Changelog** (demo tooling on the trial bar, the user's call, no frame): the bar opens on a "Changelog" button
+  (12 px semibold, a count chip; white with `ink` text while open); the panel sits 16 px above the bar, 400 px, white,
+  rounded 12, `0 0 2px rgba(176,186,200,0.9), 0 12px 40px rgba(32,35,83,0.25)`: "What’s changed" 16 px bold + a 12 px
+  `ink-secondary` line, a `line` rule, then rows (`px-2 py-2.5`, rounded 8, hover `surface-secondary`): a 32 px
+  `brand/10` tile with a 16 px lucide icon in brand, the title 13 px semibold (brand on hover), the change in 12 px
+  `ink-secondary`, a chevron. A shortcut that lands on a spot (Grouped to-dos) flashes a 4 px `brand/35` ring for 2 s. Option B (trial bar, the user's call, no frame): the
   same content in the Notes card instead of a popup; the card's 44 px white header (`NotesCardBar`) turns into ‹ Back
   (20 px chevron, 14 px semibold) + Delete · Edit on details, or the form's name (15 px semibold: "Add new note"
   whichever tab is on, "Edit note" / "Edit meeting notes" on an edit, the user's call) + Cancel · Save

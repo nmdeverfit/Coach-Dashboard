@@ -1,5 +1,6 @@
 import { NOTES_LAYOUTS, setNotesLayout, useNotesLayout } from '../lib/notesTrial';
 import { getClient, useStore } from '../state/store';
+import { ChangeLog } from './ChangeLog';
 
 /** Where the trial bar's shortcut lands: a client with notes and meeting notes both. */
 const SHOWCASE = 'clint-jacobi';
@@ -17,6 +18,9 @@ export function NotesTrialBar() {
   return (
     <div data-keep-open className="fixed bottom-4 left-[80px] z-[45] flex flex-col items-start gap-1.5 rounded-xl bg-ink px-3 py-2.5 text-white shadow-[0_8px_24px_rgba(32,35,83,0.28)]">
       <div className="flex items-center gap-3">
+        {/* What this page changes against the original demo, each entry a shortcut to its UI (the user's call). */}
+        <ChangeLog />
+        <span className="h-5 w-px bg-white/20" />
         <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-white/60">Notes option</span>
         <div role="tablist" aria-label="Notes option" className="flex rounded-lg bg-white/10 p-0.5">
           {NOTES_LAYOUTS.map((v) => (
