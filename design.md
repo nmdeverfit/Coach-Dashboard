@@ -266,7 +266,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   collapse at the right, a `line` rule; entries divided by `line`: a 28 px `brand/10` tile with a 16 px lucide
   icon in brand, the title 13 px semibold, View + ↗ (12 px semibold brand, hover `brand/10`) at the right; titles only, no
   description (the user's call), `py-2.5` per entry. Collapsed: a 36 px `ink`
-  bar, "What’s changed" 12 px semibold white + count chip + chevron-up. A shortcut that lands on a spot (Grouped
+  bar, "What’s changed" 12 px semibold white + count chip + chevron-up, a `white/20` divider and an eye-off; the
+  panel's header has the same eye-off left of the chevron. Hidden, nothing is drawn: a 56 px corner right of the
+  sidebar's foot shows a 32 px `ink` pill "Show What’s changed" (eye, 12 px semibold white) on hover;
+  Alt + Shift + H toggles it (the user's call, for screenshots). A shortcut that lands on a spot (Grouped
   to-dos) flashes a 4 px `brand/35` ring for 2 s. An entry with a trial option shows it 8 px under its title,
   indented to the title (38 px): a 12 px `ink-secondary` label, then a white segmented control (`border-line-light`,
   rounded 6, 24 px buttons, selected `ink` with white text): "Opens in A · Popup | B · In the section" on Notes,

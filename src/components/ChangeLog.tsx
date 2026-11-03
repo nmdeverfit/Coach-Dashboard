@@ -1,5 +1,5 @@
-import { ArrowRightLeft, ArrowUpRight, ChevronDown, ChevronUp, LayoutDashboard, LayoutGrid, ListTree, NotebookPen } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { ArrowRightLeft, ArrowUpRight, ChevronDown, ChevronUp, Eye, EyeOff, LayoutDashboard, LayoutGrid, ListTree, NotebookPen } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { NOTES_LAYOUTS, RELATED_OPTIONS, setNotesLayout, setRelatedOption, useNotesLayout, useRelatedOption } from '../lib/notesTrial';
 import { useStore } from '../state/store';
 
@@ -32,6 +32,15 @@ function reveal(el: HTMLElement) {
     { duration: 2200, delay: 300, easing: 'ease-out' },
   );
 }
+
+const HIDDEN_KEY = 'cid-changelog-hidden';
+const readHidden = () => {
+  try {
+    return localStorage.getItem(HIDDEN_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
 
 const readOpen = () => {
   try {
@@ -85,6 +94,26 @@ export function ChangeLog() {
   const [open, setOpenState] = useState(readOpen);
   const notesLayout = useNotesLayout();
   const related = useRelatedOption();
+  // Hidden altogether, for screenshots (the user's call): an invisible corner by the sidebar, or Alt + Shift + H,
+  // brings it back.
+  const [hidden, setHiddenState] = useState(readHidden);
+  const setHidden = (v: boolean) => {
+    setHiddenState(v);
+    try {
+      localStorage.setItem(HIDDEN_KEY, v ? '1' : '0');
+    } catch {
+      // Private windows: the choice lasts for the page only.
+    }
+  };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!e.altKey || !e.shiftKey || e.code !== 'KeyH') return;
+      e.preventDefault();
+      setHidden(!hidden);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
   const setOpen = (v: boolean) => {
     setOpenState(v);
     try {
@@ -160,19 +189,52 @@ export function ChangeLog() {
     },
   ];
 
+  if (hidden)
+    return (
+      // Nothing shows until the pointer finds the corner beside the sidebar.
+      <div data-keep-open className="group fixed bottom-0 left-[64px] z-[45] flex size-14 items-end p-4">
+        <button
+          type="button"
+          onClick={() => setHidden(false)}
+          title="Alt + Shift + H"
+          className="flex h-8 items-center gap-1.5 whitespace-nowrap rounded-lg bg-ink px-2.5 text-[12px] font-semibold text-white opacity-0 shadow-[0_8px_24px_rgba(32,35,83,0.28)] transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+        >
+          <Eye size={14} aria-hidden />
+          Show What’s changed
+        </button>
+      </div>
+    );
+
+  const hideButton = (dark: boolean) => (
+    <button
+      type="button"
+      aria-label="Hide What’s changed"
+      title="Hide for screenshots (bring it back from the bottom-left corner, or Alt + Shift + H)"
+      onClick={() => setHidden(true)}
+      className={`flex size-7 shrink-0 items-center justify-center rounded-md ${
+        dark ? 'text-white/70 hover:bg-white/10 hover:text-white' : 'text-ink-secondary hover:bg-surface-secondary hover:text-ink'
+      }`}
+    >
+      <EyeOff size={16} />
+    </button>
+  );
+
   if (!open)
     return (
-      <button
-        type="button"
-        data-keep-open
-        aria-expanded={false}
-        onClick={() => setOpen(true)}
-        className="fixed bottom-4 left-[80px] z-[45] flex h-9 items-center gap-2 rounded-xl bg-ink pl-3 pr-2.5 text-[12px] font-semibold text-white shadow-[0_8px_24px_rgba(32,35,83,0.28)] hover:bg-ink/90"
-      >
-        What’s changed
-        <span className="rounded bg-white/15 px-1 text-[11px] tabular-nums">{entries.length}</span>
-        <ChevronUp size={16} className="text-white/70" aria-hidden />
-      </button>
+      <div data-keep-open className="fixed bottom-4 left-[80px] z-[45] flex h-9 items-center rounded-xl bg-ink pr-1 text-white shadow-[0_8px_24px_rgba(32,35,83,0.28)]">
+        <button
+          type="button"
+          aria-expanded={false}
+          onClick={() => setOpen(true)}
+          className="flex h-full items-center gap-2 rounded-l-xl pl-3 pr-2 text-[12px] font-semibold hover:bg-white/10"
+        >
+          What’s changed
+          <span className="rounded bg-white/15 px-1 text-[11px] tabular-nums">{entries.length}</span>
+          <ChevronUp size={16} className="text-white/70" aria-hidden />
+        </button>
+        <span aria-hidden className="mx-0.5 h-4 w-px bg-white/20" />
+        {hideButton(true)}
+      </div>
     );
 
   return (
@@ -189,16 +251,19 @@ export function ChangeLog() {
           </h2>
           <p className="mt-0.5 text-[12px] leading-[1.5] text-ink-secondary">Against the original Check-in Dashboard v2. View takes you there.</p>
         </div>
-        <button
-          type="button"
-          aria-label="Collapse"
-          title="Collapse"
-          aria-expanded
-          onClick={() => setOpen(false)}
-          className="-mr-1 -mt-0.5 flex size-7 items-center justify-center rounded-md text-ink-secondary hover:bg-surface-secondary hover:text-ink"
-        >
-          <ChevronDown size={18} />
-        </button>
+        <div className="-mr-1 -mt-0.5 flex items-center">
+          {hideButton(false)}
+          <button
+            type="button"
+            aria-label="Collapse"
+            title="Collapse"
+            aria-expanded
+            onClick={() => setOpen(false)}
+            className="flex size-7 items-center justify-center rounded-md text-ink-secondary hover:bg-surface-secondary hover:text-ink"
+          >
+            <ChevronDown size={18} />
+          </button>
+        </div>
       </header>
       <ol className="scroll-thin flex min-h-0 flex-col divide-y divide-line overflow-y-auto px-4">
         {entries.map((e) => (

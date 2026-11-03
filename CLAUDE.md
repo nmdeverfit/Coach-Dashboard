@@ -495,6 +495,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   status (Clint's detail page, then clicks Not quite) · Grouped to-dos (the brief, scrolled to the first group, which a
   brand ring flashes) · Customize cards · Today's Brief and · Dashboard (that view in edit mode). The chevron collapses it
   to a dark "What’s changed 5" bar, open or collapsed kept in localStorage (`cid-changelog-open`, open by default).
+  An eye-off button (on the panel's header and on the bar) hides it altogether for screenshots (`cid-changelog-hidden`,
+  the user's call): nothing shows until the pointer finds the corner right of the sidebar's foot, where "Show What’s
+  changed" appears, or Alt + Shift + H toggles it.
   The trial options live in the Changelog too, under their entry (`Segmented`, the user's call): Notes | Meeting
   notes has "Opens in A · Popup | B · In the section" (`lib/notesTrial.ts`, `cid-notes-layout`; the switch that sat
   over the Notes card is gone, so the Notes tab shows only product UI), and Grouped to-dos has "Related to-dos in the
