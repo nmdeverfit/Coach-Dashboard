@@ -270,7 +270,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   to-dos) flashes a 4 px `brand/35` ring for 2 s. An entry with a trial option shows it 8 px under its title,
   indented to the title (38 px): a 12 px `ink-secondary` label, then a white segmented control (`border-line-light`,
   rounded 6, 24 px buttons, selected `ink` with white text): "Opens in A · Popup | B · In the section" on Notes,
-  "Related to-dos in the panel Show | Hide" on Grouped to-dos (the user's call; the Notes tab carries no trial switch). Option B (the switch over the Notes card, the user's call, no frame): the
+  "Related to-dos in the panel Show | Hide" on Grouped to-dos (the user's call; the Notes tab carries no trial switch). Option B (picked in the Changelog, the user's call, no frame): the
   same content in the Notes card instead of a popup; the card's 44 px white header (`NotesCardBar`) turns into ‹ Back
   (20 px chevron, 14 px semibold) + Delete · Edit on details, or the form's name (15 px semibold: "Add new note"
   whichever tab is on, "Edit note" / "Edit meeting notes" on an edit, the user's call) + Cancel · Save
