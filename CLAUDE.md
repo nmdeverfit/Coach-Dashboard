@@ -499,11 +499,20 @@ one column. The Upcoming bookings session list is shared with the main branch to
   the user's call): nothing shows until the pointer finds the corner right of the sidebar's foot, where "Show What’s
   changed" appears, or Alt + Shift + H toggles it.
   The trial options live in the Changelog too, under their entry (`Segmented`, the user's call): Notes | Meeting
-  notes has "Opens in A · Popup | B · In the section" (`lib/notesTrial.ts`, `cid-notes-layout`; the switch that sat
+  notes has "Opens in A · Popup | B · In the section | C · One form" (`lib/notesTrial.ts`, `cid-notes-layout`; the switch that sat
   over the Notes card is gone, so the Notes tab shows only product UI), and Grouped to-dos has "Related to-dos in the
   panel Show | Hide" (`useRelatedOption`, `cid-related-todos`; Hide drops the panel's Related to-dos box, so no
   breadcrumb trail starts either). Add an entry here when this page gains a change.
-  The Notes option in the Changelog switches between two options: A · Popup (below) and B · In the section, where New
+  Option C · One form (the user's call, `unified` on `NewNoteDialog`; no frame): B's in-the-section layout, but New
+  note has no Note | Meeting notes tabs. The form is a note ("Note" tag, "Created: …") with Upload transcript on the
+  toolbar (tooltip "A transcript saves this as meeting notes"; dropping a file works too); a transcript in makes it
+  meeting notes at once (the tag turns over, the date and start show, the title placeholder reads the file's heading),
+  Remove makes it a note again, no confirm. Edits follow the same rule: an edited note that gains a transcript is saved
+  as meeting notes in its place (its created time kept as the meeting's date and start), meeting notes whose
+  transcript is removed are saved as a note (created at the meeting's created time), the toast says which ("Saved as
+  meeting notes" / "Saved as a note"), the card opens the new entry's details (`onConverted`), and the form's name
+  follows ("Edit note" / "Edit meeting notes").
+  The Notes option in the Changelog switches between three options: A · Popup (below), C · One form (above) and B · In the section, where New
   note, Edit and both details open in the Notes card itself (`InlineDetails` in `NotesTimeline.tsx`, `NewNoteDialog`
   `inline`): on details the card's header reads ‹ Back with Delete · Edit, and under the title one line holds the kind tag and
   the times ("Created: …" or "Meeting date: …" • "Last edited: …"), 20 px all round; on the form its name with Cancel · Save

@@ -272,7 +272,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Alt + Shift + H toggles it (the user's call, for screenshots). A shortcut that lands on a spot (Grouped
   to-dos) flashes a 4 px `brand/35` ring for 2 s. An entry with a trial option shows it 8 px under its title,
   indented to the title (38 px): a 12 px `ink-secondary` label, then a white segmented control (`border-line-light`,
-  rounded 6, 24 px buttons, selected `ink` with white text): "Opens in A · Popup | B · In the section" on Notes,
+  rounded 6, 24 px buttons, selected `ink` with white text): "Opens in A · Popup | B · In the section | C · One form" on Notes
+  (the three wrap under the label, which then sits on its own line),
   "Related to-dos in the panel Show | Hide" on Grouped to-dos (the user's call; the Notes tab carries no trial switch). Option B (picked in the Changelog, the user's call, no frame): the
   same content in the Notes card instead of a popup; the card's 44 px white header (`NotesCardBar`) turns into ‹ Back
   (20 px chevron, 14 px semibold) + Delete · Edit on details, or the form's name (15 px semibold: "Add new note"
@@ -293,6 +294,12 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   see it could be typed in), Enter moves to the text, and on hover it takes a `surface-secondary` fill, 6 px radius,
   8 px either side with a matching negative margin so the text does not move; focused, the fill goes. An edit opens
   at the end of the text, as before.
+  Option C · One form (the user's call, no frame): option B's layout, with no Note | Meeting notes tabs over the
+  title. The form opens as a note (`KindTag` "Note" + "Created: …"); Upload transcript stays on the toolbar's right
+  with a dark tooltip under it, "A transcript saves this as meeting notes". Once a file is in, the tag reads "Meeting
+  notes" (it pops in, `animate-pop-in`, so the change is seen), the clock line becomes the meeting's editable date and
+  start, and the file card shows under the text; Remove turns it back into a note. On an edit the same rule holds and
+  the form's name follows the kind.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one group in the list, at the place the client first appears. `TodoGroupCard`: no card, border or tint (the user's
   call); it sits on the list's grey like the single rows, one `line` divider under the whole group. Every row on this

@@ -5,18 +5,22 @@ import { useSyncExternalStore } from 'react';
  * one page (the user's call). Remembered in this browser only.
  * - popup: New note, Note details and the meeting notes open in a popup over the panel.
  * - inline: they open in the Notes card itself; its header turns into ‹ Back (details) or Cancel · Save (the form).
+ * - unified: in the card, as inline, but New note is one form with no Note | Meeting notes tabs: uploading a transcript
+ *   is what makes it meeting notes (and removing it makes it a note again), on new notes and edits alike.
  */
-export type NotesLayout = 'popup' | 'inline';
+export type NotesLayout = 'popup' | 'inline' | 'unified';
 
 export const NOTES_LAYOUTS: { key: NotesLayout; label: string; hint: string }[] = [
   { key: 'popup', label: 'A · Popup', hint: 'New note and the details open in a popup' },
   { key: 'inline', label: 'B · In the section', hint: 'They open in the Notes card: ‹ Back on details, Cancel · Save on the form' },
+  { key: 'unified', label: 'C · One form', hint: 'In the Notes card, one form: a transcript makes it meeting notes' },
 ];
 
 const KEY = 'cid-notes-layout';
 const read = (): NotesLayout => {
   try {
-    return localStorage.getItem(KEY) === 'inline' ? 'inline' : 'popup';
+    const v = localStorage.getItem(KEY);
+    return v === 'inline' || v === 'unified' ? v : 'popup';
   } catch {
     return 'popup';
   }

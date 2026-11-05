@@ -10,6 +10,7 @@ import { fileSize } from '../../lib/meetings';
 import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Glyph } from '../Glyph';
 import { SPEAKER, transcriptFileError, transcriptFileText } from './AddMeetingDialog';
+import { Tooltip } from '../Tooltip';
 
 export type NoteKind = 'note' | 'meeting';
 
@@ -42,17 +43,18 @@ export function BackButton({ onClick }: { onClick: () => void }) {
 export type AttachedFile = Extract<Transcript, { kind: 'file' }>;
 
 /** Upload transcript on the note editor's toolbar, beside the formatting tools, on the Meeting notes tab only (the user's call). */
-export function UploadTranscriptButton({ onClick }: { onClick: () => void }) {
+export function UploadTranscriptButton({ onClick, hint }: { onClick: () => void; hint?: string }) {
   return (
     <button
       type="button"
       // Keeps the selection in the writing area, like the tools beside it.
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
-      className="flex h-[26px] items-center gap-1.5 rounded-[4px] px-2 text-[12px] font-semibold leading-none text-ink-secondary hover:bg-black/[0.05] hover:text-ink"
+      className="group/tip relative flex h-[26px] items-center gap-1.5 rounded-[4px] px-2 text-[12px] font-semibold leading-none text-ink-secondary hover:bg-black/[0.05] hover:text-ink"
     >
       <img src={iconUpload} alt="" width={16} height={16} className="opacity-70" />
       Upload transcript
+      {hint && <Tooltip label={hint} below end />}
     </button>
   );
 }

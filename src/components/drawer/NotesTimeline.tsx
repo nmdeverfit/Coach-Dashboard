@@ -149,11 +149,15 @@ function InlineDetails({ client, entry, onBack, onEdit, onDelete }: { client: Cl
  * notes (a meeting with its transcript) run in one list by created time, split by day ("Today", "Aug 27"), each on a
  * timeline with its kind's icon. Search reads the text and any attached file. A note opens Note details, meeting
  * notes their one-page popup (no Summary on this trial) with Delete and Edit. New note is one form with Note |
- * Meeting notes tabs; Edit opens it on the meeting notes. Option B (picked in the Changelog) opens all of it in the card itself.
+ * Meeting notes tabs; Edit opens it on the meeting notes. Option B (picked in the Changelog) opens all of it in the card itself; option C does too, with one form whose
+ * transcript makes it meeting notes.
  */
 export function NotesTimeline({ client, notes: profileNotes }: { client: Client; notes: ClientNote[] }) {
   const { state, deleteMeeting, setNotes } = useStore();
-  const inline = useNotesLayout() === 'inline';
+  const layout = useNotesLayout();
+  // Options B and C both open in the card; C's form has no tabs (a transcript makes it meeting notes).
+  const inline = layout !== 'popup';
+  const unified = layout === 'unified';
   const notes = state.notes[client.id] ?? profileNotes;
   const meetings = meetingsFor(client.id, state.meetings[client.id], state.meetingEdits);
   const [query, setQuery] = useState('');
@@ -172,7 +176,13 @@ export function NotesTimeline({ client, notes: profileNotes }: { client: Client;
     setAdding(false);
     setEditingId(null);
     setEditingNoteId(null);
-  }, [inline]);
+  }, [layout]);
+  // Option C: an edit that changed the entry's kind opens the new entry's details.
+  const converted = (key: string) => {
+    setEditingId(null);
+    setEditingNoteId(null);
+    setOpen(key);
+  };
   const days = timeline(notes, meetings, newestFirst, query);
   const total = notes.length + meetings.length;
   // Looked up in the whole list, so a search never closes what is open.
@@ -189,11 +199,11 @@ export function NotesTimeline({ client, notes: profileNotes }: { client: Client;
     return (
       <div className={card}>
         {adding ? (
-          <NewNoteDialog inline client={client} notes={notes} onClose={() => setAdding(false)} />
+          <NewNoteDialog inline unified={unified} client={client} notes={notes} onClose={() => setAdding(false)} />
         ) : editing ? (
-          <NewNoteDialog inline client={client} notes={notes} editing={editing} onClose={() => setEditingId(null)} />
+          <NewNoteDialog inline unified={unified} client={client} notes={notes} editing={editing} onClose={() => setEditingId(null)} onConverted={converted} />
         ) : editingNote ? (
-          <NewNoteDialog inline client={client} notes={notes} editingNote={editingNote} onClose={() => setEditingNoteId(null)} />
+          <NewNoteDialog inline unified={unified} client={client} notes={notes} editingNote={editingNote} onClose={() => setEditingNoteId(null)} onConverted={converted} />
         ) : (
           opened && (
             <InlineDetails

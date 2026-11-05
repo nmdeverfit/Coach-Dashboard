@@ -46,7 +46,11 @@ function KindTabs({ kind, onChange }: { kind: NoteKind; onChange: (k: NoteKind) 
  * file. Nothing reads what is pasted. With `editing` it is Edit meeting notes (the user's call, like a note's Edit):
  * the meeting's own title, time, notes and transcript (a recorded call's lines included), no tabs; with `editingNote`
  * it is Edit note. With `inline` (option B, the user's call) the same form fills the Notes card instead of a popup,
- * its header reading the form's name with Cancel · Save.
+ * its header reading the form's name with Cancel · Save. With `unified` (option C, the user's call) there are no tabs:
+ * the form is a note until a transcript is uploaded (or dropped), which makes it meeting notes, with the meeting's date
+ * and start; removing the file makes it a note again. That holds on edits too, so an edited note that gains a
+ * transcript is saved as meeting notes, and meeting notes that lose theirs as a note (`onConverted` gets the new
+ * entry's key, so the card opens it).
  */
 export function NewNoteDialog({
   client,
@@ -54,21 +58,26 @@ export function NewNoteDialog({
   editing,
   editingNote,
   inline = false,
+  unified = false,
   onClose,
+  onConverted,
 }: {
   client: Client;
   notes: ClientNote[];
   editing?: Meeting;
   editingNote?: ClientNote;
   inline?: boolean;
+  unified?: boolean;
   onClose: () => void;
+  onConverted?: (key: string) => void;
 }) {
-  const { state, setNotes, addMeeting, editMeeting } = useStore();
-  const [kind, setKind] = useState<NoteKind>(editing ? 'meeting' : 'note');
+  const { state, setNotes, addMeeting, editMeeting, deleteMeeting } = useStore();
+  const [kindTab, setKind] = useState<NoteKind>(editing ? 'meeting' : 'note');
   const [title, setTitle] = useState(editing?.title ?? editingNote?.title ?? '');
   const [html, setHtml] = useState(editing?.notes ?? editingNote?.body ?? '');
-  const [date, setDate] = useState(editing?.date ?? DEMO_TODAY);
-  const [time, setTime] = useState(editing?.start ?? NOW);
+  // A note that gains a transcript (option C) becomes meeting notes held when the note was written.
+  const [date, setDate] = useState(editing?.date ?? editingNote?.at.slice(0, 10) ?? DEMO_TODAY);
+  const [time, setTime] = useState(editing?.start ?? editingNote?.at.slice(11, 16) ?? NOW);
   const [dragging, setDragging] = useState(false);
   const { file, reading, error, attach: attachFile, remove: removeFile } = useAttachedFile(editing?.transcript?.kind === 'file' ? editing.transcript : null);
   // A transcript that is not a file (a recorded call's lines, or pasted text) can only be kept or removed.
@@ -84,8 +93,11 @@ export function NewNoteDialog({
   };
   // Leaving Meeting notes with a transcript in asks first.
   const [confirmNote, setConfirmNote] = useState(false);
+  // Option C: no tabs, the transcript decides.
+  const kind: NoteKind = unified ? (transcript ? 'meeting' : 'note') : kindTab;
   const meeting = kind === 'meeting';
-  const takeFile = (f: File) => meeting && attach(f);
+  const canAttach = meeting || unified;
+  const takeFile = (f: File) => canAttach && attach(f);
   const fileInput = useRef<HTMLInputElement>(null);
   // A new note opens with the caret in its title (the user's call); an edit opens at the end of the text.
   const isNew = !editing && !editingNote;
@@ -107,13 +119,26 @@ export function NewNoteDialog({
     if (reading || (!hasText && !transcript)) return;
     const body = hasText ? cleanNoteHtml(html) : '';
     const name = title.trim() || placeholder;
-    if (editingNote) {
-      const edited: ClientNote = { ...editingNote, title: name, body, editedAt: `${DEMO_TODAY}T${NOW}` };
+    const stamp = `${DEMO_TODAY}T${NOW}`;
+    if (editingNote && transcript) {
+      // Option C: the note gained a transcript, so it is saved as meeting notes in its place.
+      const id = `${client.id}-added-${Date.now()}`;
+      addMeeting(client.id, { id, title: name, date, start: time, timeZone: TIME_ZONE, transcript, notes: body || undefined, createdAt: editingNote.at, editedAt: stamp });
+      setNotes(client.id, notes.filter((n) => n.id !== editingNote.id), 'Saved as meeting notes');
+      onConverted?.(`meeting:${id}`);
+    } else if (editing && unified && !transcript) {
+      // Option C: the meeting notes lost their transcript, so they are saved as a note in their place.
+      const note: ClientNote = { id: `c${Date.now()}`, title: name, at: editing.createdAt ?? `${editing.date}T${editing.start}`, body, editedAt: stamp };
+      deleteMeeting(editing.id);
+      setNotes(client.id, [note, ...notes], 'Saved as a note');
+      onConverted?.(`note:${note.id}`);
+    } else if (editingNote) {
+      const edited: ClientNote = { ...editingNote, title: name, body, editedAt: stamp };
       setNotes(client.id, notes.map((n) => (n.id === editingNote.id ? edited : n)), 'Note saved');
     } else if (editing) {
       editMeeting({ ...editing, title: name, date, start: time, notes: body || undefined, transcript: transcript ?? undefined });
     } else if (kind === 'note') {
-      const added: ClientNote = { id: `c${Date.now()}`, title: name, at: `${DEMO_TODAY}T${NOW}`, body };
+      const added: ClientNote = { id: `c${Date.now()}`, title: name, at: stamp, body };
       setNotes(client.id, [added, ...notes], 'Note added');
     } else {
       addMeeting(client.id, {
@@ -124,7 +149,7 @@ export function NewNoteDialog({
         timeZone: TIME_ZONE,
         transcript: file ?? undefined,
         notes: body || undefined,
-        createdAt: `${DEMO_TODAY}T${NOW}`,
+        createdAt: stamp,
       });
     }
     onClose();
@@ -132,14 +157,15 @@ export function NewNoteDialog({
 
   // One heading for a new note whichever tab is on: "New note" / "New meeting notes" read as the note's own title
   // (the user's call).
-  const heading = editing ? 'Edit meeting notes' : editingNote ? 'Edit note' : 'Add new note';
+  // Option C names an edit by what it will be saved as.
+  const heading = editing || editingNote ? (unified ? (meeting ? 'Edit meeting notes' : 'Edit note') : editing ? 'Edit meeting notes' : 'Edit note') : 'Add new note';
   const canSave = (hasText || Boolean(transcript)) && !reading;
 
   const form = (
     <>
       <NoteHeader
         compact={inline}
-        above={!editing && !editingNote && <KindTabs kind={kind} onChange={switchTo} />}
+        above={!editing && !editingNote && !unified && <KindTabs kind={kind} onChange={switchTo} />}
         title={
           <input
             autoFocus={isNew}
@@ -159,11 +185,14 @@ export function NewNoteDialog({
       >
         {/* The kind beside the time, as the details show it (the user's call), on new notes and edits alike. */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <KindTag label={KIND_LABEL[kind]} />
+          {/* On option C the tag turns over when a transcript goes in or out, so the change is seen. */}
+          <span key={kind} className={unified ? 'animate-pop-in' : undefined}>
+            <KindTag label={KIND_LABEL[kind]} />
+          </span>
           {kind === 'meeting' ? (
             <MeetingWhen date={date} time={time} onDate={setDate} onTime={setTime} />
           ) : (
-            <TimeLine>Created: {noteStamp(editingNote?.at ?? `${DEMO_TODAY}T${NOW}`)}</TimeLine>
+            <TimeLine>Created: {noteStamp(editingNote?.at ?? (editing && (editing.createdAt ?? `${editing.date}T${editing.start}`)) ?? `${DEMO_TODAY}T${NOW}`)}</TimeLine>
           )}
         </div>
       </NoteHeader>
@@ -171,7 +200,7 @@ export function NewNoteDialog({
       <div
         className={`relative flex min-h-0 flex-1 flex-col ${dragging ? 'bg-brand/[0.03]' : ''}`}
         onDragOver={(e) => {
-          if (!meeting || !e.dataTransfer.types.includes('Files')) return;
+          if (!canAttach || !e.dataTransfer.types.includes('Files')) return;
           e.preventDefault();
           setDragging(true);
         }}
@@ -188,7 +217,9 @@ export function NewNoteDialog({
           initial={editing?.notes ?? editingNote?.body ?? ''}
           placeholder={kind === 'meeting' ? `Type your notes from the meeting with ${client.firstName}...` : `Type your note for ${client.firstName}...`}
           onChange={setHtml}
-          toolbarEnd={meeting && !transcript && <UploadTranscriptButton onClick={browse} />}
+          toolbarEnd={
+            canAttach && !transcript && <UploadTranscriptButton onClick={browse} hint={unified ? 'A transcript saves this as meeting notes' : undefined} />
+          }
           height={transcript ? (inline ? 'h-[180px] shrink-0' : 'h-[240px] shrink-0') : 'min-h-0 flex-1'}
           compact={inline}
           focusOnMount={!isNew}

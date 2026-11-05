@@ -53,7 +53,7 @@ const readOpen = () => {
 /** A trial option inside an entry: a label, then a small segmented control (selected in `ink`). */
 function Segmented<K extends string>({ label, value, options, onChange }: { label: string; value: K; options: { key: K; label: string }[]; onChange: (k: K) => void }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
       <span className="min-w-0 truncate text-[12px] leading-[1.5] text-ink-secondary">{label}</span>
       <div role="radiogroup" aria-label={label} className="flex shrink-0 rounded-md border border-line-light bg-white p-0.5">
         {options.map((o) => (
