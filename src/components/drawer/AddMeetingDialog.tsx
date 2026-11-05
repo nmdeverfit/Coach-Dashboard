@@ -19,7 +19,7 @@ import { FileTypeIcon, fileExtension } from '../FileTypeIcon';
 import { Glyph } from '../Glyph';
 import { Modal } from '../Modal';
 import { EditorFooter, IconAction, NoteHeader, TITLE, TimeLine } from './NoteDialog';
-import { DatePicker, TimePicker } from './Pickers';
+import { DateTimePicker } from './Pickers';
 
 /** The demo's "now" (the brief is generated at 06:00): the form starts on it, and a meeting can't start later. */
 const NOW = '06:00';
@@ -45,40 +45,36 @@ export function transcriptFileText(f: File): Promise<string | null> | null {
  * today, up to now). Shared by Add a meeting and the Notes timeline trial's meeting notes.
  */
 export function MeetingWhen({ date, time, onDate, onTime }: { date: string; time: string; onDate: (d: string) => void; onTime: (t: string) => void }) {
-  const [picker, setPicker] = useState<'date' | 'time' | null>(null);
-  // Picking a day goes straight on to its start time; the date picker closes itself after its pick.
-  const next = useRef<'time' | null>(null);
-  const closePicker = () => {
-    setPicker(next.current);
-    next.current = null;
-  };
+  // Date and start time in one dropdown (the user's call: the time list used to open only after a day was picked).
+  const [picker, setPicker] = useState(false);
   const when = useRef<HTMLDivElement>(null);
   return (
     <>
       <div ref={when} className="w-fit">
         <TimeLine>
           {noteStamp(`${date}T${time}`)}
-          <IconAction label="Edit date and time" onClick={() => setPicker((p) => (p ? null : 'date'))}>
+          <IconAction label="Edit date and time" onClick={() => setPicker((p) => !p)}>
             <img src={iconEditMuted} alt="" className={`absolute inset-0 block size-full max-w-none opacity-60 group-hover:hidden ${picker ? '!hidden' : ''}`} />
             <img src={iconEdit} alt="" className={`absolute inset-0 hidden size-full max-w-none group-hover:block ${picker ? '!block' : ''}`} />
           </IconAction>
         </TimeLine>
       </div>
-      {picker === 'date' && (
-        <DatePicker
+      {picker && (
+        <DateTimePicker
           anchor={when}
-          value={date}
+          date={date}
+          time={time}
           max={DEMO_TODAY}
-          onPick={(v) => {
+          latest={NOW}
+          onDate={(v) => {
             onDate(v);
             // Today allows a start up to now only.
             if (v === DEMO_TODAY && time > NOW) onTime(NOW);
-            next.current = 'time';
           }}
-          onClose={closePicker}
+          onTime={onTime}
+          onClose={() => setPicker(false)}
         />
       )}
-      {picker === 'time' && <TimePicker anchor={when} value={time} latest={date === DEMO_TODAY ? NOW : undefined} onPick={onTime} onClose={closePicker} />}
     </>
   );
 }

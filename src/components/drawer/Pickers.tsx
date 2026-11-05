@@ -52,8 +52,11 @@ function Dropdown({ anchor, width, onClose, children }: { anchor: RefObject<HTML
 
   if (!pos) return null;
   return createPortal(
+    // data-keep-open: in <body>, outside the client panel, so a pick must not read as a click outside it (options B
+    // and C open the form in the panel, with no popup to hold it open).
     <div
       ref={panel}
+      data-keep-open
       className="fixed z-[60] animate-fade-in rounded-lg border border-[#e0e0e0] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
       style={{ left: pos.left, top: pos.top, width: pos.width }}
     >
@@ -66,7 +69,7 @@ function Dropdown({ anchor, width, onClose, children }: { anchor: RefObject<HTML
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 /** A month calendar; days after `max` are disabled. */
-export function DatePicker({ anchor, value, max, onPick, onClose }: { anchor: RefObject<HTMLElement>; value: string; max: string; onPick: (iso: string) => void; onClose: () => void }) {
+function Calendar({ value, max, onPick }: { value: string; max: string; onPick: (iso: string) => void }) {
   const [month, setMonth] = useState(value.slice(0, 7));
   const first = `${month}-01`;
   const start = addDays(first, -parseDay(first).getUTCDay());
@@ -80,66 +83,61 @@ export function DatePicker({ anchor, value, max, onPick, onClose }: { anchor: Re
   const canNext = month < max.slice(0, 7);
 
   return (
-    <Dropdown anchor={anchor} width={280} onClose={onClose}>
-      <div className="flex flex-col gap-2 p-3">
-        <div className="flex items-center justify-between">
-          <button type="button" aria-label="Previous month" onClick={() => shift(-1)} className="flex size-7 items-center justify-center rounded hover:bg-surface-secondary">
-            <img src={iconChevronLeft} alt="" width={16} height={16} />
-          </button>
-          <p className="text-[14px] font-semibold text-ink">
-            {MONTHS[m - 1]} {y}
-          </p>
-          <button
-            type="button"
-            aria-label="Next month"
-            disabled={!canNext}
-            onClick={() => shift(1)}
-            className="flex size-7 items-center justify-center rounded hover:bg-surface-secondary disabled:opacity-30"
-          >
-            <img src={iconChevronRight} alt="" width={16} height={16} />
-          </button>
-        </div>
-        <div className="grid grid-cols-7 text-center text-[11px] font-semibold uppercase leading-6 text-ink-muted">
-          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
-            <span key={d}>{d}</span>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-y-0.5">
-          {days.map((d) => {
-            const inMonth = d.startsWith(month);
-            const on = d === value;
-            const off = d > max;
-            return (
-              <button
-                key={d}
-                type="button"
-                disabled={off}
-                aria-pressed={on}
-                aria-label={d}
-                onClick={() => {
-                  onPick(d);
-                  onClose();
-                }}
-                className={`mx-auto flex size-8 items-center justify-center rounded-full text-[13px] ${
-                  on
-                    ? 'bg-brand font-semibold text-white'
-                    : off
-                      ? 'cursor-default text-ink/20'
-                      : `${inMonth ? 'text-ink' : 'text-ink-muted'} hover:bg-surface-secondary ${d === max ? 'font-semibold text-brand' : ''}`
-                }`}
-              >
-                {parseDay(d).getUTCDate()}
-              </button>
-            );
-          })}
-        </div>
+    <div className="flex w-[280px] shrink-0 flex-col gap-2 p-3">
+      <div className="flex items-center justify-between">
+        <button type="button" aria-label="Previous month" onClick={() => shift(-1)} className="flex size-7 items-center justify-center rounded hover:bg-surface-secondary">
+          <img src={iconChevronLeft} alt="" width={16} height={16} />
+        </button>
+        <p className="text-[14px] font-semibold text-ink">
+          {MONTHS[m - 1]} {y}
+        </p>
+        <button
+          type="button"
+          aria-label="Next month"
+          disabled={!canNext}
+          onClick={() => shift(1)}
+          className="flex size-7 items-center justify-center rounded hover:bg-surface-secondary disabled:opacity-30"
+        >
+          <img src={iconChevronRight} alt="" width={16} height={16} />
+        </button>
       </div>
-    </Dropdown>
+      <div className="grid grid-cols-7 text-center text-[11px] font-semibold uppercase leading-6 text-ink-muted">
+        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
+          <span key={d}>{d}</span>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-y-0.5">
+        {days.map((d) => {
+          const inMonth = d.startsWith(month);
+          const on = d === value;
+          const off = d > max;
+          return (
+            <button
+              key={d}
+              type="button"
+              disabled={off}
+              aria-pressed={on}
+              aria-label={d}
+              onClick={() => onPick(d)}
+              className={`mx-auto flex size-8 items-center justify-center rounded-full text-[13px] ${
+                on
+                  ? 'bg-brand font-semibold text-white'
+                  : off
+                    ? 'cursor-default text-ink/20'
+                    : `${inMonth ? 'text-ink' : 'text-ink-muted'} hover:bg-surface-secondary ${d === max ? 'font-semibold text-brand' : ''}`
+              }`}
+            >
+              {parseDay(d).getUTCDate()}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
 /** Times every 15 minutes; times after `latest` (on today, the demo's 06:00) are disabled. */
-export function TimePicker({ anchor, value, latest, onPick, onClose }: { anchor: RefObject<HTMLElement>; value: string; latest?: string; onPick: (hhmm: string) => void; onClose: () => void }) {
+function TimeList({ value, latest, onPick, className }: { value: string; latest?: string; onPick: (hhmm: string) => void; className: string }) {
   const times = Array.from({ length: 96 }, (_, i) => `${String(Math.floor(i / 4)).padStart(2, '0')}:${String((i % 4) * 15).padStart(2, '0')}`);
   // Open on the chosen time, or around the working day (the latest allowed time on today), once the list mounts.
   const scrolled = useRef(false);
@@ -151,31 +149,71 @@ export function TimePicker({ anchor, value, latest, onPick, onClose }: { anchor:
   };
 
   return (
-    <Dropdown anchor={anchor} onClose={onClose}>
-      <div ref={list} role="listbox" aria-label="Start time" className="scroll-thin max-h-[240px] overflow-y-auto p-1">
-        {times.map((t) => {
-          const off = Boolean(latest && t > latest);
-          const on = t === value;
-          return (
-            <button
-              key={t}
-              type="button"
-              role="option"
-              aria-selected={on}
-              data-time={t}
-              disabled={off}
-              onClick={() => {
-                onPick(t);
-                onClose();
-              }}
-              className={`flex h-8 w-full items-center rounded-md px-3 text-left text-[14px] ${
-                on ? 'bg-brand-subtle font-semibold text-brand' : off ? 'cursor-default text-ink/25' : 'text-ink hover:bg-surface-secondary'
-              }`}
-            >
-              {fieldTime(t)}
-            </button>
-          );
-        })}
+    <div ref={list} role="listbox" aria-label="Start time" className={`scroll-thin overflow-y-auto p-1 ${className}`}>
+      {times.map((t) => {
+        const off = Boolean(latest && t > latest);
+        const on = t === value;
+        return (
+          <button
+            key={t}
+            type="button"
+            role="option"
+            aria-selected={on}
+            data-time={t}
+            disabled={off}
+            onClick={() => onPick(t)}
+            className={`flex h-8 w-full shrink-0 items-center whitespace-nowrap rounded-md px-3 text-left text-[14px] ${
+              on ? 'bg-brand-subtle font-semibold text-brand' : off ? 'cursor-default text-ink/25' : 'text-ink hover:bg-surface-secondary'
+            }`}
+          >
+            {fieldTime(t)}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Date and start time in one dropdown (the user's call: picking the day first hid the time list): the calendar on
+ * the left, the 15-minute list beside it, as tall as the calendar. A day applies and keeps it open; a time applies
+ * and closes it; a click outside or Esc closes it too. On `max` (today) times after `latest` are disabled.
+ */
+export function DateTimePicker({
+  anchor,
+  date,
+  time,
+  max,
+  latest,
+  onDate,
+  onTime,
+  onClose,
+}: {
+  anchor: RefObject<HTMLElement>;
+  date: string;
+  time: string;
+  max: string;
+  latest?: string;
+  onDate: (iso: string) => void;
+  onTime: (hhmm: string) => void;
+  onClose: () => void;
+}) {
+  return (
+    <Dropdown anchor={anchor} width={412} onClose={onClose}>
+      <div className="flex">
+        <Calendar value={date} max={max} onPick={onDate} />
+        <div className="relative w-[132px] border-l border-line">
+          <p className="px-4 pb-1 pt-[15px] text-[11px] font-semibold uppercase leading-6 text-ink-muted">Start time</p>
+          <TimeList
+            value={time}
+            latest={date === max ? latest : undefined}
+            className="absolute inset-x-0 bottom-0 top-[44px] border-t border-line"
+            onPick={(t) => {
+              onTime(t);
+              onClose();
+            }}
+          />
+        </div>
       </div>
     </Dropdown>
   );

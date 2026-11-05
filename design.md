@@ -519,15 +519,19 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   `EditorFooter` from `NoteDialog.tsx`). Title input 19 px semibold, placeholder "New Meeting N" at 50 %; under it
   the note's time line (16 px clock at half opacity, 12 px `ink-tertiary`) reading "Aug 31 - 6:00 AM" (now), then
   the note's 16 px edit icon (muted, brand on hover and while a picker is open; tooltip "Edit date and time"), which
-  opens the date dropdown and, once a day is picked, the time dropdown, both hung under the time line. Body 440 px
+  opens one dropdown under the time line with the date and the start time side by side (`DateTimePicker`, the
+  user's call: the time list used to open only after a day was picked, so coaches did not find it). Body 440 px
   like the note editor, `px-8 pt-5`: "Transcript" 12 px semibold, Upload file / Paste text, then the drop zone or
   paste box filling the rest. Footer Cancel · Save (Save disabled at 50 % until there is a transcript). Dropdowns
   (`Pickers.tsx`) are the page's own, never the browser's: the published page runs in an iframe that blocks
   `showPicker()`. They hang 4 px under their anchor (white, `#e0e0e0` border, rounded 8,
-  `0 8px 24px rgba(0,0,0,0.12)`, rendered into `<body>`). Date: a 280 px month calendar (‹ month year ›, Su–Sa,
-  32 px day circles, selected brand, today brand semibold, days after today greyed). Time: 15-minute steps, 32 px
-  rows, selected `brand-subtle`, opens centred on the choice; on today, times after 6:00 AM are greyed. Esc or a
-  click outside closes only the dropdown. Upload file / Paste text: one or the other (the user's call); switching away from a tab that holds a file or text
+  `0 8px 24px rgba(0,0,0,0.12)`, rendered into `<body>`), 412 px wide: on the left a 280 px month calendar (‹ month
+  year ›, Su–Sa, 32 px day circles, selected brand, today brand semibold, days after today greyed); on the right,
+  after a `line` rule, a 132 px column "START TIME" (11 px semibold uppercase `ink-muted`, like the weekdays) over a
+  `line` rule and the 15-minute list as tall as the calendar, scrolling inside (32 px rows, selected `brand-subtle`,
+  opens centred on the choice; on today, times after 6:00 AM are greyed). A day applies and keeps the dropdown open; a
+  time applies and closes it. Esc or a click outside closes only the dropdown, never the panel behind (it is
+  `data-keep-open`, so the in-the-section note forms keep the client panel open). Upload file / Paste text: one or the other (the user's call); switching away from a tab that holds a file or text
   opens `ConfirmDialog` ("Replace the uploaded file?" / "Replace the pasted text?", the body names what goes and says
   "A meeting keeps one transcript.", Cancel · Replace). Two 36 px buttons, active
   `border-brand bg-brand/[0.03]` brand text and icon (Upload's label semibold, Paste's regular, as drawn). Drop zone
