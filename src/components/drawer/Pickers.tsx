@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import iconChevronLeft from '../../assets/figma/icon-chevron-left.svg';
-import iconChevronRight from '../../assets/figma/icon-chevron-right.svg';
 import { addDays } from '../../lib/checkin';
 import { fieldTime } from '../../lib/meetings';
 import { parseDay } from '../../lib/dates';
@@ -98,7 +97,8 @@ function Calendar({ value, max, onPick }: { value: string; max: string; onPick: 
           onClick={() => shift(1)}
           className="flex size-7 items-center justify-center rounded hover:bg-surface-secondary disabled:opacity-30"
         >
-          <img src={iconChevronRight} alt="" width={16} height={16} />
+          {/* The left chevron turned round: the export named chevron-right is a grey left chevron (the header's disabled one). */}
+          <img src={iconChevronLeft} alt="" width={16} height={16} className="rotate-180" />
         </button>
       </div>
       <div className="grid grid-cols-7 text-center text-[11px] font-semibold uppercase leading-6 text-ink-muted">
@@ -124,7 +124,8 @@ function Calendar({ value, max, onPick }: { value: string; max: string; onPick: 
                   ? 'bg-brand font-semibold text-white'
                   : off
                     ? 'cursor-default text-ink/20'
-                    : `${inMonth ? 'text-ink' : 'text-ink-muted'} hover:bg-surface-secondary ${d === max ? 'font-semibold text-brand' : ''}`
+                    : // Today in brand, semibold (one colour class, so the two never fight).
+                      `${d === max ? 'font-semibold text-brand' : inMonth ? 'text-ink' : 'text-ink-muted'} hover:bg-surface-secondary`
               }`}
             >
               {parseDay(d).getUTCDate()}

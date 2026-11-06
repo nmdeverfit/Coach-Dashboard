@@ -520,7 +520,10 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   the note's time line (16 px clock at half opacity, 12 px `ink-tertiary`) reading "Aug 31 - 6:00 AM" (now), then
   the note's 16 px edit icon (muted, brand on hover and while a picker is open; tooltip "Edit date and time"), which
   opens one dropdown under the time line with the date and the start time side by side (`DateTimePicker`, the
-  user's call: the time list used to open only after a day was picked, so coaches did not find it). Body 440 px
+  user's call: the time list used to open only after a day was picked, so coaches did not find it; Figma
+  `6356:212153` draws its three states: Default, A day picked, A time picked). Its ‹ › are the `icon-chevron-left`
+  export, › turned 180° (`icon-chevron-right.svg` is a grey left chevron, the header's disabled arrow; it drew ‹ on both
+  sides), › at 30 % on the current month. Body 440 px
   like the note editor, `px-8 pt-5`: "Transcript" 12 px semibold, Upload file / Paste text, then the drop zone or
   paste box filling the rest. Footer Cancel · Save (Save disabled at 50 % until there is a transcript). Dropdowns
   (`Pickers.tsx`) are the page's own, never the browser's: the published page runs in an iframe that blocks

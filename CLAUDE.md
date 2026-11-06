@@ -236,7 +236,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   scrolls inside, week headers pinned), `AddMeetingDialog` (laid out like New note, the user's call: the meeting's
   name as the title, empty saves "New Meeting N"; "Aug 31 - 6:00 AM" (now) with an edit icon that opens the date
   date calendar (up to today) and the time list (on today, up to 06:00) side by side in one dropdown (`DateTimePicker`,
-  the user's call; before, the time list only opened after a day was picked); then Transcript with `5726:141326` Upload
+  the user's call; before, the time list only opened after a day was picked; its states Default · A day picked · A time
+  picked are drawn in Figma `6356:212153`, built from the page, above the Notes B screens); then Transcript with `5726:141326` Upload
   file / `5729:516037` Paste text, one or the other: leaving a tab that holds a file or text asks "Replace the
   uploaded file?" / "Replace the pasted text?" (`ConfirmDialog`; Replace clears it, Cancel stays, the user's call); Cancel · Save, Save waits for a transcript; files .txt / .docx / .srt / .pdf up to
   10 MB; .txt, .srt and .docx (`docxText` in `lib/docx.ts`: the zip's `word/document.xml`, inflated with the
