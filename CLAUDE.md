@@ -209,7 +209,8 @@ one column. The Upcoming bookings session list is shared with the main branch to
   `SessionsBodies` (`UnblockBody` credits card, `PrepareBody` Sessions card), `ChangeStatusDialog` (Not quite in
   `StatusFeedback` opens it; simplified after coach feedback, the user's call: no title or client line, two 16 px
   questions, the reason first, "Why doesn’t ‘At risk’ look right for Clint?" (optional), then "What status would you choose
-  for Clint?", a select of the other classified statuses opening upward, no note; 600 px wide, the user's call); Update Status calls the store's `changeStatus`, which sets the client's effective status through
+  for Clint?", a select of the other classified statuses opening upward, no note; 600 px wide, the user's call; its four
+  states, Empty · Reason typed · Choosing a status · Ready to update, are drawn from the page in Figma `6378:212761`); Update Status calls the store's `changeStatus`, which sets the client's effective status through
   `setEffectiveStatus` in `mock.ts` and records `statusChanges` (from = `generatedStatus`, the 06:00 one); the list
   shows "~~From~~ → To" + "Reason:" in the Activity column and a "Status changed:" hover on the row's dot), `AssessedBodies` (`BuildBody`, whose
   Training tab is Check-in's `TrainingTab`, per the user; `RemindBody` with the Form Status table). In the session

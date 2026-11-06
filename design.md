@@ -492,7 +492,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   Cancel (66 × 30, `#e0e0e0` border, `#4d4d4d`) · Save (107 × 30, brand, 50 % until there is text). Save toasts
   "Note added"; Edit in Note details opens the same editor filled in (Cancel goes back to the details, Save toasts
   "Note saved" and shows "Last edited"). Pasted text comes in plain.
-- **Change Client Status** (Figma `5829:551881` / `551995` / `552126`, `ChangeStatusDialog`): 600 px `Modal` (480 in the frame, widened for room, the user's call), no
+- **Change Client Status** (Figma `5829:551881` / `551995` / `552126`, `ChangeStatusDialog`; the simplified popup's
+  four states, Empty · Reason typed · Choosing a status · Ready to update, drawn from the page in `6378:212761`): 600 px `Modal` (480 in the frame, widened for room, the user's call), no
   rules. Simplified after coach feedback (the user's call): no title row and no client line (the first question names
   the client and the current status; the close × stays on the corner), 40 px in at the top (the user's call); two questions, 16 px
   semibold `ink`, 24 px apart, 8 px over their field: first the reason, "Why doesn’t ‘At risk’ look right for Clint?"
