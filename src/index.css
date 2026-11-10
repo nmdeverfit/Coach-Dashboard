@@ -48,6 +48,22 @@ body {
   .scroll-none::-webkit-scrollbar {
     display: none;
   }
+  /* Metrics & Photos: the photo row's always-shown 4 px bar (Figma 6565:468782: track #f0f0f0, thumb #d9d9d9). */
+  .scroll-photos {
+    scrollbar-width: thin;
+    scrollbar-color: #d9d9d9 #f0f0f0;
+  }
+  .scroll-photos::-webkit-scrollbar {
+    height: 4px;
+  }
+  .scroll-photos::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 99px;
+  }
+  .scroll-photos::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 99px;
+  }
   .scroll-thin {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;

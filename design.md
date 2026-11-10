@@ -300,6 +300,23 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   notes" (it pops in, `animate-pop-in`, so the change is seen), the clock line becomes the meeting's editable date and
   start, and the file card shows under the text; Remove turns it back into a note. On an edit the same rule holds and
   the form's name follows the kind.
+- **Metrics & Photos** (trial, Figma `6565:468678`, only in the `build:artifact:metrics` page): the client detail
+  page's tab between Task & Habit and Program Ending (on the client page the tab row tightens to `px-2.5`, `px-[7px]`
+  with Booking, so the longer label fits 660 px). Two cards in the tabs' card shell (`CardHeader`, Progress Photos with
+  no link). Progress Photos: content `p-[15px]`, 72 px tiles rounded 4 (`object-cover object-top`), 8 px apart, the
+  date under each in 14 px `ink-secondary` MM/DD; a 4 px bar under them, `#f0f0f0` track and `#d9d9d9` thumb, always
+  shown; then View All (20 px eye, 14 px semibold `ink-secondary`) and Compare (img-stack icon, brand), 28 px apart.
+  Body Metrics: the time control right-aligned (30 px, white, `#e1e1ea` border, rounded 5, 12 px semibold `#273d52`,
+  16 px chevron), then a 2 × 2 grid 10 px apart of 216 px cards: white, `#f0f0f2` border, rounded 5; a header (13 px
+  semibold name, the 23 px value and 15 px unit in `#273d52`, Step's "Average last 7 days" 13 px `#7b7e91`, an 11 px
+  gap, then the chip: `#faedef` with `#fe2c55` ↓ and 10 px "5.6 %", or `#e8f6ef` / `#059669` ↑), a `#f0f0f2` rule, and
+  the chart (`pl-[5px] pr-5 py-[15px]`): a 32 px column of 10 px semibold `#7b7e91` y labels, an 84 px plot from 47 px,
+  its base a `#f0f0f2` line, 10 px bars rounded 3 on top (`#7856ff` Shoulder, `#ff7557` Step; hovered: a 3 px ring of
+  the bar's colour at 20 %), 2 px lines (`#ca80dc` Hip, `#7856ff` Weight) over a fill of the same colour fading from
+  16 % to 2 %, a white dot ringed in the colour on the hovered point; 5 px ticks and 9 px uppercase semibold
+  `#7b7e91` dates under it. The tooltip: white, `#fbfbfb` border, rounded 5, `0 1px 4px rgba(38,38,38,0.2)`, 10 px
+  padding: 12 px date, 15 px value + 12 px unit in `ink`, a 2 px dot and 10 px "Last value" in `#a3a3b5`. Viewer and
+  Compare are `Modal`s (640 and 760 px) with the photos on `surface-secondary`, no frame.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one group in the list, at the place the client first appears. `TodoGroupCard`: no card, border or tint (the user's
   call); it sits on the list's grey like the single rows, one `line` divider under the whole group. Every row on this

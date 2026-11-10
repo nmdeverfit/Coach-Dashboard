@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { METRICS_PHOTOS } from './flags';
 
 /**
  * Notes timeline trial: where a note opens, picked in the Changelog (`ChangeLog`) so the two can be compared on
@@ -18,6 +19,8 @@ export const NOTES_LAYOUTS: { key: NotesLayout; label: string; hint: string }[] 
 
 const KEY = 'cid-notes-layout';
 const read = (): NotesLayout => {
+  // The Metrics & Photos page keeps Notes on the popup (the user's call); its Changelog has no switch.
+  if (METRICS_PHOTOS) return 'popup';
   try {
     const v = localStorage.getItem(KEY);
     return v === 'inline' || v === 'unified' ? v : 'popup';
@@ -59,6 +62,8 @@ export const RELATED_OPTIONS: { key: RelatedOption; label: string }[] = [
 ];
 const RELATED_KEY = 'cid-related-todos';
 let related: RelatedOption = (() => {
+  // The Metrics & Photos page keeps Related to-dos shown (the user's call).
+  if (METRICS_PHOTOS) return 'show';
   try {
     return localStorage.getItem(RELATED_KEY) === 'hide' ? 'hide' : 'show';
   } catch {

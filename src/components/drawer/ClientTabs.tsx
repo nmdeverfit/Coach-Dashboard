@@ -10,7 +10,8 @@ import { ISSUE_CREDITS_TOAST, buildPrepareView, buildUnblockView, reminderToast 
 import { useStore } from '../../state/store';
 import { Tooltip } from '../Tooltip';
 import { FormStatus } from './AssessedBodies';
-import { NOTES_TIMELINE } from '../../lib/flags';
+import { METRICS_PHOTOS, NOTES_TIMELINE } from '../../lib/flags';
+import { MetricsTab } from './MetricsTab';
 import { NotesTab } from './NotesTab';
 import { NotesTimeline } from './NotesTimeline';
 import { NutritionTab } from './NutritionTab';
@@ -28,6 +29,7 @@ export const CLIENT_TABS = [
   { key: 'training', label: 'Training' },
   { key: 'nutrition', label: 'Nutrition' },
   { key: 'tasks', label: 'Task & Habit' },
+  { key: 'metrics', label: 'Metrics & Photos' },
   { key: 'program', label: 'Program Ending' },
   { key: 'form', label: 'Form' },
   { key: 'booking', label: 'Booking' },
@@ -58,7 +60,11 @@ export function ClientTabs({
 }) {
   // The Notes timeline trial folds Meetings into Notes, on every surface that has the Notes tab.
   const tabs = CLIENT_TABS.filter(
-    (t) => (t.key !== 'booking' || getSessions(client.id)) && (t.key !== 'transcript' || (withTranscript && !NOTES_TIMELINE)),
+    (t) =>
+      (t.key !== 'booking' || getSessions(client.id)) &&
+      (t.key !== 'transcript' || (withTranscript && !NOTES_TIMELINE)) &&
+      // Metrics & Photos (the user's call, Figma 6565:468678): the client detail page only, in its own build.
+      (t.key !== 'metrics' || (METRICS_PHOTOS && Boolean(withTranscript))),
   );
   const [tab, setTab] = useState<ClientTabKey>(() => (initialTab && tabs.some((t) => t.key === initialTab) ? initialTab : profile.focus));
   // Notes timeline trial: once opened, the Notes card stays mounted (hidden on the other tabs), so a note being read
@@ -145,6 +151,8 @@ export function ClientTabContent({ tab, client, profile }: { tab: ClientTabKey; 
       return NOTES_TIMELINE ? <NotesTimeline client={client} notes={profile.notes} /> : <NotesTab client={client} notes={profile.notes} />;
     case 'transcript':
       return <TranscriptTab client={client} />;
+    case 'metrics':
+      return METRICS_PHOTOS ? <MetricsTab client={client} /> : null;
   }
 }
 

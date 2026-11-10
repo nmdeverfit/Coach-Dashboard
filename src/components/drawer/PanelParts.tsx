@@ -15,7 +15,9 @@ export function TabBar<K extends string>({
 }) {
   // Labels never wrap; with seven tabs (Booking added) or eight (Transcript too) the padding tightens so all of them
   // fit the 660 px row.
-  const px = tabs.length > 7 ? 'px-3' : tabs.length > 6 ? 'px-4' : 'px-5';
+  // Metrics & Photos' long label needs a little more room on the client page (eight tabs, nine with Booking).
+  const metrics = tabs.some((t) => t.key === 'metrics');
+  const px = metrics ? (tabs.length > 7 ? 'px-[7px]' : 'px-2.5') : tabs.length > 7 ? 'px-3' : tabs.length > 6 ? 'px-4' : 'px-5';
   return (
     <div role="tablist" aria-label="Client data" className="flex w-full items-center border-b border-line">
       {tabs.map((t) => {

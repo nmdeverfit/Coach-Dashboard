@@ -10,6 +10,8 @@ const TITLES = {
   // The notes trial carries the grouped to-dos too, so both show on one page (the user's call).
   'coach-dashboard-notes': 'Notes & Grouped To-dos',
   'coach-dashboard-charts': 'Training & Nutrition chart options',
+  // Duplicated from "Notes & Grouped To-dos" with the Metrics & Photos tab added (the user's call).
+  'coach-dashboard-metrics': 'Metrics & Photos',
 };
 
 const html = readFileSync('dist-single/index.html', 'utf8');

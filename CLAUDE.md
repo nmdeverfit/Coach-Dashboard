@@ -31,7 +31,11 @@ one column. The Upcoming bookings session list is shared with the main branch to
   with the grouped to-dos trial on too, `VITE_NOTES_TIMELINE=1 VITE_GROUPED_TODOS=1`,
   `dist-single/coach-dashboard-notes.html`, its own artifact, renamed "Notes & Grouped To-dos" so both trials show on
   one page, the user's call; built from this branch). `npm run build:artifact:charts` (the training chart trial,
-  `VITE_CHART_TRIAL=1`, `dist-single/coach-dashboard-charts.html`, its own artifact, renamed "Training & Nutrition chart options" once the Meal Log trial joined it). Each build empties `dist-single/`, so publish right after building.
+  `VITE_CHART_TRIAL=1`, `dist-single/coach-dashboard-charts.html`, its own artifact, renamed "Training & Nutrition chart options" once the Meal Log trial joined it).
+  `npm run build:artifact:metrics` (the Metrics & Photos trial, `VITE_METRICS_PHOTOS=1` with the Notes timeline and grouped
+  to-dos on, `dist-single/coach-dashboard-metrics.html`, its own artifact "Metrics & Photos", duplicated from "Notes &
+  Grouped To-dos" at the user's request: Notes fixed to A · Popup and Related to-dos to Show, no switches; the
+  Changelog lists only "Body Metrics & Progress Photos"). Each build empties `dist-single/`, so publish right after building.
   Keep the page small: the artifact service rejected the page once it passed about 3.5 MB (it read it as a
   "review page, too large"). Photos go in as JPEG (the banner `hero-2.jpg` is 177 KB), and `mock.ts` globs every
   PNG in `src/assets/figma/`, so a large PNG there is embedded even when nothing imports it.
@@ -164,6 +168,22 @@ one column. The Upcoming bookings session list is shared with the main branch to
   "a skipped-meal week" (in this build only Emma Williams logs no breakfast on Aug 25, 28, 29 and 30,
   `TRIAL_MEALS` / `skippedMeal` in `profiles.ts`; generated clients log all four meals or none). Every figure comes
   from the same log (`mealDay`); on goal = within ±10 % (`GOAL_BAND`).
+- `src/data/bodyMetrics.ts` + `src/lib/bodyMetrics.ts` + `src/components/drawer/MetricsTab.tsx`: the Metrics & Photos
+  trial (the user's call, Figma `6565:468678`, on only with `METRICS_PHOTOS`): a client detail page tab between Task &
+  Habit and Program Ending (`metrics` in `ClientTabs`; not on the to-do panels). Progress Photos: Clint's eight photos
+  from the frame (`src/assets/progress/`, 360 px JPEG, dated as drawn, Aug 31 to Aug 6; the 08/20 and 08/12 photos are
+  one picture in the frame, kept), 72 px tiles + MM/DD, a 4 px always-shown scrollbar (`.scroll-photos`), View All and
+  a click on a photo open a viewer popup (one photo, ‹ › and ← →, the strip), Compare a Before | After popup (first
+  and latest by default, a date select each, "N days apart"); others read "No progress photos from {first} yet."
+  Body Metrics: "View all metrics ›" toasts; the time control Last 2 · 4 · 8 weeks (`METRIC_RANGES`, the finished days
+  before today); four cards from `bodyMetrics(client)` (seeded logs from Jul 6 to yesterday: weight every other day,
+  shoulder and hip every fourth, steps daily, each skipped more as the 06:00 status logs less; Clint's own bases in
+  `BASES`, losing weight; No activities clients have none: "No body metrics from {first} yet."): Shoulder (bars, one
+  per entry, edge to edge), Hip and Weight (lines with a fill, each entry on its day), headline = last value in the
+  range + a chip with the change against the range's first entry (red ↓ as drawn, a green ↑ the demo's), Step = average
+  of the last 7 days' logged days over seven day slots, whatever the range (as drawn). Y axis: three round steps
+  (`yTicks`), the hidden 0 row; x axis: three dates, or each weekday on Step. Hover a bar or a line point: the frame's
+  tooltip (date, value + unit, "• Last value").
 - `src/state/store.tsx`: `useReducer` store and selectors. Group membership derives from client status (single source of truth).
 - `src/components/`: `Sidebar`, `Header`, `TodayBrief`, `TodoRow`, `ConfirmDialog`, `RightRail`, `CategoryGroup`,
   `groups.ts` (group card metadata), `ClientHighlights` (20 highlights in two views, the user's call: Need attention | History, each with the
@@ -531,6 +551,13 @@ one column. The Upcoming bookings session list is shared with the main branch to
   `focusOnMount` off; before, the editor took the focus on mount), Enter moves to the text (`focusRef`), and the
   field shows a `surface-secondary` fill on hover; an edit still opens at the end of the text (the user's call; the
   main build's New note in `NoteDialog` does the same). New note, Note details and the meeting popup are one size on this page, 720 × 800 capped at the window (`NOTE_POPUP` in `NoteDialog.tsx`, the user's call, so the content has more room). There is no frame for the popup, its edit or the tabs.
+- Metrics & Photos (its own page, the user's call; Figma `6565:468678`): the brief puts body metrics as a new tab in
+  Phase 2 and Spec 4 BL1 fixes the Phase 1 tabs; the demo adds it on the client detail page only. Nothing reads the
+  metrics or photos (no assessment, Olly or to-do uses them). The frame's figures are placeholders (Oct–Nov dates,
+  96 cm on both cards, 1,000 steps); the demo's come from seeded logs ending yesterday. The frame draws only a "down"
+  chip; up is the demo's green. Step always covers the last 7 days, as its card is drawn, while the other three follow
+  the time control. The viewer, Compare popup, the time control's menu and the empty states have no frame. Clint's
+  photos show a bigger change than his logs' eight weeks (the frame's pictures).
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. Its rows drop the brief's greyed sentence of why for one sentence that

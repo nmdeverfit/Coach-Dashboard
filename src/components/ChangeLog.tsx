@@ -1,5 +1,6 @@
-import { ArrowRightLeft, ArrowUpRight, ChevronDown, ChevronUp, Eye, EyeOff, LayoutDashboard, LayoutGrid, ListTree, NotebookPen } from 'lucide-react';
+import { ArrowRightLeft, ArrowUpRight, ChevronDown, ChevronUp, Eye, EyeOff, LayoutDashboard, LayoutGrid, ListTree, NotebookPen, Ruler } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
+import { METRICS_PHOTOS } from '../lib/flags';
 import { NOTES_LAYOUTS, RELATED_OPTIONS, setNotesLayout, setRelatedOption, useNotesLayout, useRelatedOption } from '../lib/notesTrial';
 import { useStore } from '../state/store';
 
@@ -130,7 +131,16 @@ export function ChangeLog() {
     selectClient(null);
   };
 
-  const entries: Entry[] = [
+  // The Metrics & Photos page lists only its own change (the user's call); its Notes and Grouped to-dos options are fixed.
+  const metricsEntries: Entry[] = [
+    {
+      key: 'metrics',
+      icon: <Ruler size={16} />,
+      title: 'Body Metrics & Progress Photos',
+      go: () => selectClient(SHOWCASE, 'metrics'),
+    },
+  ];
+  const trialEntries: Entry[] = [
     {
       key: 'notes',
       icon: <NotebookPen size={16} />,
@@ -188,6 +198,7 @@ export function ChangeLog() {
       },
     },
   ];
+  const entries = METRICS_PHOTOS ? metricsEntries : trialEntries;
 
   if (hidden)
     return (

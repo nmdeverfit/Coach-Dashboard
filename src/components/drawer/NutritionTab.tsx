@@ -76,7 +76,8 @@ export function CardHeader({
   title: React.ReactNode;
   /** Shown on hover over the title, e.g. the date range a card covers. */
   titleHint?: string;
-  link: string;
+  /** Left out for a card with no full page to open (Progress Photos). */
+  link?: string;
   onClick?: () => void;
 }) {
   const { showToast } = useStore();
@@ -85,7 +86,7 @@ export function CardHeader({
       <h4 title={titleHint} className="text-[15px] font-semibold leading-[18px] text-ink">
         {title}
       </h4>
-      <button
+      {link && <button
         type="button"
         onClick={onClick ?? (() => showToast(`${link} opens the client's full data`))}
         className="flex items-center gap-1.5 text-[13px] font-semibold leading-[18px] text-ink-secondary hover:text-ink"
@@ -94,7 +95,7 @@ export function CardHeader({
         <span className="flex size-[14px] items-center justify-center">
           <img src={iconExpandArrow} alt="" width={14} height={14} className="rotate-90" />
         </span>
-      </button>
+      </button>}
     </div>
   );
 }
