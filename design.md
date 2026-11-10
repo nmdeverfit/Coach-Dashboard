@@ -269,7 +269,7 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   bar, "What’s changed" 12 px semibold white + count chip + chevron-up, a `white/20` divider and an eye-off; the
   panel's header has the same eye-off left of the chevron. Hidden, nothing is drawn: a 56 px corner right of the
   sidebar's foot shows a 32 px `ink` pill "Show What’s changed" (eye, 12 px semibold white) on hover;
-  Alt + Shift + H toggles it (the user's call, for screenshots). A shortcut that lands on a spot (Grouped
+  Alt + Shift + H toggles it (the user's call, for screenshots). It opens on every page load; collapsed or hidden lasts for the page only (the user's call). A shortcut that lands on a spot (Grouped
   to-dos) flashes a 4 px `brand/35` ring for 2 s. An entry with a trial option shows it 8 px under its title,
   indented to the title (38 px): a 12 px `ink-secondary` label, then a white segmented control (`border-line-light`,
   rounded 6, 24 px buttons, selected `ink` with white text): "Opens in A · Popup | B · In the section | C · One form" on Notes

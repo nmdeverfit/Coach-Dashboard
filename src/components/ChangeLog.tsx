@@ -7,7 +7,6 @@ import { useStore } from '../state/store';
 
 /** The client every shortcut lands on when it needs one: notes, meeting notes and an at-risk assessment all at once. */
 const SHOWCASE = 'clint-jacobi';
-const KEY = 'cid-changelog-open';
 
 /** Waits for an element the next screen draws (a panel slides in first), up to ~2 s. */
 function whenReady<T extends Element>(find: () => T | null, then: (el: T) => void, tries = 25) {
@@ -34,23 +33,6 @@ function reveal(el: HTMLElement) {
     { duration: 2200, delay: 300, easing: 'ease-out' },
   );
 }
-
-const HIDDEN_KEY = 'cid-changelog-hidden';
-const readHidden = () => {
-  try {
-    return localStorage.getItem(HIDDEN_KEY) === '1';
-  } catch {
-    return false;
-  }
-};
-
-const readOpen = () => {
-  try {
-    return localStorage.getItem(KEY) !== '0';
-  } catch {
-    return true;
-  }
-};
 
 /** A trial option inside an entry: a label, then a small segmented control (selected in `ink`). */
 function Segmented<K extends string>({ label, value, options, onChange }: { label: string; value: K; options: { key: K; label: string }[]; onChange: (k: K) => void }) {
@@ -88,25 +70,18 @@ interface Entry {
  * Changelog (the user's call, demo tooling, not product UI): pinned at the bottom left, beside the main sidebar, it
  * lists what this page changes against the original Check-in Dashboard v2 demo, by title only (the user's call), and
  * each entry's View takes the viewer to that UI (and folds the log away so the UI shows). The chevron collapses it to a
- * bar; open or collapsed is remembered in this browser. It sits above the panels and under every popup, and a click
+ * bar; it opens on every page load. It sits above the panels and under every popup, and a click
  * on it never closes a panel.
  */
 export function ChangeLog() {
   const { state, setView, resetWeek, selectClient, selectTodo, editCards } = useStore();
-  const [open, setOpenState] = useState(readOpen);
+  // Open on every page load (the user's call): collapsing or hiding it lasts for the page only.
+  const [open, setOpen] = useState(true);
   const notesLayout = useNotesLayout();
   const related = useRelatedOption();
   // Hidden altogether, for screenshots (the user's call): an invisible corner by the sidebar, or Alt + Shift + H,
   // brings it back.
-  const [hidden, setHiddenState] = useState(readHidden);
-  const setHidden = (v: boolean) => {
-    setHiddenState(v);
-    try {
-      localStorage.setItem(HIDDEN_KEY, v ? '1' : '0');
-    } catch {
-      // Private windows: the choice lasts for the page only.
-    }
-  };
+  const [hidden, setHidden] = useState(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!e.altKey || !e.shiftKey || e.code !== 'KeyH') return;
@@ -116,15 +91,6 @@ export function ChangeLog() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   });
-  const setOpen = (v: boolean) => {
-    setOpenState(v);
-    try {
-      localStorage.setItem(KEY, v ? '1' : '0');
-    } catch {
-      // Private windows: the choice lasts for the page only.
-    }
-  };
-
   const toBrief = () => {
     if (state.weekOffset !== 0) resetWeek();
     if (state.view !== 'brief') setView('brief');
