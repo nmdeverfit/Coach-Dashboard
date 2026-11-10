@@ -175,14 +175,23 @@ one column. The Upcoming bookings session list is shared with the main branch to
   one picture in the frame, kept; each carries its body fat and an angle, all front), 72 px tiles + MM/DD, a 4 px
   always-shown scrollbar (`.scroll-photos`), then View All · Compare with no padding of their own (the user's call).
   View All and a click on a photo open the Progress Photo popup (`ProgressPhotoPopup.tsx`, Figma `6560:461012`, the
-  user's design): 974 × 722, left on `#f3f5f8` the Compare mode switch, Add new (toasts), the All · Front · Left ·
+  user's design): 974 × 722, left on `#f3f5f8` the Compare mode switch, Add new, the All · Front · Left ·
   Right · Back filter (Left / Right / Back are empty) and a card per day ("Aug 31", "82 kg - 16%": the weight is the
   last weigh-in on or before that day from the Weight card's log, `weightOn`; Clint weighs in on and the day before
   every photo day), the picked one outlined in brand; right "Progress Photo", Share (toasts), the photo 302 px wide
   with its date on a black fade, Weight | Body Fat under it (the edit icon toasts); ↑ / ↓ step through the days.
-  Compare (or the switch, Figma `6565:463190`) widens it to 1238 px: ticks on two photos (the two latest from Compare;
-  a third replaces the earlier tick), shown side by side newer first, each with a × on hover that unticks it; with one
-  ticked a dashed slot says to tick another. Others read "No progress photos from {first} yet."
+  Compare (or the switch, Figma `6565:463190`) widens it to 1238 px: one photo is always ticked (the latest from
+  Compare, the one in view from the switch; the last tick can't be undone, the user's call), the second place reads
+  "Choose images on the left panel to compare" (dashed, the user's copy) until a second is ticked; a third replaces the
+  earlier tick; two show side by side newer first, each with a × on hover. Add new opens Upload Progress Photo
+  (`UploadPhotoModal.tsx`, Figma `6565:465542` empty / `6565:467125` with a photo): 742 × 618 over the popup, the title
+  and a date button (a calendar up to today, `DatePicker` in `Pickers`), a drop zone (drag images or Choose Files, any
+  image, several at once); once in, each photo is a 196 × 339 card with Add tag (picks Front / Left / Right / Back,
+  which the filter then reads) and a × to remove it, the drop zone narrowing to 212 px after them on an 8 px scroll
+  bar; Weight (kg) and Body fat (%) are optional; Upload, grey until a photo is in, adds them to the client's photos
+  for the session (`lib/photoStore.ts`, `usePhotos`: merged with the set, newest day first; the photo's own weight, or
+  the log's), opens the new one (ticks it in compare mode) and toasts "Progress photo uploaded". Others read "No
+  progress photos from {first} yet."
   Body Metrics: "View all metrics ›" toasts; the time control Last 2 · 4 · 8 weeks (`METRIC_RANGES`, the finished days
   before today); four cards from `bodyMetrics(client)` (seeded logs from Jul 6 to yesterday: weight every other day,
   shoulder and hip every fourth, steps daily, each skipped more as the 06:00 status logs less; Clint's own bases in
@@ -567,7 +576,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   the time control. The time control's menu and the empty states have no frame. Clint's photos show a bigger change
   than his logs' eight weeks (the frame's pictures). The Progress Photo popup's frames read weight in lbs; the demo
   keeps kg like the Weight card. Their carousel dots (several photos a day) are left out, since the demo has one photo
-  a day; the hidden prev / next arrows too (↑ / ↓ step instead). Add new, Share and the edit icon only toast.
+  a day; the hidden prev / next arrows too (↑ / ↓ step instead). Share and the edit icon only toast. Upload Progress
+  Photo reads weight in lb; the demo asks in kg. Uploads live for the session only and feed nothing else (no Weight
+  card point, no assessment). The tag menu and the compare slot's text box have no frame.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. Its rows drop the brief's greyed sentence of why for one sentence that

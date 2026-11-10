@@ -6,45 +6,52 @@ import iconClose from '../../assets/figma/icon-popup-close-24.svg';
 import iconEdit from '../../assets/figma/icon-edit-photo.svg';
 import iconRemove from '../../assets/figma/icon-remove-photo.svg';
 import iconShare from '../../assets/figma/icon-share.svg';
-import { weightOn, type ProgressPhoto } from '../../data/bodyMetrics';
+import { weightOn, type PhotoAngle, type ProgressPhoto } from '../../data/bodyMetrics';
+import { addPhotos } from '../../lib/photoStore';
+import { UploadPhotoModal } from './UploadPhotoModal';
 import type { Client } from '../../data/types';
 import { axisDate } from '../../lib/bodyMetrics';
 import { useStore } from '../../state/store';
 
-type Angle = 'all' | ProgressPhoto['angle'];
+type Angle = 'all' | PhotoAngle;
 const ANGLES: Angle[] = ['all', 'front', 'left', 'right', 'back'];
 
 /**
  * Progress Photo popup (Figma 6560:461012, the user's call): opened by View All or a photo on the Metrics & Photos
  * tab. Left, on `#f3f5f8`: the Compare mode switch and Add new, the All · Front · Left · Right · Back filter, then a
  * card per day ("Aug 31", "82.1 kg - 16%", its photo). Right: "Progress Photo", Share, the picked photo with its date on
- * a dark fade, and Weight | Body Fat under it. Compare mode (Figma 6565:463190) ticks two photos and shows them side by
- * side, each with a × on hover; ticking a third replaces the earlier one.
+ * a dark fade, and Weight | Body Fat under it. Compare mode (Figma 6565:463190) always has one photo ticked (the one in
+ * view, never none, the user's call); a second shows beside it, and until then the empty slot reads "Choose images on
+ * the left panel to compare". Ticking a third replaces the earlier one. Add new opens Upload Progress Photo.
  */
 export function ProgressPhotoPopup({
   client,
   photos,
-  start,
+  startId,
   compare: compareAtOpen,
   onClose,
 }: {
   client: Client;
   photos: ProgressPhoto[];
-  /** The photo to open on (View All: the latest). */
-  start: number;
-  /** Opened from Compare: compare mode with the two latest photos ticked, as drawn. */
+  /** The photo to open on (View All and Compare: the latest). */
+  startId: string;
+  /** Opened from Compare: compare mode with that photo ticked. */
   compare: boolean;
   onClose: () => void;
 }) {
   const { showToast } = useStore();
   const [compare, setCompare] = useState(compareAtOpen);
   const [angle, setAngle] = useState<Angle>('all');
-  const [picked, setPicked] = useState<number>(start);
-  const [ticked, setTicked] = useState<number[]>(compareAtOpen ? [0, 1].filter((i) => i < photos.length) : []);
-  const shown = photos.map((p, i) => ({ p, i })).filter(({ p }) => angle === 'all' || p.angle === angle);
+  const [picked, setPicked] = useState(startId);
+  const [ticked, setTicked] = useState<string[]>([startId]);
+  const [uploading, setUploading] = useState(false);
+  const shown = photos.filter((p) => angle === 'all' || p.angle === angle);
+  const order = (id: string) => photos.findIndex((p) => p.id === id);
+  const byId = (id: string) => photos.find((p) => p.id === id);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (uploading) return; // Upload Progress Photo takes its own keys.
       if (e.key === 'Escape') {
         e.stopImmediatePropagation();
         onClose();
@@ -52,23 +59,27 @@ export function ProgressPhotoPopup({
       // ↑ / ↓ step through the list in view mode (newest first, as listed).
       if (!compare && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
         e.preventDefault();
-        setPicked((n) => Math.min(photos.length - 1, Math.max(0, n + (e.key === 'ArrowDown' ? 1 : -1))));
+        const i = shown.findIndex((p) => p.id === picked);
+        const next = shown[Math.min(shown.length - 1, Math.max(0, i + (e.key === 'ArrowDown' ? 1 : -1)))];
+        if (next) setPicked(next.id);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [compare, onClose, photos.length]);
+  }, [compare, onClose, shown, picked, uploading]);
 
   const toggleCompare = () => {
-    // Turning it on starts from the photo being viewed and the one before it; off keeps the first ticked in view.
-    if (!compare) setTicked([picked, picked + 1 < photos.length ? picked + 1 : picked - 1].filter((i) => i >= 0 && i < photos.length));
-    else if (ticked.length) setPicked(ticked[0]);
+    // On: the photo in view is ticked, so the compare view is never blank. Off: the first ticked stays in view.
+    if (!compare) setTicked([picked]);
+    else setPicked(ticked[0] ?? picked);
     setCompare(!compare);
   };
-  const tick = (i: number) =>
-    setTicked((t) => (t.includes(i) ? t.filter((n) => n !== i) : t.length < 2 ? [...t, i] : [t[1], i]));
+  // The last ticked photo can't be unticked (never blank); a third replaces the earlier tick.
+  const tick = (id: string) =>
+    setTicked((t) => (t.includes(id) ? (t.length > 1 ? t.filter((n) => n !== id) : t) : t.length < 2 ? [...t, id] : [t[1], id]));
   // Side by side, newer on the left, as drawn.
-  const pair = [...ticked].sort((a, b) => a - b);
+  const pair = ticked.filter((id) => byId(id)).sort((a, b) => order(a) - order(b));
+  const current = byId(picked) ?? photos[0];
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-black/50 p-10" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -94,7 +105,7 @@ export function ProgressPhotoPopup({
             </button>
             <button
               type="button"
-              onClick={() => showToast(`Adding a progress photo opens in ${client.firstName}’s profile`)}
+              onClick={() => setUploading(true)}
               className="rounded-[4px] bg-brand px-4 py-[9px] text-[13px] leading-[normal] text-white hover:bg-brand/90"
             >
               Add new
@@ -118,14 +129,14 @@ export function ProgressPhotoPopup({
           </div>
           <div className="scroll-photos-v flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-6 pb-6">
             {shown.length === 0 && <p className="py-10 text-center text-[13px] leading-[1.5] text-ink-muted">No {angle} photos from {client.firstName} yet.</p>}
-            {shown.map(({ p, i }) => {
-              const on = compare ? ticked.includes(i) : picked === i;
-              const weight = weightOn(client, p.date);
+            {shown.map((p) => {
+              const on = compare ? ticked.includes(p.id) : picked === p.id;
+              const weight = p.weight ?? weightOn(client, p.date);
               return (
-                <div key={p.date} className={`rounded-[4px] ${!compare && on ? 'border-2 border-brand/20' : 'border-2 border-transparent'}`}>
+                <div key={p.id} className={`rounded-[4px] ${!compare && on ? 'border-2 border-brand/20' : 'border-2 border-transparent'}`}>
                   <button
                     type="button"
-                    onClick={() => (compare ? tick(i) : setPicked(i))}
+                    onClick={() => (compare ? tick(p.id) : setPicked(p.id))}
                     aria-pressed={on}
                     className={`flex w-full flex-col gap-2 rounded-[4px] bg-white px-4 py-[14px] text-left ${
                       !compare && on ? 'border border-brand shadow-[0_4px_8px_rgba(0,0,0,0.08)]' : 'border border-transparent hover:border-brand/30'
@@ -134,7 +145,7 @@ export function ProgressPhotoPopup({
                     <span className="flex w-full items-center justify-between font-semibold">
                       <span className="text-[14px] leading-[1.2] tracking-[-0.28px] text-[#151619]">{axisDate(p.date)}</span>
                       <span className="text-[10px] text-[#6a778a]">
-                        {weight === null ? '—' : `${weight} kg`} - {p.bodyFat}%
+                        {weight === null ? '—' : `${weight} kg`} - {p.bodyFat === null ? '—' : `${p.bodyFat}%`}
                       </span>
                     </span>
                     <span className={`relative flex self-start rounded-[6px] p-[3px] ${on ? 'border border-brand shadow-[0_4px_8px_rgba(0,0,0,0.12)]' : 'border border-transparent'}`}>
@@ -163,24 +174,42 @@ export function ProgressPhotoPopup({
           </header>
           <div className="flex min-h-0 flex-1 items-stretch justify-center gap-6 px-8 pb-6 pt-1">
             {compare ? (
-              pair.length ? (
-                pair.map((i) => <PhotoColumn key={i} client={client} photo={photos[i]} onRemove={() => tick(i)} />)
-              ) : (
-                <p className="self-center text-[13px] leading-[1.5] text-ink-muted">Tick two photos on the left to compare them.</p>
-              )
+              <>
+                {pair.map((id) => (
+                  <PhotoColumn key={id} client={client} photo={byId(id)!} onRemove={pair.length > 1 ? () => tick(id) : undefined} />
+                ))}
+                {pair.length === 1 && (
+                  // The second photo's place until one is ticked (the user's copy).
+                  <div className="flex w-[302px] shrink-0 flex-col gap-4">
+                    <div className="flex min-h-0 flex-1 items-center justify-center rounded-lg border border-dashed border-[#dadfea] bg-[#fafbfc] px-10 text-center text-[13px] leading-[1.5] text-[#7a7a7a]">
+                      Choose images on the left panel to compare
+                    </div>
+                    <div className="h-[63px] shrink-0" aria-hidden />
+                  </div>
+                )}
+              </>
             ) : (
-              photos[picked] && <PhotoColumn client={client} photo={photos[picked]} />
-            )}
-            {compare && pair.length === 1 && (
-              <div className="flex w-[302px] items-center justify-center rounded-lg border border-dashed border-line-light text-center text-[13px] leading-[1.5] text-ink-muted">
-                Tick another photo
-                <br />
-                to compare
-              </div>
+              current && <PhotoColumn client={client} photo={current} />
             )}
           </div>
         </section>
       </div>
+      {uploading && (
+        <UploadPhotoModal
+          clientName={client.firstName}
+          onClose={() => setUploading(false)}
+          onUpload={(files, date, weight, bodyFat) => {
+            const added: ProgressPhoto[] = files.map((f) => ({ id: f.id, date, src: f.src, angle: f.angle, bodyFat, weight: weight ?? undefined }));
+            addPhotos(client.id, added);
+            setUploading(false);
+            // The new photo opens in view; in compare mode it is ticked beside the first.
+            if (compare) setTicked((t) => [t[0], added[0].id].filter(Boolean) as string[]);
+            else setPicked(added[0].id);
+            setAngle('all');
+            showToast(added.length > 1 ? `${added.length} progress photos uploaded` : 'Progress photo uploaded');
+          }}
+        />
+      )}
     </div>,
     document.body,
   );
@@ -189,7 +218,7 @@ export function ProgressPhotoPopup({
 /** One photo: 302 px wide, rounded 8, its date on a black fade, then Weight | Body Fat on `#f5f5f5`. */
 function PhotoColumn({ client, photo, onRemove }: { client: Client; photo: ProgressPhoto; onRemove?: () => void }) {
   const { showToast } = useStore();
-  const weight = weightOn(client, photo.date);
+  const weight = photo.weight ?? weightOn(client, photo.date);
   return (
     <div className="flex w-[302px] shrink-0 flex-col gap-4">
       <div className="group relative min-h-0 flex-1 overflow-hidden rounded-lg">
@@ -211,7 +240,7 @@ function PhotoColumn({ client, photo, onRemove }: { client: Client; photo: Progr
       <div className="relative flex items-center justify-between rounded-lg bg-[#f5f5f5] pb-3 pt-4">
         <Stat label="Weight" value={weight === null ? '—' : `${weight} kg`} />
         <img src={divider} alt="" width={11} height={1} className="rotate-90" />
-        <Stat label="Body Fat" value={`${photo.bodyFat}%`} />
+        <Stat label="Body Fat" value={photo.bodyFat === null ? '—' : `${photo.bodyFat}%`} />
         <button type="button" aria-label="Edit" onClick={() => showToast('Editing a photo’s figures opens in the client’s profile')} className="absolute right-2 top-2 hover:opacity-70">
           <img src={iconEdit} alt="" width={16} height={16} />
         </button>

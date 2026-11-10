@@ -107,13 +107,17 @@ export function bodyMetrics(client: Client): Record<MetricKey, MetricPoint[]> | 
 }
 
 export interface ProgressPhoto {
+  /** Unique within the client: the day for the demo's set, a generated id for an upload. */
+  id: string;
   /** ISO day the photo was taken. */
   date: string;
   src: string;
-  /** Body fat logged with the photo, in % (the popup's "Body Fat"); its weight comes from the weight log. */
-  bodyFat: number;
-  /** As drawn, the popup's view filter: Front · Left · Right · Back. Every demo photo is a front one. */
-  angle: 'front' | 'left' | 'right' | 'back';
+  /** Body fat logged with the photo, in % (the popup's "Body Fat"), when given. */
+  bodyFat: number | null;
+  /** Weight typed in with an upload; otherwise the photo reads the weight log (`weightOn`). */
+  weight?: number;
+  /** The popup's view filter (Front · Left · Right · Back), from the upload's tag; every demo photo is a front one. */
+  angle?: PhotoAngle;
 }
 
 /**
@@ -122,16 +126,18 @@ export interface ProgressPhoto {
  */
 const PHOTOS: Record<string, ProgressPhoto[]> = {
   'clint-jacobi': [
-    { date: '2026-08-31', src: p0831, bodyFat: 16, angle: 'front' },
-    { date: '2026-08-28', src: p0828, bodyFat: 17, angle: 'front' },
-    { date: '2026-08-24', src: p0824, bodyFat: 18, angle: 'front' },
-    { date: '2026-08-20', src: p0820, bodyFat: 20, angle: 'front' },
-    { date: '2026-08-16', src: p0816, bodyFat: 21, angle: 'front' },
-    { date: '2026-08-12', src: p0820, bodyFat: 22, angle: 'front' },
-    { date: '2026-08-08', src: p0808, bodyFat: 23, angle: 'front' },
-    { date: '2026-08-06', src: p0806, bodyFat: 24, angle: 'front' },
+    { id: '2026-08-31', date: '2026-08-31', src: p0831, bodyFat: 16, angle: 'front' },
+    { id: '2026-08-28', date: '2026-08-28', src: p0828, bodyFat: 17, angle: 'front' },
+    { id: '2026-08-24', date: '2026-08-24', src: p0824, bodyFat: 18, angle: 'front' },
+    { id: '2026-08-20', date: '2026-08-20', src: p0820, bodyFat: 20, angle: 'front' },
+    { id: '2026-08-16', date: '2026-08-16', src: p0816, bodyFat: 21, angle: 'front' },
+    { id: '2026-08-12', date: '2026-08-12', src: p0820, bodyFat: 22, angle: 'front' },
+    { id: '2026-08-08', date: '2026-08-08', src: p0808, bodyFat: 23, angle: 'front' },
+    { id: '2026-08-06', date: '2026-08-06', src: p0806, bodyFat: 24, angle: 'front' },
   ],
 };
+
+export type PhotoAngle = 'front' | 'left' | 'right' | 'back';
 
 export const progressPhotos = (clientId: string): ProgressPhoto[] => PHOTOS[clientId] ?? [];
 

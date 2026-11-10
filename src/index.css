@@ -76,6 +76,18 @@ body {
     background: #d9d9d9;
     border-radius: 24px;
   }
+  /* Upload Progress Photo's photo row: an 8 px grey bar (Figma 6565:468595). */
+  .scroll-upload {
+    scrollbar-width: thin;
+    scrollbar-color: #d9d9d9 transparent;
+  }
+  .scroll-upload::-webkit-scrollbar {
+    height: 8px;
+  }
+  .scroll-upload::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 24px;
+  }
   .scroll-thin {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;

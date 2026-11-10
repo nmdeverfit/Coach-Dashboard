@@ -3,12 +3,13 @@ import iconDown from '../../assets/figma/icon-down-time.svg';
 import iconEye from '../../assets/figma/icon-eye.svg';
 import iconStack from '../../assets/figma/icon-img-stack.svg';
 import iconMetricDown from '../../assets/figma/icon-metric-down.svg';
-import { METRICS, bodyMetrics, progressPhotos, type MetricDef, type MetricPoint } from '../../data/bodyMetrics';
+import { METRICS, bodyMetrics, type MetricDef, type MetricPoint } from '../../data/bodyMetrics';
 import type { Client } from '../../data/types';
 import { METRIC_RANGES, axisDate, axisWeekday, metricNumber, metricView, photoDate, yTicks, type MetricRange, type MetricView } from '../../lib/bodyMetrics';
 import { daysBetween, parseDay } from '../../lib/dates';
 import { CardHeader } from './NutritionTab';
 import { ProgressPhotoPopup } from './ProgressPhotoPopup';
+import { usePhotos } from '../../lib/photoStore';
 
 /**
  * Metrics & Photos (the user's call; Figma 6565:468678, the client detail page's tab between Task & Habit and Program
@@ -29,8 +30,8 @@ const CARD = 'flex w-full flex-col overflow-hidden rounded-lg border border-ink/
 /* ------------------------------------------------------------------ Progress Photos */
 
 function PhotosCard({ client }: { client: Client }) {
-  const photos = progressPhotos(client.id);
-  const [viewer, setViewer] = useState<{ start: number; compare: boolean } | null>(null);
+  const photos = usePhotos(client.id);
+  const [viewer, setViewer] = useState<{ start: string; compare: boolean } | null>(null);
   return (
     <div className={CARD}>
       <CardHeader title="Progress Photos" />
@@ -41,8 +42,8 @@ function PhotosCard({ client }: { client: Client }) {
           <>
             {/* Eight 72 px photos just overflow the card, so the thin bar under them shows there is more (as drawn). */}
             <div className="scroll-photos -mb-1 flex gap-2 overflow-x-auto pb-2.5">
-              {photos.map((p, i) => (
-                <button key={p.date} type="button" onClick={() => setViewer({ start: i, compare: false })} className="group flex shrink-0 flex-col items-center gap-2">
+              {photos.map((p) => (
+                <button key={p.id} type="button" onClick={() => setViewer({ start: p.id, compare: false })} className="group flex shrink-0 flex-col items-center gap-2">
                   <span className="block size-[72px] overflow-hidden rounded-[4px] ring-brand/0 transition group-hover:ring-2 group-hover:ring-brand/40">
                     <img src={p.src} alt={`${client.firstName}, ${axisDate(p.date)}`} className="size-full object-cover object-top" />
                   </span>
@@ -51,7 +52,7 @@ function PhotosCard({ client }: { client: Client }) {
               ))}
             </div>
             <div className="flex items-center gap-7 pr-2">
-              <button type="button" onClick={() => setViewer({ start: 0, compare: false })} className="flex items-center gap-2 text-[14px] font-semibold leading-[15px] text-ink-secondary hover:text-ink">
+              <button type="button" onClick={() => setViewer({ start: photos[0].id, compare: false })} className="flex items-center gap-2 text-[14px] font-semibold leading-[15px] text-ink-secondary hover:text-ink">
                 {/* eye 1, in Figma's inset wrapper */}
                 <span className="relative size-5 shrink-0" aria-hidden>
                   <span className="absolute inset-[0.96%_1.92%_0.96%_0]">
@@ -63,7 +64,7 @@ function PhotosCard({ client }: { client: Client }) {
               <button
                 type="button"
                 disabled={photos.length < 2}
-                onClick={() => setViewer({ start: 0, compare: true })}
+                onClick={() => setViewer({ start: photos[0].id, compare: true })}
                 className="flex items-center gap-2 text-[14px] font-semibold leading-[15px] text-brand hover:underline disabled:opacity-40"
               >
                 <span className="relative size-5 shrink-0" aria-hidden>
@@ -77,7 +78,7 @@ function PhotosCard({ client }: { client: Client }) {
           </>
         )}
       </div>
-      {viewer && <ProgressPhotoPopup client={client} photos={photos} start={viewer.start} compare={viewer.compare} onClose={() => setViewer(null)} />}
+      {viewer && <ProgressPhotoPopup client={client} photos={photos} startId={viewer.start} compare={viewer.compare} onClose={() => setViewer(null)} />}
     </div>
   );
 }

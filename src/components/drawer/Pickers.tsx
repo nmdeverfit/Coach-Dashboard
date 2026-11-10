@@ -175,6 +175,22 @@ function TimeList({ value, latest, onPick, className }: { value: string; latest?
   );
 }
 
+/** The calendar on its own (Upload Progress Photo's date); a pick applies and closes it. */
+export function DatePicker({ anchor, value, max, onPick, onClose }: { anchor: RefObject<HTMLElement>; value: string; max: string; onPick: (iso: string) => void; onClose: () => void }) {
+  return (
+    <Dropdown anchor={anchor} width={280} onClose={onClose}>
+      <Calendar
+        value={value}
+        max={max}
+        onPick={(d) => {
+          onPick(d);
+          onClose();
+        }}
+      />
+    </Dropdown>
+  );
+}
+
 /**
  * Date and start time in one dropdown (the user's call: picking the day first hid the time list): the calendar on
  * the left, the 15-minute list beside it, as tall as the calendar. A day applies and keeps it open; a time applies

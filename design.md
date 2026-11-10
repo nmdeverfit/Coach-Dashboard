@@ -326,7 +326,16 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "Progress Photo" 20 px semibold `#151619`, Share (`#dadfea` border, 16 px icon, 13 px); photos 302 px wide, rounded 8,
   `object-cover`, the date 13 px semibold white on a 132 px fade to black, Weight | Body Fat on `#f5f5f5` rounded 8
   (12 px label at 50 %, 14 px value, an 11 px divider, a 16 px edit icon at the top right); compare: 24 px apart, a 28
-  px × on `black/40` at the photo's top right on hover.
+  px × on `black/40` at the photo's top right on hover (only with two ticked); with one ticked the second place is a
+  dashed `#dadfea` box on `#fafbfc`, 302 px wide and as tall as the photo, "Choose images on the left panel to compare"
+  13 px `#7a7a7a`, centred.
+  Upload Progress Photo (Figma `6565:465542` / `6565:467125`): 742 × 618, rounded 8, the 24 px × off the corner;
+  "Upload Progress Photo" 20 px semibold `ink` and the date button (16 px calendar, 13 px, `#dadfea` border, rounded
+  8, `px-4 py-3`); the drop zone dashed `#dadfea` on `#fafbfc`, rounded 4, the two-card picture over "Drag & Drop your
+  images here / or Choose Files" (13 px `#7a7a7a`, the link brand, underlined once photos are in); photo cards 196 ×
+  339, rounded 8, `black/10` border, "+ Add tag" white chip at the foot (14 px semibold) and the 24 px × at the top
+  right; the fields 200 px: 10 px semibold uppercase `#6a778a` label, a 36 px input with a `#fafbfc` unit cell
+  ("kg", "%"); footer `#dee0e4` rule, Upload 13 px semibold, `#bfbfbf` until a photo is in, then brand.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one group in the list, at the place the client first appears. `TodoGroupCard`: no card, border or tint (the user's
   call); it sits on the list's grey like the single rows, one `line` divider under the whole group. Every row on this
