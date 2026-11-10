@@ -85,6 +85,7 @@ export function bodyMetrics(client: Client): Record<MetricKey, MetricPoint[]> | 
   const steps = own?.steps ?? pick(how.steps);
   const share = own?.share ?? how.share;
   const offset = Math.floor(rnd() * 4);
+  const photoDays = new Set((PHOTOS[client.id] ?? []).map((p) => p.date));
   const out: Record<MetricKey, MetricPoint[]> = { shoulder: [], hip: [], weight: [], steps: [] };
   const days = 56;
   for (let i = 0; i < days; i++) {
@@ -92,7 +93,9 @@ export function bodyMetrics(client: Client): Record<MetricKey, MetricPoint[]> | 
     if (date > METRICS_TO) break;
     const t = i / (days - 1);
     const logs = () => rnd() < share;
-    if (i % 2 === offset % 2 && logs()) out.weight.push({ date, value: round1(base.weight * (1 + trend * t) + (rnd() - 0.5) * 0.8) });
+    // A photo day is a weigh-in day (the popup shows the photo's weight); the rest every other day.
+    const photoDay = photoDays.has(date) || photoDays.has(addDays(date, 1));
+    if ((photoDay || i % 2 === offset % 2) && (photoDay || logs())) out.weight.push({ date, value: round1(base.weight * (1 + trend * t) + (rnd() - 0.5) * 0.8) });
     if (i % 4 === offset) {
       if (logs()) out.shoulder.push({ date, value: round1(base.shoulder * (1 + trend * 0.4 * t) + (rnd() - 0.5) * 0.6) });
       if (logs()) out.hip.push({ date, value: round1(base.hip * (1 + trend * 0.8 * t) + (rnd() - 0.5) * 0.6) });
@@ -107,6 +110,10 @@ export interface ProgressPhoto {
   /** ISO day the photo was taken. */
   date: string;
   src: string;
+  /** Body fat logged with the photo, in % (the popup's "Body Fat"); its weight comes from the weight log. */
+  bodyFat: number;
+  /** As drawn, the popup's view filter: Front · Left · Right · Back. Every demo photo is a front one. */
+  angle: 'front' | 'left' | 'right' | 'back';
 }
 
 /**
@@ -115,15 +122,23 @@ export interface ProgressPhoto {
  */
 const PHOTOS: Record<string, ProgressPhoto[]> = {
   'clint-jacobi': [
-    { date: '2026-08-31', src: p0831 },
-    { date: '2026-08-28', src: p0828 },
-    { date: '2026-08-24', src: p0824 },
-    { date: '2026-08-20', src: p0820 },
-    { date: '2026-08-16', src: p0816 },
-    { date: '2026-08-12', src: p0820 },
-    { date: '2026-08-08', src: p0808 },
-    { date: '2026-08-06', src: p0806 },
+    { date: '2026-08-31', src: p0831, bodyFat: 16, angle: 'front' },
+    { date: '2026-08-28', src: p0828, bodyFat: 17, angle: 'front' },
+    { date: '2026-08-24', src: p0824, bodyFat: 18, angle: 'front' },
+    { date: '2026-08-20', src: p0820, bodyFat: 20, angle: 'front' },
+    { date: '2026-08-16', src: p0816, bodyFat: 21, angle: 'front' },
+    { date: '2026-08-12', src: p0820, bodyFat: 22, angle: 'front' },
+    { date: '2026-08-08', src: p0808, bodyFat: 23, angle: 'front' },
+    { date: '2026-08-06', src: p0806, bodyFat: 24, angle: 'front' },
   ],
 };
 
 export const progressPhotos = (clientId: string): ProgressPhoto[] => PHOTOS[clientId] ?? [];
+
+/** The weight shown with a photo: the last weigh-in on or before its day (from the same log as the Weight card). */
+export function weightOn(client: Client, date: string): number | null {
+  const log = bodyMetrics(client)?.weight ?? [];
+  let last: number | null = null;
+  for (const p of log) if (p.date <= date) last = p.value;
+  return last;
+}

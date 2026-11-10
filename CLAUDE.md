@@ -172,9 +172,17 @@ one column. The Upcoming bookings session list is shared with the main branch to
   trial (the user's call, Figma `6565:468678`, on only with `METRICS_PHOTOS`): a client detail page tab between Task &
   Habit and Program Ending (`metrics` in `ClientTabs`; not on the to-do panels). Progress Photos: Clint's eight photos
   from the frame (`src/assets/progress/`, 360 px JPEG, dated as drawn, Aug 31 to Aug 6; the 08/20 and 08/12 photos are
-  one picture in the frame, kept), 72 px tiles + MM/DD, a 4 px always-shown scrollbar (`.scroll-photos`), View All and
-  a click on a photo open a viewer popup (one photo, ‹ › and ← →, the strip), Compare a Before | After popup (first
-  and latest by default, a date select each, "N days apart"); others read "No progress photos from {first} yet."
+  one picture in the frame, kept; each carries its body fat and an angle, all front), 72 px tiles + MM/DD, a 4 px
+  always-shown scrollbar (`.scroll-photos`), then View All · Compare with no padding of their own (the user's call).
+  View All and a click on a photo open the Progress Photo popup (`ProgressPhotoPopup.tsx`, Figma `6560:461012`, the
+  user's design): 974 × 722, left on `#f3f5f8` the Compare mode switch, Add new (toasts), the All · Front · Left ·
+  Right · Back filter (Left / Right / Back are empty) and a card per day ("Aug 31", "82 kg - 16%": the weight is the
+  last weigh-in on or before that day from the Weight card's log, `weightOn`; Clint weighs in on and the day before
+  every photo day), the picked one outlined in brand; right "Progress Photo", Share (toasts), the photo 302 px wide
+  with its date on a black fade, Weight | Body Fat under it (the edit icon toasts); ↑ / ↓ step through the days.
+  Compare (or the switch, Figma `6565:463190`) widens it to 1238 px: ticks on two photos (the two latest from Compare;
+  a third replaces the earlier tick), shown side by side newer first, each with a × on hover that unticks it; with one
+  ticked a dashed slot says to tick another. Others read "No progress photos from {first} yet."
   Body Metrics: "View all metrics ›" toasts; the time control Last 2 · 4 · 8 weeks (`METRIC_RANGES`, the finished days
   before today); four cards from `bodyMetrics(client)` (seeded logs from Jul 6 to yesterday: weight every other day,
   shoulder and hip every fourth, steps daily, each skipped more as the 06:00 status logs less; Clint's own bases in
@@ -556,8 +564,10 @@ one column. The Upcoming bookings session list is shared with the main branch to
   metrics or photos (no assessment, Olly or to-do uses them). The frame's figures are placeholders (Oct–Nov dates,
   96 cm on both cards, 1,000 steps); the demo's come from seeded logs ending yesterday. The frame draws only a "down"
   chip; up is the demo's green. Step always covers the last 7 days, as its card is drawn, while the other three follow
-  the time control. The viewer, Compare popup, the time control's menu and the empty states have no frame. Clint's
-  photos show a bigger change than his logs' eight weeks (the frame's pictures).
+  the time control. The time control's menu and the empty states have no frame. Clint's photos show a bigger change
+  than his logs' eight weeks (the frame's pictures). The Progress Photo popup's frames read weight in lbs; the demo
+  keeps kg like the Weight card. Their carousel dots (several photos a day) are left out, since the demo has one photo
+  a day; the hidden prev / next arrows too (↑ / ↓ step instead). Add new, Share and the edit icon only toast.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. Its rows drop the brief's greyed sentence of why for one sentence that

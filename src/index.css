@@ -64,6 +64,18 @@ body {
     background: #d9d9d9;
     border-radius: 99px;
   }
+  /* The Progress Photo popup's list: an 8 px grey thumb, always shown (Figma 6560:461012). */
+  .scroll-photos-v {
+    scrollbar-width: thin;
+    scrollbar-color: #d9d9d9 transparent;
+  }
+  .scroll-photos-v::-webkit-scrollbar {
+    width: 8px;
+  }
+  .scroll-photos-v::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 24px;
+  }
   .scroll-thin {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;

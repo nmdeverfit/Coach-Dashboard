@@ -315,8 +315,18 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   the bar's colour at 20 %), 2 px lines (`#ca80dc` Hip, `#7856ff` Weight) over a fill of the same colour fading from
   16 % to 2 %, a white dot ringed in the colour on the hovered point; 5 px ticks and 9 px uppercase semibold
   `#7b7e91` dates under it. The tooltip: white, `#fbfbfb` border, rounded 5, `0 1px 4px rgba(38,38,38,0.2)`, 10 px
-  padding: 12 px date, 15 px value + 12 px unit in `ink`, a 2 px dot and 10 px "Last value" in `#a3a3b5`. Viewer and
-  Compare are `Modal`s (640 and 760 px) with the photos on `surface-secondary`, no frame.
+  padding: 12 px date, 15 px value + 12 px unit in `ink`, a 2 px dot and 10 px "Last value" in `#a3a3b5`. View All ·
+  Compare sit right under the photo row's bar (no padding of their own, the user's call).
+  Progress Photo popup (Figma `6560:461012`, compare `6565:463190`): rounded 8, 722 px tall, the 24 px dark × on the
+  top-right corner; left 362 px on `#f3f5f8`: a 36 × 20 switch (off `#e4e5e7`, on brand) + "Compare mode" 12 px
+  semibold `#728096`, Add new (brand, rounded 4, 13 px); the filter (14 px semibold capitalised, `#636a73`, on
+  `brand/10` + brand); day cards white, rounded 4, `px-4 py-[14px]`: date 14 px semibold `#151619`, "82 kg - 16%" 10 px
+  semibold `#6a778a`, the photo 63 × 76 in a 3 px frame rounded 6 (picked: brand border + shadow; the view-mode card
+  gets a brand border inside a 2 px `brand/20` ring; compare ticks a 21 px check), an 8 px `#d9d9d9` scrollbar. Right:
+  "Progress Photo" 20 px semibold `#151619`, Share (`#dadfea` border, 16 px icon, 13 px); photos 302 px wide, rounded 8,
+  `object-cover`, the date 13 px semibold white on a 132 px fade to black, Weight | Body Fat on `#f5f5f5` rounded 8
+  (12 px label at 50 %, 14 px value, an 11 px divider, a 16 px edit icon at the top right); compare: 24 px apart, a 28
+  px × on `black/40` at the photo's top right on hover.
 - **Grouped to-dos** (trial, no frame, only in the `build:artifact:grouped` page): a client with several to-dos gets
   one group in the list, at the place the client first appears. `TodoGroupCard`: no card, border or tint (the user's
   call); it sits on the list's grey like the single rows, one `line` divider under the whole group. Every row on this

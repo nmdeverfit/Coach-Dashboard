@@ -3,12 +3,12 @@ import iconDown from '../../assets/figma/icon-down-time.svg';
 import iconEye from '../../assets/figma/icon-eye.svg';
 import iconStack from '../../assets/figma/icon-img-stack.svg';
 import iconMetricDown from '../../assets/figma/icon-metric-down.svg';
-import { METRICS, bodyMetrics, progressPhotos, type MetricDef, type MetricPoint, type ProgressPhoto } from '../../data/bodyMetrics';
+import { METRICS, bodyMetrics, progressPhotos, type MetricDef, type MetricPoint } from '../../data/bodyMetrics';
 import type { Client } from '../../data/types';
 import { METRIC_RANGES, axisDate, axisWeekday, metricNumber, metricView, photoDate, yTicks, type MetricRange, type MetricView } from '../../lib/bodyMetrics';
-import { daysBetween, formatMonthDay, parseDay } from '../../lib/dates';
-import { Modal } from '../Modal';
+import { daysBetween, parseDay } from '../../lib/dates';
 import { CardHeader } from './NutritionTab';
+import { ProgressPhotoPopup } from './ProgressPhotoPopup';
 
 /**
  * Metrics & Photos (the user's call; Figma 6565:468678, the client detail page's tab between Task & Habit and Program
@@ -30,7 +30,7 @@ const CARD = 'flex w-full flex-col overflow-hidden rounded-lg border border-ink/
 
 function PhotosCard({ client }: { client: Client }) {
   const photos = progressPhotos(client.id);
-  const [viewer, setViewer] = useState<{ mode: 'view'; index: number } | { mode: 'compare' } | null>(null);
+  const [viewer, setViewer] = useState<{ start: number; compare: boolean } | null>(null);
   return (
     <div className={CARD}>
       <CardHeader title="Progress Photos" />
@@ -42,7 +42,7 @@ function PhotosCard({ client }: { client: Client }) {
             {/* Eight 72 px photos just overflow the card, so the thin bar under them shows there is more (as drawn). */}
             <div className="scroll-photos -mb-1 flex gap-2 overflow-x-auto pb-2.5">
               {photos.map((p, i) => (
-                <button key={p.date} type="button" onClick={() => setViewer({ mode: 'view', index: i })} className="group flex shrink-0 flex-col items-center gap-2">
+                <button key={p.date} type="button" onClick={() => setViewer({ start: i, compare: false })} className="group flex shrink-0 flex-col items-center gap-2">
                   <span className="block size-[72px] overflow-hidden rounded-[4px] ring-brand/0 transition group-hover:ring-2 group-hover:ring-brand/40">
                     <img src={p.src} alt={`${client.firstName}, ${axisDate(p.date)}`} className="size-full object-cover object-top" />
                   </span>
@@ -50,8 +50,8 @@ function PhotosCard({ client }: { client: Client }) {
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-7 pb-2 pr-2 pt-3">
-              <button type="button" onClick={() => setViewer({ mode: 'view', index: 0 })} className="flex items-center gap-2 text-[14px] font-semibold leading-[15px] text-ink-secondary hover:text-ink">
+            <div className="flex items-center gap-7 pr-2">
+              <button type="button" onClick={() => setViewer({ start: 0, compare: false })} className="flex items-center gap-2 text-[14px] font-semibold leading-[15px] text-ink-secondary hover:text-ink">
                 {/* eye 1, in Figma's inset wrapper */}
                 <span className="relative size-5 shrink-0" aria-hidden>
                   <span className="absolute inset-[0.96%_1.92%_0.96%_0]">
@@ -63,7 +63,7 @@ function PhotosCard({ client }: { client: Client }) {
               <button
                 type="button"
                 disabled={photos.length < 2}
-                onClick={() => setViewer({ mode: 'compare' })}
+                onClick={() => setViewer({ start: 0, compare: true })}
                 className="flex items-center gap-2 text-[14px] font-semibold leading-[15px] text-brand hover:underline disabled:opacity-40"
               >
                 <span className="relative size-5 shrink-0" aria-hidden>
@@ -77,95 +77,8 @@ function PhotosCard({ client }: { client: Client }) {
           </>
         )}
       </div>
-      {viewer?.mode === 'view' && <PhotoViewer client={client} photos={photos} start={viewer.index} onClose={() => setViewer(null)} />}
-      {viewer?.mode === 'compare' && <PhotoCompare client={client} photos={photos} onClose={() => setViewer(null)} />}
+      {viewer && <ProgressPhotoPopup client={client} photos={photos} start={viewer.start} compare={viewer.compare} onClose={() => setViewer(null)} />}
     </div>
-  );
-}
-
-const longDate = (iso: string) => {
-  const d = parseDay(iso);
-  return `${formatMonthDay(d)}, ${d.getUTCFullYear()}`;
-};
-
-/** View All or a photo: one photo large with ‹ › and the strip under it (no frame; the demo's). */
-function PhotoViewer({ client, photos, start, onClose }: { client: Client; photos: ProgressPhoto[]; start: number; onClose: () => void }) {
-  const [i, setI] = useState(start);
-  const go = (d: number) => setI((n) => (n + d + photos.length) % photos.length);
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      // The strip runs newest first, so ‹ and ← go to the newer photo, › and → to the older one.
-      if (e.key === 'ArrowLeft') go(-1);
-      if (e.key === 'ArrowRight') go(1);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  });
-  const p = photos[i];
-  const arrow = 'absolute top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[20px] leading-none text-ink shadow-card hover:bg-white';
-  return (
-    <Modal title={`${client.firstName}’s progress photos`} width={640} onClose={onClose} closeOnBackdrop>
-      <div className="flex flex-col gap-3 px-6 pb-6 pt-4">
-        <div className="relative flex h-[440px] items-center justify-center overflow-hidden rounded-lg bg-surface-secondary">
-          <img src={p.src} alt={`${client.firstName}, ${axisDate(p.date)}`} className="max-h-full max-w-full object-contain" />
-          <button type="button" aria-label="Newer photo" onClick={() => go(-1)} className={`${arrow} left-3`}>
-            ‹
-          </button>
-          <button type="button" aria-label="Older photo" onClick={() => go(1)} className={`${arrow} right-3`}>
-            ›
-          </button>
-        </div>
-        <p className="text-center text-[13px] font-semibold leading-[1.5] text-ink">
-          {longDate(p.date)} <span className="font-normal text-ink-secondary">· {i + 1} of {photos.length}</span>
-        </p>
-        <div className="scroll-photos flex gap-2 overflow-x-auto pb-2">
-          {photos.map((q, n) => (
-            <button key={q.date} type="button" onClick={() => setI(n)} aria-current={n === i} className="flex shrink-0 flex-col items-center gap-1">
-              <span className={`block size-12 overflow-hidden rounded-[4px] ring-2 ${n === i ? 'ring-brand' : 'ring-transparent hover:ring-brand/30'}`}>
-                <img src={q.src} alt="" className="size-full object-cover object-top" />
-              </span>
-              <span className={`text-[11px] leading-[1.5] ${n === i ? 'font-semibold text-brand' : 'text-ink-secondary'}`}>{photoDate(q.date)}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </Modal>
-  );
-}
-
-/** Compare: two photos side by side, the first and the latest unless the coach picks other days (no frame; the demo's). */
-function PhotoCompare({ client, photos, onClose }: { client: Client; photos: ProgressPhoto[]; onClose: () => void }) {
-  const [left, setLeft] = useState(photos.length - 1);
-  const [right, setRight] = useState(0);
-  const side = (n: number, set: (n: number) => void, label: string) => (
-    <div className="flex min-w-0 flex-1 flex-col gap-2">
-      <label className="flex items-center justify-between gap-2 text-[12px] font-semibold leading-[1.5] text-ink-secondary">
-        {label}
-        <select
-          value={n}
-          onChange={(e) => set(Number(e.target.value))}
-          className="h-[30px] rounded-[5px] border border-[#e1e1ea] bg-white px-2 text-[12px] font-semibold text-ink outline-none focus:border-brand"
-        >
-          {photos.map((q, k) => (
-            <option key={q.date} value={k}>
-              {longDate(q.date)}
-            </option>
-          ))}
-        </select>
-      </label>
-      <div className="flex h-[420px] items-center justify-center overflow-hidden rounded-lg bg-surface-secondary">
-        <img src={photos[n].src} alt={`${client.firstName}, ${axisDate(photos[n].date)}`} className="max-h-full max-w-full object-contain" />
-      </div>
-    </div>
-  );
-  const days = Math.abs(daysBetween(photos[left].date, photos[right].date));
-  return (
-    <Modal title={`Compare ${client.firstName}’s progress photos`} subtitle={`${days} ${days === 1 ? 'day' : 'days'} apart`} width={760} onClose={onClose} closeOnBackdrop>
-      <div className="flex gap-4 px-6 pb-6 pt-4">
-        {side(left, setLeft, 'Before')}
-        {side(right, setRight, 'After')}
-      </div>
-    </Modal>
   );
 }
 
