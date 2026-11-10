@@ -11,6 +11,8 @@ import navPayments from '../assets/figma/nav-payments.svg';
 import navResources from '../assets/figma/nav-resources.svg';
 import navTeams from '../assets/figma/nav-teams.svg';
 import { coachAvatar } from '../data/mock';
+import { METRICS_PHOTOS } from '../lib/flags';
+import { closeMetricsPage, useMetricsPage } from '../lib/metricsPage';
 import { Avatar } from './Avatar';
 
 interface NavItem {
@@ -36,10 +38,12 @@ const bottomNav: NavItem[] = [
   { label: 'Community', icon: navCommunity },
 ];
 
-function NavButton({ item }: { item: NavItem }) {
+function NavButton({ item, active, onClick }: { item: NavItem; active?: boolean; onClick?: () => void }) {
+  item = { ...item, active: active ?? item.active };
   return (
     <button
       type="button"
+      onClick={onClick}
       title={item.label}
       aria-label={item.label}
       aria-current={item.active ? 'page' : undefined}
@@ -56,6 +60,8 @@ function NavButton({ item }: { item: NavItem }) {
 
 /** Compact Everfit main sidebar (64px) with the brand gradient. */
 export function Sidebar() {
+  // Metrics & Photos trial: on a client's Metrics page Clients is the current item, and Check-in Dashboard goes back.
+  const onMetrics = Boolean(useMetricsPage()) && METRICS_PHOTOS;
   return (
     <aside className="flex h-full w-16 shrink-0 flex-col items-center bg-gradient-to-b from-sidebar-1 from-40% via-sidebar-2 via-80% to-sidebar-3 pb-4">
       <div className="flex h-[88px] w-full items-center justify-center">
@@ -64,7 +70,12 @@ export function Sidebar() {
       <nav className="flex w-full flex-1 flex-col items-center justify-between px-2">
         <div className="flex flex-col items-center gap-1">
           {mainNav.map((item) => (
-            <NavButton key={item.label} item={item} />
+            <NavButton
+              key={item.label}
+              item={item}
+              active={onMetrics ? item.label === 'Clients' : undefined}
+              onClick={item.label === 'Check-in Dashboard' ? closeMetricsPage : undefined}
+            />
           ))}
         </div>
         <div className="flex flex-col items-center gap-1">

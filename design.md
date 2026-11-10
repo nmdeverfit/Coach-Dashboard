@@ -329,6 +329,15 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   px × on `black/40` at the photo's top right on hover (only with two ticked); with one ticked the second place is a
   dashed `#dadfea` box on `#fafbfc`, 302 px wide and as tall as the photo, "Choose images on the left panel to compare"
   13 px `#7a7a7a`, centred.
+  Client Metrics page (from the user's screenshot of Everfit's client profile): All Clients 240 px on `#f7f8fc`
+  ("CLIENTS" 11 px semibold uppercase over "All Clients" 20 px bold, a 30 px search + sort, rows of a 36 px avatar and
+  14 px semibold name, the open one on a white card); the header 50 px avatar + 22 px semibold name over the profile
+  tabs (13 px `ink-secondary`, Metrics brand with a 2 px underline, Sessions' pink NEW chip); a 410 px left column
+  (Body | Exercise Metrics, a brand-bordered pair, the picked one filled; "Body Metrics" 15 px with a 30 px search
+  button and Add New on `#f3f4f6`; the All Metrics card brand-bordered, its header brand with a chevron, NAME · VALUE ·
+  LAST UPDATE 10 px uppercase, 13 px rows; Manage Metrics at the foot); right "All Metrics" 20 px semibold, the time
+  control and Update Results (brand outline), the cards 296 px tall, 16 px apart, plots 150 px tall, Steps' bars 20 px,
+  Sleep teal `#3ed3b4`, the other lines brand.
   Upload Progress Photo (Figma `6565:465542` / `6565:467125`): 742 × 618, rounded 8, the 24 px × off the corner;
   "Upload Progress Photo" 20 px semibold `ink` and the date button (16 px calendar, 13 px, `#dadfea` border, rounded
   8, `px-4 py-3`); the drop zone dashed `#dadfea` on `#fafbfc`, rounded 4, the two-card picture over "Drag & Drop your

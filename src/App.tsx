@@ -12,7 +12,9 @@ import { Sidebar } from './components/Sidebar';
 import { SidePanel } from './components/side/SidePanel';
 import { TodayBrief } from './components/TodayBrief';
 import { Toast } from './components/Toast';
-import { CHART_TRIAL, NOTES_TIMELINE } from './lib/flags';
+import { ClientMetricsPage } from './components/ClientMetricsPage';
+import { CHART_TRIAL, METRICS_PHOTOS, NOTES_TIMELINE } from './lib/flags';
+import { openMetricsPage, useMetricsPage } from './lib/metricsPage';
 import { sideIsSidebar, useStore } from './state/store';
 
 const SLIDE_MS = 420;
@@ -41,12 +43,17 @@ function ViewLayer({ active, offset, lifted = false, children }: { active: boole
 /** Web-only layout designed at 1440 × 900; narrower windows scroll sideways inside the shell. */
 export default function App() {
   const { state } = useStore();
+  // Metrics & Photos trial: "View all metrics" swaps the dashboard for the client's Metrics page.
+  const metricsFor = useMetricsPage();
   return (
     <div className="h-full overflow-x-auto">
       {/* While the middle column is a sidebar (opened from a Client highlight) the page gives it 360 px on the right
           and the brief reflows into the rest. */}
       <div className={`flex h-full min-w-[1280px] transition-[padding] duration-300 ${sideIsSidebar(state) ? 'pr-[360px]' : ''}`}>
         <Sidebar />
+        {METRICS_PHOTOS && metricsFor ? (
+          <ClientMetricsPage clientId={metricsFor} onSelect={openMetricsPage} />
+        ) : (
         <main className="flex min-w-0 flex-1 flex-col">
           <Header />
           {/* Both views stay mounted side by side and slide as one track: the Dashboard comes in from the right, the
@@ -78,6 +85,7 @@ export default function App() {
             </ViewLayer>
           </div>
         </main>
+        )}
       </div>
       <TodoDrawer />
       <ClientDrawer />

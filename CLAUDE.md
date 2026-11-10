@@ -192,7 +192,17 @@ one column. The Upcoming bookings session list is shared with the main branch to
   for the session (`lib/photoStore.ts`, `usePhotos`: merged with the set, newest day first; the photo's own weight, or
   the log's), opens the new one (ticks it in compare mode) and toasts "Progress photo uploaded". Others read "No
   progress photos from {first} yet."
-  Body Metrics: "View all metrics ›" toasts; the time control Last 2 · 4 · 8 weeks (`METRIC_RANGES`, the finished days
+  Body Metrics: "View all metrics ›" opens the client's Metrics page (`ClientMetricsPage.tsx`, `lib/metricsPage.ts`,
+  the user's screenshot of Everfit's client profile, no frame): it takes the page's place beside the main sidebar
+  (Clients lit; Check-in Dashboard goes back); left, All Clients (every client with a to-do today, the opened one
+  first, a search; a row switches the client); the client's header (50 px avatar, 22 px name) and profile tabs (Metrics
+  on, the others toast); Body Metrics | Exercise Metrics (Exercise is empty), the All Metrics table (name · last
+  value · last update, "Yesterday" / "Aug 28"; a row scrolls to its chart and rings it; search toggles a filter; Add
+  New and Manage Metrics toast) and, right, All Metrics: Last 2 · 4 · 8 weeks (4 by default) + Update Results
+  (toasts) over 296 px cards in two columns, the tab's `MetricCard` at the page's width with lines zoomed to their
+  values: Steps, Sleep (minutes, "6 h 54 min", bars daily), Weight, Resting Heart Rate, Body Fat, BMI, Shoulder, Hip
+  (`ALL_METRICS`). The extra logs come from a second seed so the tab's four cards keep their figures; Clint's Body Fat is
+  his photos' own figures, BMI each weigh-in over a seeded height. The time control Last 2 · 4 · 8 weeks (`METRIC_RANGES`, the finished days
   before today); four cards from `bodyMetrics(client)` (seeded logs from Jul 6 to yesterday: weight every other day,
   shoulder and hip every fourth, steps daily, each skipped more as the 06:00 status logs less; Clint's own bases in
   `BASES`, losing weight; No activities clients have none: "No body metrics from {first} yet."): Shoulder (bars, one
@@ -578,7 +588,9 @@ one column. The Upcoming bookings session list is shared with the main branch to
   keeps kg like the Weight card. Their carousel dots (several photos a day) are left out, since the demo has one photo
   a day; the hidden prev / next arrows too (↑ / ↓ step instead). Share and the edit icon only toast. Upload Progress
   Photo reads weight in lb; the demo asks in kg. Uploads live for the session only and feed nothing else (no Weight
-  card point, no assessment). The tag menu and the compare slot's text box have no frame.
+  card point, no assessment). The tag menu and the compare slot's text box have no frame. The Metrics page is drawn
+  from a screenshot of Everfit's live client profile, not a frame: the header's right side (trial, Upgrade, icons) is
+  left out at the user's request; its list holds the to-do clients only, and the screenshot's 23 metrics are the demo's 8.
 - Grouped to-dos (the trial page only, the user's call): the brief and Spec 4 BL3 keep one to-do per client per
   day, the other reasons riding inside it, with no "+K more"; the trial gives each reason its own to-do, groups them
   by client and lists them in the panel. Its rows drop the brief's greyed sentence of why for one sentence that

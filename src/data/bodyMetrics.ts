@@ -15,7 +15,7 @@ import type { Client, ClientStatus } from './types';
  * `build:artifact:metrics` page shows them. Every figure on the tab comes from these logs (`lib/bodyMetrics.ts`).
  */
 
-export type MetricKey = 'shoulder' | 'hip' | 'weight' | 'steps';
+export type MetricKey = 'shoulder' | 'hip' | 'weight' | 'steps' | 'sleep' | 'rhr' | 'bodyFat' | 'bmi';
 
 export interface MetricPoint {
   /** ISO day. */
@@ -39,6 +39,21 @@ export const METRICS: MetricDef[] = [
   { key: 'hip', label: 'Hip', unit: 'cm', chart: 'line', color: '#ca80dc' },
   { key: 'weight', label: 'Weight', unit: 'kg', chart: 'line', color: '#7856ff' },
   { key: 'steps', label: 'Step', unit: 'steps', chart: 'bar', color: '#ff7557' },
+];
+
+/**
+ * Every metric, in the client's Metrics page order (the user's screenshot of Everfit's All Metrics: Steps, Sleep,
+ * Weight, Resting Heart Rate, Body Fat, BMI, then the tab's tape measures). Sleep is in minutes.
+ */
+export const ALL_METRICS: MetricDef[] = [
+  { key: 'steps', label: 'Steps', unit: 'steps', chart: 'bar', color: '#ff5e45' },
+  { key: 'sleep', label: 'Sleep', unit: 'min', chart: 'bar', color: '#3ed3b4' },
+  { key: 'weight', label: 'Weight', unit: 'kg', chart: 'line', color: '#184eff' },
+  { key: 'rhr', label: 'Resting Heart Rate', unit: 'bpm', chart: 'line', color: '#184eff' },
+  { key: 'bodyFat', label: 'Body Fat', unit: '%', chart: 'line', color: '#184eff' },
+  { key: 'bmi', label: 'BMI', unit: '', chart: 'line', color: '#184eff' },
+  { key: 'shoulder', label: 'Shoulder', unit: 'cm', chart: 'bar', color: '#7856ff' },
+  { key: 'hip', label: 'Hip', unit: 'cm', chart: 'line', color: '#ca80dc' },
 ];
 
 /** The logs go back eight weeks, the longest range the time control offers; nothing is logged today yet (06:00). */
@@ -86,7 +101,7 @@ export function bodyMetrics(client: Client): Record<MetricKey, MetricPoint[]> | 
   const share = own?.share ?? how.share;
   const offset = Math.floor(rnd() * 4);
   const photoDays = new Set((PHOTOS[client.id] ?? []).map((p) => p.date));
-  const out: Record<MetricKey, MetricPoint[]> = { shoulder: [], hip: [], weight: [], steps: [] };
+  const out: Record<MetricKey, MetricPoint[]> = { shoulder: [], hip: [], weight: [], steps: [], sleep: [], rhr: [], bodyFat: [], bmi: [] };
   const days = 56;
   for (let i = 0; i < days; i++) {
     const date = addDays(METRICS_FROM, i);
@@ -102,6 +117,26 @@ export function bodyMetrics(client: Client): Record<MetricKey, MetricPoint[]> | 
     }
     if (logs()) out.steps.push({ date, value: Math.round((steps * (0.8 + rnd() * 0.4)) / 10) * 10 });
   }
+  // The Metrics page's extra metrics come from a second seed, so the tab's four cards keep their figures.
+  const more = random(`${client.id}:metrics-more`);
+  const height = own ? 1.83 : 1.58 + more() * 0.3;
+  const sleep = 380 + more() * 80;
+  const rhr = own ? 64 : 56 + more() * 18;
+  const fat = 16 + more() * 14;
+  const photos = new Map((PHOTOS[client.id] ?? []).map((p) => [p.date, p.bodyFat]));
+  for (let i = 0; i < days; i++) {
+    const date = addDays(METRICS_FROM, i);
+    if (date > METRICS_TO) break;
+    const t = i / (days - 1);
+    if (more() < share) out.sleep.push({ date, value: Math.round(sleep + (more() - 0.5) * 110) });
+    if (i % 3 === offset % 3 && more() < share) out.rhr.push({ date, value: Math.round(rhr + (more() - 0.5) * 6 - trend * 20 * t) });
+    // Body fat: on a photo day the photo's own figure (they agree); otherwise weekly, drifting with the weight.
+    const onPhoto = photos.get(date) ?? photos.get(addDays(date, 1));
+    if (onPhoto != null) out.bodyFat.push({ date, value: onPhoto });
+    else if (!photos.size && i % 7 === offset && more() < share) out.bodyFat.push({ date, value: round1(fat * (1 + trend * 1.5 * t) + (more() - 0.5)) });
+  }
+  // BMI from each weigh-in and the client's height.
+  out.bmi = out.weight.map((p) => ({ date: p.date, value: round1(p.value / (height * height)) }));
   cache.set(client.id, out);
   return out;
 }

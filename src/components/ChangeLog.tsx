@@ -1,6 +1,7 @@
 import { ArrowRightLeft, ArrowUpRight, ChevronDown, ChevronUp, Eye, EyeOff, LayoutDashboard, LayoutGrid, ListTree, NotebookPen, Ruler } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { METRICS_PHOTOS } from '../lib/flags';
+import { closeMetricsPage } from '../lib/metricsPage';
 import { NOTES_LAYOUTS, RELATED_OPTIONS, setNotesLayout, setRelatedOption, useNotesLayout, useRelatedOption } from '../lib/notesTrial';
 import { useStore } from '../state/store';
 
@@ -137,7 +138,10 @@ export function ChangeLog() {
       key: 'metrics',
       icon: <Ruler size={16} />,
       title: 'Body Metrics & Progress Photos',
-      go: () => selectClient(SHOWCASE, 'metrics'),
+      go: () => {
+        closeMetricsPage();
+        selectClient(SHOWCASE, 'metrics');
+      },
     },
   ];
   const trialEntries: Entry[] = [
