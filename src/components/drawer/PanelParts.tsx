@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import iconMessage from '../../assets/figma/icon-message-dots.svg';
 import iconPencilAi from '../../assets/figma/icon-pencil-ai.svg';
+import { METRICS_PHOTOS } from '../../lib/flags';
 import { useStore } from '../../state/store';
 
 /** Part D (Spec 4 BL1): the data tabs. Tabs whose v1 data area is not wired yet read muted, as in the design. */
@@ -18,6 +19,8 @@ export function TabBar<K extends string>({
   // Metrics & Photos' long label needs a little more room on the client page (eight tabs, nine with Booking).
   const metrics = tabs.some((t) => t.key === 'metrics');
   const px = metrics ? (tabs.length > 7 ? 'px-[7px]' : 'px-2.5') : tabs.length > 7 ? 'px-3' : tabs.length > 6 ? 'px-4' : 'px-5';
+  // Metrics & Photos page: the tabs share out the row's spare width, so the row is filled edge to edge (the user's call).
+  const fill = METRICS_PHOTOS ? 'flex-auto text-center' : '';
   return (
     <div role="tablist" aria-label="Client data" className="flex w-full items-center border-b border-line">
       {tabs.map((t) => {
@@ -31,8 +34,8 @@ export function TabBar<K extends string>({
             onClick={() => onChange(t.key)}
             className={
               on
-                ? `-mb-px whitespace-nowrap border-b-2 border-brand ${px} pb-2.5 pt-2 text-[13px] font-semibold leading-normal text-brand`
-                : `whitespace-nowrap ${px} py-1.5 text-[13px] font-semibold leading-normal tracking-[-0.26px] hover:text-ink ${t.muted ? 'text-ink/40' : 'text-ink-secondary'}`
+                ? `-mb-px ${fill} whitespace-nowrap border-b-2 border-brand ${px} pb-2.5 pt-2 text-[13px] font-semibold leading-normal text-brand`
+                : `${fill} whitespace-nowrap ${px} py-1.5 text-[13px] font-semibold leading-normal tracking-[-0.26px] hover:text-ink ${t.muted ? 'text-ink/40' : 'text-ink-secondary'}`
             }
           >
             {t.label}

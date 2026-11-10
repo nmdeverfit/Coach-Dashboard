@@ -302,7 +302,8 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   the form's name follows the kind.
 - **Metrics & Photos** (trial, Figma `6565:468678`, only in the `build:artifact:metrics` page): the client detail
   page's tab between Task & Habit and Program Ending (on the client page the tab row tightens to `px-2.5`, `px-[7px]`
-  with Booking, so the longer label fits 660 px). Two cards in the tabs' card shell (`CardHeader`, Progress Photos with
+  with Booking, so the longer label fits 660 px; on this page every tab row grows its tabs, `flex-auto`, to fill the
+  row edge to edge, the user's call). Two cards in the tabs' card shell (`CardHeader`, Progress Photos with
   no link). Progress Photos: content `p-[15px]`, 72 px tiles rounded 4 (`object-cover object-top`), 8 px apart, the
   date under each in 14 px `ink-secondary` MM/DD; a 4 px bar under them, `#f0f0f0` track and `#d9d9d9` thumb, always
   shown; then View All (20 px eye, 14 px semibold `ink-secondary`) and Compare (img-stack icon, brand), 28 px apart.
