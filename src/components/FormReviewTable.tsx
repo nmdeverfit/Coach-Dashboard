@@ -1,45 +1,27 @@
 import { useRef, useState } from 'react';
-import iconClipboard from '../assets/figma/icon-clipboard-brand.svg';
 import iconMarkDoneChecked from '../assets/figma/icon-markdone-checked.svg';
 import iconMarkDone from '../assets/figma/icon-markdone.svg';
-import iconMessage from '../assets/figma/icon-message-dots.svg';
-import { todoDetails } from '../data/details';
 import { DEMO_TODAY } from '../data/mock';
 import { getProfile } from '../data/profiles';
-import { formRows, type FormRow } from '../lib/dashboard';
-import { formatMonthDay, parseDay } from '../lib/dates';
+import { formReviewRows, type FormRow } from '../lib/dashboard';
+import { daysAgo } from '../lib/todos';
 import { clientsInWeek } from '../lib/week';
 import { sideIsSidebar, useStore } from '../state/store';
-import { AiPill } from './AiPill';
 import { ClientCell, HEAD, reducedMotion, SectionHeader } from './ClientListParts';
-import { AI_GRADIENT } from './drawer/AiAssessment';
-import { StatusChip } from './StatusChip';
 import { Tooltip } from './Tooltip';
 
 /**
- * The client list's Form to review tab (the user's call, no frame): one row per submitted form, not per client.
- * Client · Form (name, submitted date, response number) · Review status (how long it has waited, or Reviewed) ·
- * the client's Status · Action (Review form, Mark form as reviewed, Send message). Sections Waiting for review
- * (longest wait first) and Reviewed today. A row opens the form's Respond panel; ✓ completes that to-do, which is
- * the form review (Spec 4 AC3.5), so it never counts as a check-in review.
+ * The client list's Form to review tab (the user's call, no frame): one row per submitted form, with the columns of
+ * the client detail page's Form tab (`FormStatus`) after the client: Client · Form name · Response status · Last
+ * submitted · Coach action · Action (Review form, ✓ Mark form as reviewed). Sections Waiting for review (longest
+ * wait first) and Reviewed today. A row opens the form's Respond panel; ✓ completes that to-do, which is the form
+ * review (Spec 4 AC3.5), so it never counts as a check-in review.
  */
 
-/** Waiting this many days or more reads red. */
-export const LONG_WAIT_DAYS = 7;
-
-const WIDE = { client: 'w-[280px] shrink-0', form: 'min-w-0 flex-1', review: 'w-[200px] shrink-0', status: 'w-[180px] shrink-0', action: 'w-[208px] shrink-0' };
-/** With the sidebar open the table loses 360 px: Client, Review status and Status narrow. */
-const COMPACT = { client: 'w-[220px] shrink-0', form: 'min-w-0 flex-1', review: 'w-[150px] shrink-0', status: 'w-[140px] shrink-0', action: 'w-[208px] shrink-0' };
-
-const responsesOf = (todoId: string) => {
-  const d = todoDetails[todoId];
-  return d?.kind === 'respond' ? d.responseCount : undefined;
-};
-const ordinal = (n: number) => {
-  const s = n % 100 >= 11 && n % 100 <= 13 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] ?? 'th');
-  return `${n}${s}`;
-};
-const waited = (days: number) => (days === 0 ? 'Today' : days === 1 ? 'Waiting 1 day' : `Waiting ${days} days`);
+const WIDE = { client: 'w-[280px] shrink-0', form: 'min-w-0 flex-1', response: 'w-[160px] shrink-0', last: 'w-[160px] shrink-0', coach: 'w-[180px] shrink-0', action: 'w-[164px] shrink-0' };
+/** With the sidebar open the table loses 360 px: Client and the status columns narrow. */
+const COMPACT = { client: 'w-[220px] shrink-0', form: 'min-w-0 flex-1', response: 'w-[124px] shrink-0', last: 'w-[112px] shrink-0', coach: 'w-[136px] shrink-0', action: 'w-[164px] shrink-0' };
+type Cols = typeof WIDE;
 
 export function FormReviewTable({ query }: { query: string }) {
   const { state } = useStore();
@@ -49,7 +31,7 @@ export function FormReviewTable({ query }: { query: string }) {
   // Forms waiting on review are today's queue; a past week's were reviewed long since.
   const rows = past
     ? []
-    : formRows(clientsInWeek(0), state.todos, DEMO_TODAY, (c) => getProfile(c.id).forms, responsesOf).filter(
+    : formReviewRows(clientsInWeek(0), state.todos, (c) => getProfile(c.id).forms).filter(
         (r) => !query || r.client.name.toLowerCase().includes(query) || r.form.toLowerCase().includes(query),
       );
   const waiting = rows.filter((r) => !r.reviewed);
@@ -59,14 +41,10 @@ export function FormReviewTable({ query }: { query: string }) {
     <div className="flex flex-col gap-2">
       <div className="sticky top-0 z-10 flex h-10 items-center rounded-t-lg border-b border-line bg-white">
         <div className={`${cols.client} py-2.5 pl-4 pr-3 ${HEAD}`}>Client</div>
-        <div className={`${cols.form} px-4 py-2.5 ${HEAD}`}>Form</div>
-        <div className={`${cols.review} px-4 py-2.5 ${HEAD}`}>Review status</div>
-        <div className={`${cols.status} flex items-center gap-1.5 px-4 py-2.5`}>
-          <span className="bg-clip-text text-[13px] font-semibold leading-[1.5] text-transparent" style={{ backgroundImage: AI_GRADIENT }}>
-            Status
-          </span>
-          <AiPill />
-        </div>
+        <div className={`${cols.form} px-4 py-2.5 ${HEAD}`}>Form name</div>
+        <div className={`${cols.response} px-4 py-2.5 ${HEAD}`}>Response status</div>
+        <div className={`${cols.last} px-4 py-2.5 ${HEAD}`}>Last submitted</div>
+        <div className={`${cols.coach} px-4 py-2.5 ${HEAD}`}>Coach action</div>
         <div className={`${cols.action} py-2.5 pl-4 pr-3 ${HEAD}`}>Action</div>
       </div>
       <Section
@@ -89,8 +67,6 @@ export function FormReviewTable({ query }: { query: string }) {
   );
 }
 
-type Cols = typeof WIDE;
-
 function Section({ title, rows, cols, open, onToggle, empty }: { title: string; rows: FormRow[]; cols: Cols; open: boolean; onToggle: () => void; empty: string }) {
   return (
     <section>
@@ -111,7 +87,7 @@ function Section({ title, rows, cols, open, onToggle, empty }: { title: string; 
 const ICON_BASE = 'group/tip relative flex size-8 items-center justify-center rounded-md border border-black/15';
 
 function FormRowView({ row, cols }: { row: FormRow; cols: Cols }) {
-  const { state, selectTodo, selectClient, toggleComplete, showToast, openInbox } = useStore();
+  const { state, selectTodo, selectClient, toggleComplete, showToast } = useStore();
   const { client } = row;
   const ref = useRef<HTMLDivElement>(null);
   const leaving = useRef(false);
@@ -124,7 +100,7 @@ function FormRowView({ row, cols }: { row: FormRow; cols: Cols }) {
     const id = row.todoId;
     const land = () => {
       toggleComplete(id);
-      showToast(row.reviewed ? `${client.firstName}’s form is back in the queue` : `${client.firstName}’s form marked as reviewed`);
+      showToast(row.reviewed ? `${client.firstName}’s ${row.form} is back in the queue` : `${client.firstName}’s ${row.form} marked as reviewed`);
     };
     const el = ref.current;
     if (!el || reducedMotion()) return land();
@@ -143,9 +119,6 @@ function FormRowView({ row, cols }: { row: FormRow; cols: Cols }) {
     ).onfinish = land;
   };
 
-  const long = row.waitingDays >= LONG_WAIT_DAYS;
-  const meta = [`Submitted ${formatMonthDay(parseDay(row.submittedOn))}`, row.responses ? `${ordinal(row.responses)} response` : null].filter(Boolean).join(' • ');
-
   return (
     <div
       ref={ref}
@@ -161,36 +134,16 @@ function FormRowView({ row, cols }: { row: FormRow; cols: Cols }) {
           openForm();
         }
       }}
-      className={`flex cursor-pointer items-center border-b border-line outline-none focus-visible:bg-surface-secondary ${selected ? 'bg-surface-secondary' : 'hover:bg-elevated'}`}
+      className={`flex cursor-pointer items-center border-b border-line text-[13px] leading-[18px] outline-none focus-visible:bg-surface-secondary ${
+        selected ? 'bg-surface-secondary' : 'hover:bg-elevated'
+      }`}
     >
       <ClientCell client={client} className={cols.client} />
-      <div className={`${cols.form} flex items-center gap-3 px-4 py-3`}>
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/[0.08]">
-          <img src={iconClipboard} alt="" width={14} height={15} />
-        </span>
-        <span className="flex min-w-0 flex-col">
-          <span className={`truncate text-[14px] font-semibold leading-[1.5] ${row.reviewed ? 'text-ink-secondary' : 'text-ink'}`}>{row.form}</span>
-          <span className="truncate text-[12px] leading-[1.5] text-ink-secondary">{meta}</span>
-        </span>
-      </div>
-      <div className={`${cols.review} px-4 py-3`}>
-        {row.reviewed ? (
-          <span className="inline-flex h-[21px] items-center gap-1 whitespace-nowrap rounded-full bg-status-track-bg px-2 text-[12px] font-semibold leading-[15px] text-status-track-fg">
-            Reviewed
-          </span>
-        ) : (
-          <span
-            className={`inline-flex h-[21px] items-center whitespace-nowrap rounded-full px-2 text-[12px] font-semibold leading-[15px] ${
-              long ? 'bg-status-risk-bg text-status-risk-fg' : 'bg-status-attention-bg text-status-attention-fg'
-            }`}
-          >
-            {waited(row.waitingDays)}
-          </span>
-        )}
-      </div>
-      <div className={`${cols.status} px-4 py-3`}>
-        <StatusChip status={client.status} />
-      </div>
+      {/* The Form tab's cells, word for word: name · Submitted · "3 days ago" · Not yet reviewed / Reviewed. */}
+      <span className={`${cols.form} truncate px-4 font-semibold text-ink`}>{row.form}</span>
+      <span className={`${cols.response} px-4 font-semibold text-checked`}>Submitted</span>
+      <span className={`${cols.last} px-4 text-ink`}>{daysAgo(row.submittedOn, DEMO_TODAY)}</span>
+      <span className={`${cols.coach} px-4 font-semibold ${row.reviewed ? 'text-[#059669]' : 'text-ink-muted'}`}>{row.reviewed ? 'Reviewed' : 'Not yet reviewed'}</span>
       <div className={`${cols.action} flex items-center gap-1 py-2 pl-4 pr-3`} onClick={(e) => e.stopPropagation()}>
         <button
           type="button"
@@ -205,20 +158,16 @@ function FormRowView({ row, cols }: { row: FormRow; cols: Cols }) {
             aria-label={row.reviewed ? 'Undo form review' : 'Mark form as reviewed'}
             aria-pressed={row.reviewed}
             onClick={toggle}
-            className={row.reviewed ? `${ICON_BASE} bg-checked hover:brightness-110` : `${ICON_BASE} bg-white hover:bg-surface-secondary`}
+            className={row.reviewed ? `${ICON_BASE} bg-checked hover:brightness-110` : `${ICON_BASE} bg-white hover:border-brand`}
           >
             <span className="relative size-4">
               <span className="absolute bottom-[25.73%] left-[16.64%] right-[16.67%] top-1/4">
                 <img src={row.reviewed ? iconMarkDoneChecked : iconMarkDone} alt="" className="block size-full max-w-none" />
               </span>
             </span>
-            <Tooltip label={row.reviewed ? 'Undo form review' : 'Mark form as reviewed'} />
+            <Tooltip end label={row.reviewed ? 'Undo form review' : 'Mark form as reviewed'} />
           </button>
         )}
-        <button type="button" aria-label="Send message" onClick={() => openInbox(client.id)} className={`${ICON_BASE} bg-white hover:bg-surface-secondary`}>
-          <img src={iconMessage} alt="" width={16.2} height={16.2} />
-          <Tooltip label="Send message" />
-        </button>
       </div>
     </div>
   );

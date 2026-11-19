@@ -117,11 +117,12 @@ the same change.
   profile and a thread without counting them anywhere), `DashboardView` (client list, Figma `5676:145292`), `BookingTable` (its Booking tab, `5689:514998`; a row opens Booking details, `openBookingDetails` →
   `selectedClientBooking` in the store, `BookingDetailsPanel` in `ClientDetails.tsx`: name, a labelled Send message
   and the Booking tab's two cards, nothing else, the user's call),
-  `FormReviewTable` (its Form to review tab, the user's call, no frame: one row per submitted form, `formRows` in
-  `lib/dashboard.ts`; Client · Form (name, "Submitted Aug 28 • 6th response") · Review status ("Waiting 3 days",
-  red from `LONG_WAIT_DAYS` = 7, or Reviewed) · Status · Action (Review form, ✓ Mark form as reviewed, Send message);
-  sections Waiting for review, longest wait first, and Reviewed today; a row opens the form's Respond panel and ✓
-  completes that to-do, the form review (AC3.5), so the tab's count drops while the row stays under Reviewed today),
+  `FormReviewTable` (its Form to review tab, the user's call, no frame: one row per submitted form, `formReviewRows`
+  in `lib/dashboard.ts`; the client, then the Form tab's columns (`FormStatus`, the user's call; no AI Status column):
+  Client · Form name · Response status ("Submitted") · Last submitted ("3 days ago") · Coach action ("Not yet
+  reviewed" / "Reviewed") · Action (Review form, ✓ Mark form as reviewed); sections Waiting for review, longest wait
+  first, and Reviewed today; a row opens the form's Respond panel and ✓ completes that to-do, the form review
+  (AC3.5), so the tab's count drops while the row stays under Reviewed today),
   `ClientListParts` (row shell, client cell, section header shared by the tables), `ClientActions` (the
   four 32 px quick actions, shared by the detail page and list rows), `Glyph` (Figma vector with inset/bleed), `StatusChip`, `Toast` (Figma `4805:185601`, top-right, ✕ = `hideToast`; every
   finished action shows one), `Avatar`, `CountChip`,
