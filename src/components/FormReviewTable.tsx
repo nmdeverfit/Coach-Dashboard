@@ -13,14 +13,14 @@ import { Tooltip } from './Tooltip';
 /**
  * The client list's Form to review tab (the user's call, no frame): one row per submitted form, with the columns of
  * the client detail page's Form tab (`FormStatus`) after the client: Client · Form name · Response status · Last
- * submitted · Coach action · Action (Review form, ✓ Mark form as reviewed). Sections Waiting for review (longest
+ * submitted · Coach action · Action (✓ Mark form as reviewed; a click on the row opens the form). Sections Waiting for review (longest
  * wait first) and Reviewed today. A row opens the form's Respond panel; ✓ completes that to-do, which is the form
  * review (Spec 4 AC3.5), so it never counts as a check-in review.
  */
 
-const WIDE = { client: 'w-[280px] shrink-0', form: 'min-w-0 flex-1', response: 'w-[160px] shrink-0', last: 'w-[160px] shrink-0', coach: 'w-[180px] shrink-0', action: 'w-[164px] shrink-0' };
+const WIDE = { client: 'w-[280px] shrink-0', form: 'min-w-0 flex-1', response: 'w-[160px] shrink-0', last: 'w-[160px] shrink-0', coach: 'w-[180px] shrink-0', action: 'w-[100px] shrink-0' };
 /** With the sidebar open the table loses 360 px: Client and the status columns narrow. */
-const COMPACT = { client: 'w-[220px] shrink-0', form: 'min-w-0 flex-1', response: 'w-[124px] shrink-0', last: 'w-[112px] shrink-0', coach: 'w-[136px] shrink-0', action: 'w-[164px] shrink-0' };
+const COMPACT = { client: 'w-[220px] shrink-0', form: 'min-w-0 flex-1', response: 'w-[124px] shrink-0', last: 'w-[112px] shrink-0', coach: 'w-[136px] shrink-0', action: 'w-[100px] shrink-0' };
 type Cols = typeof WIDE;
 
 export function FormReviewTable({ query }: { query: string }) {
@@ -45,7 +45,7 @@ export function FormReviewTable({ query }: { query: string }) {
         <div className={`${cols.response} px-4 py-2.5 ${HEAD}`}>Response status</div>
         <div className={`${cols.last} px-4 py-2.5 ${HEAD}`}>Last submitted</div>
         <div className={`${cols.coach} px-4 py-2.5 ${HEAD}`}>Coach action</div>
-        <div className={`${cols.action} py-2.5 pl-4 pr-3 ${HEAD}`}>Action</div>
+        <div className={`${cols.action} px-3 py-2.5 text-center ${HEAD}`}>Action</div>
       </div>
       <Section
         title="Waiting for review"
@@ -144,14 +144,7 @@ function FormRowView({ row, cols }: { row: FormRow; cols: Cols }) {
       <span className={`${cols.response} px-4 font-semibold text-checked`}>Submitted</span>
       <span className={`${cols.last} px-4 text-ink`}>{daysAgo(row.submittedOn, DEMO_TODAY)}</span>
       <span className={`${cols.coach} px-4 font-semibold ${row.reviewed ? 'text-[#059669]' : 'text-ink-muted'}`}>{row.reviewed ? 'Reviewed' : 'Not yet reviewed'}</span>
-      <div className={`${cols.action} flex items-center gap-1 py-2 pl-4 pr-3`} onClick={(e) => e.stopPropagation()}>
-        <button
-          type="button"
-          onClick={openForm}
-          className="flex h-8 items-center whitespace-nowrap rounded-md border border-black/15 bg-white px-3 text-[13px] font-semibold leading-[1.5] text-ink hover:bg-surface-secondary"
-        >
-          {row.reviewed ? 'View form' : 'Review form'}
-        </button>
+      <div className={`${cols.action} flex items-center justify-center px-3 py-2`} onClick={(e) => e.stopPropagation()}>
         {row.todoId && (
           <button
             type="button"

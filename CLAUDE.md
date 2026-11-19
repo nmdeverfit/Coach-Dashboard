@@ -120,7 +120,7 @@ the same change.
   `FormReviewTable` (its Form to review tab, the user's call, no frame: one row per submitted form, `formReviewRows`
   in `lib/dashboard.ts`; the client, then the Form tab's columns (`FormStatus`, the user's call; no AI Status column):
   Client · Form name · Response status ("Submitted") · Last submitted ("3 days ago") · Coach action ("Not yet
-  reviewed" / "Reviewed") · Action (Review form, ✓ Mark form as reviewed); sections Waiting for review, longest wait
+  reviewed" / "Reviewed") · Action (only the ✓ Mark form as reviewed, the user's call); sections Waiting for review, longest wait
   first, and Reviewed today; a row opens the form's Respond panel and ✓ completes that to-do, the form review
   (AC3.5), so the tab's count drops while the row stays under Reviewed today),
   `ClientListParts` (row shell, client cell, section header shared by the tables), `ClientActions` (the

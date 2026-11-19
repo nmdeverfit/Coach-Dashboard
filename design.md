@@ -293,11 +293,11 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
 - Actions without a built destination show a toast that says where they would go ("… opens in a new tab").
 - **Form to review tab** (the user's call, no frame): same shell as the list; one row per submitted form, not per
   client, with the client detail page's Form tab columns after the client (the user's call; no AI Status column).
-  Columns Client 280 · Form name (fills) · Response status 160 · Last submitted 160 · Coach action 180 · Action 164;
+  Columns Client 280 · Form name (fills) · Response status 160 · Last submitted 160 · Coach action 180 · Action 100;
   with the sidebar open Client 220 · 124 · 112 · 136. Cells as in the Form tab, 13 px / 18 px: name semibold ink,
   "Submitted" semibold `checked`, "3 days ago" ink, "Not yet reviewed" semibold `ink-muted` or "Reviewed" semibold
-  `#059669`. Action: a 32 px outline "Review form" ("View form" once reviewed) and the ✓ (Mark form as reviewed,
-  `checked` fill once done, toggles; its tooltip aligns right). Sections Waiting for review (longest wait first) and
+  `#059669`. Action: only the ✓, centred (Mark form as reviewed, `checked` fill once done, toggles; its tooltip
+  aligns right); Review form was dropped (the user's call), a click on the row opens the form. Sections Waiting for review (longest wait first) and
   Reviewed today; ✓ slides the row out like the list's and toasts "{First}’s {form} marked as reviewed". A row opens
   the form's Respond panel.
 - **Booking tab** (Figma `5689:514998`): same shell as the list (metric row, tabs, search; no Status dropdown).
