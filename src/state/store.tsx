@@ -23,6 +23,8 @@ export interface OllyRequest {
   todoId?: string;
   /** Draft with AI from a Client highlight row: the highlight the note is about. */
   highlightId?: string;
+  /** Draft a reminder from the Form to review tab: the overdue form the reminder is about. */
+  formName?: string;
   /** Bumped on every request, so asking again starts a fresh conversation. */
   seq: number;
 }

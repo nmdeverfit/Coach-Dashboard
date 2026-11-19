@@ -163,6 +163,7 @@ export const todoDetails: Record<string, TodoDetail> = {
     kind: 'respond',
     form: 'Weekly Check-in',
     submittedOn: '2026-08-28',
+    submittedTime: '21:14',
     responseCount: 6,
     answers: [
       { kind: 'scale', question: 'How well have you stuck to your nutrition plan this week?', min: 0, max: 5, value: 2 },
@@ -188,6 +189,7 @@ export const todoDetails: Record<string, TodoDetail> = {
     kind: 'respond',
     form: 'Weekly Check-in',
     submittedOn: '2026-08-23',
+    submittedTime: '19:40',
     responseCount: 1,
     answers: [
       { kind: 'scale', question: 'How well have you stuck to your nutrition plan this week?', min: 0, max: 5, value: 4 },
@@ -227,7 +229,7 @@ export const todoDetails: Record<string, TodoDetail> = {
     kind: 'remind',
     // Every submitted form is reviewed; an unreviewed one would raise a Respond to-do, which outranks Remind (BL3).
     forms: [
-      { name: 'Weekly Check-in', lastSubmittedOn: '2026-08-23', reviewed: true, overdueSince: '2026-08-30' },
+      { name: 'Weekly Check-in', lastSubmittedOn: '2026-08-23', submittedTime: '20:05', responseCount: 11, reviewed: true, overdueSince: '2026-08-30' },
       { name: 'Monthly Self-Reflection and Development Check-In', lastSubmittedOn: '2026-08-02', reviewed: true },
       { name: 'HOLIDAY PLANS 2025 into 2026', lastSubmittedOn: '2026-08-27', reviewed: true },
       { name: 'Weekly Check-in Nutrition', lastSubmittedOn: '2026-08-29', reviewed: true },
@@ -336,6 +338,7 @@ export const MORE_FORMS: { id: string; clientId: string; raisedOn: string; detai
       kind: 'respond',
       form: 'Weekly Check-in',
       submittedOn: '2026-08-30',
+      submittedTime: '18:25',
       responseCount: 9,
       answers: checkinAnswers({
         nutrition: 4,
@@ -356,6 +359,7 @@ export const MORE_FORMS: { id: string; clientId: string; raisedOn: string; detai
       kind: 'respond',
       form: 'Weekly Check-in',
       submittedOn: '2026-08-29',
+      submittedTime: '23:05',
       responseCount: 4,
       answers: checkinAnswers({
         nutrition: 2,
@@ -376,6 +380,7 @@ export const MORE_FORMS: { id: string; clientId: string; raisedOn: string; detai
       kind: 'respond',
       form: 'Weekly Check-in',
       submittedOn: '2026-08-28',
+      submittedTime: '07:50',
       responseCount: 12,
       answers: checkinAnswers({
         nutrition: 5,
@@ -396,6 +401,7 @@ export const MORE_FORMS: { id: string; clientId: string; raisedOn: string; detai
       kind: 'respond',
       form: 'Weekly Check-in',
       submittedOn: '2026-08-27',
+      submittedTime: '22:10',
       responseCount: 3,
       answers: checkinAnswers({
         nutrition: 3,
@@ -416,6 +422,7 @@ export const MORE_FORMS: { id: string; clientId: string; raisedOn: string; detai
       kind: 'respond',
       form: 'Monthly Progress Check-in',
       submittedOn: '2026-08-26',
+      submittedTime: '20:35',
       responseCount: 2,
       answers: checkinAnswers({
         nutrition: 3,
@@ -436,6 +443,7 @@ export const MORE_FORMS: { id: string; clientId: string; raisedOn: string; detai
       kind: 'respond',
       form: 'Weekly Check-in',
       submittedOn: '2026-08-25',
+      submittedTime: '12:45',
       responseCount: 7,
       answers: checkinAnswers({
         nutrition: 2,

@@ -4,7 +4,7 @@ import iconCompare from '../../assets/figma/icon-compare.svg';
 import dot from '../../assets/figma/dot-drawer.svg';
 import type { FormAnswer, RespondDetail } from '../../data/types';
 import { formatMonthDay, parseDay } from '../../lib/dates';
-import type { RespondView } from '../../lib/todos';
+import { time12, type RespondView } from '../../lib/todos';
 import { useStore } from '../../state/store';
 
 function Answer({ answer }: { answer: FormAnswer }) {
@@ -64,7 +64,7 @@ export function RespondBody({ detail, view, reviewed }: { detail: RespondDetail;
             </button>
             <p className="flex items-center gap-2 text-[13px] leading-normal text-ink-tertiary">
               <span>
-                Submitted at <span className="text-ink">{formatMonthDay(parseDay(detail.submittedOn))}</span>
+                Submitted at <span className="text-ink">{formatMonthDay(parseDay(detail.submittedOn))} - {time12(detail.submittedTime)}</span>
               </span>
               <img src={dot} alt="" width={4} height={4} />
               <span>{reviewed ? 'Reviewed' : 'Not reviewed'}</span>

@@ -9,6 +9,7 @@ import type { Client } from '../../data/types';
 import { buildClientAssessment } from '../../lib/client';
 import {
   draftFor,
+  formReminderDraft,
   draftTask,
   highlightDraft,
   sendTask,
@@ -302,7 +303,12 @@ export function OllyConversation({ clientId, request }: { clientId: string; requ
   const todo = state.todos.find((t) => t.id === request.todoId);
   const assessment = request.assessment ?? buildClientAssessment(client, getProfile(client.id), DEMO_TODAY);
   const highlight = highlights.find((h) => h.id === request.highlightId);
-  const draft = highlight ? highlightDraft(client, highlight, DEMO_TODAY) : draftFor(client, todo, DEMO_TODAY);
+  const reminderForm = request.formName ? getProfile(client.id).forms.find((f) => f.name === request.formName) : undefined;
+  const draft = highlight
+    ? highlightDraft(client, highlight, DEMO_TODAY)
+    : reminderForm
+      ? formReminderDraft(client, reminderForm)
+      : draftFor(client, todo, DEMO_TODAY);
   const answer = tellAnswer(client, assessment, DEMO_TODAY);
   const analysis = trainingAnalysis(client, DEMO_TODAY);
   const [text, setText] = useState(draft.text);

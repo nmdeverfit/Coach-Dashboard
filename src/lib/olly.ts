@@ -2,6 +2,7 @@ import { todoDetails } from '../data/details';
 import { getProfile } from '../data/profiles';
 import type {
   AcknowledgeDetail,
+  AssignedForm,
   BuildDetail,
   Client,
   ClientMessage,
@@ -205,6 +206,15 @@ export interface OllyDraft {
   text: string;
 }
 
+/** A nudge to submit an overdue form (Remind, AC12.4): names the form and its due date, never scolds. */
+export function formReminderDraft(client: Client, form: AssignedForm): OllyDraft {
+  const first = client.firstName;
+  return {
+    request: `Draft a message for ${client.name} to remind ${first} to submit the ${form.name} form.`,
+    text: `Hi ${first}, a quick nudge on your ${form.name} form, due ${weekdayDate(form.overdueSince!)}. It’s how I see how the week went before I plan the next one. Two minutes whenever you get a chance.`,
+  };
+}
+
 /**
  * A draft scoped to the to-do that opened it (Spec 4 AC2.2), or a plain check-in from the client page. Written from
  * the panel's own data; never quotes the client and never scolds (AC12.4).
@@ -215,13 +225,8 @@ export function draftFor(client: Client, todo: Todo | undefined, today: string):
   const ask = (purpose: string) => `Draft a message for ${name} to ${purpose}.`;
 
   switch (detail?.kind) {
-    case 'remind': {
-      const form = (detail as RemindDetail).forms.find((f) => f.overdueSince && f.overdueSince < today)!;
-      return {
-        request: ask(`remind ${first} to submit the ${form.name} form`),
-        text: `Hi ${first}, a quick nudge on your ${form.name} form, due ${weekdayDate(form.overdueSince!)}. It’s how I see how the week went before I plan the next one. Two minutes whenever you get a chance.`,
-      };
-    }
+    case 'remind':
+      return formReminderDraft(client, (detail as RemindDetail).forms.find((f) => f.overdueSince && f.overdueSince < today)!);
     case 'build': {
       const { program } = summarizeTraining((detail as BuildDetail).training, today);
       const when = program.endsInDays < 0 ? `wrapped up on ${weekdayDate(program.endsOn)}` : `ends on ${weekdayDate(program.endsOn)}`;

@@ -136,6 +136,8 @@ export interface RespondDetail {
   kind: 'respond';
   form: string;
   submittedOn: string;
+  /** Time of day it came in, "HH:MM". */
+  submittedTime: string;
   /** Responses this client has sent to the form so far; Compare response needs 2 or more (Spec 4 AC3.3). */
   responseCount: number;
   answers: FormAnswer[];
@@ -195,6 +197,10 @@ export interface AssignedForm {
   reviewed: boolean;
   /** Due date of the current period when it has passed without a submission. */
   overdueSince?: string;
+  /** Responses the client has sent to this form so far, the last one included. */
+  responseCount?: number;
+  /** Time of day of the last submission, "HH:MM". */
+  submittedTime?: string;
 }
 
 /** Raw inputs for a Remind (overdue check-in form) to-do. Its Training and Nutrition tabs ride along. */

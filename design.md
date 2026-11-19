@@ -291,15 +291,19 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "To-do has been dismissed", "{First} marked as reviewed", "Context saved
   for {First}", "Meeting added", "Cards updated", the highlight toasts. Sending a message has none (Olly and the Inbox show it).
 - Actions without a built destination show a toast that says where they would go ("… opens in a new tab").
-- **Form to review tab** (the user's call, no frame): same shell as the list; one row per submitted form, not per
-  client, with the client detail page's Form tab columns after the client (the user's call; no AI Status column).
-  Columns Client 280 · Form name (fills) · Response status 160 · Last submitted 160 · Coach action 180 · Action 100;
-  with the sidebar open Client 220 · 124 · 112 · 136. Cells as in the Form tab, 13 px / 18 px: name semibold ink,
-  "Submitted" semibold `checked`, "3 days ago" ink, "Not yet reviewed" semibold `ink-muted` or "Reviewed" semibold
-  `#059669`. Action: only the ✓, centred (Mark form as reviewed, `checked` fill once done, toggles; its tooltip
-  aligns right); Review form was dropped (the user's call), a click on the row opens the form. Sections Waiting for review (longest wait first) and
-  Reviewed today; ✓ slides the row out like the list's and toasts "{First}’s {form} marked as reviewed". A row opens
-  the form's Respond panel.
+- **Form to review tab** (the user's call, no frame): same shell as the list; one row per form, not per client, with
+  the client detail page's Form tab columns after the client (the user's call; no AI Status column). Columns Client
+  280 · Form name (fills) · Response status 150 · Last submitted 140 · Coach action 160 · Action 160; with the sidebar
+  open Client 200 · 140 · 124 · 144 · 160. Nothing wraps (`whitespace-nowrap`; the form's second line truncates).
+  Cells as in the Form tab, 13 px / 18 px: name semibold ink, then "6 responses | Latest response: Aug 28 - 9:14pm"
+  12 px `ink-secondary`; "Submitted" semibold `checked` or "Overdue" semibold `status-risk-fg`; "3 days ago" ink;
+  "Not yet reviewed" semibold `ink-muted` or "Reviewed" semibold `#059669`. Action, centred: on a form to review, the
+  32 px Compare responses icon (`icon-compare`, the panel's Compare response; only with 2 or more responses, else an
+  empty 32 px slot so the ✓ lines up) and the ✓ (Mark form as reviewed, `checked` fill once done, toggles); tooltips
+  align right. On an overdue form, the Booking tab's 28 px "Draft a reminder" (`DraftReminderButton`), opening Olly's
+  draft. Sections Waiting for review (longest wait first), Overdue and Reviewed today; ✓ slides the row out like the
+  list's and toasts "{First}’s {form} marked as reviewed". A row opens the form's panel. The Respond panel's header
+  reads "Submitted at Aug 28 - 9:14pm".
 - **Booking tab** (Figma `5689:514998`): same shell as the list (metric row, tabs, search; no Status dropdown).
   Columns Client 280 · Activity 460 (shrinks to 360 first) · Session credits (fills, at least 420) · Action 100.
   No text breaks mid-phrase (`whitespace-nowrap` on every label, badge and button). When any row's line no longer

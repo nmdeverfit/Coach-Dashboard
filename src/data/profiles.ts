@@ -199,11 +199,18 @@ function generateMessages(status: ClientStatus, rnd: () => number): ClientMessag
   return older;
 }
 
-/** The weekly check-in form, due on Sundays. At risk clients missed yesterday's. */
-function weeklyForm(status: ClientStatus): AssignedForm {
+/**
+ * The weekly check-in form, due on Sundays. At risk clients missed yesterday's. How many responses and the last one's
+ * time come from a seed of their own, so the rest of the profile keeps its figures.
+ */
+function weeklyForm(status: ClientStatus, clientId: string): AssignedForm {
+  const rnd = random(`${clientId}:form`);
+  const responseCount = 3 + Math.floor(rnd() * 12);
+  const minutes = 7 * 60 + Math.floor(rnd() * 180) * 5;
+  const submittedTime = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
   return status === 'at_risk'
-    ? { name: 'Weekly Check-in', lastSubmittedOn: addDays(LAST_SUNDAY, -7), reviewed: true, overdueSince: LAST_SUNDAY }
-    : { name: 'Weekly Check-in', lastSubmittedOn: LAST_SUNDAY, reviewed: true };
+    ? { name: 'Weekly Check-in', lastSubmittedOn: addDays(LAST_SUNDAY, -7), submittedTime, responseCount, reviewed: true, overdueSince: LAST_SUNDAY }
+    : { name: 'Weekly Check-in', lastSubmittedOn: LAST_SUNDAY, submittedTime, responseCount, reviewed: true };
 }
 
 /** Last week's tasks: the three derived ones plus one the coach assigned by hand. */
@@ -227,7 +234,7 @@ function generate(client: Client): ClientProfile {
     focus: b.log < b.train ? 'nutrition' : 'training',
     nutrition,
     training,
-    forms: [weeklyForm(status)],
+    forms: [weeklyForm(status, client.id)],
     tasks: weekTasks(rnd, b),
     habits: generateHabits(rnd, b),
     notes: generateNotes(client.id, rnd),
@@ -260,7 +267,9 @@ function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
   const t4 = todoDetails.t4 as BuildDetail;
   const t7 = todoDetails.t7 as AcknowledgeDetail;
   const t8 = todoDetails.t8 as RemindDetail;
-  const respond = (d: RespondDetail): AssignedForm[] => [{ name: d.form, lastSubmittedOn: d.submittedOn, reviewed: false }];
+  const respond = (d: RespondDetail): AssignedForm[] => [
+    { name: d.form, lastSubmittedOn: d.submittedOn, submittedTime: d.submittedTime, responseCount: d.responseCount, reviewed: false },
+  ];
   switch (client.id) {
     case 'clint-jacobi':
       return {
@@ -268,7 +277,9 @@ function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
         focus: t3.focus,
         nutrition: t3.nutrition,
         training: t3.training,
-        forms: [{ name: 'Weekly Check-in', lastSubmittedOn: '2026-08-23', reviewed: true, overdueSince: t3.context.checkinFormDueOn }],
+        forms: [
+          { name: 'Weekly Check-in', lastSubmittedOn: '2026-08-23', submittedTime: '21:30', responseCount: 8, reviewed: true, overdueSince: t3.context.checkinFormDueOn },
+        ],
         notes: withNoteDetails(client.id, [
           { title: 'Travelling for work until mid-September', at: '2026-08-21T18:25' },
           { title: 'Hotel gym only: dumbbells up to 25 kg', at: '2026-08-21T18:40' },

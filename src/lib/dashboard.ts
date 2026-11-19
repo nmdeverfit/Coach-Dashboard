@@ -152,31 +152,42 @@ export function hasFormToReview(client: Client, profile: ClientProfile, todos: T
 export interface FormRow {
   client: Client;
   form: string;
-  submittedOn: string;
-  /** The Respond to-do it raised; reviewing the form is completing it (Spec 4 AC3.5). */
+  /** `review`: submitted and waiting on the coach; `overdue`: the period's due date passed with nothing sent. */
+  kind: 'review' | 'overdue';
+  /** The last submission, if any (for an overdue form, the period before). */
+  submittedOn?: string;
+  /** "HH:MM" of the last submission. */
+  submittedTime?: string;
+  responseCount?: number;
+  /** An overdue form's due date. */
+  dueOn?: string;
+  /** The to-do it raised: Respond for a form to review (reviewing it completes the to-do, AC3.5), Remind when overdue. */
   todoId?: string;
   reviewed: boolean;
 }
 
 /**
- * The Form to review tab, one row per submitted form left unreviewed at 06:00 (as the Form tab's rows, plus the client). A form whose Respond to-do the coach
- * completed today stays, marked reviewed, so the tab shows what was done; `hasFormToReview` (the tab's count) drops it.
+ * The Form to review tab (as the Form tab's rows, plus the client): every submitted form left unreviewed at 06:00 and
+ * every form past its due date with nothing sent. A form whose Respond to-do the coach completed today stays, marked
+ * reviewed, so the tab shows what was done; `hasFormToReview` (the tab's count) drops it.
  */
-export function formReviewRows(list: Client[], todos: Todo[], formsOf: (client: Client) => ClientProfile['forms']): FormRow[] {
+export function formReviewRows(list: Client[], todos: Todo[], today: string, formsOf: (client: Client) => ClientProfile['forms']): FormRow[] {
+  const todoOf = (client: Client, type: Todo['type']) => todos.find((t) => t.clientId === client.id && t.type === type && t.state !== 'dismissed');
   return list
-    .flatMap((client) => {
-      const todo = todos.find((t) => t.clientId === client.id && t.type === 'respond' && t.state !== 'dismissed');
-      return formsOf(client)
-        .filter((f) => !f.reviewed && f.lastSubmittedOn)
-        .map<FormRow>((f) => ({
-          client,
-          form: f.name,
-          submittedOn: f.lastSubmittedOn!,
-          todoId: todo?.id,
-          reviewed: todo?.state === 'completed',
-        }));
-    })
-    .sort((a, b) => a.submittedOn.localeCompare(b.submittedOn) || a.client.name.localeCompare(b.client.name));
+    .flatMap((client) =>
+      formsOf(client).flatMap<FormRow>((f) => {
+        const base = { client, form: f.name, submittedOn: f.lastSubmittedOn, submittedTime: f.submittedTime, responseCount: f.responseCount };
+        if (f.overdueSince && f.overdueSince < today) {
+          return [{ ...base, kind: 'overdue', dueOn: f.overdueSince, todoId: todoOf(client, 'remind')?.id, reviewed: f.reviewed }];
+        }
+        if (!f.reviewed && f.lastSubmittedOn) {
+          const todo = todoOf(client, 'respond');
+          return [{ ...base, kind: 'review', todoId: todo?.id, reviewed: todo?.state === 'completed' }];
+        }
+        return [];
+      }),
+    )
+    .sort((a, b) => (a.dueOn ?? a.submittedOn ?? '').localeCompare(b.dueOn ?? b.submittedOn ?? '') || a.client.name.localeCompare(b.client.name));
 }
 
 export function inTab(tab: DashboardTab, client: Client, ctx: { formToReview: boolean; reviewed: boolean }): boolean {
