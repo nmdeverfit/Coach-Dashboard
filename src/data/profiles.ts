@@ -1,5 +1,5 @@
 import { addDays } from '../lib/checkin';
-import { dayAt, todoDetails } from './details';
+import { dayAt, MORE_FORMS, todoDetails } from './details';
 import { DEMO_TODAY, findPerson, generatedStatus } from './mock';
 import { noteBody } from './notes';
 import { dayWorkouts } from './workouts';
@@ -297,8 +297,12 @@ function fromTodoDetails(client: Client, base: ClientProfile): ClientProfile {
           { from: 'coach', at: stamp(8, 9, 20) },
         ],
       };
-    default:
-      return base;
+    default: {
+      // A form from `MORE_FORMS` is this client's latest submission, still waiting on review.
+      const more = MORE_FORMS.find((f) => f.clientId === client.id);
+      // Another form joins the client's Weekly Check-in; a Weekly Check-in replaces it.
+      return more ? { ...base, forms: [...base.forms.filter((f) => f.name !== more.detail.form), ...respond(more.detail)] } : base;
+    }
   }
 }
 

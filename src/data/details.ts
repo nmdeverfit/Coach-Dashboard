@@ -1,4 +1,4 @@
-import type { FoodEntry, MealKey, NutritionLog, SessionType, TodoDetail, TrainingDay } from './types';
+import type { FoodEntry, FormAnswer, MealKey, NutritionLog, RespondDetail, SessionType, TodoDetail, TrainingDay } from './types';
 import { dayWorkouts } from './workouts';
 
 /** Nothing assigned that day (no calendar entry at all). */
@@ -296,3 +296,158 @@ export const todoDetails: Record<string, TodoDetail> = {
     },
   },
 };
+
+/** The Weekly Check-in's questions (as on Sidney's and Jenny's forms), answered in order. */
+function checkinAnswers(a: {
+  nutrition: number;
+  why: string;
+  water: string;
+  sleep: number;
+  training: string;
+  energy: string;
+  stress: number;
+}): FormAnswer[] {
+  return [
+    { kind: 'scale', question: 'How well have you stuck to your nutrition plan this week?', min: 0, max: 5, value: a.nutrition },
+    {
+      kind: 'text',
+      question: 'If answer was not a 5, explain what was not on track and consider why! Help me understand what happened so I can help!',
+      answer: a.why,
+    },
+    { kind: 'choice', question: 'How is your water intake?', selected: [a.water] },
+    { kind: 'scale', question: 'How is your sleep?', min: 0, max: 5, value: a.sleep },
+    { kind: 'text', question: 'What is your training like? How is your energy during your workouts or physical activity?', answer: a.training },
+    { kind: 'text', question: 'How are your energy levels and motivation?', answer: a.energy },
+    { kind: 'scale', question: 'How is your stress level?', min: 0, max: 5, value: a.stress },
+  ];
+}
+
+/**
+ * More forms waiting on review (the user's call, so the Form to review tab has a queue). Each raised a Respond to-do
+ * at the first morning generation after it came in (BL7): Sam's today, the rest on earlier days and carried into
+ * Previous to-dos. None of these clients has another to-do, so each keeps one row (BL3).
+ */
+export const MORE_FORMS: { id: string; clientId: string; raisedOn: string; detail: RespondDetail }[] = [
+  {
+    id: 't9',
+    clientId: 'sam-rivera',
+    raisedOn: '2026-08-31',
+    detail: {
+      kind: 'respond',
+      form: 'Weekly Check-in',
+      submittedOn: '2026-08-30',
+      responseCount: 9,
+      answers: checkinAnswers({
+        nutrition: 4,
+        why: 'Saturday was a family barbecue, so one big meal. Back on plan on Sunday.',
+        water: 'Great, hitting my goal',
+        sleep: 4,
+        training: 'All four sessions done. Bench felt heavy on Thursday but the rest moved well.',
+        energy: 'Good, keen to keep the streak going.',
+        stress: 2,
+      }),
+    },
+  },
+  {
+    id: 'p4',
+    clientId: 'nora-fields',
+    raisedOn: '2026-08-30',
+    detail: {
+      kind: 'respond',
+      form: 'Weekly Check-in',
+      submittedOn: '2026-08-29',
+      responseCount: 4,
+      answers: checkinAnswers({
+        nutrition: 2,
+        why: 'Late shifts all week, so I skipped breakfast and grabbed whatever was at work for dinner.',
+        water: 'Low, I keep forgetting',
+        sleep: 2,
+        training: 'Only made two sessions. Felt sluggish in both.',
+        energy: 'Low this week, hoping the rota is better next week.',
+        stress: 4,
+      }),
+    },
+  },
+  {
+    id: 'p5',
+    clientId: 'ryan-ford',
+    raisedOn: '2026-08-29',
+    detail: {
+      kind: 'respond',
+      form: 'Weekly Check-in',
+      submittedOn: '2026-08-28',
+      responseCount: 12,
+      answers: checkinAnswers({
+        nutrition: 5,
+        why: 'Nothing to report, meal prep on Sunday made it easy.',
+        water: 'Great, hitting my goal',
+        sleep: 4,
+        training: 'Strong week. Hit every session and the long run felt easy.',
+        energy: 'High, would like to talk about the next block.',
+        stress: 1,
+      }),
+    },
+  },
+  {
+    id: 'p6',
+    clientId: 'hana-sato',
+    raisedOn: '2026-08-28',
+    detail: {
+      kind: 'respond',
+      form: 'Weekly Check-in',
+      submittedOn: '2026-08-27',
+      responseCount: 3,
+      answers: checkinAnswers({
+        nutrition: 3,
+        why: 'Snacking in the evenings when I work late. Lunches were fine.',
+        water: 'Good, working on being better',
+        sleep: 3,
+        training: 'Three of four sessions. Missed Friday because of a work deadline.',
+        energy: 'Okay, a bit tired by the end of the week.',
+        stress: 3,
+      }),
+    },
+  },
+  {
+    id: 'p7',
+    clientId: 'chloe-martin',
+    raisedOn: '2026-08-27',
+    detail: {
+      kind: 'respond',
+      form: 'Monthly Progress Check-in',
+      submittedOn: '2026-08-26',
+      responseCount: 2,
+      answers: checkinAnswers({
+        nutrition: 3,
+        why: 'Good weekdays, weekends are still hard with the kids’ activities.',
+        water: 'Good, working on being better',
+        sleep: 3,
+        training: 'Consistent in the first half of the month, then dropped off for a week.',
+        energy: 'Motivated again now that school has started.',
+        stress: 3,
+      }),
+    },
+  },
+  {
+    id: 'p8',
+    clientId: 'grace-adams',
+    raisedOn: '2026-08-26',
+    detail: {
+      kind: 'respond',
+      form: 'Weekly Check-in',
+      submittedOn: '2026-08-25',
+      responseCount: 7,
+      answers: checkinAnswers({
+        nutrition: 2,
+        why: 'Travelled for a wedding and ate out every meal for three days.',
+        water: 'Low, I keep forgetting',
+        sleep: 3,
+        training: 'Did hotel workouts twice. Nothing heavy.',
+        energy: 'Ready to get back into routine.',
+        stress: 2,
+      }),
+    },
+  },
+];
+for (const f of MORE_FORMS) todoDetails[f.id] = f.detail;
+

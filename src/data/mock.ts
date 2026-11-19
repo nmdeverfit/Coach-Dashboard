@@ -1,7 +1,7 @@
 import { buildPrepareView, rowReasonFor } from '../lib/todos';
 import { getSessions } from './sessions';
 import { summarizeTraining } from '../lib/training';
-import { todoDetails } from './details';
+import { MORE_FORMS, todoDetails } from './details';
 import type { CheckinDetail, Client, ClientStatus, Highlight, Todo } from './types';
 
 /** Demo "today": the design's brief is dated Monday Aug 31. */
@@ -130,9 +130,23 @@ export const clients: Client[] = seeds.map(({ slug, ...rest }) => ({
 
 type TodoSeed = Omit<Todo, 'reason'> & { reason?: string };
 
+/** The Respond to-dos `MORE_FORMS` raised: today's (Suggested) or carried from earlier mornings (Previous). */
+function moreForms(today: boolean): TodoSeed[] {
+  return MORE_FORMS.filter((f) => (f.raisedOn === DEMO_TODAY) === today).map((f) => ({
+    id: f.id,
+    clientId: f.clientId,
+    type: 'respond',
+    action: 'Reply to',
+    raisedOn: f.raisedOn,
+    state: 'open',
+  }));
+}
+
 const todoSeeds: TodoSeed[] = [
   // Suggested (raised by today's generation), in ranked order
   { id: 't2', clientId: 'sidney-goyette-kihn', type: 'respond', action: 'Reply to', raisedOn: DEMO_TODAY, state: 'open' },
+  // More forms waiting on review (`MORE_FORMS` in details.ts): today's in Suggested, the rest carried below.
+  ...moreForms(true),
   { id: 't3', clientId: 'clint-jacobi', type: 'checkin', action: 'Check in with', raisedOn: DEMO_TODAY, state: 'open' },
   { id: 't4', clientId: 'glen-johnson', type: 'build', action: 'Assign a new program to', raisedOn: DEMO_TODAY, state: 'open' },
   // Remind ranks below Build and above Unblock (Spec 4 BL3).
@@ -146,6 +160,7 @@ const todoSeeds: TodoSeed[] = [
   { id: 'p1', clientId: 'aima-ansari', type: 'checkin', action: 'Check in with', reason: 'No app activity, no workouts and no reply in 15 days.', raisedOn: '2026-08-30', state: 'open' },
   { id: 'p2', clientId: 'cody-fisher', type: 'kudos', action: 'Kudos to', reason: 'Cody was at risk for two weeks and is back on track.', raisedOn: '2026-08-27', state: 'open' },
   { id: 'p3', clientId: 'jenny-wilson', type: 'respond', action: 'Reply to', raisedOn: '2026-08-26', state: 'open' },
+  ...moreForms(false),
 ];
 
 const firstNameOf = (id: string) => clients.find((c) => c.id === id)!.firstName;

@@ -36,6 +36,12 @@ the same change.
   `t8` Remind (Leo's assigned forms + training + nutrition), `t5` Unblock (credit batches), `t6` Prepare (bookings).
   `t7` Acknowledge (Darrell's nutrition log + training), a Phase 2 type trialled at the user's request. Kudos (Cody)
   and Aima's carried Check-in have none and open a placeholder panel.
+  `MORE_FORMS` (the user's call, so the Form to review tab has a queue) adds six more Respond to-dos with their
+  form answers (`checkinAnswers`): Sam Rivera's (`t9`, submitted Sun 30 Aug, today's Suggested, after Sidney's) and
+  five carried in Previous, each raised the morning after its form came in: Nora Fields `p4` (Aug 29), Ryan Ford `p5`
+  (Aug 28), Hana Sato `p6` (Aug 27), Chloe Martin `p7` (a Monthly Progress Check-in, Aug 26, beside her reviewed Weekly
+  Check-in) and Grace Adams `p8` (Aug 25). None of them has another to-do; their profiles read the same forms, so the
+  tab, the Form tab and the panels agree (8 forms waiting).
 - `src/data/profiles.ts`: `getProfile(clientId)` gives every client a `ClientProfile` (focus, nutrition, training,
   forms, tasks, habits, notes, messages) for the client detail page and all six data tabs. Clients with to-do data reuse it
   (Clint t3, Glen t4, Leo t8, Darrell t7, the Respond forms; Aima goes silent for 15 days to match her row); the rest
