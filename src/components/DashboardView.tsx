@@ -17,6 +17,7 @@ import { AiPill } from './AiPill';
 import { BookingTable } from './BookingTable';
 import { ClientActions } from './ClientActions';
 import { ClientCell, HEAD, reducedMotion, rowProps, SectionHeader } from './ClientListParts';
+import { FormReviewTable } from './FormReviewTable';
 import { AI_GRADIENT } from './drawer/AiAssessment';
 import { Glyph } from './Glyph';
 import { METRICS } from './metrics';
@@ -133,6 +134,8 @@ export function DashboardView() {
         <SearchAndFilters query={query} onQuery={setQuery} booking={state.dashboardTab === 'booking'} />
         {state.dashboardTab === 'booking' ? (
           <BookingTable query={q} />
+        ) : state.dashboardTab === 'form_review' ? (
+          <FormReviewTable query={q} />
         ) : (
         <div className="flex flex-col gap-2">
           <TableHeader />

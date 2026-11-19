@@ -291,6 +291,15 @@ Sessions cards use `border-ink/10` with a `#f9fafa` well, as drawn.
   "To-do has been dismissed", "{First} marked as reviewed", "Context saved
   for {First}", "Meeting added", "Cards updated", the highlight toasts. Sending a message has none (Olly and the Inbox show it).
 - Actions without a built destination show a toast that says where they would go ("… opens in a new tab").
+- **Form to review tab** (the user's call, no frame): same shell as the list; one row per submitted form, not per
+  client. Columns Client 280 · Form (fills) · Review status 200 · Status 180 (AI gradient + pill, the client's chip
+  only) · Action 208; with the sidebar open Client 220 · Review status 150 · Status 140. Form: 36 px `brand/[0.08]`
+  tile with the clipboard, the form name 14 px semibold (`ink-secondary` once reviewed), then "Submitted Aug 28 • 6th
+  response" 12 px `ink-secondary`. Review status is a 21 px pill like the status chip: "Waiting N days" in the Needs
+  attention colours, in the At risk colours from 7 days, "Reviewed" in the On track colours. Action: a 32 px outline
+  "Review form" ("View form" once reviewed), the ✓ (Mark form as reviewed, `checked` fill once done, toggles) and
+  Send message. Sections Waiting for review (longest wait first) and Reviewed today; ✓ slides the row out like the
+  list's and toasts "{First}’s form marked as reviewed". A row opens the form's Respond panel.
 - **Booking tab** (Figma `5689:514998`): same shell as the list (metric row, tabs, search; no Status dropdown).
   Columns Client 280 · Activity 460 (shrinks to 360 first) · Session credits (fills, at least 420) · Action 100.
   No text breaks mid-phrase (`whitespace-nowrap` on every label, badge and button). When any row's line no longer

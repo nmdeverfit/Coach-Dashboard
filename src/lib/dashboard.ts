@@ -148,6 +148,49 @@ export function hasFormToReview(client: Client, profile: ClientProfile, todos: T
   return !done && profile.forms.some((f) => !f.reviewed && f.lastSubmittedOn);
 }
 
+/** One submitted form on the Form to review tab: whose, which, when, and whether the coach has reviewed it today. */
+export interface FormRow {
+  client: Client;
+  form: string;
+  submittedOn: string;
+  /** Days since it came in, counted to today. */
+  waitingDays: number;
+  /** The client's responses to this form so far, when the Respond panel has them. */
+  responses?: number;
+  /** The Respond to-do it raised; reviewing the form is completing it (Spec 4 AC3.5). */
+  todoId?: string;
+  reviewed: boolean;
+}
+
+/**
+ * The Form to review tab, one row per submitted form left unreviewed at 06:00. A form whose Respond to-do the coach
+ * completed today stays, marked reviewed, so the tab shows what was done; `hasFormToReview` (the tab's count) drops it.
+ */
+export function formRows(
+  list: Client[],
+  todos: Todo[],
+  today: string,
+  formsOf: (client: Client) => ClientProfile['forms'],
+  responsesOf: (todoId: string) => number | undefined,
+): FormRow[] {
+  return list
+    .flatMap((client) => {
+      const todo = todos.find((t) => t.clientId === client.id && t.type === 'respond' && t.state !== 'dismissed');
+      return formsOf(client)
+        .filter((f) => !f.reviewed && f.lastSubmittedOn)
+        .map<FormRow>((f) => ({
+          client,
+          form: f.name,
+          submittedOn: f.lastSubmittedOn!,
+          waitingDays: daysBetween(f.lastSubmittedOn!, today),
+          responses: todo ? responsesOf(todo.id) : undefined,
+          todoId: todo?.id,
+          reviewed: todo?.state === 'completed',
+        }));
+    })
+    .sort((a, b) => a.submittedOn.localeCompare(b.submittedOn) || a.client.name.localeCompare(b.client.name));
+}
+
 export function inTab(tab: DashboardTab, client: Client, ctx: { formToReview: boolean; reviewed: boolean }): boolean {
   switch (tab) {
     case 'all':
